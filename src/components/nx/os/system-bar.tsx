@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  Activity, ArrowLeft, BatteryMedium, Bell, BellRing, ChevronDown, LockKeyhole, LogOut,
+  Activity, ArrowLeft, BatteryMedium, Bell, BellRing, ChevronDown, Grid2x2, LockKeyhole, LogOut,
   Moon, Settings, UserRound, Wifi, WifiOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -55,6 +55,8 @@ export function NxSystemBar({ user, alertCount, offline, onSignOut }: {
         </span>
         <span className="nx-display hidden text-[13.5px] sm:block">Hospital OS</span>
       </button>
+
+      <NexuraProductSwitcher />
 
       {/* focused app context */}
       <div className="hidden min-w-0 items-center gap-2 md:flex">
@@ -281,6 +283,75 @@ function UserChip({ user, onSignOut }: { user: BarUser; onSignOut: () => void })
               <ArrowLeft className="h-3 w-3" /> nexura.health homepage
             </Link>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+/* ============================================================
+   NEXURA OS PLATFORM — product switcher
+   Hospital OS as a first-class product inside the Nexura OS
+   ecosystem: switch to the marketing site, patient portal,
+   pharmacy, clinic suite or global network console.
+   ============================================================ */
+
+const NEXURA_PRODUCTS = [
+  { href: "/", label: "Nexura OS Home", desc: "Platform overview", external: false },
+  { href: "/connect", label: "Nexura Connect", desc: "Teleconsult & patient chat", external: false },
+  { href: "/portal", label: "Patient Portal", desc: "Records, reports, family", external: false },
+  { href: "/pharmacy", label: "Pharmacia", desc: "Retail pharmacy OS", external: false },
+  { href: "/clinic", label: "Clinic Suite", desc: "OPD clinics", external: false },
+  { href: "/global", label: "Global Network", desc: "Multi-hospital console", external: false },
+];
+
+function NexuraProductSwitcher() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener("pointerdown", close);
+    return () => window.removeEventListener("pointerdown", close);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        className="nx-bar-item text-ink-3"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Switch Nexura product"
+        title="Nexura OS products"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Grid2x2 className="h-3.5 w-3.5" />
+        <ChevronDown className="h-3 w-3 opacity-60" />
+      </button>
+      {open && (
+        <div className="nx-pop left-1.5 top-[calc(100%+6px)] w-[min(300px,calc(100vw-16px))] p-1.5" role="menu" aria-label="Nexura products">
+          <p className="px-2.5 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-4">Nexura OS · products</p>
+          {NEXURA_PRODUCTS.map((p) => (
+            <a
+              key={p.href}
+              href={p.href}
+              role="menuitem"
+              className="flex items-center justify-between rounded-xl px-2.5 py-2 transition hover:bg-inset"
+              onClick={() => setOpen(false)}
+            >
+              <span>
+                <span className="block text-[12.5px] font-medium text-ink">{p.label}</span>
+                <span className="block text-[10.5px] text-ink-4">{p.desc}</span>
+              </span>
+              <ArrowLeft className="h-3.5 w-3.5 rotate-180 text-ink-4" />
+            </a>
+          ))}
+          <p className="border-t border-line px-2.5 pb-1 pt-2 text-[10px] leading-relaxed text-ink-4">
+            Unified identity · shared notifications · audit across products
+          </p>
         </div>
       )}
     </div>

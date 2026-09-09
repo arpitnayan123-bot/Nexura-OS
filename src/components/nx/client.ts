@@ -128,6 +128,7 @@ export function useNxStream(opts?: { onEvent?: (ev: NxStreamEvent) => void; enab
           }
           setLastSyncedAt(ev.at ?? new Date().toISOString());
           handler.current?.(ev);
+          window.dispatchEvent(new CustomEvent("nx-live-event", { detail: ev }));
         } catch { /* noop */ }
       });
       es.onerror = () => {

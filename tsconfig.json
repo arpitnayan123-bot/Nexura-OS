@@ -38,6 +38,8 @@
   ],
   "exclude": [
     "node_modules",
-    "upload"
+    "upload",
+    "tests/e2e",
+    "playwright.config.ts"
   ]
 }
