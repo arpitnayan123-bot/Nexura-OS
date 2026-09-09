@@ -2330,3 +2330,22 @@ Stage Summary:
 - 22 registered apps (20 clinical + files/console/settings system apps); all previous functionality, RBAC, audit, AI untouched
 - Files: +6 new in src/components/nx/os/ (boot, lock, switcher, ctx, calendar-pop, files-app, console-app), rewrites: nx-app, wm, system-bar, store, palette, quick-settings, settings-app, registry, nx-login; CSS +238 lines
 - Screenshots download/os3-*.png; demo logins unchanged (PIN 2468); lock PIN = 2468
+
+---
+Task ID: 6
+Agent: Super Z (main agent)
+Task: Restore workspace from uploaded backup zip, preview it, and commit
+
+Work Log:
+- Extracted workspace-720f68c4-b03c-4501-a3cb-df5292b3581d.zip into /home/z/my-project (excluded download/* to preserve live copies, then zip's own download/ PNGs were restored via full extract; upload/ kept out of git by .gitignore)
+- bun install: 843 packages OK; prisma generate OK against db/custom.db (schema: 40+ models, sqlite)
+- Started dev server (next dev -p 3000, detached via setsid); homepage 200 in ~2s
+- Route sweep all 200: /hospital /connect /pharmacy /clinic /portal /global /investors /compliance /api/health-stats
+- /api/nx/* unauthenticated -> 401 as designed; POST /api/nx/auth {staffCode:DR.RAJESH,pin:2468} -> session cookie + 14 doctor modules; /api/nx/beds & /api/nx/patients return live seeded data (overview correctly forbidden for doctor role)
+- Browser-verified: boot splash ("Hospital OS / Nexura v3 Meridian") -> login renders ambient scene + 8 demo identities -> signed in as Doctor -> full desktop: system bar (workspace pills, wifi/battery, bell badge, clock, user chip), Doctor Workspace window (Panel 8, Tasks 6/2 critical, risk-sorted patients with vitals + Penicillin allergy flag), dock with running dots, widgets behind window; marketing homepage renders clean; zero page errors
+- Removed stale .zscripts/dev.pid; git add -A (workspace .gitignore excludes node_modules/.next/logs/db/*.db/upload) -> commit a4894ae "Restore Nexura Health OS workspace from backup" (410 files), tree clean
+
+Stage Summary:
+- Workspace fully restored, preview verified end-to-end, committed as a4894ae on main
+- Demo logins unchanged (PIN 2468); db/custom.db intentionally gitignored (workspace convention) — reseed if needed
+- Screenshots: download/restore-home.png, restore-login.png, restore-desktop2.png, restore-site.png
