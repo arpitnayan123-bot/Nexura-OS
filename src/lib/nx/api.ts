@@ -167,6 +167,16 @@ export function rateLimit(
   return { allowed: entry.count <= max, remaining: Math.max(0, max - entry.count), resetAt: entry.resetTime };
 }
 
+/** Inspect a rate-limit bucket WITHOUT consuming a slot (used to gate before processing). */
+export function peekRateLimit(identifier: string, max: number, windowMs: number): RateResult {
+  const now = Date.now();
+  const entry = buckets.get(identifier);
+  if (!entry || entry.resetTime < now) {
+    return { allowed: true, remaining: max, resetAt: now + windowMs };
+  }
+  return { allowed: entry.count <= max, remaining: Math.max(0, max - entry.count), resetAt: entry.resetTime };
+}
+
 /* ---------- Idempotency for important writes ---------- */
 export async function withIdempotency<T>(
   req: NextRequest,

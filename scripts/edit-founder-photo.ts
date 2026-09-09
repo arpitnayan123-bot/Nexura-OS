@@ -13,7 +13,7 @@ async function main() {
   
   const response = await zai.images.generations.edit({
     prompt: "Professional portrait photo of a young Indian man wearing glasses and a purple suit jacket. Remove the entire background completely and replace with pure solid white background. Keep the person, their clothing, glasses, and pose exactly the same. Maintain natural lighting on the person. Clean, professional headshot on white background.",
-    images: [{ url: dataUrl }],
+    image: dataUrl,
     size: "768x1344",
   });
   

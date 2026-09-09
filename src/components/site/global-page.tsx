@@ -25,7 +25,6 @@ import {
   Globe2,
   Heart,
   HeartPulse,
-  Languages,
   Loader2,
   Lock,
   Mail,
@@ -298,7 +297,7 @@ const FALLBACK_COST_ROWS: CostRow[] = [
 ];
 
 /* ============================================================
-   i18n — minimal dictionary (EN / AR)
+   i18n — English-only site copy
    ============================================================ */
 const I18N = {
   en: {
@@ -360,66 +359,6 @@ const I18N = {
     footerContact: "International Desk",
     footerCompliance: "Compliance & Trust",
     rights: "All rights reserved.",
-  },
-  ar: {
-    navHospitals: "المستشفيات",
-    navCost: "مقارنة الأسعار",
-    navHow: "كيف نعمل",
-    navStories: "قصص المرضى",
-    navContact: "تواصل",
-    navCta: "احصل على تقدير مجاني",
-    heroBadge: "موثوق من أكثر من 500 ألف مريض دولي",
-    heroTitle1: "أكثر مستشفيات الهند موثوقية.",
-    heroTitle2: "أسعار شفافة. رعاية متخصصة.",
-    heroSub:
-      "خط لرحلتك الطبية إلى الهند بثقة — مستشفيات معتمدة NABH و JCI، أسعار شفافة بالدولار، منسقون ناطقون بالعربية، وضمان تقدير تكلفة خلال 24 ساعة.",
-    searchPlaceholder: "ابحث عن إجراء أو حالة (مثل جراحة القلب، أطفال الأنابيب)",
-    countryLabel: "بلدك",
-    countryPlaceholder: "اختر البلد",
-    searchBtn: "ابحث عن مستشفى",
-    stat1: "مرضى دوليون (2025)",
-    stat2: "وفورات مقارنة بالولايات المتحدة / المملكة المتحدة",
-    stat3: "مستشفيات معتمدة من NABH",
-    catTitle: "استكشف حسب فئة الإجراء",
-    catSub: "اضغط على تخصص لتصفية دليل المستشفيات أدناه.",
-    catExplore: "استكشف",
-    hospTitle: "دليل المستشفيات الموثقة",
-    hospSub: "كل مستشفى على Nexura OS Global معتمد من NABH وجاهز لاستقبال المرضى الدوليين.",
-    nabhBadge: "NABH",
-    jciBadge: "JCI",
-    from: "من",
-    getEstimate: "احصل على تقدير مجاني",
-    noHospitals: "لا توجد مستشفيات تطابق هذا التصفية بعد. جرّب فئة إجراء أخرى.",
-    costTitle: "مقارنة تكلفة شفافة",
-    costSub: "جميع الأسعار بالدولار الأمريكي. تشمل عمود الهند رسوم الجراح والإقامة والتخدير والرعاية بعد الجراحة.",
-    costProcedure: "الإجراء",
-    costIndia: "الهند (Nexura)",
-    costUsa: "الولايات المتحدة",
-    costUk: "المملكة المتحدة",
-    costUae: "الإمارات",
-    saveBadge: "وفّر حتى 90٪",
-    howTitle: "كيف نعمل",
-    howSub: "من أول استفسار حتى الوصول إلى الهند للعلاج — أربع خطوات هادئة ومنسقة بعناية.",
-    step1Title: "أرسل استفسارك",
-    step1Desc: "مجاني وبدون التزام. شارك حالتك وسجلاتك الطبية والإجراء المهتم به.",
-    step2Title: "استلم تقدير التكلفة",
-    step2Desc: "خلال 24 ساعة، يرسل منسقونا تقديراً شفافاً بالدولار مع خيارات المستشفيات.",
-    step3Title: "استشارة فيديو قبل السفر",
-    step3Desc: "قابل طبيبك المعالج عبر الفيديو قبل السفر. اطرح كل سؤال.",
-    step4Title: "صل للعلاج",
-    step4Desc: "تأشيرة، استقبال المطار، إقامة، مترجم — كل شيء مرتب. ركّز على الشفاء.",
-    step1Badge: "مجاني",
-    step2Badge: "24 ساعة",
-    step3Badge: "فيديو",
-    step4Badge: "كل شيء مرتب",
-    storiesTitle: "قصص مرضى موثقة",
-    storiesSub: "نتائج حقيقية من مرضى دوليين حقيقيين اختاروا الهند عبر Nexura OS Global.",
-    verified: "مريض موثق",
-    footerAbout: "Nexura OS Global هو مكتب المرضى الدوليين لشبكة مستشفيات الهند المعتمدة من NABH و JCI.",
-    footerQuick: "روابط سريعة",
-    footerContact: "المكتب الدولي",
-    footerCompliance: "الامتثال والثقة",
-    rights: "جميع الحقوق محفوظة.",
   },
 };
 
@@ -488,9 +427,7 @@ function Stars({ rating, className = "" }: { rating: number; className?: string 
    MAIN COMPONENT
    ============================================================ */
 export function GlobalPage() {
-  const [lang, setLang] = useState<"en" | "ar">("en");
-  const t = I18N[lang];
-  const isRTL = lang === "ar";
+  const t = I18N.en;
 
   // search & filter state
   const [searchQuery, setSearchQuery] = useState("");
@@ -651,15 +588,10 @@ export function GlobalPage() {
   );
 
   return (
-    <div
-      dir={isRTL ? "rtl" : "ltr"}
-      className="relative min-h-screen bg-white font-sans text-slate-900 antialiased"
-    >
+    <div className="relative min-h-screen bg-white font-sans text-slate-900 antialiased">
       {/* ============== TOP NAV ============== */}
       <TopNav
         t={t}
-        lang={lang}
-        setLang={setLang}
         onCta={() => openInquiry(hospitals[0])}
         mobileNavOpen={mobileNavOpen}
         setMobileNavOpen={setMobileNavOpen}
@@ -735,15 +667,11 @@ export function GlobalPage() {
    ============================================================ */
 function TopNav({
   t,
-  lang,
-  setLang,
   onCta,
   mobileNavOpen,
   setMobileNavOpen,
 }: {
   t: typeof I18N["en"];
-  lang: "en" | "ar";
-  setLang: (l: "en" | "ar") => void;
   onCta: () => void;
   mobileNavOpen: boolean;
   setMobileNavOpen: (b: boolean) => void;
@@ -800,9 +728,8 @@ function TopNav({
           ))}
         </nav>
 
-        {/* Right: language + CTA */}
+        {/* Right: CTA */}
         <div className="flex items-center gap-3">
-          <LanguageToggle lang={lang} setLang={setLang} />
           <button
             onClick={onCta}
             className="hidden rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md transition-transform hover:scale-[1.03] sm:block"
@@ -857,33 +784,6 @@ function TopNav({
         )}
       </AnimatePresence>
     </header>
-  );
-}
-
-function LanguageToggle({
-  lang,
-  setLang,
-}: {
-  lang: "en" | "ar";
-  setLang: (l: "en" | "ar") => void;
-}) {
-  return (
-    <div className="flex items-center rounded-full border border-slate-200 bg-white p-0.5 shadow-sm">
-      <Languages className="mx-1.5 h-3.5 w-3.5 text-slate-400" />
-      {(["en", "ar"] as const).map((l) => (
-        <button
-          key={l}
-          onClick={() => setLang(l)}
-          className={`rounded-full px-2.5 py-1 text-xs font-bold transition-all ${
-            lang === l ? "text-white shadow-sm" : "text-slate-500 hover:text-slate-800"
-          }`}
-          style={lang === l ? { background: NAVY } : {}}
-          aria-pressed={lang === l}
-        >
-          {l.toUpperCase()}
-        </button>
-      ))}
-    </div>
   );
 }
 

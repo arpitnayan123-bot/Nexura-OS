@@ -191,7 +191,7 @@ export const POST = withRoute("tasks.create", async (req: NextRequest) => {
 
   await audit({ hospitalId, actorName: g.session.staffCode ?? g.session.name, actorRole: g.session.role, action: "task.create", entityType: "nx_task", entityId: task.id, patientId: task.patientId ?? undefined });
   publish({ event: "task.created", hospitalId, toRoles: ["command", "nurse", "doctor", "admin", "hospital_admin", "dept_admin"], data: { id: task.id, title: task.title, priority: task.priority } });
-  return NextResponse.json({ task }, { status: 201 });
+  return NextResponse.json({ data: { task }, task }, { status: 201 }); // dual envelope: legacy top-level + standard data
 });
 
 export const PATCH = withRoute("tasks.update", async (req: NextRequest) => {
@@ -211,7 +211,7 @@ export const PATCH = withRoute("tasks.update", async (req: NextRequest) => {
     const c = await db.nxTaskComment.create({
       data: { taskId: task.id, authorName: g.session.name, authorRole: g.session.role, body: d.comment },
     });
-    return NextResponse.json({ comment: c });
+    return NextResponse.json({ data: { comment: c }, comment: c });
   }
 
   const data: Record<string, unknown> = {};
@@ -284,7 +284,7 @@ export const PATCH = withRoute("tasks.update", async (req: NextRequest) => {
     detail: { from, to: d.status ?? from, note: d.completionNote ?? d.waitingReason ?? d.blockedReason ?? undefined },
   });
   publish({ event: "task.updated", hospitalId, toRoles: ["command", "nurse", "doctor", "admin", "hospital_admin", "dept_admin"], data: { id: task.id, status: data.status ?? from, title: task.title } });
-  return NextResponse.json({ task: updated });
+  return NextResponse.json({ data: { task: updated }, task: updated }); // dual envelope
 });
 
 export const PUT = withRoute("tasks.bulk", async (req: NextRequest) => {

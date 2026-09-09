@@ -2373,3 +2373,25 @@ Stage Summary:
 - Demo: password Demo@12345 / PIN 2468, full table in docs/DEMO_CREDENTIALS.md
 - Explicit integration placeholders (not fakes): email transport, remote Nexura adapters, malware scan, webhook dispatcher, reminders cron, Redis for multi-replica SSE/rate-limit, SSO
 - Remaining production blockers (documented): Postgres migration decision, JWT_SECRET rotation, DEMO_MODE=false, SMTP wire-up, backups schedule, pen-test/compliance sign-off
+
+---
+
+Task ID: fix-1 (English-only + preview fixes)
+Agent: Super Z (main)
+Task: Keep everything in English; make the preview work; fix all issues found.
+
+Work Log:
+- Removed the EN/AR i18n system from src/components/site/global-page.tsx (deleted Arabic dictionary, language toggle, RTL logic; site is now English-only; ~108 lines removed).
+- Repo-wide scan confirmed zero non-Latin script remains in src/, prisma/, scripts/, docs/.
+- Fixed src/components/nx/client.ts react-hooks/refs lint error (ref now updated inside useEffect).
+- Fixed scripts/edit-founder-photo.ts SDK param (images -> image).
+- Archived dead legacy seeds (referencing removed Prisma models) to scripts/legacy/ and excluded scripts/legacy, examples, skills from tsconfig -> npx tsc --noEmit now reports 0 errors.
+- Auth: switched IP rate limit to failure-only (peekRateLimit added in src/lib/nx/api.ts); successful demo sign-ins no longer count toward the 20/10min cap -> smoke suite no longer flakes between runs.
+- Tasks API: added dual envelope ({data:{task}} + legacy top-level) to POST/PATCH/comment responses; all 29 API smoke checks now pass (was 25).
+- Verified live: all 14 routes 200; email+password login OK; staffCode+PIN OK; billing payment + idempotent replay OK; RBAC 403s correct (command role lacks billing.manage by design).
+- Browser-verified (agent-browser 1440x900): homepage, /connect, /global, Hospital OS boot -> login -> Command Center -> Work Queue all render perfectly with live data; zero page errors.
+- Restarted dev server with double-fork detach after sandbox reaped the old process.
+
+Stage Summary:
+- tsc 0 errors / eslint clean / vitest 39-39 / api-smoke 29-29 (x2 consecutive runs).
+- All changes committed in this repo state; dev server stable on port 3000.

@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { generateAccessToken, verifyToken } from "@/lib/auth/jwt";
 import { modulesForRole, roleKeysForUser, type NxRole } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
-import { fail, ipOf, ok, parseBody, withRoute, rateLimit } from "@/lib/nx/api";
+import { fail, ipOf, ok, parseBody, withRoute, rateLimit, peekRateLimit } from "@/lib/nx/api";
 import { log } from "@/lib/logger";
 import { env } from "@/lib/env";
 
@@ -121,13 +121,19 @@ async function issueSession(
 export const POST = withRoute("auth.login", async (req) => {
   const ip = ipOf(req);
 
-  // IP-level progressive rate limit: 20 attempts / 10 min / IP
-  const ipRl = rateLimit(`login-ip:${ip}`, 20, 10 * 60_000);
-  if (!ipRl.allowed) {
-    return fail("rate_limited", 429, "Too many sign-in attempts from this network. Try again later.", undefined, {
-      "Retry-After": String(Math.ceil((ipRl.resetAt - Date.now()) / 1000)),
+  // IP-level progressive rate limit on FAILED sign-in attempts (successes never count):
+  // 20 failures / 10 min / IP. Repeated demo sign-ins from one network stay smooth,
+  // while credential-stuffing / PIN brute-force still gets throttled.
+  const FAIL_WINDOW = 10 * 60_000;
+  const FAIL_MAX = 20;
+  const ipFail = peekRateLimit(`login-ip-fail:${ip}`, FAIL_MAX, FAIL_WINDOW);
+  if (!ipFail.allowed) {
+    return fail("rate_limited", 429, "Too many failed sign-in attempts from this network. Try again later.", undefined, {
+      "Retry-After": String(Math.ceil((ipFail.resetAt - Date.now()) / 1000)),
     });
   }
+  // Consume one failure slot whenever an attempt is rejected (called next to the audit entry).
+  const noteFailure = () => rateLimit(`login-ip-fail:${ip}`, FAIL_MAX, FAIL_WINDOW);
 
   const body = await parseBody(req, LoginSchema);
   if ("response" in body) return body.response;
@@ -153,6 +159,7 @@ export const POST = withRoute("auth.login", async (req) => {
       },
     });
     if (!success) {
+      noteFailure();
       log.warn("auth", "login.failed", { staffCode: identifier, reason });
     }
   };
