@@ -1,0 +1,20 @@
+{
+  "name": "Nexura Pharmacia — AI Pharmacy POS",
+  "short_name": "Nexura",
+  "description": "Voice-to-bill, prescription OCR, predictive reordering. Calm, keyboard-first pharmacy operating system.",
+  "start_url": "/pharmacy",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FBF7F2",
+  "theme_color": "#D98B6E",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["medical", "productivity", "business"]
+}
