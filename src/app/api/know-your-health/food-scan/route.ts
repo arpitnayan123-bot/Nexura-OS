@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runVision, INDIA_PREAMBLE, isValidImageBase64 } from "@/lib/gemini";
+import { aiGate } from "@/lib/nx/ai-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,6 +15,8 @@ type MealType = typeof MEAL_TYPES[number];
 // POST /api/know-your-health/food-scan
 // body: { image:{base64,mimeType}, mealType:string }
 export async function POST(req: NextRequest) {
+  const __ai = aiGate(req);
+  if (__ai) return __ai;
   try {
     const body = await req.json().catch(() => ({}));
     const image = body?.image;

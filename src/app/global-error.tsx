@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { captureError } from "@/lib/logger";
 
 /* ============================================================
    GLOBAL ERROR BOUNDARY — Catches errors that error.tsx can't
@@ -16,10 +17,13 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     console.error("[Global Error]", error);
+    // Route through the structured logger so the digest lands in the JSON log
+    // pipeline with the same shape as server-side errors.
+    captureError(error, { scope: "global-error", digest: error.digest });
   }, [error]);
 
   return (
-    <html>
+    <html lang="en">
       <body style={{ margin: 0, padding: 0, fontFamily: "system-ui, sans-serif" }}>
         <div style={{
           minHeight: "100vh",

@@ -165,7 +165,7 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
           break;
 
         case "uptime":
-          print("Hospital OS v3 “Meridian” — session up since you signed in. Audit chain: intact.", "ok");
+          print("Hospital OS v4 “Foundation” — session up since you signed in. Audit chain: intact.", "ok");
           break;
 
         case "echo":

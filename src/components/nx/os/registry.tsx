@@ -1,38 +1,37 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import {
-  Activity, BarChart3, BedDouble, Boxes, CalendarDays, ClipboardList, FlaskConical, FolderOpen, HeartPulse,
+  BarChart3, BedDouble, Boxes, CalendarDays, ClipboardList, FlaskConical, FolderOpen, HeartPulse,
   LayoutDashboard, ListTodo, MessageSquare, Pill as PillIcon, Receipt, ScrollText, Settings,
   ShieldAlert, Siren, SquareTerminal, Stethoscope, Syringe, Users, Workflow,
 } from "lucide-react";
-
-import { CommandCenter } from "../mod-command";
-import { PatientRegistry } from "../mod-patients";
-import { TaskInbox } from "../mod-tasks";
-import { BedBoard } from "../mod-beds";
-import { EdBoard } from "../mod-ed";
-import { ClinicianWorkspace } from "../mod-workspace";
-import { OrBoard } from "../mod-or";
-import { LabQueue } from "../mod-labs";
-import { PharmacyQueue } from "../mod-pharmacy";
-import { OrdersCenter } from "../mod-orders";
-import { ScheduleBoard } from "../mod-schedule";
-import { BillingCenter } from "../mod-billing";
-import { SupplyCenter } from "../mod-supply";
-import { AnalyticsCenter } from "../mod-analytics";
-import { IncidentCenter } from "../mod-incidents";
-import { AutomationBuilder } from "../mod-automations";
-import { MessagesCenter } from "../mod-messages";
-import { AdminCenter } from "../mod-admin";
-import { SettingsApp } from "./settings-app";
-import { FilesApp } from "./files-app";
-import { ConsoleApp } from "./console-app";
+import { Loading } from "../bits";
 
 /* ============================================================
    HOSPITAL OS — application registry
    Single source of truth for every installable app surface.
+
+   Every app is code-split (`next/dynamic`): the shell bundle
+   carries only metadata + icons; an app's real code loads when
+   its first window opens, behind a skeleton that matches the
+   window content area. Before this, all 23 surfaces shipped in
+   one client bundle regardless of role or usage.
    ============================================================ */
+
+const app = (factory: () => Promise<unknown>, name: string) =>
+  dynamic(async () => {
+    const mod = (await factory()) as Record<string, any>;
+    return { default: mod[name] as React.ComponentType<any> };
+  }, {
+    ssr: false,
+    loading: () => (
+      <div className="p-1">
+        <Loading rows={6} />
+      </div>
+    ),
+  });
 
 export interface AppCtx {
   open: (key: string) => void;
@@ -49,6 +48,28 @@ export interface AppDef {
   system?: boolean; // always available, not RBAC-filtered
   render: (ctx: AppCtx) => ReactNode;
 }
+
+const CommandCenter = app(() => import("../mod-command"), "CommandCenter");
+const ClinicianWorkspace = app(() => import("../mod-workspace"), "ClinicianWorkspace");
+const TaskInbox = app(() => import("../mod-tasks"), "TaskInbox");
+const PatientRegistry = app(() => import("../mod-patients"), "PatientRegistry");
+const OrdersCenter = app(() => import("../mod-orders"), "OrdersCenter");
+const LabQueue = app(() => import("../mod-labs"), "LabQueue");
+const PharmacyQueue = app(() => import("../mod-pharmacy"), "PharmacyQueue");
+const OrBoard = app(() => import("../mod-or"), "OrBoard");
+const EdBoard = app(() => import("../mod-ed"), "EdBoard");
+const BedBoard = app(() => import("../mod-beds"), "BedBoard");
+const ScheduleBoard = app(() => import("../mod-schedule"), "ScheduleBoard");
+const IncidentCenter = app(() => import("../mod-incidents"), "IncidentCenter");
+const MessagesCenter = app(() => import("../mod-messages"), "MessagesCenter");
+const SupplyCenter = app(() => import("../mod-supply"), "SupplyCenter");
+const AutomationBuilder = app(() => import("../mod-automations"), "AutomationBuilder");
+const AnalyticsCenter = app(() => import("../mod-analytics"), "AnalyticsCenter");
+const BillingCenter = app(() => import("../mod-billing"), "BillingCenter");
+const AdminCenter = app(() => import("../mod-admin"), "AdminCenter");
+const SettingsApp = app(() => import("./settings-app"), "SettingsApp");
+const FilesApp = app(() => import("./files-app"), "FilesApp");
+const ConsoleApp = app(() => import("./console-app"), "ConsoleApp");
 
 export const APPS: AppDef[] = [
   { key: "command-center", label: "Command Center", group: "Overview", icon: LayoutDashboard, desc: "Live census, beds, ED, OR and critical alerts", render: (c) => <CommandCenter onOpenModule={c.open} /> },

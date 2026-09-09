@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "./os/toast";
 import { ArrowUpRight, Check, Loader2, Lock, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { nx, useNx, timeAgo, minsUntil } from "./client";
+import { nx, useNx, useNxMutation, timeAgo, minsUntil } from "./client";
 import { Empty, ErrorState, Loading, Panel, Pill, Stat, StatusPill } from "./bits";
 
 /* ============================================================
@@ -36,21 +36,26 @@ const ROLE_FILTERS = [
 export function TaskInbox() {
   const [status, setStatus] = useState("active");
   const [role, setRole] = useState("all");
-  const [busyId, setBusyId] = useState<string | null>(null);
   const qs = new URLSearchParams({ status, ...(role !== "all" && { mine: role }) }).toString();
-  const { data, error, loading, refresh } = useNx<{ tasks: Task[]; counts: { open: number; inProgress: number; blocked: number; critical: number; overdue: number; doneToday: number } }>(`/api/nx/tasks?${qs}`, { pollMs: 25000 });
+  const { data, error, loading, refresh, setData } = useNx<{ tasks: Task[]; counts: { open: number; inProgress: number; blocked: number; critical: number; overdue: number; doneToday: number } }>(`/api/nx/tasks?${qs}`, { pollMs: 25000 });
+  const act = useNxMutation();
 
-  async function act(id: string, patch: Record<string, unknown>) {
-    setBusyId(id);
-    try {
-      await nx("/api/nx/tasks", { method: "PATCH", body: JSON.stringify({ id, ...patch }) });
-      toast.success(patch.escalate ? "Escalated to the next level" : patch.status === "done" ? "Task completed — audited" : "Task updated");
-      refresh();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Update failed");
-    } finally {
-      setBusyId(null);
+  /** Optimistic transition: local state updates instantly; a failure rolls
+      back by re-syncing from the server (toast shows the reason). */
+  function actOn(t: Task, patch: Record<string, unknown>) {
+    const success = patch.escalate ? "Escalated to the next level" : patch.status === "done" ? "Task completed — audited" : "Task updated";
+    if (data && typeof patch.status === "string") {
+      setData({
+        ...data,
+        tasks: data.tasks.map((x) => (x.id === t.id ? { ...x, status: patch.status as Task["status"] } : x)),
+        counts: patch.status === "done" && t.status !== "done" ? { ...data.counts, doneToday: data.counts.doneToday + 1 } : data.counts,
+      });
     }
+    void act.run(t.id, () => nx("/api/nx/tasks", { method: "PATCH", body: JSON.stringify({ id: t.id, ...patch }) }), {
+      success,
+      onDone: refresh,
+      onFail: refresh,
+    });
   }
 
   return (
@@ -116,19 +121,19 @@ export function TaskInbox() {
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-1.5">
-                    {busyId === t.id ? (
+                    {act.isBusy(t.id) ? (
                       <Loader2 className="h-4 w-4 animate-spin text-ink-3" />
                     ) : status === "active" ? (
                       <>
                         {t.status === "open" && (
-                          <button onClick={() => act(t.id, { status: "in_progress" })} className="flex items-center gap-1 rounded-md border border-line-2 px-2 py-1 text-[11px] text-ink-2 hover:bg-inset">
+                          <button onClick={() => actOn(t, { status: "in_progress" })} className="flex items-center gap-1 rounded-md border border-line-2 px-2 py-1 text-[11px] text-ink-2 hover:bg-inset">
                             <Play className="h-3 w-3" /> Start
                           </button>
                         )}
-                        <button onClick={() => act(t.id, { status: "done" })} className="flex items-center gap-1 rounded-md border border-good-line px-2 py-1 text-[11px] text-good hover:bg-good-soft">
+                        <button onClick={() => actOn(t, { status: "done" })} className="flex items-center gap-1 rounded-md border border-good-line px-2 py-1 text-[11px] text-good hover:bg-good-soft">
                           <Check className="h-3 w-3" /> Complete
                         </button>
-                        <button onClick={() => act(t.id, { escalate: true })} className="flex items-center gap-1 rounded-md border border-crit-line px-2 py-1 text-[11px] text-crit hover:bg-crit-soft">
+                        <button onClick={() => actOn(t, { escalate: true })} className="flex items-center gap-1 rounded-md border border-crit-line px-2 py-1 text-[11px] text-crit hover:bg-crit-soft">
                           <ArrowUpRight className="h-3 w-3" /> Escalate
                         </button>
                       </>

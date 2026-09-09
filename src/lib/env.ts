@@ -34,6 +34,9 @@ export function env(): EnvReport {
   if (isProd && process.env.DEMO_MODE === "true") {
     warnings.push("DEMO_MODE=true in production — demo indicators will show and demo reset stays enabled. Disable unless intentional.");
   }
+  if (!isProd && process.env.DEMO_MODE !== "true") {
+    warnings.push("DEMO_MODE not enabled — demo product surfaces (pharmacy/clinic/portal quick-login) require DEMO_MODE=true in this environment.");
+  }
   const nexuraMode = process.env.NEXURA_MODE === "remote" ? "remote" : "local";
   if (nexuraMode === "remote" && !process.env.NEXURA_API_URL) {
     warnings.push("NEXURA_MODE=remote but NEXURA_API_URL missing — falling back to local adapters per-service.");
@@ -52,7 +55,9 @@ export function env(): EnvReport {
     errors,
     values: {
       NODE_ENV: process.env.NODE_ENV || "development",
-      DEMO_MODE: process.env.DEMO_MODE !== "false", // demo until explicitly disabled
+      // Secure default: demo mode is OFF unless explicitly enabled. A hospital
+      // system must never expose demo reset / synthetic-data surfaces by accident.
+      DEMO_MODE: process.env.DEMO_MODE === "true",
       NEXURA_MODE: nexuraMode,
       EMAIL_TRANSPORT: emailTransport,
       JWT_SECRET_SET: jwtSecretSet,

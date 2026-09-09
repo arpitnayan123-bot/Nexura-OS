@@ -10,9 +10,10 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   const gate = await requireModule(req, "pharmacy");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
-  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
+  const hospitalId: string = gate.session.hospitalId;
 
-  const [medOrders, lowStock, expiring] = await Promise.all([
+  const [medOrders, stock] = await Promise.all([
     db.hospitalOrder.findMany({
       where: { hospitalId, orderType: "medication" },
       orderBy: [{ priority: "asc" }, { createdAt: "desc" }],
@@ -23,12 +24,12 @@ export async function GET(req: NextRequest) {
         nxOrderEvents: true,
       },
     }),
-    db.nxSupplyItem.findMany({ where: { hospitalId }, orderBy: { onHand: "asc" } }),
+    // One stock fetch feeding BOTH alert lists (this was the same query twice).
     db.nxSupplyItem.findMany({ where: { hospitalId }, orderBy: { onHand: "asc" } }),
   ]);
 
   const soon = new Date(Date.now() + 90 * 86400000);
-  const expiringSoon = expiring.filter((m) => m.expiryDate && new Date(m.expiryDate) <= soon).slice(0, 6);
+  const expiringSoon = stock.filter((m) => m.expiryDate && new Date(m.expiryDate) <= soon).slice(0, 6);
 
   return NextResponse.json({
     verificationQueue: medOrders.map((o) => {
@@ -48,7 +49,7 @@ export async function GET(req: NextRequest) {
         verified: o.status !== "ordered",
       };
     }),
-    lowStock: lowStock.filter((s) => s.onHand <= s.reorderLevel),
+    lowStock: stock.filter((s) => s.onHand <= s.reorderLevel),
     expiringSoon: expiringSoon.map((m) => ({ id: m.id, name: m.name, expiryDate: m.expiryDate, batchNo: m.batchNo })),
   });
 }
@@ -57,10 +58,12 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const gate = await requireModule(req, "pharmacy");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
   if (!body.id || !body.to) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
 
-  const order = await db.hospitalOrder.findUnique({ where: { id: body.id }, include: { patient: true } });
+  // Tenant-scoped: only dispense within this hospital.
+  const order = await db.hospitalOrder.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId }, include: { patient: true } });
   if (!order) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const flow: Record<string, string[]> = { ordered: ["acknowledged", "cancelled"], acknowledged: ["in_progress", "cancelled"], in_progress: ["completed"], completed: [], cancelled: [] };

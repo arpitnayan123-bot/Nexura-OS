@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runVision, INDIA_PREAMBLE, isValidImageBase64 } from "@/lib/gemini";
+import { aiGate } from "@/lib/nx/ai-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,6 +12,8 @@ const MAX_BASE64_LEN = Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 1024;
 // POST /api/know-your-health/derma-scan
 // body: { image:{base64,mimeType}, concern?:string }
 export async function POST(req: NextRequest) {
+  const __ai = aiGate(req);
+  if (__ai) return __ai;
   try {
     const body = await req.json().catch(() => ({}));
     const image = body?.image;

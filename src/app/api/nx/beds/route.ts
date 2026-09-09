@@ -62,10 +62,12 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const gate = await requireModule(req, "beds");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
   if (!body.bedId || !body.to) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
 
-  const bed = await db.hospitalBed.findUnique({ where: { id: body.bedId }, include: { ward: true } });
+  // Tenant-scoped: beds outside this hospital are invisible.
+  const bed = await db.hospitalBed.findFirst({ where: { id: body.bedId, hospitalId: gate.session.hospitalId }, include: { ward: true } });
   if (!bed) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const allowed = LIFECYCLE[bed.status] || [];
@@ -101,16 +103,18 @@ export async function PATCH(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const gate = await requireModule(req, "beds");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
   if (!body.bedId || !body.patientId) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
 
-  const bed = await db.hospitalBed.findUnique({ where: { id: body.bedId } });
+  const bed = await db.hospitalBed.findFirst({ where: { id: body.bedId, hospitalId: gate.session.hospitalId } });
   if (!bed) return NextResponse.json({ error: "not_found" }, { status: 404 });
   if (!["ready", "available"].includes(bed.status)) {
     return NextResponse.json({ error: "bed_not_assignable", status: bed.status }, { status: 400 });
   }
 
-  const patient = await db.hospitalPatient.findUnique({ where: { id: body.patientId } });
+  // Patient must belong to the same hospital as the bed (no cross-tenant reservation).
+  const patient = await db.hospitalPatient.findFirst({ where: { id: body.patientId, hospitalId: gate.session.hospitalId } });
   if (!patient) return NextResponse.json({ error: "patient_not_found" }, { status: 404 });
 
   const updated = await db.hospitalBed.update({

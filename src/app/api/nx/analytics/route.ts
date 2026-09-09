@@ -40,18 +40,32 @@ export async function GET(req: NextRequest) {
   const readmitted = Object.values(perPatient).filter((n) => n > 1).length;
   const readmissionRate = admissions.length ? (readmitted / new Set(admissions.map((a) => a.patientId)).size) * 100 : 0;
 
-  // order turnaround (completed orders)
+  // order turnaround (completed orders) — one bulk events query (was N+1:
+  // a separate nxOrderEvent.findMany per completed order)
   const completedOrders = orders.filter((o) => o.status === "completed");
   const tatByType: Record<string, { n: number; avgH: number }> = {};
-  for (const o of completedOrders) {
-    const events = await db.nxOrderEvent.findMany({ where: { orderId: o.id }, orderBy: { createdAt: "asc" } });
-    const first = events[0]?.createdAt || o.createdAt;
-    const last = events[events.length - 1]?.createdAt;
-    if (!last) continue;
-    const h = (new Date(last).getTime() - new Date(first).getTime()) / 3600000;
-    tatByType[o.orderType] = tatByType[o.orderType] || { n: 0, avgH: 0 };
-    tatByType[o.orderType].n++;
-    tatByType[o.orderType].avgH += h;
+  if (completedOrders.length) {
+    const allEvents = await db.nxOrderEvent.findMany({
+      where: { orderId: { in: completedOrders.map((o) => o.id) } },
+      orderBy: { createdAt: "asc" },
+      select: { orderId: true, createdAt: true },
+    });
+    const eventsByOrder = new Map<string, Date[]>();
+    for (const ev of allEvents) {
+      const list = eventsByOrder.get(ev.orderId) ?? [];
+      list.push(ev.createdAt);
+      eventsByOrder.set(ev.orderId, list);
+    }
+    for (const o of completedOrders) {
+      const events = eventsByOrder.get(o.id) ?? [];
+      const first = events[0] || o.createdAt;
+      const last = events[events.length - 1];
+      if (!last) continue;
+      const h = (new Date(last).getTime() - new Date(first).getTime()) / 3600000;
+      tatByType[o.orderType] = tatByType[o.orderType] || { n: 0, avgH: 0 };
+      tatByType[o.orderType].n++;
+      tatByType[o.orderType].avgH += h;
+    }
   }
   for (const k of Object.keys(tatByType)) {
     tatByType[k].avgH = Math.round((tatByType[k].avgH / tatByType[k].n) * 10) / 10;

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireModule } from "@/lib/nx/session";
+import { getSessionFresh, canAccessModule } from "@/lib/nx/session";
 import { runText } from "@/lib/gemini";
 import { audit } from "@/lib/nx/audit";
+import { aiGate } from "@/lib/nx/ai-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,12 +28,18 @@ async function logAI(hospitalId: string, name: string, role: string, feature: st
 }
 
 export async function POST(req: NextRequest) {
-  const asDoctor = await requireModule(req, "doctor");
-  const asCommand = await requireModule(req, "command-center");
-  const gate = "session" in asDoctor ? asDoctor : asCommand;
-  if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
-  const session = gate.session;
-  const hospitalId = session.hospitalId || (await db.hospital.findFirst())?.id;
+  // AI budget guard (per-IP rate limit; production additionally requires a session)
+  const __ai = aiGate(req, { max: 30, windowMs: 60_000 });
+  if (__ai) return __ai;
+  // Single session resolution — the previous double requireModule ran 2× user
+  // and session-record queries on every call.
+  const session = await getSessionFresh(req);
+  if (!session) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  if (!canAccessModule(session.role, "doctor") && !canAccessModule(session.role, "command-center")) {
+    return NextResponse.json({ error: "forbidden_module" }, { status: 403 });
+  }
+  if (!session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
+  const hospitalId: string = session.hospitalId;
   const body = await req.json().catch(() => ({}));
   const feature = String(body.feature || "");
 

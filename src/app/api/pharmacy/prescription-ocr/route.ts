@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { aiGate } from "@/lib/nx/ai-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +13,8 @@ Return STRICT JSON only: {"items":[{"name":"medicine name","dosage":"if visible"
 // POST /api/pharmacy/prescription-ocr
 // body: { image: "<base64 or dataURL>" }
 export async function POST(req: NextRequest) {
+  const __ai = aiGate(req);
+  if (__ai) return __ai;
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });

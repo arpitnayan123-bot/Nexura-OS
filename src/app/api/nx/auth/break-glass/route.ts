@@ -23,7 +23,9 @@ const InvokeSchema = z.object({
 });
 
 export const POST = withRoute("auth.breakglass.invoke", async (req: NextRequest) => {
-  const g = await guard(req, "patient.demographics.view");
+  // Break-glass is a privileged capability, not something any clinician gets by
+  // default — it requires the dedicated `breakglass.invoke` permission.
+  const g = await guard(req, "breakglass.invoke");
   if ("response" in g) return g.response;
   if (!g.session.hospitalId) return fail("invalid_request", 400, "No hospital context.");
   const parsed = InvokeSchema.safeParse(await req.json().catch(() => ({})));
@@ -87,8 +89,9 @@ export const POST = withRoute("auth.breakglass.invoke", async (req: NextRequest)
 export const GET = withRoute("auth.breakglass.list", async (req: NextRequest) => {
   const g = await guard(req, "audit.view");
   if ("response" in g) return g.response;
+  if (!g.session.hospitalId) return fail("no_hospital", 400);
   const events = await db.nxBreakGlassEvent.findMany({
-    where: { revokedAt: null, expiresAt: { gt: new Date() } },
+    where: { revokedAt: null, expiresAt: { gt: new Date() }, hospitalId: g.session.hospitalId },
     orderBy: { createdAt: "desc" },
     take: 50,
   });

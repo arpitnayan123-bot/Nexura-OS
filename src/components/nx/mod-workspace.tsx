@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "./os/toast";
+import { useOs } from "./os/store";
 import { Activity, ArrowUpRight, Bot, ClipboardList, FileText, Loader2, Moon, ShieldAlert, Thermometer } from "lucide-react";
 import { nx, useNx, timeAgo, fmtClock } from "./client";
 import { AiBanner, Empty, ErrorState, Loading, Panel, Pill, Stat, StatusPill } from "./bits";
@@ -141,7 +142,16 @@ export function ClinicianWorkspace({ kind }: { kind: "doctor" | "nurse" }) {
                       {aiBusy && aiPatient === p.patient.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Bot className="h-3 w-3" />}
                       AI brief
                     </button>
-                    <button onClick={() => window.dispatchEvent(new CustomEvent("nx-open-patient", { detail: p.patient.id })) || window.location.replace("/hospital#m=patients")} className="flex items-center gap-1 rounded-md border border-line-2 px-2 py-1 text-[11px] text-ink-2 hover:bg-inset">
+                    <button
+                      onClick={() => {
+                        // Both halves matter: hand the id to Patient Records AND
+                        // actually open its window (a bare dispatch did nothing
+                        // when no listener was mounted).
+                        window.dispatchEvent(new CustomEvent("nx-open-patient", { detail: p.patient.id }));
+                        useOs.getState().openApp("patients");
+                      }}
+                      className="flex items-center gap-1 rounded-md border border-line-2 px-2 py-1 text-[11px] text-ink-2 hover:bg-inset"
+                    >
                       Full record <ArrowUpRight className="h-3 w-3" />
                     </button>
                   </div>

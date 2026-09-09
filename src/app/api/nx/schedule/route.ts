@@ -39,10 +39,16 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     day: base.toISOString(),
-    appointments: appointments.map((a) => ({
-      id: a.id, time: a.timeSlot, token: a.tokenNumber, type: a.appointmentType, status: a.status,
-      complaint: a.chiefComplaint, patient: a.patient, doctor: a.doctor,
-    })),
+    appointments: appointments.map((a) => {
+      // Compose a parseable wall-clock datetime: a bare "16:00" timeSlot is not
+      // a Date and rendered as "Invalid Date" in the day board.
+      const dayIso = new Date(a.date).toISOString().slice(0, 10);
+      const slot = /^\d{1,2}:\d{2}/.test(a.timeSlot || "") ? a.timeSlot : "00:00";
+      return {
+        id: a.id, time: `${dayIso}T${slot.slice(0, 5)}:00`, token: a.tokenNumber, type: a.appointmentType, status: a.status,
+        complaint: a.chiefComplaint, patient: a.patient, doctor: a.doctor,
+      };
+    }),
     stats: { total: appointments.length, ...byStatus },
     doctors: doctors.map((d) => ({
       id: d.id, name: d.name, speciality: d.specialty, department: d.department,

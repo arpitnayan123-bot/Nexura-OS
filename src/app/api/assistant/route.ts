@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { aiGate } from "@/lib/nx/ai-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,6 +19,8 @@ Your rules:
 You are the gentle heartbeat of Nexura OS. Speak softly. Listen carefully.`;
 
 export async function POST(req: NextRequest) {
+  const __ai = aiGate(req);
+  if (__ai) return __ai;
   try {
     const body = await req.json().catch(() => ({}));
     const messages = Array.isArray(body?.messages) ? body.messages : null;
@@ -30,7 +33,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const conversation = messages ? messages : [{ role: "user", content: message }];
+    // Payload hygiene: bounded conversation (last 20 turns, 4k chars each)
+    // — unbounded arrays let a single request burn the model budget.
+    const raw = Array.isArray(messages)
+      ? messages
+      : [{ role: "user", content: message }];
+    const conversation = raw
+      .filter((m: { role?: string; content?: string }) => m && typeof m.content === "string" && ["user", "assistant"].includes(String(m.role)))
+      .slice(-20)
+      .map((m: { role: string; content: string }) => ({ role: m.role as "user" | "assistant", content: m.content.slice(0, 4000) }));
+    if (conversation.length === 0) {
+      return NextResponse.json({ error: "message or messages is required" }, { status: 400 });
+    }
 
     const ZAI = (await import("z-ai-web-dev-sdk")).default;
     const zai = await ZAI.create();

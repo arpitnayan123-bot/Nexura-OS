@@ -25,8 +25,11 @@
 - Signed clinical notes are immutable (server-enforced 423); full version history
 - Tamper-evident audit chain (SHA-256 linked hashes per hospital)
 - Payment writes are idempotency-key protected
-- Security headers via `src/proxy.ts`: nosniff, DENY framing, referrer policy,
-  permissions policy, HSTS (prod), CSP (enforced in prod, report-only in dev)
+- Security headers via `src/proxy.ts`: nosniff, referrer policy, permissions
+  policy, HSTS (prod), CSP (enforced in prod, report-only in dev).
+  Framing is deliberately permissive (dev: any ancestor, prod: same-origin +
+  https gateways) so the platform preview can embed the app — document any
+  change to this trade-off here.
 
 **Network**
 - Encryption in transit is a hosting responsibility: terminate TLS at your

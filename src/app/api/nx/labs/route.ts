@@ -55,13 +55,19 @@ export async function GET(req: NextRequest) {
 }
 
 /** POST — record a result for an order (then validate via orders PATCH). */
+const RESULT_FLAGS = ["normal", "abnormal", "critical"] as const;
 export async function POST(req: NextRequest) {
   const gate = await requireModule(req, "labs");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
   if (!body.orderId || !body.testName) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+  // Whitelisted flags only — a forged "critical" would trigger the critical-result
+  // escalation automation (page the on-call chain).
+  const flag = RESULT_FLAGS.includes(body.flag) ? body.flag : "normal";
 
-  const order = await db.hospitalOrder.findUnique({ where: { id: body.orderId }, include: { patient: true } });
+  // Tenant-scoped: an order from another hospital is simply not found.
+  const order = await db.hospitalOrder.findFirst({ where: { id: body.orderId, hospitalId: gate.session.hospitalId }, include: { patient: true } });
   if (!order) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const result = await db.labResult.create({
@@ -72,7 +78,7 @@ export async function POST(req: NextRequest) {
       unit: body.unit || null,
       refRangeMin: body.refMin ?? null,
       refRangeMax: body.refMax ?? null,
-      abnormalFlag: body.flag || "normal",
+      abnormalFlag: flag,
       reportedAt: new Date(),
     },
   });

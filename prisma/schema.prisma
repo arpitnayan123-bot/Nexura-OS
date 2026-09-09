@@ -13,24 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 // Nexura OS — signups & appointment requests
 model Lead {
   id        String   @id @default(cuid())
@@ -577,6 +559,7 @@ model HospitalVital {
   @@index([patientId])
   @@index([admissionId])
   @@index([recordedAt])
+  @@index([hospitalId])
 }
 
 model ClinicalNote {
@@ -615,6 +598,7 @@ model ClinicalNote {
   @@index([admissionId])
   @@index([noteType])
   @@index([status])
+  @@index([hospitalId])
 }
 
 model HospitalOrder {
@@ -642,6 +626,7 @@ model HospitalOrder {
   @@index([orderType])
   @@index([status])
   @@index([priority])
+  @@index([hospitalId])
 }
 
 model LabResult {
@@ -705,6 +690,7 @@ model HospitalPrescription {
 
   @@index([patientId])
   @@index([consultationId])
+  @@index([hospitalId])
 }
 
 model HospitalBill {
@@ -733,6 +719,7 @@ model HospitalBill {
   @@index([patientId])
   @@index([billDate])
   @@index([paymentStatus])
+  @@index([hospitalId])
 }
 
 model InsuranceClaim {
@@ -761,6 +748,7 @@ model InsuranceClaim {
   @@index([patientId])
   @@index([tpaCompany])
   @@index([preAuthStatus])
+  @@index([hospitalId])
 }
 
 model BloodBankUnit {
@@ -1338,6 +1326,8 @@ model TourismSetting {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   hospital           Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId])
 }
 
 model TourismCoordinator {
@@ -1609,6 +1599,7 @@ model NxOrderEvent {
   hospital   Hospital      @relation(fields: [hospitalId], references: [id])
 
   @@index([orderId])
+  @@index([hospitalId])
 }
 
 model NxEquipment {
@@ -1670,6 +1661,7 @@ model NxMessage {
   reads        NxMessageRead[]
 
   @@index([channelKey, createdAt])
+  @@index([hospitalId])
 }
 
 model NxAutomationRule {
@@ -1824,6 +1816,7 @@ model NxUserRoleAssignment {
 
   @@index([userId])
   @@index([roleKey])
+  @@index([hospitalId])
 }
 
 model NxPermissionGrant {
@@ -2026,24 +2019,24 @@ model NxMessageRead {
 }
 
 model NxMedicationAdministration {
-  id                String           @id @default(cuid())
-  hospitalId        String
-  patientId         String
-  patientUhid       String
-  prescriptionId    String?
-  orderId           String?
-  medicineName      String
-  dose              String?
-  route             String?
-  scheduledAt       DateTime
-  administeredAt    DateTime?
-  administeredBy    String?
-  status            String           @default("pending") // pending|given|held|refused|missed
-  notes             String?
-  controlled        Boolean          @default(false)
-  createdAt         DateTime         @default(now())
-  hospital          Hospital         @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  patient       HospitalPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  id             String          @id @default(cuid())
+  hospitalId     String
+  patientId      String
+  patientUhid    String
+  prescriptionId String?
+  orderId        String?
+  medicineName   String
+  dose           String?
+  route          String?
+  scheduledAt    DateTime
+  administeredAt DateTime?
+  administeredBy String?
+  status         String          @default("pending") // pending|given|held|refused|missed
+  notes          String?
+  controlled     Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  hospital       Hospital        @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  patient        HospitalPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([patientId, scheduledAt])
   @@index([hospitalId, status])
@@ -2064,6 +2057,7 @@ model NxImagingReport {
   order           HospitalOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
+  @@index([hospitalId])
 }
 
 model NxCharge {
@@ -2105,6 +2099,7 @@ model NxPayment {
 
   @@index([patientId])
   @@index([billId])
+  @@index([hospitalId])
 }
 
 model NxVendor {
@@ -2157,6 +2152,7 @@ model NxStockTxn {
   hospital   Hospital     @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([itemId, createdAt])
+  @@index([hospitalId])
 }
 
 model NxCredential {
@@ -2220,6 +2216,7 @@ model NxAppointmentEvent {
   hospital      Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([appointmentId])
+  @@index([hospitalId])
 }
 
 model NxWebhookDelivery {
@@ -2239,6 +2236,7 @@ model NxWebhookDelivery {
   hospital      Hospital? @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([status, nextRetryAt])
+  @@index([hospitalId])
 }
 
 model NxIntegrationEvent {
@@ -2253,6 +2251,7 @@ model NxIntegrationEvent {
   hospital   Hospital? @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
+  @@index([hospitalId])
 }
 
 model NxFileObject {
@@ -2271,7 +2270,7 @@ model NxFileObject {
   createdAt  DateTime         @default(now())
   hospital   Hospital         @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   patient    HospitalPatient? @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  
+
   @@index([hospitalId, category])
   @@index([patientId])
 }

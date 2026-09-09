@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runText, INDIA_PREAMBLE } from "@/lib/gemini";
+import { aiGate } from "@/lib/nx/ai-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,6 +9,8 @@ export const maxDuration = 60;
 // POST /api/know-your-health/womens-care
 // body: { concern, age, cycleInfo, symptoms, pregnancyStatus }
 export async function POST(req: NextRequest) {
+  const __ai = aiGate(req);
+  if (__ai) return __ai;
   try {
     const body = await req.json().catch(() => ({}));
     const concern = typeof body?.concern === "string" ? body.concern.trim() : "";

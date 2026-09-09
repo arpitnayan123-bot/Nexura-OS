@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Toaster } from "sonner";
 import {
   Command as CommandIcon, Expand, FlaskConical, Layers, LayoutGrid, Settings, SquareStack, TriangleAlert, Wallpaper as WallpaperIcon, WifiOff,
 } from "lucide-react";
@@ -37,16 +36,31 @@ const WALLPAPER_ORDER: Wallpaper[] = ["aurora", "dawn", "meadow", "mono"];
 
 export function NxApp() {
   const [signedOut, setSignedOut] = useState(false);
-  const [tick, setTick] = useState(0);
   const [online, setOnline] = useState(true);
   const isMobile = useIsMobile();
 
-  const { data: session, loading: sessionLoading } = useNx<{ user: NxUser | null; modules?: string[] }>(
-    signedOut ? null : `/api/nx/auth?v=${tick}`
+  // Stable URL — the session is fetched once per mount and refetched via
+  // refresh() after auth transitions. (A per-SSE-event cache-buster here made
+  // the shell refetch the full session on every live event.)
+  const { data: session, loading: sessionLoading, refresh: refreshSession } = useNx<{ user: NxUser | null; modules?: string[]; demo?: boolean }>(
+    signedOut ? null : "/api/nx/auth"
   );
   const user: NxUser | null = signedOut ? null : session?.user || null;
 
-  const os = useOs();
+  /* Fine-grained store selectors — subscribing to the whole kernel store here
+     re-rendered the entire shell on every focus/geometry change. */
+  const theme = useOs((s) => s.theme);
+  const accent = useOs((s) => s.accent);
+  const wallpaper = useOs((s) => s.wallpaper);
+  const resolvedTheme = useOs((s) => s.resolvedTheme);
+  const density = useOs((s) => s.density);
+  const motion = useOs((s) => s.motion);
+  const night = useOs((s) => s.night);
+  const launcherOpen = useOs((s) => s.launcherOpen);
+  const switcherOpen = useOs((s) => s.switcherOpen);
+  const locked = useOs((s) => s.locked);
+  const setResolved = useOs((s) => s.setResolved);
+  const pushNotice = useOs((s) => s.pushNotice);
 
   /* ---------- universal back: device/browser back walks in-app layers ---------- */
   const backGate = useCallback(() => !useOs.getState().locked, []);
@@ -70,20 +84,20 @@ export function NxApp() {
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const apply = () => {
-      const resolved = os.theme === "auto" ? (mq.matches ? "dark" : "light") : os.theme;
-      os.setResolved(resolved);
+      const resolved = theme === "auto" ? (mq.matches ? "dark" : "light") : theme;
+      setResolved(resolved);
       /* portal surfaces (dialogs, menus, toasts) render outside .nx-root —
          mirror theme + accent onto <html> so they resolve the same tokens */
       const html = document.documentElement;
       html.classList.toggle("dark", resolved === "dark");      // site/shadcn tokens
       html.classList.toggle("nx-dark", resolved === "dark");   // OS tokens (dark set)
       html.classList.toggle("nx-light", resolved === "light"); // OS tokens (light set)
-      html.setAttribute("data-nx-accent", os.accent);
+      html.setAttribute("data-nx-accent", accent);
     };
     queueMicrotask(apply); // lint-safe: no sync external-store write in effect body
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
-  }, [os.theme, os.accent, os.setResolved]);
+  }, [theme, accent, setResolved]);
 
   /* ---------- connectivity ---------- */
   useEffect(() => {
@@ -133,24 +147,24 @@ export function NxApp() {
     prevAlerts.current = { t: taskCritical, i: incidentCritical };
     if (!prev) return;
     if (incidentCritical > prev.i) {
-      os.pushNotice({ title: "Critical incident reported", body: `${incidentCritical} critical incidents now open.`, tone: "crit", moduleKey: "incidents" });
+      pushNotice({ title: "Critical incident reported", body: `${incidentCritical} critical incidents now open.`, tone: "crit", moduleKey: "incidents" });
     }
     if (taskCritical > prev.t) {
-      os.pushNotice({ title: "Critical task needs attention", body: `${taskCritical} critical tasks in the work queue.`, tone: "warn", moduleKey: "tasks" });
+      pushNotice({ title: "Critical task needs attention", body: `${taskCritical} critical tasks in the work queue.`, tone: "warn", moduleKey: "tasks" });
     }
-  }, [taskCritical, incidentCritical, user, os.pushNotice]);
+  }, [taskCritical, incidentCritical, user, pushNotice]);
 
   /* ---------- welcome notice per session ---------- */
   const welcomed = useRef(false);
   useEffect(() => {
     if (!user || welcomed.current) return;
     welcomed.current = true;
-    os.pushNotice({
+    pushNotice({
       title: `Welcome back, ${user.name.split(" ")[0]}`,
       body: "⌘K commands · ⌘J apps · F9 overview · ⌘L lock",
       tone: "info",
     });
-  }, [user, os.pushNotice]);
+  }, [user, pushNotice]);
 
   /* ---------- Nexura platform: system status banners (incident / maintenance / demo) ---------- */
   const { data: sysStatus } = useNx<{ status: Record<string, { enabled: boolean; message: string | null; severity: string }> }>(
@@ -162,8 +176,9 @@ export function NxApp() {
       ? { tone: "warn", text: sysStatus.status.maintenance_mode.message || "Maintenance mode active — data entry is discouraged." }
       : null;
 
-  /* ---------- real-time stream: live events → notices + badge refresh ---------- */
-  const bump = useCallback(() => setTick((t) => t + 1), []);
+  /* ---------- real-time stream: live events → notices ----------
+     The shell no longer refetches the session per event — badges update via
+     their own polls and modules reconcile via the nx-live-event bridge. */
   const stream = useNxStream({
     enabled: Boolean(user),
     onEvent: (ev: NxStreamEvent) => {
@@ -171,29 +186,19 @@ export function NxApp() {
       switch (ev.event) {
         case "lab.critical":
           toast.error(`Critical lab: ${d.test ?? "result"}`, { description: d.patient ?? undefined });
-          os.pushNotice({ title: "Critical lab result", body: `${d.test ?? "Result"} — ${d.patient ?? ""}`, tone: "crit", moduleKey: "labs" });
-          bump();
+          pushNotice({ title: "Critical lab result", body: `${d.test ?? "Result"} — ${d.patient ?? ""}`, tone: "crit", moduleKey: "labs" });
           break;
         case "message.new":
           if (d.severity === "urgent") {
-            os.pushNotice({ title: `Urgent message from ${d.sender ?? "care team"}`, body: d.preview ?? "", tone: "warn", moduleKey: "messages" });
+            pushNotice({ title: `Urgent message from ${d.sender ?? "care team"}`, body: d.preview ?? "", tone: "warn", moduleKey: "messages" });
           }
-          bump();
-          break;
-        case "task.created":
-        case "task.updated":
-        case "notification.new":
-          bump();
-          break;
-        case "bed.updated":
-          bump();
           break;
         default:
           break;
       }
     },
   });
-  const demoMode = (session as { demo?: boolean } | undefined)?.demo ?? true;
+  const demoMode = session?.demo ?? false;
 
   /* ---------- global keyboard system ---------- */
   useEffect(() => {
@@ -323,7 +328,7 @@ export function NxApp() {
   /* ---------- boot splash ---------- */
   if (!bootGone) {
     return (
-      <div className="nx-root" data-theme="dark" data-accent={os.accent} data-wall={os.wallpaper}>
+      <div className="nx-root" data-theme="dark" data-accent={accent} data-wall={wallpaper}>
         <NxBoot leaving={!booting} />
       </div>
     );
@@ -332,16 +337,15 @@ export function NxApp() {
   /* ---------- login ---------- */
   if (!user) {
     return (
-      <div className="nx-root" data-theme={os.resolvedTheme} data-accent={os.accent} data-wall={os.wallpaper} data-motion={os.motion}>
+      <div className="nx-root" data-theme={resolvedTheme} data-accent={accent} data-wall={wallpaper} data-motion={motion}>
         <NxLogin
           onSignedIn={(u) => {
             setSignedOut(false);
-            setTick((t) => t + 1);
+            void refreshSession();
             const landing = u.role === "doctor" ? "doctor" : u.role === "nurse" ? "nurse" : u.role === "lab" ? "labs" : u.role === "pharmacist" ? "pharmacy" : u.role === "leadership" ? "analytics" : "command-center";
             queueMicrotask(() => useOs.getState().openApp(landing));
           }}
         />
-        <Toaster theme={os.resolvedTheme} position="top-right" />
       </div>
     );
   }
@@ -357,12 +361,12 @@ export function NxApp() {
   return (
     <div
       className="nx-root"
-      data-theme={os.resolvedTheme}
-      data-accent={os.accent}
-      data-density={os.density}
-      data-motion={os.motion}
-      data-night={os.night ? "true" : "false"}
-      data-wall={os.wallpaper}
+      data-theme={resolvedTheme}
+      data-accent={accent}
+      data-density={density}
+      data-motion={motion}
+      data-night={night ? "true" : "false"}
+      data-wall={wallpaper}
     >
       <NxSystemBar
         user={{ name: user.name, role: user.role, department: user.department }}
@@ -414,20 +418,13 @@ export function NxApp() {
 
       <NxDock taskCount={taskCritical} incidentCount={incidentCritical} />
 
-      {os.launcherOpen && <NxLauncher allowed={allowed} />}
+      {launcherOpen && <NxLauncher allowed={allowed} />}
       <NxPalette allowed={allowed} onSignOut={signOut} />
-      {os.switcherOpen && <NxSwitcher />}
-      {os.locked && (
+      {switcherOpen && <NxSwitcher />}
+      {locked && (
         <NxLock user={{ name: user.name, role: user.role, department: user.department }} onSignOut={signOut} />
       )}
       {deskMenu && <CtxMenu x={deskMenu.x} y={deskMenu.y} items={deskMenuItems} onClose={() => setDeskMenu(null)} />}
-
-      <Toaster
-        theme={os.resolvedTheme}
-        position={isMobile ? "top-center" : "bottom-right"}
-        offset={isMobile ? 56 : 96}
-        visibleToasts={isMobile ? 1 : 3}
-      />
     </div>
   );
 }

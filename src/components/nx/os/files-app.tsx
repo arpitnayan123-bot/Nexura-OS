@@ -6,7 +6,7 @@ import {
   RotateCcw, Search, Trash2, UserRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import { toast } from "./toast";
 import { timeAgo, useNx } from "../client";
 import { useBackLayer } from "./back";
 import type { AppCtx } from "./registry";

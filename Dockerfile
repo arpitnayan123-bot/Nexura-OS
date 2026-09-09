@@ -13,7 +13,9 @@ ENV NODE_ENV=production
 RUN bunx prisma generate
 # DATABASE_URL is required at build-time only for typegen — a dummy is fine
 ENV DATABASE_URL=file:/tmp/build.db
-RUN bun run build || (npx next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/)
+# Fail the image build when the app build fails — no silent fallback that can
+# pull a different toolchain mid-build and mask a broken bun pipeline.
+RUN bun run build
 
 FROM node:24-slim AS runner
 WORKDIR /app

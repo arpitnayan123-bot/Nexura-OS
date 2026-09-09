@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { toast } from "./os/toast";
 import { useBackLayer } from "./os/back";
-import { ArrowLeft, ShieldAlert } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 import { nx, useNx, timeAgo } from "./client";
+import { NxModal, nxField } from "./os/modal";
 import { Empty, ErrorState, Loading, Panel, Pill, Stat, StatusPill } from "./bits";
 
 /* ============================================================
@@ -125,32 +126,43 @@ function ReportIncident({ onClose, onDone }: { onClose: () => void; onDone: () =
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-xl border border-line bg-[#0d1526] p-5" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-2.5">
-          <button onClick={onClose} className="nx-back-tb" aria-label="Back to Incidents" title="Back to Incidents">
-            <ArrowLeft className="h-3.5 w-3.5" />
-          </button>
-          <h3 className="text-sm font-semibold text-ink">Report incident</h3>
-        </div>
-        <div className="mt-3 space-y-2.5">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What happened?" className="w-full rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Details (optional)" rows={2} className="w-full rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />
-          <div className="grid grid-cols-2 gap-2">
-            <select value={severity} onChange={(e) => setSeverity(e.target.value)} className="rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none">
-              {["info", "minor", "major", "critical"].map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none">
-              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location (e.g. ICU Bay 2)" className="w-full rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />
-        </div>
-        <div className="mt-4 flex justify-end gap-2">
+    <NxModal
+      open
+      onClose={onClose}
+      title="Report incident"
+      footer={
+        <>
           <button onClick={onClose} className="rounded-md border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:bg-inset">Cancel</button>
           <button onClick={submit} disabled={busy} className="rounded-md bg-accent px-3 py-1.5 text-xs font-semibold text-accent-ink hover:bg-accent disabled:opacity-50">{busy ? "Reporting…" : "Report"}</button>
+        </>
+      }
+    >
+      <div>
+        <label htmlFor="inc-title" className="sr-only">What happened?</label>
+        <input id="inc-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What happened?" className={nxField} />
+      </div>
+      <div>
+        <label htmlFor="inc-desc" className="sr-only">Details</label>
+        <textarea id="inc-desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Details (optional)" rows={2} className={nxField} />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label htmlFor="inc-sev" className="sr-only">Severity</label>
+          <select id="inc-sev" value={severity} onChange={(e) => setSeverity(e.target.value)} className={nxField}>
+            {["info", "minor", "major", "critical"].map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="inc-cat" className="sr-only">Category</label>
+          <select id="inc-cat" value={category} onChange={(e) => setCategory(e.target.value)} className={nxField}>
+            {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
         </div>
       </div>
-    </div>
+      <div>
+        <label htmlFor="inc-loc" className="sr-only">Location</label>
+        <input id="inc-loc" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location (e.g. ICU Bay 2)" className={nxField} />
+      </div>
+    </NxModal>
   );
 }

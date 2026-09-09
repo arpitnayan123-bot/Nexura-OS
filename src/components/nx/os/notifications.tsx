@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BellOff, CheckCheck, X, ServerCrash, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { nx, timeAgo, useNx, type NxStreamEvent } from "../client";
+import { toast } from "./toast";
 import { useOs, type NoticeTone } from "./store";
 import { appFor } from "./registry";
 
@@ -74,7 +75,16 @@ export function NxNotificationCenter() {
   async function openServer(n: ServerNotification) {
     if (!n.readAt) {
       setLocalRead((s) => new Set(s).add(n.id));
-      await nx("/api/nx/notifications", { method: "PATCH", body: JSON.stringify({ id: n.id }) }).catch(() => {});
+      try {
+        await nx("/api/nx/notifications", { method: "PATCH", body: JSON.stringify({ id: n.id }) });
+      } catch {
+        // Roll the optimistic read back so the badge stays truthful.
+        setLocalRead((s) => {
+          const next = new Set(s);
+          next.delete(n.id);
+          return next;
+        });
+      }
     }
     const moduleKey = n.link?.startsWith("patient:") ? "patients" : n.link?.split(":")[0];
     open(moduleKey, n.id);
@@ -89,8 +99,11 @@ export function NxNotificationCenter() {
         unreadIds.forEach((id) => next.add(id));
         return next;
       });
-      for (const id of unreadIds) {
-        await nx("/api/nx/notifications", { method: "PATCH", body: JSON.stringify({ id }) }).catch(() => {});
+      try {
+        // One batched call — this looped one PATCH per notification before.
+        await nx("/api/nx/notifications", { method: "PATCH", body: JSON.stringify({ all: true }) });
+      } catch {
+        toast.error("Could not mark notifications as read");
       }
       void refresh();
     }
@@ -136,10 +149,14 @@ export function NxNotificationCenter() {
                 <div
                   key={n.id}
                   className={cn(
-                    "group relative flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2.5 transition hover:bg-inset",
+                    "group relative flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-inset focus-visible:bg-inset focus-visible:outline-none",
                     n.readAt ? "opacity-70 hover:opacity-100" : ""
                   )}
                   onClick={() => void openServer(n)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void openServer(n); } }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${n.title}${n.readAt ? " (read)" : " — unread"}`}
                 >
                   <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", TONE_DOT[tone])} />
                   <div className="min-w-0 flex-1">
@@ -163,10 +180,13 @@ export function NxNotificationCenter() {
               <div
                 key={n.id}
                 className={cn(
-                  "group relative flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2.5 transition hover:bg-inset",
+                  "group relative flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-inset focus-visible:bg-inset focus-visible:outline-none",
                   n.read ? "opacity-70 hover:opacity-100" : ""
                 )}
                 onClick={() => open(n.moduleKey, n.id)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(n.moduleKey, n.id); } }}
+                role="button"
+                tabIndex={0}
               >
                 <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", TONE_DOT[n.tone])} />
                 <div className="min-w-0 flex-1">

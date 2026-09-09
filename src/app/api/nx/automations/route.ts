@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireModule } from "@/lib/nx/session";
+import { requireModule, permsForSession, hasPermission } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { fire, type NxTrigger } from "@/lib/nx/automations";
 
@@ -39,15 +39,20 @@ export async function GET(req: NextRequest) {
   });
 }
 
-/** PATCH — enable/disable a rule (admin only, deterministic policy). */
+/** PATCH — enable/disable a rule (settings-manage permission, deterministic policy). */
 export async function PATCH(req: NextRequest) {
   const gate = await requireModule(req, "automations");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
-  if (!["admin", "leadership"].includes(gate.session.role)) {
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
+  // Governed by RBAC-as-data (settings.manage) instead of a hardcoded role list,
+  // so hospital_admin keeps access that a legacy role list accidentally dropped.
+  const perms = await permsForSession(gate.session);
+  if (!hasPermission(perms, "settings.manage")) {
     return NextResponse.json({ error: "admin_only", detail: "Toggling automation rules requires administrator approval" }, { status: 403 });
   }
   const body = await req.json().catch(() => ({}));
-  const rule = await db.nxAutomationRule.findUnique({ where: { id: body.id } });
+  // Tenant-scoped: rules from other hospitals are unreachable.
+  const rule = await db.nxAutomationRule.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId } });
   if (!rule) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const updated = await db.nxAutomationRule.update({ where: { id: rule.id }, data: { enabled: Boolean(body.enabled) } });

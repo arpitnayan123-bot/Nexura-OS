@@ -3,10 +3,16 @@
 services:
   app:
     build: .
+    restart: unless-stopped
     ports:
       - "3000:3000"
+    env_file:
+      - path: .env.docker
+      required: false
     environment:
       DATABASE_URL: file:/app/db/custom.db
+      # Deployments MUST override via .env.docker or the environment —
+      # this placeholder only exists so a local smoke stack can boot.
       JWT_SECRET: ${JWT_SECRET:-change-me-in-real-deployments-please}
       NEXURA_MODE: local
       EMAIL_TRANSPORT: console

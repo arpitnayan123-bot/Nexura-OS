@@ -15,7 +15,19 @@ import { NextRequest, NextResponse } from "next/server";
    - Rate limiting (in-memory, per-IP)
    ============================================================ */
 
-const JWT_SECRET = process.env.JWT_SECRET || "nexura-os-dev-secret-change-in-prod";
+/**
+ * Signing secret: env-configured, >=16 chars. In production a missing/short
+ * secret refuses to boot instead of silently signing forgeable tokens with a
+ * well-known fallback.
+ */
+const JWT_SECRET = (() => {
+  const s = process.env.JWT_SECRET;
+  if (s && s.length >= 16) return s;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET must be set (>=16 chars) in production — refusing to sign tokens with a fallback.");
+  }
+  return "nexura-os-dev-secret-change-in-prod";
+})();
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "30d";
 
@@ -74,6 +86,24 @@ export function generateRefreshToken(user: AuthUser): string {
     JWT_SECRET,
     { expiresIn: REFRESH_TOKEN_EXPIRY }
   );
+}
+
+/* ---------- Service / product tokens (portal sessions, integrations) ---------- */
+/** Sign a scoped service token (e.g. `scope:"portal"`) — never accepted as an nx session. */
+export function signServiceToken(payload: Record<string, unknown>, expiresIn: string | number): string {
+  return jwt.sign({ ...payload, scope: "service" }, JWT_SECRET, {
+    expiresIn: expiresIn as jwt.SignOptions["expiresIn"],
+  });
+}
+
+/** Verify a service token; rejects tokens without the service scope (cannot be an access token). */
+export function verifyServiceToken<T extends object>(token: string): (T & { scope: string }) | null {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as (T & { scope?: string });
+    return decoded && decoded.scope === "service" ? (decoded as T & { scope: string }) : null;
+  } catch {
+    return null;
+  }
 }
 
 /* ---------- Token Verification ---------- */

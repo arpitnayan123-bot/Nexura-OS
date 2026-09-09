@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { toast } from "./os/toast";
 import { useBackLayer } from "./os/back";
-import { ArrowLeft, Plus, ScrollText } from "lucide-react";
+import { Plus, ScrollText } from "lucide-react";
 import { nx, useNx, timeAgo } from "./client";
+import { NxModal, nxField } from "./os/modal";
 import { Empty, ErrorState, Loading, Panel, Pill, Stat, StatusPill } from "./bits";
 
 /* ============================================================
@@ -172,38 +173,49 @@ function NewOrder({ onClose, onDone }: { onClose: () => void; onDone: () => void
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-xl border border-line bg-[#0d1526] p-5" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-2.5">
-          <button onClick={onClose} className="nx-back-tb" aria-label="Back to Orders & Results" title="Back to Orders & Results">
-            <ArrowLeft className="h-3.5 w-3.5" />
-          </button>
-          <h3 className="text-sm font-semibold text-ink">New order</h3>
-        </div>
-        <p className="text-[11px] text-ink-3">Creating an order routes it automatically — lab → specimen collection, medication → pharmacist verification.</p>
-        <div className="mt-3 space-y-2.5">
-          <select value={patientId} onChange={(e) => setPatientId(e.target.value)} className="w-full rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line">
-            <option value="">Select patient…</option>
-            {data?.patients.map((p) => <option key={p.id} value={p.id}>{p.fullName} · {p.uhid}</option>)}
-          </select>
-          <div className="grid grid-cols-2 gap-2">
-            <select value={orderType} onChange={(e) => setOrderType(e.target.value)} className="rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line">
-              {["lab", "imaging", "medication", "procedure", "referral"].map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-            <select value={priority} onChange={(e) => setPriority(e.target.value)} className="rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line">
-              {["routine", "urgent", "stat"].map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </div>
-          <input value={testName} onChange={(e) => setTestName(e.target.value)} placeholder={orderType === "medication" ? "Drug & dose (e.g. Ceftriaxone 1g IV BD)" : "Test / procedure"} className="w-full rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Clinical note (optional)" rows={2} className="w-full rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />
-        </div>
-        <div className="mt-4 flex justify-end gap-2">
+    <NxModal
+      open
+      onClose={onClose}
+      title="New order"
+      subtitle="Creating an order routes it automatically — lab → specimen collection, medication → pharmacist verification."
+      footer={
+        <>
           <button onClick={onClose} className="rounded-md border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:bg-inset">Cancel</button>
           <button onClick={submit} disabled={busy} className="rounded-md bg-accent px-3 py-1.5 text-xs font-semibold text-accent-ink hover:bg-accent disabled:opacity-50">
             {busy ? "Creating…" : "Create order"}
           </button>
+        </>
+      }
+    >
+      <div>
+        <label htmlFor="ord-patient" className="sr-only">Patient</label>
+        <select id="ord-patient" value={patientId} onChange={(e) => setPatientId(e.target.value)} className={nxField}>
+          <option value="">Select patient…</option>
+          {data?.patients.map((p) => <option key={p.id} value={p.id}>{p.fullName} · {p.uhid}</option>)}
+        </select>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label htmlFor="ord-type" className="sr-only">Order type</label>
+          <select id="ord-type" value={orderType} onChange={(e) => setOrderType(e.target.value)} className={nxField}>
+            {["lab", "imaging", "medication", "procedure", "referral"].map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="ord-priority" className="sr-only">Priority</label>
+          <select id="ord-priority" value={priority} onChange={(e) => setPriority(e.target.value)} className={nxField}>
+            {["routine", "urgent", "stat"].map((p) => <option key={p} value={p}>{p}</option>)}
+          </select>
         </div>
       </div>
-    </div>
+      <div>
+        <label htmlFor="ord-test" className="sr-only">Test or procedure</label>
+        <input id="ord-test" value={testName} onChange={(e) => setTestName(e.target.value)} placeholder={orderType === "medication" ? "Drug & dose (e.g. Ceftriaxone 1g IV BD)" : "Test / procedure"} className={nxField} />
+      </div>
+      <div>
+        <label htmlFor="ord-notes" className="sr-only">Clinical note</label>
+        <textarea id="ord-notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Clinical note (optional)" rows={2} className={nxField} />
+      </div>
+    </NxModal>
   );
 }

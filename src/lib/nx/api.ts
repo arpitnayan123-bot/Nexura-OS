@@ -35,7 +35,10 @@ export function fail(code: string, status: number, detail?: string, requestId?: 
   );
 }
 
-/** Wrap a route handler: correlation ID, structured logs, uniform 500s, rate limits. */
+/** Wrap a route handler: correlation ID, structured logs, uniform 500s, rate limits.
+ *  A modest default rate limit applies to every wrapped route (per IP + route);
+ *  pass `{ rateLimit }` to tighten it for expensive/sensitive handlers. */
+export const DEFAULT_ROUTE_RATE_LIMIT = { max: 300, windowMs: 60_000 } as const;
 export function withRoute(
   name: string,
   handler: (req: NextRequest, ctx: { requestId: string }) => Promise<NextResponse>,
@@ -45,9 +48,10 @@ export function withRoute(
     const requestId = req.headers.get("x-request-id") || newRequestId();
     const started = Date.now();
     try {
-      if (opts?.rateLimit) {
+      const limit = opts?.rateLimit ?? DEFAULT_ROUTE_RATE_LIMIT;
+      {
         const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-        const rl = rateLimit(`${name}:${ip}`, opts.rateLimit.max, opts.rateLimit.windowMs);
+        const rl = rateLimit(`${name}:${ip}`, limit.max, limit.windowMs);
         if (!rl.allowed) {
           return fail("rate_limited", 429, "Too many requests — slow down.", requestId, {
             "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
