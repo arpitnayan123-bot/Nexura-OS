@@ -130,7 +130,8 @@ export const GET = withRoute("tasks.list", async (req: NextRequest) => {
     db.nxTask.count({ where: { hospitalId, status: "done", completedAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } } }),
   ]);
 
-  return ok({
+  // Legacy top-level shape consumed by OS shell badges + modules
+  return NextResponse.json({
     tasks: enriched,
     counts: {
       open: cOpen,
@@ -190,7 +191,7 @@ export const POST = withRoute("tasks.create", async (req: NextRequest) => {
 
   await audit({ hospitalId, actorName: g.session.staffCode ?? g.session.name, actorRole: g.session.role, action: "task.create", entityType: "nx_task", entityId: task.id, patientId: task.patientId ?? undefined });
   publish({ event: "task.created", hospitalId, toRoles: ["command", "nurse", "doctor", "admin", "hospital_admin", "dept_admin"], data: { id: task.id, title: task.title, priority: task.priority } });
-  return ok({ task }, { status: 201 });
+  return NextResponse.json({ task }, { status: 201 });
 });
 
 export const PATCH = withRoute("tasks.update", async (req: NextRequest) => {
@@ -210,7 +211,7 @@ export const PATCH = withRoute("tasks.update", async (req: NextRequest) => {
     const c = await db.nxTaskComment.create({
       data: { taskId: task.id, authorName: g.session.name, authorRole: g.session.role, body: d.comment },
     });
-    return ok({ comment: c });
+    return NextResponse.json({ comment: c });
   }
 
   const data: Record<string, unknown> = {};
@@ -283,7 +284,7 @@ export const PATCH = withRoute("tasks.update", async (req: NextRequest) => {
     detail: { from, to: d.status ?? from, note: d.completionNote ?? d.waitingReason ?? d.blockedReason ?? undefined },
   });
   publish({ event: "task.updated", hospitalId, toRoles: ["command", "nurse", "doctor", "admin", "hospital_admin", "dept_admin"], data: { id: task.id, status: data.status ?? from, title: task.title } });
-  return ok({ task: updated });
+  return NextResponse.json({ task: updated });
 });
 
 export const PUT = withRoute("tasks.bulk", async (req: NextRequest) => {
@@ -314,5 +315,5 @@ export const PUT = withRoute("tasks.bulk", async (req: NextRequest) => {
     return fail("invalid_request", 400, "Missing action value.");
   }
   await audit({ hospitalId, actorName: g.session.staffCode ?? g.session.name, actorRole: g.session.role, action: `task.bulk.${parsed.data.action}`, entityType: "nx_task", detail: { count, ids: parsed.data.ids.length } });
-  return ok({ updated: count });
+  return NextResponse.json({ updated: count });
 });

@@ -35,7 +35,8 @@ export const GET = withRoute("notifications.list", async (req: NextRequest) => {
     db.nxNotification.count({ where }),
     db.nxNotification.count({ where: { ...where, readAt: null } }),
   ]);
-  return ok({ notifications: rows, unread, meta: pageMeta(p, total) });
+  // Bare shape: the OS notification center reads top-level fields
+  return NextResponse.json({ notifications: rows, unread, meta: pageMeta(p, total) });
 });
 
 const CreateSchema = z.object({

@@ -1,157 +1,88 @@
-# Nexura OS — Healthcare Operating System
+# Nexura Hospital OS v4 — "Foundation"
 
-India's first unified, AI-native healthcare platform. 7 products, 20+ AI features, 62 database models, 50+ API routes.
+A production-grade hospital operating ecosystem built on the Nexura OS platform.
+Dark, cinematic, command-center interface for clinicians, nurses, administrators,
+operations teams, patients and executives — backed by a real, auditable backend.
 
-Built by **Arpit Nayan** — a student from Bihar, India.
+**Stack:** Next.js 16 (App Router, Turbopack) · TypeScript · Tailwind 4 + shadcn/ui ·
+Prisma + SQLite (swap-ready for Postgres) · JWT session auth (HttpOnly cookies) ·
+SSE real-time · zod validation · Vitest + Playwright.
 
-## Quick Start
+---
+
+## Quick start
 
 ```bash
-# Install dependencies
-bun install
-
-# Set up environment
-cp .env.example .env
-# Edit .env: set DATABASE_URL and JWT_SECRET
-
-# Push database schema
-bunx prisma db push
-
-# Seed demo data
-bunx tsx scripts/seed-hospital.ts
-bunx tsx scripts/seed-clinic.ts
-bunx tsx scripts/seed-pharmacy.ts
-bunx tsx scripts/seed-portal.ts
-bunx tsx scripts/seed-connect.ts
-
-# Start development server
-bun run dev
-
-# Open http://localhost:3000
+bun install                 # deps
+bun run db:push             # create/sync schema (db/custom.db)
+bun run seed:demo           # v4 demo dataset (21 staff, patients, MAR, billing, …)
+bun run dev                 # http://localhost:3000/hospital
 ```
 
-## Products
+| Command | What it does |
+|---|---|
+| `bun run dev` | Dev server on :3000 |
+| `bun run typecheck` | `tsc --noEmit` gate (src must be clean) |
+| `bun run lint` | ESLint |
+| `bun run test` | Vitest unit suite (39 tests) |
+| `bun run test:api` | 29-check API smoke suite (needs dev server running) |
+| `bun run seed:demo` | Idempotent demo seed |
+| `bun run build` | Production build (standalone) |
 
-| Product | Route | Description |
-|---------|-------|-------------|
-| Hospital OS | `/hospital` | 18-module hospital management system |
-| Clinic OS | `/clinic` | HealthPlix-style EMR for clinics |
-| Pharmacia | `/pharmacy` | AI-powered pharmacy POS |
-| Patient Portal | `/portal` | Unified health records + blood test at home |
-| Connect | `/connect` | Doctor-patient chat, voice, video |
-| Know Your Health | `/know-your-health` | 15 AI health tools |
-| Global | `/global` | Medical tourism platform |
+**Demo sign-in:** open `/hospital` → "Explore demo roles" fills credentials → Sign in.
+All accounts use password `Demo@12345`; legacy staff-code + PIN `2468` also works.
+Full list: [docs/DEMO_CREDENTIALS.md](docs/DEMO_CREDENTIALS.md).
 
-Additional pages: `/investors`, `/pricing`, `/compliance`, `/founder`
+## What's inside
 
-## Tech Stack
-
-- **Framework:** Next.js 16 (App Router)
-- **Language:** TypeScript 5 (strict)
-- **Database:** Prisma ORM + SQLite (dev) / PostgreSQL (prod)
-- **AI:** z-ai-web-dev-sdk (GLM-4-Plus LLM, VLM, ASR, TTS)
-- **Auth:** JWT + bcrypt + httpOnly cookies
-- **UI:** Tailwind CSS 4 + shadcn/ui + Framer Motion + Recharts
-- **Fonts:** Fraunces (serif) + Plus Jakarta Sans (body)
-
-## Architecture
-
-Nexura OS uses Next.js App Router — frontend and API routes in a single project. This is the recommended Next.js architecture and deploys as a single unit to Vercel.
-
-```
-src/
-├── app/                    # Next.js App Router
-│   ├── api/                # 113 API routes (backend)
-│   │   ├── hospital/       # 40 hospital API routes
-│   │   ├── clinic/         # 19 clinic API routes
-│   │   ├── pharmacy/       # 20 pharmacy API routes
-│   │   ├── portal/         # 5 portal API routes
-│   │   ├── connect/        # 6 connect API routes
-│   │   ├── know-your-health/ # 15 AI tool API routes
-│   │   ├── auth/           # JWT authentication
-│   │   └── health/         # Health check endpoint
-│   ├── hospital/           # Hospital OS page
-│   ├── clinic/             # Clinic OS page
-│   ├── pharmacy/           # Pharmacy page
-│   ├── portal/             # Patient Portal pages
-│   ├── ...                 # Other product pages
-│   ├── layout.tsx          # Root layout
-│   ├── error.tsx           # Route error boundary
-│   └── global-error.tsx    # Root error boundary
-├── components/             # React components (198 files)
-│   ├── hospital/           # Hospital modules (27 files)
-│   ├── clinic/             # Clinic components
-│   ├── pharmacy/           # Pharmacy components
-│   ├── portal/             # Portal components
-│   ├── site/               # Shared site components
-│   ├── investors/          # Investor/pricing/compliance pages
-│   └── ui/                 # shadcn/ui base components
-├── lib/                    # Shared libraries
-│   ├── ai/                 # NexuraAI Gateway
-│   │   └── gateway.ts      # AI abstraction layer
-│   ├── auth/               # JWT + security middleware
-│   ├── db.ts               # Prisma client
-│   └── ...                 # Context libraries
-└── ...
-```
-
-## AI Gateway
-
-All AI calls go through `src/lib/ai/gateway.ts` (NexuraAI Gateway):
-
-```
-Nexura Feature → NexuraAI Gateway → Capability Router → Model Selector → AI Provider → Response
-```
-
-**Capabilities:** medical_reasoning, general_ai, vision, speech_to_text, text_to_speech, classification, summarization, agentic_tasks
-
-**Features:** model selection, fallback models, timeout handling, error handling, logging, cost tracking
-
-## Database
-
-62 Prisma models across 8 domains:
-- Hospital (15 models)
-- Clinic (6 models)
-- Pharmacy (11 models)
-- Portal (3 models)
-- Connect (4 models)
-- Indian Drug DB (1 model, 54 medicines)
-- Compliance (5 models)
-- Blood Bank (1 model)
-
-## Security
-
-- JWT access tokens (15 min) + refresh tokens (30 days)
-- bcrypt password hashing (12 rounds)
-- Rate limiting (100 req / 15 min per IP)
-- Security headers (CSP, HSTS, X-Frame-Options, etc.)
-- OTP authentication (6-digit, 5-min expiry, max 5 attempts)
-- Role-based access control (RBAC)
-
-## Compliance
-
-ABDM · DPDP 2023 · NABH · CDSCO · IRDAI · GST e-Invoice · ICD-10
-
-## Deployment
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for Vercel deployment instructions.
+- **Hospital OS desktop** — boot, login, workspaces, window manager, dock, launcher,
+  ⌘K palette, app switcher, lock screen, Files & Console system apps
+- **23 registered apps** — Command Center, Work Queue, Patient Records (timeline,
+  consents, MAR, access history), Emergency, Scheduling (waitlist, conflicts),
+  Beds & Rooms (8-state lifecycle), Care Communication (channels, mentions,
+  receipts), Pharmacy (MAR, allergy guard, controlled substances), Laboratory
+  (verify + critical escalation), Revenue Cycle (charges/payments/refunds/CSV),
+  Inventory & Procurement (vendors, POs, stock txns), Staff Operations,
+  Analytics (windows, SLA, CSV), Audit Trail (tamper-evident), Administration
+  (permission matrix, staff accounts), Automations, AI-assisted workspaces
+- **Auth suite** — email+password & staff-code+PIN, TOTP MFA, progressive lockout,
+  revocable sessions (per-device + all), password reset, email verification,
+  break-glass emergency access, audited logins
+- **RBAC as data** — 20 roles → 36 permissions, hospital/department/patient scoping,
+  explicit allow/deny grants with TTL, delegations, permission matrix UI
+- **Nexura OS integration layer** — typed provider contracts (identity,
+  notifications, calendar, tasks, messaging, files, search, audit, automation,
+  feature flags) with local adapters; product switcher; cross-product deep links
+- **Real-time** — SSE stream with auth-at-subscribe, reconnect, dedupe; live
+  notifications, critical-lab alerts, urgent messages
+- **Observability** — /api/health, /api/ready, structured JSON logs, request IDs,
+  maintenance mode + incident banners, env validation
+- **Ops** — Dockerfile + compose, GitHub Actions CI, OpenAPI 3.1 at `/api/nx/openapi`
 
 ## Documentation
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) — System architecture
-- [CODEBASE_AUDIT.md](./CODEBASE_AUDIT.md) — Full codebase audit
-- [DEPLOYMENT.md](./DEPLOYMENT.md) — Deployment guide
-- [PITCH.md](./PITCH.md) — Investor pitch
-- [BUSINESS.md](./BUSINESS.md) — Business model
-- [ROADMAP.md](./ROADMAP.md) — Product roadmap
-- [COMPLIANCE.md](./COMPLIANCE.md) — Regulatory compliance
+| Doc | Contents |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, layers, data flow |
+| [docs/DATABASE.md](docs/DATABASE.md) | Schema map, conventions, retention |
+| [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md) | Auth flows, sessions, MFA, break-glass |
+| [docs/AUTHORIZATION_MATRIX.md](docs/AUTHORIZATION_MATRIX.md) | Full role → permission matrix |
+| [docs/NEXURA_INTEGRATION.md](docs/NEXURA_INTEGRATION.md) | Platform contracts & adapters |
+| [docs/API.md](API.md) | API reference (also `/api/nx/openapi`) |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deploy, env, rollback, backups |
+| [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) | Every environment variable |
+| [docs/SECURITY.md](docs/SECURITY.md) | Controls + what's still required |
+| [docs/TESTING.md](docs/TESTING.md) | Test strategy + how to run |
+| [docs/DEMO_CREDENTIALS.md](docs/DEMO_CREDENTIALS.md) | Accounts + what each sees |
+| [docs/INCIDENT_RESPONSE.md](docs/INCIDENT_RESPONSE.md) | Runbook |
+| [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md) | Honest gaps & integration points |
+| [docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) | Go-live checklist |
 
-## Contact
+## Compliance posture (read this)
 
-**Arpit Nayan** — Founder & CEO
-📧 arpit.nexuraos@gmail.com
-📍 Bihar, India 🇮🇳
-
-## License
-
-Proprietary. © 2026 Nexura AI Technologies Pvt. Ltd.
+This codebase implements **technical controls** — auditability, access control,
+encryption in transit (TLS at the hosting layer), lockout, session revocation,
+immutability of signed records. It does **NOT** by itself make you HIPAA/ABHA/
+GDPR-compliant: organizational policies, BAAs, formal risk assessments, hosting
+controls and certification remain your responsibility. See
+[docs/SECURITY.md](docs/SECURITY.md) and [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md).

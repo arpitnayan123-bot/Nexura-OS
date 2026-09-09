@@ -90,7 +90,8 @@ async function issueSession(
     }
   );
   const roleKey = user.role as NxRole;
-  const res = ok({
+  // Backward-compatible envelope: OS shell + login UI read top-level user/modules
+  const res = NextResponse.json({
     user: {
       id: user.id,
       name: user.name,
@@ -225,7 +226,7 @@ export const POST = withRoute("auth.login", async (req) => {
 
   // --- MFA step 1: user has MFA on, issue step-up token ---
   if (user.mfaEnabled && user.mfaSecret && !creds.mfaCode) {
-    return ok({ mfa_required: true, mfa_token: signMfaToken(user.id) });
+    return NextResponse.json({ mfa_required: true, mfa_token: signMfaToken(user.id) });
   }
 
   await auditAttempt(true, "ok");
@@ -253,7 +254,7 @@ export const GET = withRoute("auth.me", async (req) => {
     ? await db.nxSessionRecord.findUnique({ where: { jti: (decoded as unknown as { jti: string }).jti } })
     : null;
   if (sessionRec && (sessionRec.revokedAt || sessionRec.expiresAt < new Date())) return fail("session_revoked", 401, "Your session was signed out.");
-  return ok({
+  return NextResponse.json({
     user: {
       id: user.id,
       name: user.name,

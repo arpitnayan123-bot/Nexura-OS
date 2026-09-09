@@ -71,7 +71,6 @@ export const GET = withRoute("messages.list", async (req: NextRequest) => {
   });
 
   return NextResponse.json({
-    data: {
       messages: safeMessages,
       unreadInChannel: unread,
       restrictedChannel: isPatientChannel && !canClinical,
@@ -88,7 +87,6 @@ export const GET = withRoute("messages.list", async (req: NextRequest) => {
           restricted: !canClinical,
         })),
       ] as Array<{ key: string; label: string; kind: string; patientId?: string; restricted?: boolean; severity?: string }>)
-    },
   });
 });
 
