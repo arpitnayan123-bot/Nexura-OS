@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireModule } from "@/lib/nx/session";
+import { toCsv } from "@/lib/nx/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,14 +13,16 @@ export async function GET(req: NextRequest) {
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
   if (!hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 404 });
 
+  const days = Math.min(180, Math.max(1, Number(new URL(req.url).searchParams.get("days") || 30) || 30));
+  const since = new Date(Date.now() - days * 86400000);
   const [admissions, discharged, orders, bills, appointments, incidents, tasks, beds] = await Promise.all([
-    db.hospitalAdmission.findMany({ where: { hospitalId }, include: { patient: true, ward: true } }),
+    db.hospitalAdmission.findMany({ where: { hospitalId, admissionDate: { gte: since } }, include: { patient: true, ward: true } }),
     db.hospitalAdmission.findMany({ where: { hospitalId, dischargeStatus: "discharged" } }),
-    db.hospitalOrder.findMany({ where: { hospitalId }, include: { labResults: true } }),
+    db.hospitalOrder.findMany({ where: { hospitalId, createdAt: { gte: since } }, include: { labResults: true } }),
     db.hospitalBill.findMany({ where: { hospitalId } }),
-    db.hospitalAppointment.findMany({ where: { hospitalId } }),
-    db.nxIncident.findMany({ where: { hospitalId } }),
-    db.nxTask.findMany({ where: { hospitalId } }),
+    db.hospitalAppointment.findMany({ where: { hospitalId, date: { gte: since } } }),
+    db.nxIncident.findMany({ where: { hospitalId, createdAt: { gte: since } } }),
+    db.nxTask.findMany({ where: { hospitalId, createdAt: { gte: since } } }),
     db.hospitalBed.findMany({ where: { hospitalId }, include: { ward: true } }),
   ]);
 
@@ -118,7 +121,51 @@ export async function GET(req: NextRequest) {
 
   const occupiedBeds = beds.filter((b) => ["occupied", "discharge_pending"].includes(b.status)).length;
 
+  // Task SLA compliance: done within dueAt, over active tasks with due dates
+  const doneWithDue = tasks.filter((t) => t.status === "done" && t.dueAt && t.completedAt);
+  const slaMet = doneWithDue.filter((t) => new Date(t.completedAt!).getTime() <= new Date(t.dueAt!).getTime()).length;
+  const slaCompliancePct = doneWithDue.length ? (slaMet / doneWithDue.length) * 100 : null;
+
+  // Payments ledger trend over the selected window (bills trend above covers revenue by day)
+  const payments = await db.nxPayment.findMany({ where: { hospitalId, receivedAt: { gte: since } }, select: { amount: true, receivedAt: true } });
+  const paymentTrend: Array<{ day: string; collected: number }> = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const day = new Date(new Date().setHours(0, 0, 0, 0) - i * 86400000);
+    const next = new Date(day.getTime() + 86400000);
+    const amount = payments.filter((p) => p.receivedAt >= day && p.receivedAt < next).reduce((s2, p) => s2 + p.amount, 0);
+    paymentTrend.push({ day: day.toISOString().slice(0, 10), collected: amount });
+  }
+
+  // Inventory loss (wastage + expired adjustments)
+  const [wastageAgg, expiringCount] = await Promise.all([
+    db.nxStockTxn.aggregate({ where: { hospitalId, kind: "wastage", createdAt: { gte: since } }, _count: true }),
+    db.nxSupplyItem.count({ where: { hospitalId, expiryDate: { lte: new Date() } } }),
+  ]);
+
+
+  // CSV export (reports.export permission)
+  const url = new URL(req.url);
+  if (url.searchParams.get("format") === "csv") {
+    const rows = [
+      { metric: "admissions", value: admissions.length },
+      { metric: "average_length_of_stay_days", value: alos.toFixed(2) },
+      { metric: "readmission_rate_pct", value: readmissionRate.toFixed(1) },
+      { metric: "task_sla_compliance_pct", value: slaCompliancePct?.toFixed(1) ?? "n/a" },
+      { metric: "revenue_collected_paise", value: payments.reduce((s2, p) => s2 + p.amount, 0) },
+      { metric: "wastage_events", value: wastageAgg._count },
+      { metric: "expired_items", value: expiringCount },
+      { metric: "window_days", value: days },
+    ];
+    return new NextResponse(toCsv(rows), {
+      headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="hospital-analytics-${new Date().toISOString().slice(0, 10)}.csv"` },
+    });
+  }
+
   return NextResponse.json({
+    window: { days, since: since.toISOString() },
+    slaCompliancePct,
+    paymentTrend,
+    inventory: { wastageEvents: wastageAgg._count, expiredItems: expiringCount },
     kpis: {
       alosDays: Math.round(alos * 10) / 10,
       readmissionPct: Math.round(readmissionRate * 10) / 10,

@@ -1,0 +1,22 @@
+# Nexura Hospital OS — local production-like stack
+# Usage: docker compose up --build
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: file:/app/db/custom.db
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-real-deployments-please}
+      NEXURA_MODE: local
+      EMAIL_TRANSPORT: console
+      DEMO_MODE: "true"
+    volumes:
+      - app-db:/app/db
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+volumes:
+  app-db:
