@@ -2435,3 +2435,22 @@ Stage Summary:
 - Quality gates: tsc 0 errors, eslint clean, vitest 39/39, api-smoke 29/29, 14/14 routes 200, full back chain verified twice.
 - New files: src/components/nx/os/back.ts, back-ui.tsx, scripts/nx-supervisor.sh.
 - Demo credentials unchanged (PIN 2468 / Demo@12345); preview served by the self-healing production supervisor on port 3000.
+
+---
+Task ID: fix-2 (preview refused to connect + sandbox-reset recovery)
+Agent: Super Z (main)
+Task: User reported "Preview is refusing to connect". Diagnose, fix, verify, commit.
+
+Work Log:
+- Root cause 1 (the refusal): src/proxy.ts set `X-Frame-Options: DENY` on every response, so the platform preview (which embeds the app in a cross-origin iframe) rendered Chrome's "refused to connect" page. Replaced with a deliberate framing policy: XFO removed entirely; CSP `frame-ancestors *` in dev/demo, `'self' https:` in production (verified in built standalone bundle).
+- Root cause 2 (silent breakage after sandbox reset): Next 16 dev blocks unrecognized cross-origin origins — added `allowedDevOrigins: ["space-z.ai", "*.space-z.ai"]` to next.config.ts so preview-gateway asset/router requests pass.
+- Sandbox-reset recovery: the recycle wiped db/custom.db (gitignored) to schema-only and stripped .env to just DATABASE_URL; 82 files had spurious mode-only changes. Restored tree via git checkout, restored .env from HEAD (JWT_SECRET unchanged so sessions stay valid), re-ran the full seed chain: scripts/legacy/seed-hospital.ts (fixed its broken post-move import `../src` -> `../../src`) -> scripts/seed-nx.ts -> scripts/seed-nx-v4.ts. Demo logins back to normal (PIN 2468 / Demo@12345).
+- Updated tests/api-smoke.sh header assertions for the new policy: still requires X-Content-Type-Options, forbids `X-Frame-Options: DENY`, and adds a "preview embeddable" check (no XFO + frame-ancestors present). Smoke is now 30/30 (was 29/29).
+- Rebuilt the standalone production bundle (next build + static/public copy) so the nx-supervisor.sh fallback path also carries the framing fix; verified it on :3100 (200, enforced CSP frame-ancestors 'self' https:, no XFO).
+- Restarted the dev server (setsid) as the active preview server; verified with curl (no XFO, frame-ancestors *) and with a simulated preview-gateway request (Host+Origin *.space-z.ai -> 200 page + 200 assets).
+- Browser end-to-end (agent-browser 1440x900): home 200 -> Hospital OS login (CMD.ANITA/PIN) -> Command Center fully rendered with reseeded data -> Patient Records -> patient drawer (previously crash-prone view) renders with clean empty-states; zero page errors; back-nav pill and titlebar arrows intact.
+
+Stage Summary:
+- Preview embeddable again: XFO DENY gone, frame-ancestors permissive (dev) / https-gateway-permissive (prod), dev origins allowlisted.
+- Gates: tsc 0 errors, eslint clean, vitest 39/39, api-smoke 30/30, all routes 200.
+- Changed: src/proxy.ts, next.config.ts, tests/api-smoke.sh, scripts/legacy/seed-hospital.ts (+ scripts/check-users.mjs diagnostic helper). Demo credentials unchanged.

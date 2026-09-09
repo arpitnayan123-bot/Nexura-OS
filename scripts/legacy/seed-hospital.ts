@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { calculateAge, calculateNEWS2, generateUhid } from "../src/lib/hospital-context";
+import { calculateAge, calculateNEWS2, generateUhid } from "../../src/lib/hospital-context";
 
 /* Nexura Hospital OS — comprehensive seed
    Creates realistic Indian hospital data across all 18 tables */
