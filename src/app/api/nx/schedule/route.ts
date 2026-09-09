@@ -1,0 +1,133 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { requireModule } from "@/lib/nx/session";
+import { audit } from "@/lib/nx/audit";
+import { fire } from "@/lib/nx/automations";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+/** GET — appointment & resource scheduling workspace. */
+export async function GET(req: NextRequest) {
+  const gate = requireModule(req, "schedule");
+  if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+
+  const { searchParams } = new URL(req.url);
+  const dayOffset = Number(searchParams.get("day") || 0);
+  const base = new Date();
+  base.setHours(0, 0, 0, 0);
+  base.setDate(base.getDate() + dayOffset);
+  const next = new Date(base.getTime() + 86400000);
+
+  const [appointments, doctors] = await Promise.all([
+    db.hospitalAppointment.findMany({
+      where: { hospitalId, date: { gte: base, lt: next } },
+      orderBy: { timeSlot: "asc" },
+      include: {
+        patient: { select: { id: true, fullName: true, uhid: true, phone: true } },
+        doctor: { select: { id: true, name: true, specialty: true, department: true } },
+      },
+    }),
+    db.hospitalDoctor.findMany({ where: { hospitalId }, include: { _count: { select: { appointments: true } } } }),
+  ]);
+
+  const byStatus = appointments.reduce<Record<string, number>>((acc, a) => {
+    acc[a.status] = (acc[a.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  return NextResponse.json({
+    day: base.toISOString(),
+    appointments: appointments.map((a) => ({
+      id: a.id, time: a.timeSlot, token: a.tokenNumber, type: a.appointmentType, status: a.status,
+      complaint: a.chiefComplaint, patient: a.patient, doctor: a.doctor,
+    })),
+    stats: { total: appointments.length, ...byStatus },
+    doctors: doctors.map((d) => ({
+      id: d.id, name: d.name, speciality: d.specialty, department: d.department,
+      todayCount: appointments.filter((a) => a.doctorId === d.id).length,
+      totalAppointments: (d as unknown as { _count: { appointments: number } })._count.appointments,
+    })),
+  });
+}
+
+/** POST — book appointment (conflict-checked, fires prep automation). */
+export async function POST(req: NextRequest) {
+  const gate = requireModule(req, "schedule");
+  if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+  const body = await req.json().catch(() => ({}));
+  if (!body.patientId || !body.doctorId || !body.date) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+
+  const [patient, doctor] = await Promise.all([
+    db.hospitalPatient.findFirst({ where: { id: body.patientId, hospitalId } }),
+    db.hospitalDoctor.findFirst({ where: { id: body.doctorId, hospitalId } }),
+  ]);
+  if (!patient || !doctor) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
+  const when = new Date(body.date);
+  // conflict detection: same doctor within the same 15-min slot
+  const clash = await db.hospitalAppointment.findFirst({
+    where: { hospitalId, doctorId: doctor.id, date: { gte: new Date(when.getTime() - 7 * 60000), lte: new Date(when.getTime() + 7 * 60000) }, status: { notIn: ["cancelled", "no_show"] } },
+  });
+  if (clash) {
+    const suggestions: string[] = [];
+    for (const mins of [30, 45, 60, 90, 120]) {
+      const alt = new Date(when.getTime() + mins * 60000);
+      const altClash = await db.hospitalAppointment.findFirst({
+        where: { hospitalId, doctorId: doctor.id, date: { gte: new Date(alt.getTime() - 7 * 60000), lte: new Date(alt.getTime() + 7 * 60000) }, status: { notIn: ["cancelled", "no_show"] } },
+      });
+      if (!altClash) suggestions.push(alt.toISOString());
+      if (suggestions.length >= 3) break;
+    }
+    return NextResponse.json({ error: "slot_conflict", detail: `${doctor.name} already has an appointment in this slot`, suggestions }, { status: 409 });
+  }
+
+  const appt = await db.hospitalAppointment.create({
+    data: {
+      hospitalId: hospitalId!,
+      patientId: patient.id,
+      patientUhid: patient.uhid,
+      doctorId: doctor.id,
+      date: when,
+      timeSlot: when.toISOString().slice(11, 16),
+      appointmentType: body.type === "teleconsult" ? "teleconsult" : body.type === "followup" ? "followup" : "opd",
+      chiefComplaint: body.complaint || null,
+      status: "scheduled",
+    },
+  });
+  await audit({
+    hospitalId: hospitalId!, actorName: gate.session.name, actorRole: gate.session.role,
+    action: "appointment.create", entityType: "HospitalAppointment", entityId: appt.id, patientId: patient.id,
+    detail: { doctor: doctor.name, at: when.toISOString() },
+  });
+  await fire("appointment.created", {
+    hospitalId: hospitalId!, actorName: gate.session.name, actorRole: gate.session.role,
+    patientId: patient.id, patientName: patient.fullName, relatedId: appt.id,
+    detail: { doctor: doctor.name, at: when.toISOString() },
+  });
+  return NextResponse.json({ appointment: appt });
+}
+
+/** PATCH — check-in / complete / cancel / no-show. */
+export async function PATCH(req: NextRequest) {
+  const gate = requireModule(req, "schedule");
+  if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  const body = await req.json().catch(() => ({}));
+  if (!body.id || !body.status) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+
+  const appt = await db.hospitalAppointment.findUnique({ where: { id: body.id } });
+  if (!appt) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
+  const allowed = ["scheduled", "waiting", "in_consultation", "completed", "no_show", "cancelled"];
+  if (!allowed.includes(body.status)) return NextResponse.json({ error: "invalid_status" }, { status: 400 });
+
+  const updated = await db.hospitalAppointment.update({ where: { id: appt.id }, data: { status: body.status } });
+  await audit({
+    hospitalId: appt.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
+    action: `appointment.${body.status}`, entityType: "HospitalAppointment", entityId: appt.id, patientId: appt.patientId,
+    detail: { from: appt.status, to: body.status },
+  });
+  return NextResponse.json({ appointment: updated });
+}

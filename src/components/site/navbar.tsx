@@ -1,0 +1,92 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Activity, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "./theme-toggle";
+import { useBooking } from "./booking-context";
+import { FeaturesMenu } from "./features-menu";
+
+export function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const { openBooking } = useBooking();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <header
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
+        scrolled ? "py-2" : "py-4"
+      )}
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav
+          className={cn(
+            "relative flex items-center justify-between rounded-2xl px-4 transition-all duration-500 sm:px-5",
+            scrolled
+              ? "glass-premium h-14 shadow-[0_8px_30px_-12px_oklch(0.4_0.05_45/0.18)]"
+              : "h-16 bg-transparent"
+          )}
+        >
+          {/* Logo */}
+          <Link href="#top" className="group flex items-center gap-2.5">
+            <Logo />
+            <div className="flex flex-col leading-none">
+              <span className="font-display text-[1.05rem] font-semibold tracking-tight">
+                Nexura<span className="text-primary"> OS</span>
+              </span>
+              <span className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground">
+                Health · OS
+              </span>
+            </div>
+          </Link>
+
+          {/* Actions — single cluster, works on all breakpoints */}
+          <div className="flex items-center gap-2">
+            <FeaturesMenu />
+            <ThemeToggle />
+            <Button
+              asChild
+              variant="ghost"
+              className="hidden rounded-full text-sm font-medium sm:inline-flex"
+            >
+              <Link href="#dashboard">Sign in</Link>
+            </Button>
+            <Button
+              onClick={() => openBooking()}
+              className="group rounded-full bg-primary text-primary-foreground shadow-[0_8px_24px_-8px_oklch(0.70_0.145_45/0.7)] transition-all hover:shadow-[0_10px_30px_-8px_oklch(0.70_0.145_45/0.85)]"
+            >
+              <span className="flex items-center gap-1.5">
+                Book a visit
+                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </Button>
+          </div>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+export function Logo({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        "relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-coral via-honey to-sage anim-gradient",
+        className
+      )}
+    >
+      <Activity className="h-4.5 w-4.5 text-white" strokeWidth={2.6} />
+      <span className="absolute inset-0 rounded-xl ring-1 ring-white/30" />
+    </span>
+  );
+}

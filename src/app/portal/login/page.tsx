@@ -1,0 +1,10 @@
+import { PortalLogin } from "@/components/portal/portal-login";
+
+export const metadata = {
+  title: "Login · Nexura Patient Portal",
+  description: "Secure phone-first login to your unified health record, blood tests at home, and AI insights.",
+};
+
+export default function PortalLoginPage() {
+  return <PortalLogin />;
+}

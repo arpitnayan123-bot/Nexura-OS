@@ -1,0 +1,738 @@
+/* ============================================================================
+   HOSPITAL OS — "Mineral" design system
+   Design language: warm stone neutrals, layered translucent surfaces,
+   signature amber accent, editorial display type, physically-coherent motion.
+   Themes are independently designed (never a naive inversion).
+   Scoped under .nx-root so the marketing site is untouched.
+   ============================================================================ */
+
+@theme inline {
+  /* --- surfaces --- */
+  --color-void: var(--nx-void);            /* desktop / deepest background   */
+  --color-panel: var(--nx-panel);          /* window & card surface          */
+  --color-panel-2: var(--nx-panel-2);      /* raised surface (popovers)      */
+  --color-panel-3: var(--nx-panel-3);      /* highest surface (dialogs)      */
+  --color-inset: var(--nx-inset);          /* wells, inputs, tracks          */
+  /* --- lines --- */
+  --color-line: var(--nx-line);            /* hairline border                */
+  --color-line-2: var(--nx-line-2);        /* strong border / divider        */
+  /* --- ink (text) --- */
+  --color-ink: var(--nx-ink);              /* primary text                   */
+  --color-ink-2: var(--nx-ink-2);          /* secondary text                 */
+  --color-ink-3: var(--nx-ink-3);          /* muted text                     */
+  --color-ink-4: var(--nx-ink-4);          /* faint / placeholder            */
+  /* --- accent (signature) --- */
+  --color-accent: var(--nx-accent);
+  --color-accent-2: var(--nx-accent-2);
+  --color-accent-ink: var(--nx-accent-ink);
+  --color-accent-soft: var(--nx-accent-soft);
+  --color-accent-line: var(--nx-accent-line);
+  /* --- status families --- */
+  --color-good: var(--nx-good);   --color-good-soft: var(--nx-good-soft);   --color-good-line: var(--nx-good-line);
+  --color-warn: var(--nx-warn);   --color-warn-soft: var(--nx-warn-soft);   --color-warn-line: var(--nx-warn-line);
+  --color-crit: var(--nx-crit);   --color-crit-soft: var(--nx-crit-soft);   --color-crit-line: var(--nx-crit-line);
+  --color-info: var(--nx-info);   --color-info-soft: var(--nx-info-soft);   --color-info-line: var(--nx-info-line);
+  --color-vio: var(--nx-vio);     --color-vio-soft: var(--nx-vio-soft);     --color-vio-line: var(--nx-vio-line);
+  /* --- type --- */
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ----------------------------------------------------------------------------
+   DARK — "Graphite Night" (default)
+   Declared on .nx-root AND html.nx-dark so portaled surfaces
+   (dialogs, menus, toasts) resolve the same tokens.
+---------------------------------------------------------------------------- */
+.nx-root,
+html.nx-dark {
+  /* surfaces */
+  --nx-void:    oklch(0.152 0.011 60);
+  --nx-panel:   oklch(0.205 0.013 58 / 0.86);
+  --nx-panel-2: oklch(0.245 0.014 58 / 0.92);
+  --nx-panel-3: oklch(0.285 0.015 58 / 0.97);
+  --nx-inset:   oklch(0.175 0.012 60 / 0.85);
+  /* lines */
+  --nx-line:    oklch(0.305 0.014 60 / 0.75);
+  --nx-line-2:  oklch(0.385 0.016 62 / 0.9);
+  /* ink */
+  --nx-ink:     oklch(0.945 0.008 85);
+  --nx-ink-2:   oklch(0.800 0.011 75);
+  --nx-ink-3:   oklch(0.610 0.012 70);
+  --nx-ink-4:   oklch(0.455 0.011 68);
+  /* accent — Solar Amber (default) */
+  --nx-accent:      oklch(0.815 0.135 78);
+  --nx-accent-2:    oklch(0.870 0.120 82);
+  --nx-accent-ink:  oklch(0.230 0.055 70);
+  --nx-accent-soft: oklch(0.815 0.135 78 / 0.13);
+  --nx-accent-line: oklch(0.815 0.135 78 / 0.38);
+  /* status — tuned for dark ground */
+  --nx-good: oklch(0.790 0.150 160); --nx-good-soft: oklch(0.790 0.150 160 / 0.11); --nx-good-line: oklch(0.790 0.150 160 / 0.32);
+  --nx-warn: oklch(0.830 0.140 85);  --nx-warn-soft: oklch(0.830 0.140 85 / 0.12);  --nx-warn-line: oklch(0.830 0.140 85 / 0.35);
+  --nx-crit: oklch(0.720 0.190 20);  --nx-crit-soft: oklch(0.720 0.190 20 / 0.13);  --nx-crit-line: oklch(0.720 0.190 20 / 0.38);
+  --nx-info: oklch(0.760 0.115 235); --nx-info-soft: oklch(0.760 0.115 235 / 0.12); --nx-info-line: oklch(0.760 0.115 235 / 0.34);
+  --nx-vio:  oklch(0.740 0.140 305); --nx-vio-soft:  oklch(0.740 0.140 305 / 0.13); --nx-vio-line:  oklch(0.740 0.140 305 / 0.36);
+  /* elevation — deep, directional, with a faint top light */
+  --nx-e1: 0 1px 2px oklch(0 0 0 / 0.28), 0 0 0 1px oklch(1 0 0 / 0.025) inset;
+  --nx-e2: 0 4px 14px -4px oklch(0 0 0 / 0.42), 0 0 0 1px oklch(1 0 0 / 0.03) inset;
+  --nx-e3: 0 10px 30px -8px oklch(0 0 0 / 0.5), 0 0 0 1px oklch(1 0 0 / 0.04) inset;
+  --nx-e4: 0 24px 60px -16px oklch(0 0 0 / 0.62), 0 0 0 1px oklch(1 0 0 / 0.05) inset;
+  --nx-e5: 0 32px 90px -18px oklch(0 0 0 / 0.72), 0 0 0 1px oklch(1 0 0 / 0.06) inset;
+  /* ambience */
+  --nx-sky-1: oklch(0.42 0.075 45 / 0.34);
+  --nx-sky-2: oklch(0.30 0.05 160 / 0.20);
+  --nx-sky-3: oklch(0.35 0.06 300 / 0.16);
+  --nx-sheen: oklch(1 0 0 / 0.035);
+  --nx-scrim: oklch(0.10 0.01 60 / 0.55);
+  /* materials */
+  --nx-blur: 22px;
+  --nx-sat: 1.25;
+  /* opaque system surfaces (overlays must never bleed) */
+  --nx-solid:   oklch(0.235 0.014 58);
+  --nx-solid-2: oklch(0.275 0.015 58);
+  /* motion */
+  --nx-t-fast: 130ms;
+  --nx-t: 210ms;
+  --nx-t-slow: 460ms;
+  --nx-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --nx-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --nx-dock-w: 58px;
+}
+
+/* ----------------------------------------------------------------------------
+   LIGHT — "Mineral Paper" (designed independently: airy warm stone,
+   ink-drawn lines, pigment-washed status colors — not an inversion)
+---------------------------------------------------------------------------- */
+.nx-root[data-theme="light"],
+html.nx-light {
+  --nx-void:    oklch(0.962 0.009 80);
+  --nx-panel:   oklch(0.995 0.003 90 / 0.88);
+  --nx-panel-2: oklch(0.985 0.004 88 / 0.94);
+  --nx-panel-3: oklch(0.998 0.002 90 / 0.985);
+  --nx-inset:   oklch(0.935 0.008 82 / 0.9);
+  --nx-line:    oklch(0.875 0.012 75 / 0.85);
+  --nx-line-2:  oklch(0.80 0.014 72 / 1);
+  --nx-ink:     oklch(0.235 0.018 55);
+  --nx-ink-2:   oklch(0.385 0.016 58);
+  --nx-ink-3:   oklch(0.520 0.014 62);
+  --nx-ink-4:   oklch(0.640 0.012 66);
+  --nx-accent:      oklch(0.640 0.135 68);
+  --nx-accent-2:    oklch(0.580 0.140 64);
+  --nx-accent-ink:  oklch(0.995 0.005 90);
+  --nx-accent-soft: oklch(0.640 0.135 68 / 0.10);
+  --nx-accent-line: oklch(0.640 0.135 68 / 0.32);
+  --nx-good: oklch(0.560 0.130 155); --nx-good-soft: oklch(0.560 0.130 155 / 0.10); --nx-good-line: oklch(0.560 0.130 155 / 0.28);
+  --nx-warn: oklch(0.620 0.130 75);  --nx-warn-soft: oklch(0.620 0.130 75 / 0.11);  --nx-warn-line: oklch(0.620 0.130 75 / 0.30);
+  --nx-crit: oklch(0.550 0.190 22);  --nx-crit-soft: oklch(0.550 0.190 22 / 0.09);  --nx-crit-line: oklch(0.550 0.190 22 / 0.28);
+  --nx-info: oklch(0.540 0.120 240); --nx-info-soft: oklch(0.540 0.120 240 / 0.09); --nx-info-line: oklch(0.540 0.120 240 / 0.26);
+  --nx-vio:  oklch(0.540 0.160 300); --nx-vio-soft:  oklch(0.540 0.160 300 / 0.09); --nx-vio-line:  oklch(0.540 0.160 300 / 0.26);
+  --nx-e1: 0 1px 2px oklch(0.35 0.03 60 / 0.08);
+  --nx-e2: 0 3px 10px -2px oklch(0.35 0.03 60 / 0.12);
+  --nx-e3: 0 8px 24px -6px oklch(0.35 0.03 60 / 0.16);
+  --nx-e4: 0 20px 48px -12px oklch(0.35 0.03 60 / 0.22);
+  --nx-e5: 0 28px 70px -16px oklch(0.35 0.03 60 / 0.28);
+  --nx-sky-1: oklch(0.85 0.075 65 / 0.55);
+  --nx-sky-2: oklch(0.90 0.05 160 / 0.4);
+  --nx-sky-3: oklch(0.88 0.05 300 / 0.3);
+  --nx-sheen: oklch(1 0 0 / 0.55);
+  --nx-scrim: oklch(0.30 0.02 60 / 0.32);
+  --nx-solid:   oklch(0.988 0.003 90);
+  --nx-solid-2: oklch(0.975 0.004 88);
+  --nx-blur: 26px;
+}
+
+/* ----------------------------------------------------------------------------
+   ACCENT VARIANTS — one signature accent, user selectable
+---------------------------------------------------------------------------- */
+.nx-root[data-accent="jade"], html[data-nx-accent="jade"] {
+  --nx-accent: oklch(0.780 0.140 168); --nx-accent-2: oklch(0.840 0.120 172);
+  --nx-accent-ink: oklch(0.200 0.050 168); --nx-accent-soft: oklch(0.780 0.140 168 / 0.13); --nx-accent-line: oklch(0.780 0.140 168 / 0.38);
+}
+.nx-root[data-accent="coral"], html[data-nx-accent="coral"] {
+  --nx-accent: oklch(0.740 0.150 35); --nx-accent-2: oklch(0.800 0.130 40);
+  --nx-accent-ink: oklch(0.240 0.060 35); --nx-accent-soft: oklch(0.740 0.150 35 / 0.13); --nx-accent-line: oklch(0.740 0.150 35 / 0.40);
+}
+.nx-root[data-accent="cyan"], html[data-nx-accent="cyan"] {
+  --nx-accent: oklch(0.790 0.110 210); --nx-accent-2: oklch(0.850 0.095 214);
+  --nx-accent-ink: oklch(0.210 0.045 210); --nx-accent-soft: oklch(0.790 0.110 210 / 0.13); --nx-accent-line: oklch(0.790 0.110 210 / 0.38);
+}
+.nx-root[data-accent="violet"], html[data-nx-accent="violet"] {
+  --nx-accent: oklch(0.740 0.140 300); --nx-accent-2: oklch(0.800 0.120 304);
+  --nx-accent-ink: oklch(0.220 0.050 300); --nx-accent-soft: oklch(0.740 0.140 300 / 0.13); --nx-accent-line: oklch(0.740 0.140 300 / 0.38);
+}
+.nx-root[data-theme="light"][data-accent="jade"], html.nx-light[data-nx-accent="jade"] {
+  --nx-accent: oklch(0.560 0.120 168); --nx-accent-2: oklch(0.500 0.120 168); --nx-accent-ink: oklch(0.99 0.005 90);
+}
+.nx-root[data-theme="light"][data-accent="coral"], html.nx-light[data-nx-accent="coral"] {
+  --nx-accent: oklch(0.600 0.160 35); --nx-accent-2: oklch(0.540 0.160 35); --nx-accent-ink: oklch(0.99 0.005 90);
+}
+.nx-root[data-theme="light"][data-accent="cyan"], html.nx-light[data-nx-accent="cyan"] {
+  --nx-accent: oklch(0.580 0.100 215); --nx-accent-2: oklch(0.520 0.100 215); --nx-accent-ink: oklch(0.99 0.005 90);
+}
+.nx-root[data-theme="light"][data-accent="violet"], html.nx-light[data-nx-accent="violet"] {
+  --nx-accent: oklch(0.540 0.150 300); --nx-accent-2: oklch(0.480 0.150 300); --nx-accent-ink: oklch(0.99 0.005 90);
+}
+
+/* ============================================================================
+   THE OS STAGE — root layout, ambience, materials
+   ============================================================================ */
+.nx-root {
+  background: var(--nx-void);
+  color: var(--nx-ink);
+  font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.006em;
+  min-height: 100dvh;
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  font-feature-settings: "ss01", "cv05";
+}
+
+/* --- ambient sky: layered atmospheric gradients + drifting aurora --- */
+.nx-sky {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 18% -12%, var(--nx-sky-1), transparent 55%),
+    radial-gradient(110% 80% at 88% 8%, var(--nx-sky-3), transparent 52%),
+    radial-gradient(130% 110% at 50% 118%, var(--nx-sky-2), transparent 58%),
+    var(--nx-void);
+}
+.nx-sky::after {
+  /* fine grain so large surfaces never band */
+  content: ""; position: absolute; inset: -50%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.05; mix-blend-mode: overlay;
+}
+.nx-blob {
+  position: absolute; border-radius: 9999px; filter: blur(90px); opacity: 0.55;
+  will-change: transform; animation: nx-drift 46s var(--nx-ease) infinite alternate;
+}
+.nx-blob-b { animation-duration: 62s; animation-delay: -18s; opacity: 0.4; }
+.nx-blob-c { animation-duration: 78s; animation-delay: -40s; opacity: 0.3; }
+@keyframes nx-drift {
+  0%   { transform: translate3d(-6%, -4%, 0) scale(1); }
+  50%  { transform: translate3d(5%, 7%, 0) scale(1.14); }
+  100% { transform: translate3d(-3%, 2%, 0) scale(0.94); }
+}
+
+/* --- shared materials --- */
+.nx-glass {
+  background: var(--nx-panel);
+  backdrop-filter: blur(var(--nx-blur)) saturate(var(--nx-sat));
+  -webkit-backdrop-filter: blur(var(--nx-blur)) saturate(var(--nx-sat));
+}
+.nx-glass-2 {
+  background: var(--nx-panel-2);
+  backdrop-filter: blur(calc(var(--nx-blur) + 6px)) saturate(var(--nx-sat));
+  -webkit-backdrop-filter: blur(calc(var(--nx-blur) + 6px)) saturate(var(--nx-sat));
+}
+.nx-sheen { position: relative; }
+.nx-sheen::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--nx-sheen) 18%, var(--nx-sheen) 82%, transparent);
+  pointer-events: none;
+}
+
+/* --- theme-aware scrollbars (override globals' hardcoded ones) --- */
+.nx-root .nx-scroll { scrollbar-width: thin; scrollbar-color: var(--nx-line-2) transparent; }
+.nx-root .nx-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.nx-root .nx-scroll::-webkit-scrollbar-track { background: transparent; }
+.nx-root .nx-scroll::-webkit-scrollbar-thumb {
+  background: var(--nx-line-2); border-radius: 8px; border: 2px solid transparent; background-clip: content-box;
+}
+.nx-root .nx-scroll::-webkit-scrollbar-thumb:hover { background: var(--nx-ink-4); background-clip: content-box; }
+
+/* ============================================================================
+   WINDOWS
+   ============================================================================ */
+.nx-win {
+  position: absolute;
+  display: flex; flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--nx-panel);
+  backdrop-filter: blur(var(--nx-blur)) saturate(var(--nx-sat));
+  -webkit-backdrop-filter: blur(var(--nx-blur)) saturate(var(--nx-sat));
+  box-shadow: var(--nx-e4), 0 0 0 1px var(--nx-line);
+  transition: box-shadow var(--nx-t) var(--nx-ease), opacity var(--nx-t) var(--nx-ease);
+}
+.nx-win-focused { box-shadow: var(--nx-e5), 0 0 0 1px var(--nx-line-2); }
+.nx-win-unfocused { opacity: 0.92; }
+.nx-win-unfocused .nx-win-body { opacity: 0.82; }
+.nx-win-max { border-radius: 0; }
+.nx-win-dragging, .nx-win-resizing { transition: none !important; user-select: none; }
+.nx-win-title {
+  display: flex; align-items: center; gap: 10px;
+  height: 42px; padding: 0 10px 0 14px; flex: none;
+  border-bottom: 1px solid var(--nx-line);
+  background: var(--nx-sheen);
+  cursor: grab;
+}
+.nx-win-title:active { cursor: grabbing; }
+.nx-win-body { flex: 1; min-height: 0; overflow: auto; position: relative; }
+.nx-win-anim-in { animation: nx-win-in var(--nx-t-slow) var(--nx-ease-out) both; }
+@keyframes nx-win-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.965); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.nx-win-anim-out { animation: nx-win-out var(--nx-t-fast) var(--nx-ease) both; }
+@keyframes nx-win-out {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.965); }
+}
+
+/* traffic controls */
+.nx-tc { width: 13px; height: 13px; border-radius: 9999px; position: relative; flex: none; transition: filter var(--nx-t-fast) var(--nx-ease), transform var(--nx-t-fast) var(--nx-ease); }
+.nx-tc:hover { filter: brightness(1.18); }
+.nx-tc:active { transform: scale(0.92); }
+.nx-tc svg { position: absolute; inset: 0; margin: auto; opacity: 0; transition: opacity var(--nx-t-fast) var(--nx-ease); }
+.nx-tc-group:hover svg { opacity: 0.75; }
+
+/* resize handles */
+.nx-rz { position: absolute; z-index: 20; touch-action: none; }
+.nx-rz-n { top: -4px; left: 12px; right: 12px; height: 8px; cursor: ns-resize; }
+.nx-rz-s { bottom: -4px; left: 12px; right: 12px; height: 8px; cursor: ns-resize; }
+.nx-rz-w { left: -4px; top: 12px; bottom: 12px; width: 8px; cursor: ew-resize; }
+.nx-rz-e { right: -4px; top: 12px; bottom: 12px; width: 8px; cursor: ew-resize; }
+.nx-rz-nw { top: -4px; left: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+.nx-rz-ne { top: -4px; right: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+.nx-rz-sw { bottom: -4px; left: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+.nx-rz-se { bottom: -4px; right: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+
+/* snap preview */
+.nx-snap-ghost {
+  position: absolute; z-index: 5; border-radius: 14px; pointer-events: none;
+  background: var(--nx-accent-soft); border: 1.5px solid var(--nx-accent-line);
+  transition: all var(--nx-t) var(--nx-ease-out);
+  backdrop-filter: blur(4px);
+}
+
+/* ============================================================================
+   SYSTEM BAR
+   ============================================================================ */
+.nx-bar {
+  height: 46px; flex: none; z-index: 60;
+  display: flex; align-items: center; gap: 8px; padding: 0 10px;
+  background: var(--nx-panel);
+  backdrop-filter: blur(var(--nx-blur)) saturate(var(--nx-sat));
+  -webkit-backdrop-filter: blur(var(--nx-blur)) saturate(var(--nx-sat));
+  border-bottom: 1px solid var(--nx-line);
+  position: relative;
+}
+.nx-bar-item {
+  display: flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 10px; border-radius: 9px;
+  font-size: 12.5px; color: var(--nx-ink-2);
+  transition: background var(--nx-t-fast) var(--nx-ease), color var(--nx-t-fast) var(--nx-ease);
+  white-space: nowrap;
+}
+.nx-bar-item:hover { background: var(--nx-accent-soft); color: var(--nx-ink); }
+.nx-bar-item[data-on="true"] { background: var(--nx-accent-soft); color: var(--nx-accent); }
+.nx-tray-dot { width: 6px; height: 6px; border-radius: 9999px; box-shadow: 0 0 8px currentColor; }
+
+/* ============================================================================
+   DOCK
+   ============================================================================ */
+.nx-dock {
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+  z-index: 55; display: flex; align-items: flex-end; gap: 5px;
+  max-width: calc(100vw - 24px); padding: 6px;
+  border-radius: 20px;
+  background: var(--nx-panel-2);
+  backdrop-filter: blur(calc(var(--nx-blur) + 8px)) saturate(var(--nx-sat));
+  -webkit-backdrop-filter: blur(calc(var(--nx-blur) + 8px)) saturate(var(--nx-sat));
+  box-shadow: var(--nx-e4), 0 0 0 1px var(--nx-line);
+}
+.nx-dock-item {
+  position: relative; width: 46px; height: 46px; border-radius: 13px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--nx-ink-2);
+  background: var(--nx-inset);
+  box-shadow: var(--nx-e1);
+  transition: transform var(--nx-t) var(--nx-ease-out), background var(--nx-t) var(--nx-ease), color var(--nx-t) var(--nx-ease);
+  transform-origin: bottom center;
+}
+.nx-dock-item:hover { transform: translateY(-7px) scale(1.12); color: var(--nx-ink); background: var(--nx-panel-3); z-index: 2; }
+.nx-dock-item[data-running="true"]::after {
+  content: ""; position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+  width: 4.5px; height: 4.5px; border-radius: 9999px; background: var(--nx-ink-3);
+}
+.nx-dock-item[data-focused="true"]::after { background: var(--nx-accent); box-shadow: 0 0 6px var(--nx-accent); }
+.nx-dock-badge {
+  position: absolute; top: -3px; right: -3px; z-index: 3;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9999px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: oklch(0.99 0 0);
+  background: var(--nx-crit); box-shadow: 0 2px 6px oklch(0 0 0 / 0.35);
+}
+.nx-dock-tip {
+  position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%) translateY(4px);
+  padding: 5px 10px; border-radius: 8px; font-size: 11.5px; white-space: nowrap;
+  background: var(--nx-panel-3); color: var(--nx-ink); border: 1px solid var(--nx-line);
+  box-shadow: var(--nx-e3); opacity: 0; pointer-events: none;
+  transition: opacity var(--nx-t-fast) var(--nx-ease), transform var(--nx-t-fast) var(--nx-ease);
+}
+.nx-dock-item:hover .nx-dock-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+.nx-dock-sep { width: 1px; height: 34px; align-self: center; background: var(--nx-line-2); margin: 0 4px; flex: none; }
+
+/* ============================================================================
+   OVERLAYS — launcher, palette, notification center, quick settings
+   ============================================================================ */
+.nx-overlay-scrim {
+  position: absolute; inset: 0; z-index: 70;
+  background: var(--nx-scrim);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  animation: nx-fade var(--nx-t) var(--nx-ease) both;
+}
+@keyframes nx-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nx-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+.nx-launcher {
+  position: absolute; inset: 0; z-index: 71; display: flex; flex-direction: column;
+  animation: nx-zoom-in var(--nx-t-slow) var(--nx-ease-out) both;
+}
+@keyframes nx-zoom-in { from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }
+.nx-launcher.closing { animation: nx-zoom-out var(--nx-t-fast) var(--nx-ease) both; }
+@keyframes nx-zoom-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(1.04); } }
+
+.nx-pop {
+  position: absolute; z-index: 75; border-radius: 16px; overflow: hidden;
+  background: var(--nx-panel-3);
+  backdrop-filter: blur(calc(var(--nx-blur) + 8px)) saturate(var(--nx-sat));
+  -webkit-backdrop-filter: blur(calc(var(--nx-blur) + 8px)) saturate(var(--nx-sat));
+  box-shadow: var(--nx-e5), 0 0 0 1px var(--nx-line);
+  animation: nx-pop-in var(--nx-t) var(--nx-ease-out) both;
+  transform-origin: top right;
+}
+@keyframes nx-pop-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* desktop widgets */
+.nx-widget {
+  border-radius: 18px; padding: 14px 16px;
+  background: var(--nx-panel);
+  backdrop-filter: blur(var(--nx-blur)) saturate(var(--nx-sat));
+  -webkit-backdrop-filter: blur(var(--nx-blur)) saturate(var(--nx-sat));
+  box-shadow: var(--nx-e2), 0 0 0 1px var(--nx-line);
+  transition: transform var(--nx-t) var(--nx-ease-out), box-shadow var(--nx-t) var(--nx-ease);
+}
+.nx-widget:hover { transform: translateY(-2px); box-shadow: var(--nx-e3), 0 0 0 1px var(--nx-line-2); }
+
+/* focus ring — visible, on-brand, never removed */
+.nx-root :focus-visible {
+  outline: 2px solid var(--nx-accent); outline-offset: 2px; border-radius: 6px;
+}
+
+/* ============================================================================
+   MOTION & ACCESSIBILITY MODES
+   ============================================================================ */
+.nx-root[data-motion="reduced"] * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-root * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+.nx-root[data-night="true"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 999; pointer-events: none;
+  background: linear-gradient(0deg, oklch(0.65 0.10 50 / 0.10), oklch(0.65 0.10 50 / 0.05));
+  mix-blend-mode: multiply;
+}
+
+/* density */
+.nx-root[data-density="compact"] { --nx-dock-w: 50px; }
+.nx-root[data-density="compact"] .nx-win-body { font-size: 12.5px; }
+
+/* type helpers */
+.nx-display { font-family: var(--font-display); letter-spacing: -0.015em; font-weight: 560; }
+.nx-brand-glyph {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--nx-accent), var(--nx-accent-2));
+  color: var(--nx-accent-ink); box-shadow: 0 2px 8px oklch(0 0 0 / 0.2);
+}
+
+/* toast unification */
+.nx-root [data-sonner-toast] {
+  border-radius: 14px !important;
+  backdrop-filter: blur(18px) saturate(1.2) !important;
+}
+
+/* traffic control identities */
+.nx-tc-close { background: var(--nx-crit); }
+.nx-tc-min { background: var(--nx-warn); }
+.nx-tc-max { background: var(--nx-good); }
+
+/* focus-dimmed toasts */
+[data-sonner-toast].nx-toast-quiet { opacity: 0.45; filter: saturate(0.4); }
+
+/* during drag/resize the content must not swallow events */
+.nx-win-dragging .nx-win-body, .nx-win-resizing .nx-win-body { pointer-events: none; }
+.nx-win-title + .nx-win-body { overscroll-behavior: contain; }
+
+/* desktop widget clock */
+.nx-widget-clock { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* centered pop variant (command palette) — keyframes own the centering */
+.nx-pop-center {
+  position: fixed; z-index: 80;
+  background: var(--nx-panel-3);
+  backdrop-filter: blur(calc(var(--nx-blur) + 8px)) saturate(var(--nx-sat));
+  -webkit-backdrop-filter: blur(calc(var(--nx-blur) + 8px)) saturate(var(--nx-sat));
+  box-shadow: var(--nx-e5), 0 0 0 1px var(--nx-line);
+  animation: nx-pop-center-in var(--nx-t) var(--nx-ease-out) both;
+}
+@keyframes nx-pop-center-in {
+  from { opacity: 0; transform: translate(-50%, -8px) scale(0.97); }
+  to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+/* command palette inner surfaces follow OS tokens, not site tokens */
+.nx-pop-center { background: var(--nx-solid) !important; color: var(--nx-ink); }
+.nx-pop-center [cmdk-root] { background: transparent !important; color: inherit; }
+.nx-pop-center [cmdk-input] { color: var(--nx-ink); }
+.nx-pop-center [cmdk-input]::placeholder { color: var(--nx-ink-4); }
+.nx-pop-center [cmdk-item] { color: var(--nx-ink-2); }
+.nx-pop-center [cmdk-item][data-selected="true"],
+.nx-pop-center [cmdk-item][aria-selected="true"] { background: var(--nx-accent-soft) !important; color: var(--nx-accent); }
+
+/* ============================================================================
+   v3 "MERIDIAN" — boot, lock, workspaces, overview, switcher,
+   context menus, calendar, wallpapers, console, files
+   ============================================================================ */
+
+/* ---------------------------------------- boot splash */
+.nx-boot {
+  position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 18px;
+  background: var(--nx-void); overflow: hidden;
+}
+.nx-boot::before {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(90% 70% at 50% -10%, var(--nx-sky-1), transparent 60%),
+    radial-gradient(80% 60% at 85% 110%, var(--nx-sky-2), transparent 55%);
+}
+.nx-boot > * { position: relative; }
+.nx-boot-mark { animation: nx-boot-pulse 1.6s var(--nx-ease) infinite; }
+@keyframes nx-boot-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 24px oklch(0 0 0 / 0.25); }
+  50% { transform: scale(1.06); box-shadow: 0 6px 36px var(--nx-accent-line); }
+}
+.nx-boot-bar { width: 148px; height: 3px; border-radius: 99px; background: var(--nx-inset); overflow: hidden; }
+.nx-boot-bar > span {
+  display: block; height: 100%; width: 40%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--nx-accent), var(--nx-accent-2));
+  animation: nx-boot-load 1.05s var(--nx-ease) infinite;
+}
+@keyframes nx-boot-load {
+  from { transform: translateX(-110%); }
+  to   { transform: translateX(380%); }
+}
+.nx-boot-out { animation: nx-boot-fade 420ms var(--nx-ease) both; }
+@keyframes nx-boot-fade { to { opacity: 0; transform: scale(1.015); } }
+
+/* ---------------------------------------- lock screen */
+.nx-lock {
+  position: fixed; inset: 0; z-index: 120; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; overflow: hidden;
+  background: var(--nx-void);
+  animation: nx-fade var(--nx-t) var(--nx-ease) both;
+}
+.nx-lock::before {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(100% 80% at 20% -10%, var(--nx-sky-1), transparent 58%),
+    radial-gradient(90% 70% at 88% 12%, var(--nx-sky-3), transparent 52%),
+    radial-gradient(120% 100% at 50% 115%, var(--nx-sky-2), transparent 58%);
+}
+.nx-lock > * { position: relative; }
+.nx-lock-card {
+  width: min(340px, calc(100vw - 48px));
+  border-radius: 22px; padding: 26px 24px;
+  background: var(--nx-panel-3);
+  backdrop-filter: blur(calc(var(--nx-blur) + 10px)) saturate(var(--nx-sat));
+  -webkit-backdrop-filter: blur(calc(var(--nx-blur) + 10px)) saturate(var(--nx-sat));
+  box-shadow: var(--nx-e5), 0 0 0 1px var(--nx-line);
+}
+.nx-lock-clock { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.nx-lock-shake { animation: nx-shake 480ms var(--nx-ease); }
+@keyframes nx-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-9px); } 40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); } 80% { transform: translateX(4px); }
+}
+
+/* ---------------------------------------- overview */
+.nx-ov-scrim {
+  position: absolute; inset: 0; z-index: 8;
+  background: var(--nx-scrim);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: nx-fade var(--nx-t) var(--nx-ease) both;
+}
+.nx-ov-hint {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  z-index: 95; pointer-events: none;
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border-radius: 999px; font-size: 12px; color: var(--nx-ink-2);
+  background: var(--nx-panel-3); border: 1px solid var(--nx-line); box-shadow: var(--nx-e3);
+  animation: nx-pop-in var(--nx-t) var(--nx-ease-out) both;
+}
+.nx-ov-active .nx-win { transition: transform 340ms var(--nx-ease-out), box-shadow var(--nx-t) var(--nx-ease), opacity var(--nx-t) var(--nx-ease); }
+.nx-ov-active .nx-win-body, .nx-ov-active .nx-rz, .nx-ov-active .nx-win-title { pointer-events: none; }
+.nx-ov-active .nx-win { cursor: pointer; }
+.nx-ov-active .nx-widget { opacity: 0.25; transition: opacity var(--nx-t) var(--nx-ease); }
+.nx-ov-ws-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--nx-accent-soft); color: var(--nx-accent); border: 1px solid var(--nx-accent-line);
+}
+
+/* ---------------------------------------- app switcher */
+.nx-switcher {
+  position: fixed; inset: 0; z-index: 110; display: flex; align-items: center; justify-content: center;
+  background: transparent; pointer-events: none;
+}
+.nx-switcher-tray {
+  pointer-events: auto; display: flex; gap: 8px; padding: 12px;
+  border-radius: 20px; background: var(--nx-solid-2);
+  box-shadow: var(--nx-e5), 0 0 0 1px var(--nx-line);
+  animation: nx-pop-in var(--nx-t-fast) var(--nx-ease-out) both;
+  max-width: calc(100vw - 40px); overflow-x: auto;
+}
+.nx-sw-item {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  width: 108px; padding: 14px 8px 10px; border-radius: 14px; flex: none;
+  color: var(--nx-ink-2); border: 1px solid transparent;
+  transition: background var(--nx-t-fast) var(--nx-ease), border-color var(--nx-t-fast) var(--nx-ease);
+}
+.nx-sw-item[data-sel="true"] {
+  background: var(--nx-accent-soft); border-color: var(--nx-accent-line); color: var(--nx-ink);
+}
+.nx-sw-ico {
+  width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  background: var(--nx-inset); color: var(--nx-accent); border: 1px solid var(--nx-line);
+}
+
+/* ---------------------------------------- context menu */
+.nx-ctx {
+  position: fixed; z-index: 130; min-width: 216px; padding: 5px;
+  border-radius: 13px; background: var(--nx-solid-2);
+  box-shadow: var(--nx-e5), 0 0 0 1px var(--nx-line);
+  animation: nx-pop-in 120ms var(--nx-ease-out) both;
+  transform-origin: top left;
+}
+.nx-ctx-item {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 7px 10px; border-radius: 8px; font-size: 12.5px; text-align: left;
+  color: var(--nx-ink-2); transition: background var(--nx-t-fast) var(--nx-ease), color var(--nx-t-fast) var(--nx-ease);
+}
+.nx-ctx-item:hover:not([data-dis="true"]) { background: var(--nx-accent-soft); color: var(--nx-ink); }
+.nx-ctx-item[data-danger="true"]:hover:not([data-dis="true"]) { background: var(--nx-crit-soft); color: var(--nx-crit); }
+.nx-ctx-item[data-dis="true"] { opacity: 0.4; cursor: default; }
+.nx-ctx-sep { height: 1px; margin: 5px 8px; background: var(--nx-line); }
+.nx-ctx-label {
+  padding: 6px 10px 3px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--nx-ink-4);
+}
+
+/* ---------------------------------------- workspace pills (system bar) */
+.nx-ws { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 10px; background: var(--nx-inset); }
+.nx-ws-pill {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  min-width: 24px; height: 22px; padding: 0 6px; border-radius: 7px;
+  font-size: 11px; font-weight: 600; color: var(--nx-ink-3);
+  transition: background var(--nx-t-fast) var(--nx-ease), color var(--nx-t-fast) var(--nx-ease);
+}
+.nx-ws-pill:hover { color: var(--nx-ink); }
+.nx-ws-pill[data-on="true"] { background: var(--nx-panel-3); color: var(--nx-accent); box-shadow: var(--nx-e1); }
+.nx-ws-dot {
+  position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%);
+  width: 3px; height: 3px; border-radius: 99px; background: var(--nx-ink-4);
+}
+
+/* ---------------------------------------- calendar popover */
+.nx-cal { width: 272px; padding: 14px 14px 10px; }
+.nx-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+.nx-cal-cell {
+  display: flex; align-items: center; justify-content: center;
+  height: 30px; border-radius: 8px; font-size: 12px; color: var(--nx-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.nx-cal-cell[data-out="true"] { color: var(--nx-ink-4); opacity: 0.55; }
+.nx-cal-cell[data-today="true"] { background: var(--nx-accent); color: var(--nx-accent-ink); font-weight: 700; }
+.nx-cal-dow { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: var(--nx-ink-4); text-transform: uppercase; height: 22px; }
+
+/* ---------------------------------------- wallpaper variants */
+.nx-root[data-wall="dawn"] {
+  --nx-sky-1: oklch(0.72 0.10 30 / 0.42);
+  --nx-sky-2: oklch(0.78 0.09 60 / 0.30);
+  --nx-sky-3: oklch(0.62 0.10 330 / 0.24);
+}
+.nx-root[data-wall="dawn"][data-theme="light"] {
+  --nx-sky-1: oklch(0.90 0.065 40 / 0.62);
+  --nx-sky-2: oklch(0.93 0.055 65 / 0.48);
+  --nx-sky-3: oklch(0.91 0.05 330 / 0.40);
+}
+.nx-root[data-wall="meadow"] {
+  --nx-sky-1: oklch(0.55 0.09 165 / 0.36);
+  --nx-sky-2: oklch(0.60 0.08 200 / 0.26);
+  --nx-sky-3: oklch(0.58 0.07 120 / 0.22);
+}
+.nx-root[data-wall="meadow"][data-theme="light"] {
+  --nx-sky-1: oklch(0.87 0.07 165 / 0.52);
+  --nx-sky-2: oklch(0.90 0.06 200 / 0.40);
+  --nx-sky-3: oklch(0.89 0.055 120 / 0.36);
+}
+.nx-root[data-wall="mono"] .nx-blob { opacity: 0.12; }
+.nx-root[data-wall="mono"] { --nx-sheen: oklch(1 0 0 / 0.02); }
+.nx-root[data-wall="mono"][data-theme="light"] { --nx-sheen: oklch(1 0 0 / 0.45); }
+
+/* wallpaper swatches (settings) */
+.nx-wall-swatch {
+  position: relative; height: 64px; border-radius: 14px; overflow: hidden; flex: 1 1 100px;
+  border: 1px solid var(--nx-line); box-shadow: var(--nx-e1);
+  transition: transform var(--nx-t) var(--nx-ease-out), box-shadow var(--nx-t) var(--nx-ease);
+}
+.nx-wall-swatch:hover { transform: translateY(-2px); box-shadow: var(--nx-e2); }
+.nx-wall-swatch[data-on="true"] { outline: 2px solid var(--nx-accent); outline-offset: 2px; }
+
+/* ---------------------------------------- console (terminal) */
+.nx-console {
+  height: 100%; display: flex; flex-direction: column;
+  background:
+    linear-gradient(180deg, oklch(0 0 0 / 0.16), transparent 140px),
+    var(--nx-inset);
+  font-family: ui-monospace, "Sarasa Mono SC", Menlo, monospace;
+  font-size: 12.5px; line-height: 1.55;
+}
+.nx-console-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 16px 8px; }
+.nx-console-line { white-space: pre-wrap; word-break: break-word; }
+.nx-console-input { display: flex; align-items: center; gap: 8px; padding: 10px 16px 12px; border-top: 1px solid var(--nx-line); }
+.nx-console-input input {
+  flex: 1; background: transparent; border: 0; outline: none;
+  color: var(--nx-ink); font: inherit; caret-color: var(--nx-accent);
+}
+.nx-console-prompt { color: var(--nx-accent); font-weight: 700; flex: none; }
+
+/* ---------------------------------------- files app */
+.nx-file-tile {
+  width: 40px; height: 40px; border-radius: 11px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--nx-accent-soft); color: var(--nx-accent); border: 1px solid var(--nx-accent-line);
+}
+.nx-file-row { transition: background var(--nx-t-fast) var(--nx-ease); }
+.nx-file-row[data-sel="true"] { background: var(--nx-accent-soft); }

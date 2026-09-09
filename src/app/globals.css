@@ -1,0 +1,503 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./nx-os.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   NEXURA OS — Warm Healthcare Design System
+   Palette: warm cream, coral/terracotta, sage, honey amber
+   ============================================================ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-jakarta);
+  --font-display: var(--font-fraunces);
+  --font-mono: var(--font-mono);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 10px);
+
+  /* Warm semantic brand tokens */
+  --color-coral: var(--coral);
+  --color-sage: var(--sage);
+  --color-honey: var(--honey);
+  --color-cream: var(--cream);
+  --color-clay: var(--clay);
+}
+
+:root {
+  --radius: 1rem;
+
+  /* Warm off-white base — premium private hospital feel */
+  --background: oklch(0.98 0.004 60);           /* #FAFAF8 warm off-white */
+  --foreground: oklch(0.25 0.01 50);           /* #1C1917 deep warm charcoal */
+  --card: oklch(0.995 0.002 60);               /* near-white warm */
+  --card-foreground: oklch(0.25 0.01 50);
+  --popover: oklch(0.995 0.002 60);
+  --popover-foreground: oklch(0.25 0.01 50);
+
+  /* Amber gold primary — warm, trustworthy */
+  --primary: oklch(0.72 0.15 60);              /* #D97706 amber gold */
+  --primary-foreground: oklch(0.99 0.002 60);
+
+  /* Charcoal sidebar */
+  --secondary: oklch(0.25 0.01 50);            /* #1C1917 charcoal */
+  --secondary-foreground: oklch(0.95 0.005 60);
+
+  /* Amber accent */
+  --accent: oklch(0.72 0.15 60);               /* #D97706 */
+  --accent-foreground: oklch(0.99 0.002 60);
+
+  --muted: oklch(0.96 0.004 60);               /* warm light gray */
+  --muted-foreground: oklch(0.50 0.01 55);     /* warm medium gray */
+
+  --destructive: oklch(0.55 0.22 25);          /* #DC2626 critical red */
+  --border: oklch(0.92 0.003 60);              /* warm subtle border */
+  --input: oklch(0.93 0.003 60);
+  --ring: oklch(0.70 0.145 45);
+
+  /* Chart colors - warm & soft */
+  --chart-1: oklch(0.70 0.145 45);   /* coral */
+  --chart-2: oklch(0.74 0.06 155);   /* sage green */
+  --chart-3: oklch(0.80 0.10 75);    /* honey */
+  --chart-4: oklch(0.72 0.13 15);    /* clay rose */
+  --chart-5: oklch(0.68 0.09 200);   /* soft teal */
+
+  /* Brand tokens */
+  --coral: oklch(0.70 0.145 45);
+  --sage: oklch(0.74 0.06 155);
+  --honey: oklch(0.80 0.10 75);
+  --cream: oklch(0.985 0.008 95);
+  --clay: oklch(0.72 0.13 15);
+
+  --sidebar: oklch(0.97 0.006 90);
+  --sidebar-foreground: oklch(0.31 0.02 55);
+  --sidebar-primary: oklch(0.70 0.145 45);
+  --sidebar-primary-foreground: oklch(0.99 0.005 95);
+  --sidebar-accent: oklch(0.93 0.01 90);
+  --sidebar-accent-foreground: oklch(0.31 0.02 55);
+  --sidebar-border: oklch(0.92 0.01 85);
+  --sidebar-ring: oklch(0.70 0.145 45);
+}
+
+.dark {
+  --background: oklch(0.21 0.015 55);        /* deep warm brown-black */
+  --foreground: oklch(0.96 0.01 90);
+  --card: oklch(0.26 0.018 55);
+  --card-foreground: oklch(0.96 0.01 90);
+  --popover: oklch(0.26 0.018 55);
+  --popover-foreground: oklch(0.96 0.01 90);
+
+  --primary: oklch(0.76 0.13 45);            /* lighter coral for dark */
+  --primary-foreground: oklch(0.21 0.015 55);
+
+  --secondary: oklch(0.33 0.025 150);
+  --secondary-foreground: oklch(0.92 0.02 150);
+
+  --accent: oklch(0.74 0.10 75);
+  --accent-foreground: oklch(0.21 0.015 55);
+
+  --muted: oklch(0.30 0.015 55);
+  --muted-foreground: oklch(0.70 0.02 80);
+
+  --destructive: oklch(0.68 0.19 25);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.76 0.13 45);
+
+  --chart-1: oklch(0.76 0.13 45);
+  --chart-2: oklch(0.72 0.06 155);
+  --chart-3: oklch(0.80 0.10 75);
+  --chart-4: oklch(0.70 0.13 15);
+  --chart-5: oklch(0.68 0.09 200);
+
+  --coral: oklch(0.76 0.13 45);
+  --sage: oklch(0.72 0.06 155);
+  --honey: oklch(0.80 0.10 75);
+  --cream: oklch(0.26 0.018 55);
+  --clay: oklch(0.70 0.13 15);
+
+  --sidebar: oklch(0.26 0.018 55);
+  --sidebar-foreground: oklch(0.96 0.01 90);
+  --sidebar-primary: oklch(0.76 0.13 45);
+  --sidebar-primary-foreground: oklch(0.21 0.015 55);
+  --sidebar-accent: oklch(0.33 0.025 150);
+  --sidebar-accent-foreground: oklch(0.96 0.01 90);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.76 0.13 45);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background-color: oklch(0.70 0.145 45 / 0.25);
+    color: var(--foreground);
+  }
+}
+
+/* ============================================================
+   LOOP ANIMATIONS — ambient, always-on
+   ============================================================ */
+
+@keyframes nexura-aurora {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33%  { transform: translate(4%, -3%) rotate(8deg) scale(1.08); }
+  66%  { transform: translate(-3%, 4%) rotate(-6deg) scale(0.96); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+}
+
+@keyframes nexura-float {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50%      { transform: translateY(-14px) translateX(4px); }
+}
+
+@keyframes nexura-float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-22px) rotate(3deg); }
+}
+
+@keyframes nexura-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50%      { transform: scale(1.12); opacity: 1; }
+}
+
+@keyframes nexura-pulse-ring {
+  0%   { transform: scale(0.8); opacity: 0.7; }
+  80%  { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes nexura-ecg {
+  0%   { stroke-dashoffset: 1200; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes nexura-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes nexura-gradient-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+@keyframes nexura-orbit {
+  from { transform: rotate(0deg) translateX(var(--orbit-r, 80px)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(var(--orbit-r, 80px)) rotate(-360deg); }
+}
+
+@keyframes nexura-particle-rise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 0.8; }
+  90%  { opacity: 0.6; }
+  100% { transform: translateY(-120px) translateX(var(--drift, 12px)); opacity: 0; }
+}
+
+@keyframes nexura-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes nexura-tilt {
+  0%, 100% { transform: rotate(-1.2deg); }
+  50%      { transform: rotate(1.2deg); }
+}
+
+@keyframes nexura-blink-soft {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(0.1); }
+}
+
+/* utility classes */
+.anim-aurora    { animation: nexura-aurora 18s ease-in-out infinite; }
+.anim-float     { animation: nexura-float 7s ease-in-out infinite; }
+.anim-float-slow{ animation: nexura-float-slow 11s ease-in-out infinite; }
+.anim-breathe   { animation: nexura-breathe 4.5s ease-in-out infinite; }
+.anim-tilt      { animation: nexura-tilt 9s ease-in-out infinite; }
+.anim-gradient  { background-size: 200% 200%; animation: nexura-gradient-pan 8s ease infinite; }
+.anim-shimmer {
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: nexura-shimmer 2.5s linear infinite;
+}
+
+/* pulse rings used for live indicators */
+.pulse-ring::before,
+.pulse-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid var(--primary);
+  animation: nexura-pulse-ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.pulse-ring::after { animation-delay: 1.2s; }
+
+/* Custom scrollbar (warm) */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: oklch(0.80 0.06 60 / 0.5);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: oklch(0.70 0.10 50 / 0.7); background-clip: content-box; }
+
+/* Section reveal helpers */
+.reveal-mask {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+          mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+}
+
+/* Glass card */
+.glass {
+  background: color-mix(in oklch, var(--card) 70%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid color-mix(in oklch, var(--border) 80%, transparent);
+}
+
+/* ===== GLASSMORPHISM SYSTEM ===== */
+.glass-premium {
+  background: color-mix(in oklch, var(--card) 55%, transparent);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid color-mix(in oklch, white 30%, transparent);
+  box-shadow: inset 0 1px 1px 0 color-mix(in oklch, white 40%, transparent), inset 0 -1px 1px 0 color-mix(in oklch, var(--border) 30%, transparent), 0 8px 32px -8px oklch(0.3 0.05 45 / 0.15), 0 2px 8px -4px oklch(0.3 0.05 45 / 0.08);
+  position: relative;
+}
+.glass-premium::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(135deg, color-mix(in oklch, white 12%, transparent) 0%, transparent 40%, transparent 60%, color-mix(in oklch, white 5%, transparent) 100%);
+  opacity: 0.8;
+}
+.glass-soft {
+  background: color-mix(in oklch, var(--card) 75%, transparent);
+  backdrop-filter: blur(12px) saturate(135%);
+  -webkit-backdrop-filter: blur(12px) saturate(135%);
+  border: 1px solid color-mix(in oklch, white 25%, var(--border));
+  box-shadow: inset 0 1px 0 0 color-mix(in oklch, white 50%, transparent), 0 4px 16px -4px oklch(0.3 0.05 45 / 0.08);
+}
+.glass-dark {
+  background: color-mix(in oklch, #1F1B17 50%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid color-mix(in oklch, white 12%, transparent);
+  box-shadow: inset 0 1px 1px 0 color-mix(in oklch, white 8%, transparent), 0 8px 32px -8px oklch(0 0 0 / 0.3);
+}
+.glass-input {
+  background: color-mix(in oklch, var(--card) 60%, transparent);
+  backdrop-filter: blur(8px) saturate(130%);
+  -webkit-backdrop-filter: blur(8px) saturate(130%);
+  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+  box-shadow: inset 0 1px 2px 0 oklch(0.3 0.05 45 / 0.05);
+  transition: all 0.2s ease;
+}
+.glass-input:focus {
+  background: color-mix(in oklch, var(--card) 80%, transparent);
+  border-color: color-mix(in oklch, var(--primary) 50%, transparent);
+  box-shadow: inset 0 1px 2px 0 oklch(0.3 0.05 45 / 0.05), 0 0 0 3px color-mix(in oklch, var(--primary) 15%, transparent);
+}
+.mesh-bg {
+  background: radial-gradient(at 20% 20%, color-mix(in oklch, var(--coral) 25%, transparent) 0%, transparent 50%), radial-gradient(at 80% 10%, color-mix(in oklch, var(--honey) 20%, transparent) 0%, transparent 50%), radial-gradient(at 60% 80%, color-mix(in oklch, var(--sage) 20%, transparent) 0%, transparent 50%), radial-gradient(at 20% 80%, color-mix(in oklch, var(--clay) 15%, transparent) 0%, transparent 50%);
+}
+.mesh-bg-dark {
+  background: radial-gradient(at 20% 20%, color-mix(in oklch, var(--coral) 30%, transparent) 0%, transparent 50%), radial-gradient(at 80% 10%, color-mix(in oklch, var(--honey) 25%, transparent) 0%, transparent 50%), radial-gradient(at 60% 80%, color-mix(in oklch, var(--sage) 25%, transparent) 0%, transparent 50%), radial-gradient(at 20% 80%, color-mix(in oklch, var(--clay) 20%, transparent) 0%, transparent 50%), #1F1B17;
+}
+.glass-chip {
+  background: color-mix(in oklch, var(--card) 50%, transparent);
+  backdrop-filter: blur(10px) saturate(130%);
+  -webkit-backdrop-filter: blur(10px) saturate(130%);
+  border: 1px solid color-mix(in oklch, white 20%, var(--border));
+  box-shadow: inset 0 1px 0 0 color-mix(in oklch, white 30%, transparent);
+}
+.shadow-depth {
+  box-shadow: 0 1px 2px 0 oklch(0.3 0.05 45 / 0.05), 0 4px 8px -2px oklch(0.3 0.05 45 / 0.06), 0 12px 24px -8px oklch(0.3 0.05 45 / 0.1), inset 0 1px 0 0 oklch(1 0 0 / 0.4);
+}
+.shadow-depth-lg {
+  box-shadow: 0 2px 4px 0 oklch(0.3 0.05 45 / 0.06), 0 8px 16px -4px oklch(0.3 0.05 45 / 0.08), 0 24px 48px -12px oklch(0.3 0.05 45 / 0.14), inset 0 1px 0 0 oklch(1 0 0 / 0.5);
+}
+
+/* Soft elevated card */
+.card-warm {
+  background: linear-gradient(180deg, color-mix(in oklch, var(--card) 100%, transparent), color-mix(in oklch, var(--background) 96%, transparent));
+  border: 1px solid var(--border);
+  box-shadow:
+    0 1px 0 0 oklch(1 0 0 / 0.6) inset,
+    0 1px 2px 0 oklch(0.4 0.02 50 / 0.04),
+    0 10px 30px -12px oklch(0.4 0.05 45 / 0.12);
+}
+
+/* Text gradients */
+.text-gradient-warm {
+  background: linear-gradient(100deg, var(--coral), var(--honey) 55%, var(--clay));
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+
+/* Noise overlay for premium texture */
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-aurora, .anim-float, .anim-float-slow, .anim-breathe,
+  .anim-tilt, .anim-gradient, .anim-shimmer, .pulse-ring::before, .pulse-ring::after {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   ROUND 2 — extra polish
+   ============================================================ */
+
+/* soft animated dotted divider */
+.divider-dots {
+  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 10px 10px;
+  height: 1px;
+  background-repeat: repeat-x;
+}
+
+/* card hover lift utility */
+.lift {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lift:hover {
+  transform: translateY(-4px);
+}
+
+/* focus ring warmth */
+:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--primary) 70%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* marquee for partners / scrolling text */
+@keyframes nexura-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: nexura-marquee 32s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+
+/* dark-mode glass tint */
+.dark .glass {
+  background: color-mix(in oklch, var(--card) 55%, transparent);
+  border-color: color-mix(in oklch, var(--border) 60%, transparent);
+}
+
+/* subtle text shimmer for headings on hover */
+.shimmer-text {
+  background: linear-gradient(
+    100deg,
+    var(--foreground) 30%,
+    color-mix(in oklch, var(--primary) 50%, white) 50%,
+    var(--foreground) 70%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  transition: background-position 0.6s ease;
+  background-position: 200% 0;
+}
+.group:hover .shimmer-text,
+.shimmer-text:hover {
+  background-position: 0 0;
+}
+
+/* number tabular alignment for stats */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* gradient border card */
+.gradient-border {
+  position: relative;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--coral), var(--honey), var(--sage));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ============================================================
+   NEXURA OS — hospital operating system (dark command theme)
+   ============================================================ */
+.nx-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.nx-scroll::-webkit-scrollbar-track { background: transparent; }
+.nx-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+.nx-scroll::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+.font-display { font-family: var(--font-fraunces), Georgia, serif; }

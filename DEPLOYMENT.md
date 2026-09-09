@@ -1,0 +1,143 @@
+# Nexura OS — Deployment Guide
+
+## Prerequisites
+
+1. A [Vercel](https://vercel.com) account
+2. A [GitHub](https://github.com) repository with the Nexura OS code
+3. A PostgreSQL database (recommended: [Neon](https://neon.tech), [Supabase](https://supabase.com), or [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres))
+
+## Step 1: Push to GitHub
+
+```bash
+git add -A
+git commit -m "production-ready"
+git push origin main
+```
+
+## Step 2: Create Vercel Project
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import your GitHub repository
+3. Framework preset: **Next.js** (auto-detected)
+4. Root directory: `./` (default)
+
+## Step 3: Configure Environment Variables
+
+In Vercel → Project Settings → Environment Variables, add:
+
+| Variable | Value | Required |
+|----------|-------|----------|
+| `DATABASE_URL` | `postgresql://user:pass@host:port/db?schema=public` | ✅ Yes |
+| `JWT_SECRET` | Generate with `openssl rand -hex 32` | ✅ Yes |
+| `NODE_ENV` | `production` | ✅ Yes |
+
+**Note:** No AI API keys are needed — z-ai-web-dev-sdk is pre-configured.
+
+## Step 4: Database Setup
+
+### Option A: Vercel Postgres (easiest)
+1. In Vercel dashboard → Storage → Create Database → Postgres
+2. Copy the connection string
+3. Set as `DATABASE_URL` environment variable
+
+### Option B: Neon (recommended for free tier)
+1. Go to [neon.tech](https://neon.tech) → Create project
+2. Copy connection string
+3. Set as `DATABASE_URL`
+
+### Option C: Supabase
+1. Go to [supabase.com](https://supabase.com) → New project
+2. Settings → Database → Connection string
+3. Set as `DATABASE_URL`
+
+## Step 5: Push Schema to Production DB
+
+After deploying, run Prisma migration:
+
+```bash
+# Set DATABASE_URL to your production PostgreSQL
+DATABASE_URL="postgresql://..." bunx prisma db push
+```
+
+Or use Vercel's build step (add to `package.json` scripts):
+```json
+"postinstall": "prisma generate"
+```
+
+And add a Vercel build command:
+```
+bunx prisma db push && bun run build
+```
+
+## Step 6: Seed Production Database (Optional)
+
+```bash
+DATABASE_URL="postgresql://..." bunx tsx scripts/seed-hospital.ts
+DATABASE_URL="postgresql://..." bunx tsx scripts/seed-clinic.ts
+DATABASE_URL="postgresql://..." bunx tsx scripts/seed-pharmacy.ts
+DATABASE_URL="postgresql://..." bunx tsx scripts/seed-portal.ts
+DATABASE_URL="postgresql://..." bunx tsx scripts/seed-connect.ts
+```
+
+## Step 7: Deploy
+
+Click **Deploy** in Vercel. The build will:
+1. Install dependencies (`bun install`)
+2. Generate Prisma client (`prisma generate`)
+3. Build Next.js (`next build`)
+4. Deploy to Vercel's edge network
+
+## Step 8: Verify
+
+After deployment, check:
+- `https://your-app.vercel.app/` → Homepage loads
+- `https://your-app.vercel.app/api/health` → Returns `{"status":"ok"}`
+- `https://your-app.vercel.app/hospital` → Hospital OS loads
+- `https://your-app.vercel.app/portal/login` → Portal login works
+
+## Custom Domain
+
+1. Vercel → Project Settings → Domains
+2. Add your domain (e.g., `nexuraai.in`)
+3. Configure DNS records as instructed
+4. SSL is automatic
+
+## PostgreSQL Migration Notes
+
+When migrating from SQLite to PostgreSQL:
+
+1. **Schema:** `bunx prisma db push` (with PostgreSQL DATABASE_URL)
+2. **Data:** Seed scripts are idempotent — safe to re-run
+3. **SQLite-specific:** Prisma handles the dialect difference automatically
+4. **Connection pooling:** Use connection string with `?schema=public&connection_limit=5`
+
+## Environment Variables Checklist
+
+- [ ] `DATABASE_URL` — PostgreSQL connection string
+- [ ] `JWT_SECRET` — 64-character hex string
+- [ ] `NODE_ENV` — `production`
+- [ ] No secrets in Git
+- [ ] No hardcoded API keys
+- [ ] `.env` is in `.gitignore`
+
+## Troubleshooting
+
+### Build fails: "Cannot find module '@prisma/client'"
+Add to `package.json`:
+```json
+"postinstall": "prisma generate"
+```
+
+### Runtime: "Database connection failed"
+- Check `DATABASE_URL` is set in Vercel
+- Ensure PostgreSQL allows connections from Vercel's IP range
+- Try connection pooling (add `?pgbouncer=true` to connection string)
+
+### AI features not working
+- z-ai-web-dev-sdk should work out of the box
+- Check `/api/health` endpoint for AI service status
+- Check Vercel function logs for errors
+
+### Large build size
+- Ensure `skills/`, `video-*`, `tool-results/` are in `.gitignore` (they are)
+- Run `bun run lint` to check for unused imports
