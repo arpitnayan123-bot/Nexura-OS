@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { useBack } from "./back";
 
 /* ============================================================
    HOSPITAL OS — kernel store
@@ -187,6 +188,7 @@ export const useOs = create<OsState>()(
         const z = s.zTop + 1;
 
         if (existing && !opts?.fresh) {
+          const wasMin = existing.min;
           set({
             wins: s.wins.map((w) =>
               w.key === key ? { ...w, min: false, z } : w
@@ -203,6 +205,19 @@ export const useOs = create<OsState>()(
             quickOpen: false,
             recents: [key, ...s.recents.filter((k) => k !== key)].slice(0, 8),
           });
+          /* a restored window joins the back stack so device back can
+             dismiss it again */
+          if (wasMin) {
+            useBack.getState().push({
+              id: `win:${key}`,
+              scope: "os",
+              kind: "window",
+              label: key,
+              refKey: key,
+              prevKey: s.focused && s.focused !== key ? s.focused : s.recents.find((k) => k !== key) ?? null,
+              close: () => get().closeApp(key),
+            });
+          }
           return;
         }
 
@@ -235,13 +250,26 @@ export const useOs = create<OsState>()(
           quickOpen: false,
           recents: [key, ...s.recents.filter((k) => k !== key)].slice(0, 8),
         });
+
+        /* every freshly opened window is one step back */
+        useBack.getState().push({
+          id: `win:${key}`,
+          scope: "os",
+          kind: "window",
+          label: key,
+          refKey: key,
+          prevKey: s.focused && s.focused !== key ? s.focused : s.recents.find((k) => k !== key) ?? null,
+          close: () => get().closeApp(key),
+        });
       },
 
-      closeApp: (key) =>
+      closeApp: (key) => {
+        useBack.getState().remove(`win:${key}`);
         set((s) => ({
           closing: [...s.closing, key],
           focused: s.focused === key ? null : s.focused,
-        })),
+        }));
+      },
 
       finishClose: (key) =>
         set((s) => ({
@@ -260,11 +288,13 @@ export const useOs = create<OsState>()(
           };
         }),
 
-      minimizeApp: (key) =>
+      minimizeApp: (key) => {
+        useBack.getState().remove(`win:${key}`);
         set((s) => ({
           wins: s.wins.map((w) => (w.key === key ? { ...w, min: true } : w)),
           focused: s.focused === key ? null : s.focused,
-        })),
+        }));
+      },
 
       toggleMax: (key) =>
         set((s) => {

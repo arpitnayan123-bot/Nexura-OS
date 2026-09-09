@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WS_COUNT, useOs } from "./store";
+import { NxBackPill } from "./back-ui";
 import { NxNotificationCenter } from "./notifications";
 import { NxQuickSettings } from "./quick-settings";
 import { NxCalendarPop } from "./calendar-pop";
@@ -57,6 +58,9 @@ export function NxSystemBar({ user, alertCount, offline, onSignOut }: {
       </button>
 
       <NexuraProductSwitcher />
+
+      {/* universal back — one tap to the previous screen */}
+      <NxBackPill />
 
       {/* focused app context */}
       <div className="hidden min-w-0 items-center gap-2 md:flex">

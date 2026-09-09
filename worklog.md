@@ -2413,3 +2413,25 @@ Work Log:
 Stage Summary:
 - Preview is now served by a stable production server with auto-restart supervision on port 3000.
 - Working tree committed; demo sign-ins unchanged (PIN 2468 / Demo@12345).
+
+---
+
+Task ID: feat-3 (universal back navigation + preview hardening round 3)
+Agent: Super Z (main)
+Task: Integrate a back arrow everywhere — device/browser back must walk in-app layers instead of jumping to the homepage or closing everything; make it attractive (Pinterest-inspired); keep the preview working; commit all changes.
+
+Work Log:
+- Built the back-navigation core (src/components/nx/os/back.ts): a zustand layer stack (overlay/window/view kinds), declarative useBackLayer(active, scope, label, close) hook for drill-downs, goBack() with a double-press exit guard ("Press back again to exit Hospital OS"), and useNxHistoryBridge mirroring the stack onto browser history.
+- Root-caused and fixed two device-back killers: (1) programmatic history.back() races same-tick pushState — replaced with replaceState retagging on UI-driven closes and intent-honoring popstate handling; (2) Next.js 16 keeps its router tree inside history.state — our tags now MERGE with existing state (nxState helper) so a device back never looks like a foreign navigation (verified navType: reload -> same-document popstate).
+- Window layers wired in the kernel store (os/store.ts): openApp pushes win:<key> with prevKey (previous focused window), closeApp/minimizeApp remove it; restored windows rejoin the stack.
+- Shell overlays (launcher, palette, quick settings, overview) synced onto the stack by NxBackSync; Escape now routes through goBack(); sign-out clears the stack; lock screen gates popstate.
+- Pinterest-style UI (os/back-ui.tsx + nx-os.css): system-bar frosted-glass pill with gradient disc + live layer count (desktop only), floating glass arrow FAB with conic-gradient glow + count badge (mobile), ghost arrow in every window titlebar (returns to the previous window), and glass "Back to ..." pills inside surfaces. All theme-aware, motion-reduced aware.
+- Wired drill-downs: patient record drawer (also replaced the tiny text-back), Documents preview pane, Scheduling booking dialog, Incidents report dialog, Labs result dialog, Orders new-order dialog + expanded order detail.
+- Fixed a real crash found while testing: PatientDrawer mapped data.pendingResults which the v4 API no longer returns -> whole page hit the error boundary ("open feature then something inside = broken"). Drawer now normalizes every collection field defensively.
+- Preview ops: rebuilt standalone production bundle; durable supervisor script (scripts/nx-supervisor.sh, immune to pkill pattern matches, re-cds each restart so rebuilds don't kill it); force-kill needed (SIGTERM hangs while browsers hold SSE); all 14 routes 200.
+- Browser-verified end-to-end (agent-browser, 1440x900 + 390x844): login -> Patient Records -> patient drawer -> [device back] closes drawer -> [back] closes window -> [back] guard toast -> [double back] exits to homepage. Pill, titlebar arrow, drawer pill and mobile FAB all click-verified. Screenshots: tool-results/back-drawer-desktop.png, back-pill-desktop.png.
+
+Stage Summary:
+- Quality gates: tsc 0 errors, eslint clean, vitest 39/39, api-smoke 29/29, 14/14 routes 200, full back chain verified twice.
+- New files: src/components/nx/os/back.ts, back-ui.tsx, scripts/nx-supervisor.sh.
+- Demo credentials unchanged (PIN 2468 / Demo@12345); preview served by the self-healing production supervisor on port 3000.

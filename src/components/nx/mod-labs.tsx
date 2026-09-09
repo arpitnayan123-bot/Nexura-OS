@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { toast } from "./os/toast";
-import { FlaskConical, TestTube2 } from "lucide-react";
+import { useBackLayer } from "./os/back";
+import { ArrowLeft, FlaskConical, TestTube2 } from "lucide-react";
 import { nx, useNx, timeAgo } from "./client";
 import { Empty, ErrorState, Loading, Panel, Pill, Stat, StatusPill } from "./bits";
 
@@ -33,6 +34,9 @@ export function LabQueue() {
   const { data, error, loading, refresh } = useNx<LabData>("/api/nx/labs", { pollMs: 20000 });
   const [busyId, setBusyId] = useState<string | null>(null);
   const [resultFor, setResultFor] = useState<LabRow | null>(null);
+
+  /* the result-entry dialog is one step back */
+  useBackLayer(Boolean(resultFor), "labs", "Laboratory", () => setResultFor(null));
 
   async function advance(id: string, to: string) {
     setBusyId(id);
@@ -150,7 +154,12 @@ function ResultEntry({ row, onClose, onDone }: { row: LabRow; onClose: () => voi
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div className="w-full max-w-md rounded-xl border border-line bg-[#0d1526] p-5" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-sm font-semibold text-ink">Record result — {row.test}</h3>
+        <div className="flex items-center gap-2.5">
+          <button onClick={onClose} className="nx-back-tb" aria-label="Back to Laboratory" title="Back to Laboratory">
+            <ArrowLeft className="h-3.5 w-3.5" />
+          </button>
+          <h3 className="text-sm font-semibold text-ink">Record result — {row.test}</h3>
+        </div>
         <p className="text-[11px] text-ink-3">{row.patient.fullName} · {row.patient.uhid}</p>
         <div className="mt-3 space-y-2.5">
           <input value={testName} onChange={(e) => setTestName(e.target.value)} placeholder="Analyte (e.g. Potassium)" className="w-full rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />

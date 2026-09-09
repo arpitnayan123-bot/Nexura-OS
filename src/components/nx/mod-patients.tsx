@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AlertTriangle, ArrowLeft, Bot, HeartPulse, Loader2, Search } from "lucide-react";
 import { toast } from "./os/toast";
-import { AlertTriangle, Bot, ChevronLeft, HeartPulse, Loader2, Search, User } from "lucide-react";
+import { useBackLayer } from "./os/back";
 import { nx, useNx, timeAgo, fmtClock } from "./client";
 import { AiBanner, Empty, ErrorState, Loading, Panel, Pill, StatusPill } from "./bits";
 
@@ -22,27 +23,31 @@ interface PatientRecord {
   profile: {
     id: string; uhid: string; name: string; age: number | null; gender: string; bloodGroup: string | null;
     phone: string | null; dob: string | null; city: string | null; state: string | null; language: string;
-    abhaId: string | null; allergies: string[]; chronic: string[];
+    abhaId: string | null; allergies?: string[]; chronic?: string[];
     emergencyContact: { name: string | null; phone: string | null };
     insurance: { provider: string | null; policyNo: string | null; pmjay: boolean };
   };
   status: { isAdmitted: boolean; location: string | null; attendingDoctor: string | null; admissionDiagnosis: string | null; expectedDischarge: string | null };
-  journey: JourneyStage[];
-  openTasks: Array<{ id: string; title: string; priority: string; status: string; ownerName: string | null; reason: string | null; dueAt: string | null }>;
-  pendingResults: Array<{ id: string; test: string; type: string; priority: string; status: string; at: string }>;
-  vitals: Array<{ id: string; at: string; bp: string; pulse: number | null; temp: number | null; spo2: number | null; news2: number | null; source: string }>;
-  orders: Array<{ id: string; type: string; details: { testName?: string; dose?: string }; priority: string; status: string; at: string; doctor?: string; results: Array<{ id: string; test: string; value: string | null; unit: string | null; flag: string; ref: string; at: string | null }> }>;
-  notes: Array<{ id: string; type: string; body: string; at: string }>;
-  prescriptions: Array<{ id: string; at: string; meds: Array<{ name?: string; dose?: string; frequency?: string }> }>;
-  appointments: Array<{ id: string; at: string; doctor: string | null; specialty: string | null; type: string; status: string; complaint: string | null }>;
-  admissions: Array<{ id: string; at: string; type: string; diagnosis: string | null; doctor: string | null; dischargeStatus: string | null; dischargeDate: string | null; bed: string | null }>;
-  whatChanged: { orders: number; vitals: number; tasks: number };
+  journey?: JourneyStage[];
+  openTasks?: Array<{ id: string; title: string; priority: string; status: string; ownerName: string | null; reason: string | null; dueAt: string | null }>;
+  pendingResults?: Array<{ id: string; test: string; type: string; priority: string; status: string; at: string }>;
+  vitals?: Array<{ id: string; at: string; bp: string; pulse: number | null; temp: number | null; spo2: number | null; news2: number | null; source: string }>;
+  orders?: Array<{ id: string; type: string; details: { testName?: string; dose?: string }; priority: string; status: string; at: string; doctor?: string; results?: Array<{ id: string; test: string; value: string | null; unit: string | null; flag: string; ref: string; at: string | null }> }>;
+  notes?: Array<{ id: string; type: string; body: string; at: string }>;
+  prescriptions?: Array<{ id: string; at: string; meds: Array<{ name?: string; dose?: string; frequency?: string }> }>;
+  appointments?: Array<{ id: string; at: string; doctor: string | null; specialty: string | null; type: string; status: string; complaint: string | null }>;
+  admissions?: Array<{ id: string; at: string; type: string; diagnosis: string | null; doctor: string | null; dischargeStatus: string | null; dischargeDate: string | null; bed: string | null }>;
+  whatChanged?: { orders: number; vitals: number; tasks: number };
 }
 
 export function PatientRegistry() {
   const [q, setQ] = useState("");
   const { data, error, loading, refresh } = useNx<{ patients: PatientRow[] }>("/api/nx/patients?take=24");
   const [openId, setOpenId] = useState<string | null>(null);
+
+  /* the open patient record is one step back — device back, the
+     system-bar pill and the window titlebar arrow all close it */
+  useBackLayer(Boolean(openId), "patients", "Patient Records", () => setOpenId(null));
 
   useEffect(() => {
     const handler = (e: Event) => setOpenId((e as CustomEvent).detail as string);
@@ -109,6 +114,24 @@ export function PatientRegistry() {
 
 function PatientDrawer({ id, onClose }: { id: string; onClose: () => void }) {
   const { data, error, loading, refresh } = useNx<PatientRecord>(`/api/nx/patients/${id}`);
+  /* the record API is versioned independently — collection fields are
+     optional and must never crash the drawer */
+  const d = data
+    ? {
+        ...data,
+        journey: data.journey ?? [],
+        openTasks: data.openTasks ?? [],
+        pendingResults: data.pendingResults ?? [],
+        vitals: data.vitals ?? [],
+        orders: (data.orders ?? []).map((o) => ({ ...o, results: o.results ?? [] })),
+        notes: data.notes ?? [],
+        admissions: data.admissions ?? [],
+        appointments: data.appointments ?? [],
+        allergies: data.profile.allergies ?? [],
+        chronic: data.profile.chronic ?? [],
+        whatChanged: data.whatChanged ?? { orders: 0, vitals: 0, tasks: 0 },
+      }
+    : null;
   const [aiBusy, setAiBusy] = useState(false);
   const [ai, setAi] = useState<{ summary: { oneLine: string; currentStatus: string; activeProblems: string[]; medications: string[]; watchItems: string[]; dataGaps: string[]; suggestedNextSteps: string[] }; disclaimer: string } | null>(null);
 
@@ -135,10 +158,18 @@ function PatientDrawer({ id, onClose }: { id: string; onClose: () => void }) {
           <Loading rows={8} label="Opening universal patient record…" />
         ) : error ? (
           <ErrorState message={error.message} onRetry={refresh} />
-        ) : data ? (
+        ) : d ? (
           <div className="space-y-4">
-            <button onClick={onClose} className="flex items-center gap-1.5 text-xs text-ink-3 hover:text-ink">
-              <ChevronLeft className="h-4 w-4" /> Back to registry
+            <button
+              onClick={onClose}
+              className="nx-back-pill"
+              aria-label="Back to Patient Records"
+              title="Back to Patient Records"
+            >
+              <span className="nx-back-disc" aria-hidden>
+                <ArrowLeft className="h-3 w-3" />
+              </span>
+              <span>Patient Records</span>
             </button>
 
             {/* Header */}
@@ -146,43 +177,43 @@ function PatientDrawer({ id, onClose }: { id: string; onClose: () => void }) {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-inset text-sm font-semibold text-ink">
-                    {data.profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                    {d.profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-ink">{data.profile.name}</h2>
+                    <h2 className="text-lg font-semibold text-ink">{d.profile.name}</h2>
                     <p className="text-xs text-ink-3">
-                      {data.profile.uhid} · {data.profile.age ?? "?"}y {data.profile.gender} · {data.profile.bloodGroup || "?"} · speaks {data.profile.language}
+                      {d.profile.uhid} · {d.profile.age ?? "?"}y {d.profile.gender} · {d.profile.bloodGroup || "?"} · speaks {d.profile.language}
                     </p>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
-                  {data.status.isAdmitted ? <Pill tone="info">Admitted · {data.status.location}</Pill> : <Pill>Not admitted</Pill>}
-                  {data.profile.allergies.map((a) => <Pill key={a} tone="critical"><AlertTriangle className="h-3 w-3" /> {a}</Pill>)}
-                  {data.profile.chronic.map((c) => <Pill key={c} tone="warn">{c}</Pill>)}
+                  {d.status.isAdmitted ? <Pill tone="info">Admitted · {d.status.location}</Pill> : <Pill>Not admitted</Pill>}
+                  {d.allergies.map((a) => <Pill key={a} tone="critical"><AlertTriangle className="h-3 w-3" /> {a}</Pill>)}
+                  {d.chronic.map((c) => <Pill key={c} tone="warn">{c}</Pill>)}
                 </div>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-ink-3 sm:grid-cols-4">
-                <p>Phone: <span className="text-ink-2">{data.profile.phone || "—"}</span></p>
-                <p>Emergency: <span className="text-ink-2">{data.profile.emergencyContact.name || "—"} {data.profile.emergencyContact.phone || ""}</span></p>
-                <p>Insurance: <span className="text-ink-2">{data.profile.insurance.provider || "self-pay"}</span></p>
-                <p>ABHA: <span className="text-ink-2">{data.profile.abhaId || "not linked"}</span></p>
+                <p>Phone: <span className="text-ink-2">{d.profile.phone || "—"}</span></p>
+                <p>Emergency: <span className="text-ink-2">{d.profile.emergencyContact.name || "—"} {d.profile.emergencyContact.phone || ""}</span></p>
+                <p>Insurance: <span className="text-ink-2">{d.profile.insurance.provider || "self-pay"}</span></p>
+                <p>ABHA: <span className="text-ink-2">{d.profile.abhaId || "not linked"}</span></p>
               </div>
-              {data.status.attendingDoctor && (
+              {d.status.attendingDoctor && (
                 <p className="mt-2 text-xs text-ink-3">
-                  Under care of <span className="font-medium text-ink">{data.status.attendingDoctor}</span> — {data.status.admissionDiagnosis}
-                  {data.status.expectedDischarge && <> · expected discharge {new Date(data.status.expectedDischarge).toLocaleDateString("en-IN")}</>}
+                  Under care of <span className="font-medium text-ink">{d.status.attendingDoctor}</span> — {d.status.admissionDiagnosis}
+                  {d.status.expectedDischarge && <> · expected discharge {new Date(d.status.expectedDischarge).toLocaleDateString("en-IN")}</>}
                 </p>
               )}
             </div>
 
             {/* Journey timeline */}
             <Panel title="Patient journey" subtitle="Every stage, owner and status in one view">
-              {data.journey.length === 0 ? (
+              {d.journey.length === 0 ? (
                 <Empty title="No journey recorded yet" />
               ) : (
                 <div className="relative space-y-0 pl-5">
                   <div className="absolute bottom-2 left-[7px] top-2 w-px bg-inset" />
-                  {data.journey.map((s) => (
+                  {d.journey.map((s) => (
                     <div key={s.key} className="relative pb-4 last:pb-0">
                       <span className={`absolute -left-5 top-1 h-[15px] w-[15px] rounded-full border-2 ${s.status === "active" ? "border-accent-line bg-accent-soft animate-pulse" : s.status === "completed" ? "border-good bg-good-soft" : "border-line-2 bg-panel"}`} />
                       <div className="flex flex-wrap items-center gap-2">
@@ -198,9 +229,9 @@ function PatientDrawer({ id, onClose }: { id: string; onClose: () => void }) {
 
             {/* What changed + open items */}
             <div className="grid gap-4 md:grid-cols-2">
-              <Panel title="Open tasks & pending results" subtitle={`${data.whatChanged.orders} orders · ${data.whatChanged.vitals} vitals in last 48h`}>
+              <Panel title="Open tasks & pending results" subtitle={`${d.whatChanged.orders} orders · ${d.whatChanged.vitals} vitals in last 48h`}>
                 <div className="space-y-2">
-                  {data.openTasks.map((t) => (
+                  {d.openTasks.map((t) => (
                     <div key={t.id} className="rounded-lg border border-line bg-panel px-3 py-2">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-medium text-ink">{t.title}</p>
@@ -209,22 +240,22 @@ function PatientDrawer({ id, onClose }: { id: string; onClose: () => void }) {
                       <p className="text-[11px] text-ink-3">{t.ownerName} · due {t.dueAt ? timeAgo(t.dueAt) : "—"}</p>
                     </div>
                   ))}
-                  {data.pendingResults.map((r) => (
+                  {d.pendingResults.map((r) => (
                     <div key={r.id} className="flex items-center justify-between gap-2 rounded-lg border border-line bg-panel px-3 py-2">
                       <p className="truncate text-xs text-ink-2">{r.test} <span className="text-ink-3">({r.type})</span></p>
                       <StatusPill status={r.priority} />
                     </div>
                   ))}
-                  {data.openTasks.length === 0 && data.pendingResults.length === 0 && <Empty title="Nothing pending" />}
+                  {d.openTasks.length === 0 && d.pendingResults.length === 0 && <Empty title="Nothing pending" />}
                 </div>
               </Panel>
 
               <Panel title="Recent vitals" subtitle="Latest first · NEWS2 where recorded">
-                {data.vitals.length === 0 ? (
+                {d.vitals.length === 0 ? (
                   <Empty title="No vitals recorded" />
                 ) : (
                   <div className="space-y-1.5">
-                    {data.vitals.map((v) => (
+                    {d.vitals.map((v) => (
                       <div key={v.id} className="flex items-center justify-between gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-xs">
                         <span className="tabular-nums text-ink-2">{v.bp} · P{v.pulse ?? "?"} · SpO₂ {v.spo2 ?? "?"}% · {v.temp ?? "?"}°C</span>
                         <span className="flex items-center gap-2 text-ink-3">
@@ -240,11 +271,11 @@ function PatientDrawer({ id, onClose }: { id: string; onClose: () => void }) {
 
             {/* Orders & results */}
             <Panel title="Orders & results" subtitle="Unified lifecycle with attribution">
-              {data.orders.length === 0 ? (
+              {d.orders.length === 0 ? (
                 <Empty title="No orders" />
               ) : (
                 <div className="space-y-2">
-                  {data.orders.slice(0, 8).map((o) => (
+                  {d.orders.slice(0, 8).map((o) => (
                     <div key={o.id} className="rounded-lg border border-line bg-panel px-3 py-2.5">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="text-xs font-medium text-ink">{o.details?.testName || o.type} <span className="text-ink-3">· {o.type}</span></p>
@@ -316,9 +347,9 @@ function PatientDrawer({ id, onClose }: { id: string; onClose: () => void }) {
             {/* History grids */}
             <div className="grid gap-4 md:grid-cols-2">
               <Panel title="Notes">
-                {data.notes.length === 0 ? <Empty title="No notes" /> : (
+                {d.notes.length === 0 ? <Empty title="No notes" /> : (
                   <div className="space-y-2">
-                    {data.notes.map((n) => (
+                    {d.notes.map((n) => (
                       <div key={n.id} className="rounded-lg border border-line bg-panel px-3 py-2">
                         <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">{n.type}</p>
                         <p className="mt-0.5 line-clamp-3 text-xs text-ink-2">{n.body}</p>
@@ -330,13 +361,13 @@ function PatientDrawer({ id, onClose }: { id: string; onClose: () => void }) {
               </Panel>
               <Panel title="Admissions & appointments">
                 <div className="space-y-1.5">
-                  {data.admissions.map((a) => (
+                  {d.admissions.map((a) => (
                     <div key={a.id} className="flex items-center justify-between gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-xs">
                       <span className="truncate text-ink-2">{a.diagnosis || a.type} · {a.bed || "—"}</span>
                       <StatusPill status={a.dischargeStatus || "active"} />
                     </div>
                   ))}
-                  {data.appointments.slice(0, 4).map((a) => (
+                  {d.appointments.slice(0, 4).map((a) => (
                     <div key={a.id} className="flex items-center justify-between gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-xs">
                       <span className="truncate text-ink-2">{a.complaint || a.type} · {a.doctor}</span>
                       <StatusPill status={a.status} />
