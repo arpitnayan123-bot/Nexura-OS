@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { toast } from "./os/toast";
 import { useBackLayer } from "./os/back";
-import { ArrowLeft, FlaskConical, TestTube2 } from "lucide-react";
+import { NxModal, nxField } from "./os/modal";
+import { FlaskConical, TestTube2 } from "lucide-react";
 import { nx, useNx, timeAgo } from "./client";
 import { Empty, ErrorState, Loading, Panel, Pill, Stat, StatusPill } from "./bits";
 
@@ -152,45 +153,56 @@ function ResultEntry({ row, onClose, onDone }: { row: LabRow; onClose: () => voi
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-xl border border-line bg-[#0d1526] p-5" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-2.5">
-          <button onClick={onClose} className="nx-back-tb" aria-label="Back to Laboratory" title="Back to Laboratory">
-            <ArrowLeft className="h-3.5 w-3.5" />
-          </button>
-          <h3 className="text-sm font-semibold text-ink">Record result — {row.test}</h3>
-        </div>
-        <p className="text-[11px] text-ink-3">{row.patient.fullName} · {row.patient.uhid}</p>
-        <div className="mt-3 space-y-2.5">
-          <input value={testName} onChange={(e) => setTestName(e.target.value)} placeholder="Analyte (e.g. Potassium)" className="w-full rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />
-          <div className="grid grid-cols-2 gap-2">
-            <input value={value} onChange={(e) => setValue(e.target.value)} placeholder="Value" inputMode="decimal" className="rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />
-            <input value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="Unit (mmol/L)" className="rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <input value={refMin} onChange={(e) => setRefMin(e.target.value)} placeholder="Ref min" inputMode="decimal" className="rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />
-            <input value={refMax} onChange={(e) => setRefMax(e.target.value)} placeholder="Ref max" inputMode="decimal" className="rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line" />
-          </div>
-          <div className="flex gap-1.5">
-            {["normal", "low", "high", "critical"].map((f) => (
-              <button key={f} onClick={() => setFlag(f)} className={`flex-1 rounded-md border px-2 py-1.5 text-[11px] capitalize transition ${flag === f ? "border-accent-line bg-accent-soft text-accent" : "border-line text-ink-3 hover:border-line-2"}`}>
-                {f}
-              </button>
-            ))}
-          </div>
-          {flag === "critical" && (
-            <p className="rounded-md border border-crit-line bg-crit-soft px-3 py-2 text-[11px] text-crit">
-              Critical flag will instantly create a 15-min acknowledgement task, open a critical incident, and alert the care team.
-            </p>
-          )}
-        </div>
-        <div className="mt-4 flex justify-end gap-2">
+    <NxModal
+      open
+      onClose={onClose}
+      title={`Record result — ${row.test}`}
+      subtitle={`${row.patient.fullName} · ${row.patient.uhid}`}
+      footer={
+        <>
           <button onClick={onClose} className="rounded-md border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:bg-inset">Cancel</button>
           <button onClick={submit} disabled={busy} className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-xs font-semibold text-accent-ink hover:bg-accent disabled:opacity-50">
-            {busy && <TestTube2 className="h-3.5 w-3.5 animate-pulse" />} Validate & report
+            {busy && <TestTube2 className="h-3.5 w-3.5 animate-pulse" />} Validate &amp; report
           </button>
+        </>
+      }
+    >
+      <div>
+        <label htmlFor="lab-analyte" className="sr-only">Analyte</label>
+        <input id="lab-analyte" value={testName} onChange={(e) => setTestName(e.target.value)} placeholder="Analyte (e.g. Potassium)" className={nxField} />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label htmlFor="lab-value" className="sr-only">Value</label>
+          <input id="lab-value" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Value" inputMode="decimal" aria-invalid={Boolean(value) && Number.isNaN(Number(value))} className={nxField} />
+        </div>
+        <div>
+          <label htmlFor="lab-unit" className="sr-only">Unit</label>
+          <input id="lab-unit" value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="Unit (mmol/L)" className={nxField} />
         </div>
       </div>
-    </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label htmlFor="lab-refmin" className="sr-only">Reference min</label>
+          <input id="lab-refmin" value={refMin} onChange={(e) => setRefMin(e.target.value)} placeholder="Ref min" inputMode="decimal" className={nxField} />
+        </div>
+        <div>
+          <label htmlFor="lab-refmax" className="sr-only">Reference max</label>
+          <input id="lab-refmax" value={refMax} onChange={(e) => setRefMax(e.target.value)} placeholder="Ref max" inputMode="decimal" className={nxField} />
+        </div>
+      </div>
+      <div className="flex gap-1.5" role="group" aria-label="Result flag">
+        {["normal", "low", "high", "critical"].map((f) => (
+          <button key={f} type="button" aria-pressed={flag === f} onClick={() => setFlag(f)} className={`flex-1 rounded-md border px-2 py-1.5 text-[11px] capitalize transition ${flag === f ? "border-accent-line bg-accent-soft text-accent" : "border-line text-ink-3 hover:border-line-2"}`}>
+            {f}
+          </button>
+        ))}
+      </div>
+      {flag === "critical" && (
+        <p className="rounded-md border border-crit-line bg-crit-soft px-3 py-2 text-[11px] text-crit">
+          Critical flag will instantly create a 15-min acknowledgement task, open a critical incident, and alert the care team.
+        </p>
+      )}
+    </NxModal>
   );
 }

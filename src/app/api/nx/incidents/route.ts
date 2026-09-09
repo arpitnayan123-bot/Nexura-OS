@@ -62,10 +62,12 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const gate = await requireModule(req, "incidents");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
   if (!body.id) return NextResponse.json({ error: "missing_id" }, { status: 400 });
 
-  const incident = await db.nxIncident.findUnique({ where: { id: body.id } });
+  // Tenant-scoped lookup — never touch another hospital's incident.
+  const incident = await db.nxIncident.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId } });
   if (!incident) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const data: Record<string, unknown> = { status: body.status || "acknowledged" };

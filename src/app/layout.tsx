@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/site/theme-provider";
 import { BookingProvider } from "@/components/site/booking-context";
@@ -72,8 +71,10 @@ export default function RootLayout({
             {children}
             <BookingModal />
           </BookingProvider>
-          <Toaster />
-          <SonnerToaster position="bottom-center" richColors closeButton />
+          {/* Single sonner viewport for the entire app — mounting more than one
+              renders every toast twice. top-center clears the OS system bar
+              (46px) and never overlaps the dock or the mobile back FAB. */}
+          <SonnerToaster position="top-center" offset={56} richColors closeButton visibleToasts={3} />
         </ThemeProvider>
       </body>
     </html>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runText, INDIA_PREAMBLE } from "@/lib/gemini";
+import { aiGate } from "@/lib/nx/ai-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,6 +9,8 @@ export const maxDuration = 60;
 // POST /api/know-your-health/ayurveda
 // body: { answers: string[] }  // 20 answers, each from {a,b,c} mapped to V/P/K
 export async function POST(req: NextRequest) {
+  const __ai = aiGate(req);
+  if (__ai) return __ai;
   try {
     const body = await req.json().catch(() => ({}));
     const answers = Array.isArray(body?.answers) ? body.answers : [];

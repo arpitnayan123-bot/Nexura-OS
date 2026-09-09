@@ -7,7 +7,7 @@ import {
   PersonStanding, Settings, Signpost, SquareStack, Sun, Type,
 } from "lucide-react";
 import { useState } from "react";
-import { useNx } from "../client";
+import { useNx, useDebounced } from "../client";
 import { APPS } from "./registry";
 import { WS_COUNT, useOs } from "./store";
 
@@ -19,28 +19,45 @@ import { WS_COUNT, useOs } from "./store";
 export function NxPalette({ allowed, onSignOut }: { allowed: Set<string>; onSignOut: () => void }) {
   const open = useOs((s) => s.paletteOpen);
   const setPalette = useOs((s) => s.setPalette);
-  const os = useOs();
+  /* Fine-grained selectors — the palette stays mounted, so a whole-store
+     subscription re-rendered it (and re-filtered commands) on every focus,
+     geometry and z-order change anywhere in the OS. */
+  const resolvedTheme = useOs((s) => s.resolvedTheme);
+  const focusMode = useOs((s) => s.focus);
+  const night = useOs((s) => s.night);
+  const motion = useOs((s) => s.motion);
+  const density = useOs((s) => s.density);
+  const workspace = useOs((s) => s.workspace);
+  const wins = useOs((s) => s.wins);
+  const focused = useOs((s) => s.focused);
+  const setTheme = useOs((s) => s.setTheme);
+  const setFocus = useOs((s) => s.setFocus);
+  const setNight = useOs((s) => s.setNight);
+  const setMotion = useOs((s) => s.setMotion);
+  const setDensity = useOs((s) => s.setDensity);
   const [q, setQ] = useState("");
+  // Debounced search — typing fired one API request per keystroke before.
+  const dq = useDebounced(q, 250);
   const { data } = useNx<{ patients: Array<{ id: string; fullName: string; uhid: string }> }>(
-    open && q.trim().length >= 2 ? `/api/nx/patients?q=${encodeURIComponent(q.trim())}&take=5` : null
+    open && dq.trim().length >= 2 ? `/api/nx/patients?q=${encodeURIComponent(dq.trim())}&take=5` : null
   );
 
   const run = (fn: () => void) => () => { fn(); setPalette(false); };
 
-  const focusedWin = os.wins.find((w) => w.key === os.focused);
+  const focusedWin = wins.find((w) => w.key === focused);
 
   const commands = [
-    os.resolvedTheme === "dark"
-      ? { icon: Sun, label: "Switch to Light appearance", kbd: "", fn: () => os.setTheme("light") }
-      : { icon: Moon, label: "Switch to Dark appearance", kbd: "", fn: () => os.setTheme("dark") },
-    { icon: MoonStar, label: os.focus ? "Turn off Focus mode" : "Turn on Focus mode", kbd: "", fn: () => os.setFocus(!os.focus) },
-    { icon: Sun, label: os.night ? "Turn off Night shift" : "Turn on Night shift", kbd: "", fn: () => os.setNight(!os.night) },
-    { icon: PersonStanding, label: os.motion === "reduced" ? "Enable full motion" : "Reduce motion", kbd: "", fn: () => os.setMotion(os.motion === "reduced" ? "full" : "reduced") },
-    { icon: Type, label: os.density === "compact" ? "Use comfortable density" : "Use compact density", kbd: "", fn: () => os.setDensity(os.density === "compact" ? "comfortable" : "compact") },
+    resolvedTheme === "dark"
+      ? { icon: Sun, label: "Switch to Light appearance", kbd: "", fn: () => setTheme("light") }
+      : { icon: Moon, label: "Switch to Dark appearance", kbd: "", fn: () => setTheme("dark") },
+    { icon: MoonStar, label: focusMode ? "Turn off Focus mode" : "Turn on Focus mode", kbd: "", fn: () => setFocus(!focusMode) },
+    { icon: Sun, label: night ? "Turn off Night shift" : "Turn on Night shift", kbd: "", fn: () => setNight(!night) },
+    { icon: PersonStanding, label: motion === "reduced" ? "Enable full motion" : "Reduce motion", kbd: "", fn: () => setMotion(motion === "reduced" ? "full" : "reduced") },
+    { icon: Type, label: density === "compact" ? "Use comfortable density" : "Use compact density", kbd: "", fn: () => setDensity(density === "compact" ? "comfortable" : "compact") },
     { icon: LayoutGrid, label: "Show all windows (Overview)", kbd: "F9", fn: () => useOs.getState().setOverview(true) },
     { icon: LockKeyhole, label: "Lock screen", kbd: "⌘L", fn: () => useOs.getState().lock() },
     ...Array.from({ length: WS_COUNT }, (_, i) => i + 1)
-      .filter((ws) => ws !== os.workspace)
+      .filter((ws) => ws !== workspace)
       .map((ws) => ({
         icon: SquareStack,
         label: `Switch to Workspace ${ws}`,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runText, INDIA_PREAMBLE } from "@/lib/gemini";
+import { aiGate } from "@/lib/nx/ai-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +22,8 @@ function toMinutes(t: string): number | null {
 
 // POST /api/know-your-health/sleep-quality
 export async function POST(req: NextRequest) {
+  const __ai = aiGate(req);
+  if (__ai) return __ai;
   try {
     const body = (await req.json().catch(() => ({}))) as Partial<Input>;
     const bedtime = String(body.bedtime || "");

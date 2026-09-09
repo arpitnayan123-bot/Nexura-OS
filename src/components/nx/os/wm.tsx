@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type ErrorInfo, type ReactNode } from "react";
 import { ArrowLeftRight, Maximize2, Minus, Pin, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { appFor, type AppCtx } from "./registry";
 import { NxTitlebarBack } from "./back-ui";
 import { BAR_H, DOCK_SAFE, WS_COUNT, useOs, type WinState } from "./store";
 import { CtxMenu, type CtxItem } from "./ctx";
+import { ErrorState } from "../bits";
 
 /* ============================================================
    HOSPITAL OS — window manager
@@ -22,6 +23,39 @@ const MIN_H = 280;
 
 type SnapSide = "left" | "right";
 interface GhostRect { x: number; y: number; w: number; h: number }
+
+/* --------------------------------------------------------------
+   Per-window error boundary — a crash inside one app must never
+   take down the whole OS shell (dock, system bar, other windows
+   all survive; the broken window shows a recoverable state).
+   -------------------------------------------------------------- */
+class WindowErrorBoundary extends Component<{ winKey: string; children: ReactNode }, { err: Error | null }> {
+  state = { err: null as Error | null };
+  static getDerivedStateFromError(err: Error) {
+    return { err };
+  }
+  componentDidCatch(err: Error, info: ErrorInfo) {
+    // Surface for the structured logger pipeline without leaking to users.
+    console.error(`[os] window crashed: ${this.props.winKey}`, err.message, info.componentStack);
+  }
+  componentDidUpdate(prev: { winKey: string }) {
+    // Re-arm when a different app opens into this window slot.
+    if (prev.winKey !== this.props.winKey && this.state.err) this.setState({ err: null });
+  }
+  render() {
+    if (this.state.err) {
+      return (
+        <div className="p-4">
+          <ErrorState
+            message={`"${this.props.winKey}" hit an unexpected error and was stopped. Other windows are unaffected.`}
+            onRetry={() => this.setState({ err: null })}
+          />
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export function useIsMobile() {
   const [m, setM] = useState(false);
@@ -171,15 +205,20 @@ function NxWindow({ win, focusedWin, exiting, isMobile, ghost, appCtx, ovTransfo
           ghost(side ? { x: side === "left" ? 0 : Math.round(vw / 2), y: 0, w: Math.round(vw / 2), h: availH } : null);
         }
       };
-      const up = () => {
+      const end = () => {
         window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", end);
+        window.removeEventListener("pointercancel", end);
         ghost(null);
         setDragging(false);
         if (snap) useOs.getState().snapApp(win.key, snap);
         else useOs.getState().setGeom(win.key, { x: nx, y: ny }, true);
       };
       window.addEventListener("pointermove", move);
-      window.addEventListener("pointerup", up, { once: true });
+      window.addEventListener("pointerup", end);
+      // pointercancel: touch gestures interrupted by the OS must not leak the
+      // move listener or leave `dragging` stuck (which disables body pointer events).
+      window.addEventListener("pointercancel", end);
     },
     [win.key, win.x, win.y, win.w, maxed, focusApp, ghost]
   );
@@ -222,13 +261,16 @@ function NxWindow({ win, focusedWin, exiting, isMobile, ghost, appCtx, ovTransfo
         el.style.width = `${n.w}px`;
         el.style.height = `${n.h}px`;
       };
-      const up = () => {
+      const end = () => {
         window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", end);
+        window.removeEventListener("pointercancel", end);
         setResizing(false);
         useOs.getState().setGeom(win.key, g, true);
       };
       window.addEventListener("pointermove", move);
-      window.addEventListener("pointerup", up, { once: true });
+      window.addEventListener("pointerup", end);
+      window.addEventListener("pointercancel", end);
     },
     [win.key, win.x, win.y, win.w, win.h, maxed, focusApp]
   );
@@ -320,9 +362,11 @@ function NxWindow({ win, focusedWin, exiting, isMobile, ghost, appCtx, ovTransfo
         </span>
       </div>
 
-      {/* content */}
+      {/* content — isolated so one app crashing never kills the shell */}
       <div className="nx-win-body nx-scroll">
-        <div className="mx-auto max-w-[1400px] p-4 lg:p-5">{def.render(appCtx)}</div>
+        <div className="mx-auto max-w-[1400px] p-4 lg:p-5">
+          <WindowErrorBoundary winKey={win.key}>{def.render(appCtx)}</WindowErrorBoundary>
+        </div>
       </div>
 
       {/* resize handles */}

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Hash, Send } from "lucide-react";
 import { nx, useNx, fmtClock } from "./client";
+import { toast } from "./os/toast";
 import { Empty, ErrorState, Loading, Panel } from "./bits";
 
 /* ============================================================
@@ -33,8 +34,9 @@ export function MessagesCenter() {
       await nx("/api/nx/messages", { method: "POST", body: JSON.stringify({ channel, body: draft }) });
       setDraft("");
       refresh();
-    } catch {
-      // silent — refresh will show failure state
+    } catch (e) {
+      // A failed clinical message must never disappear silently — say so.
+      toast.error(e instanceof Error ? e.message : "Message failed to send");
     } finally {
       setSending(false);
     }

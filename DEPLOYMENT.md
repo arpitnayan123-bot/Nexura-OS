@@ -72,11 +72,12 @@ bunx prisma db push && bun run build
 ## Step 6: Seed Production Database (Optional)
 
 ```bash
-DATABASE_URL="postgresql://..." bunx tsx scripts/seed-hospital.ts
-DATABASE_URL="postgresql://..." bunx tsx scripts/seed-clinic.ts
-DATABASE_URL="postgresql://..." bunx tsx scripts/seed-pharmacy.ts
-DATABASE_URL="postgresql://..." bunx tsx scripts/seed-portal.ts
-DATABASE_URL="postgresql://..." bunx tsx scripts/seed-connect.ts
+# Full demo chain (base hospital -> OS staff/RBAC -> v4 OS data):
+DATABASE_URL="..." bun scripts/legacy/seed-hospital.ts
+DATABASE_URL="..." bun scripts/seed-nx.ts
+DATABASE_URL="..." bun scripts/seed-nx-v4.ts
+# or simply: bun run seed:all
+# Optional product seeds (legacy paths moved to scripts/legacy/):
 ```
 
 ## Step 7: Deploy

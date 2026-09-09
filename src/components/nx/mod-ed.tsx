@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { toast } from "./os/toast";
 import { Siren, Timer } from "lucide-react";
 import { nx, useNx, timeAgo } from "./client";
+import { NxModal, nxField } from "./os/modal";
 import { Empty, ErrorState, Loading, Panel, Pill, Stat, StatusPill } from "./bits";
 
 /* ============================================================
@@ -26,18 +28,7 @@ const ACUITY_TONE = ["critical", "warn", "info"] as const;
 
 export function EdBoard() {
   const { data, error, loading, refresh } = useNx<EdData>("/api/nx/ed", { pollMs: 15000 });
-
-  async function triageNote(id: string) {
-    const note = window.prompt("Triage note (audited):");
-    if (!note) return;
-    try {
-      await nx("/api/nx/ed", { method: "PATCH", body: JSON.stringify({ id, note }) });
-      toast.success("Triage note recorded");
-      refresh();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed");
-    }
-  }
+  const [noteFor, setNoteFor] = useState<EdCase | null>(null);
 
   if (loading) return <Loading rows={5} label="Loading emergency board…" />;
   if (error) return <ErrorState message={error.message} onRetry={refresh} />;
@@ -77,7 +68,7 @@ export function EdBoard() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Pill tone={c.waitMins > 60 ? "critical" : c.waitMins > 30 ? "warn" : "good"}>wait {c.waitMins}m</Pill>
-                    <button onClick={() => triageNote(c.id)} className="rounded-md border border-line-2 px-2 py-1 text-[11px] text-ink-2 hover:bg-inset">
+                    <button onClick={() => setNoteFor(c)} className="rounded-md border border-line-2 px-2 py-1 text-[11px] text-ink-2 hover:bg-inset">
                       Triage note
                     </button>
                   </div>
@@ -92,6 +83,58 @@ export function EdBoard() {
           </div>
         )}
       </Panel>
+
+      {noteFor && (
+        <TriageNoteModal
+          row={noteFor}
+          onClose={() => setNoteFor(null)}
+          onDone={() => { setNoteFor(null); refresh(); }}
+        />
+      )}
     </div>
+  );
+}
+
+function TriageNoteModal({ row, onClose, onDone }: { row: EdCase; onClose: () => void; onDone: () => void }) {
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit() {
+    if (!note.trim()) {
+      toast.error("Triage note is required");
+      return;
+    }
+    setBusy(true);
+    try {
+      await nx("/api/nx/ed", { method: "PATCH", body: JSON.stringify({ id: row.id, note: note.trim() }) });
+      toast.success("Triage note recorded");
+      onDone();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <NxModal
+      open
+      onClose={onClose}
+      title={`Triage note — ${row.patient.fullName}`}
+      subtitle={`${row.patient.uhid} · acuity L${row.acuity.level} ${row.acuity.label} · every note is audited`}
+      footer={
+        <>
+          <button onClick={onClose} className="rounded-md border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:bg-inset">Cancel</button>
+          <button onClick={submit} disabled={busy} className="rounded-md bg-accent px-3 py-1.5 text-xs font-semibold text-accent-ink hover:bg-accent disabled:opacity-50">
+            {busy ? "Saving…" : "Save note"}
+          </button>
+        </>
+      }
+    >
+      <div>
+        <label htmlFor="triage-note" className="sr-only">Triage note</label>
+        <textarea id="triage-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Disposition note, observations, or instructions…" rows={4} autoFocus className={nxField} />
+      </div>
+    </NxModal>
   );
 }

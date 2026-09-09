@@ -31,15 +31,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const canBilling = hasPermission(perms, "billing.view");
   const canRestricted = hasPermission(perms, "patient.restricted.view") || session.breakGlass;
 
+  if (!session.hospitalId && session.role !== "patient") {
+    return NextResponse.json({ error: "no_hospital" }, { status: 400 });
+  }
+
+  // Tenant-scoped + id-or-UHID lookup (the UHID branch was previously dead code
+  // because `id` in the OR made it unreachable).
   const patient = await db.hospitalPatient.findFirst({
-    where: { id, OR: [{ id }, { uhid: id }] },
+    where: {
+      OR: [{ id }, { uhid: id }],
+      ...(session.hospitalId ? { hospitalId: session.hospitalId } : {}),
+    },
     include: {
       admissions: {
         orderBy: { admissionDate: "desc" },
         include: {
           bed: { include: { ward: true } },
           admittingDoctor: true,
-          orders: { orderBy: { createdAt: "desc" }, include: { labResults: true, imagingReports: true, doctor: { select: { name: true } } } },
+          orders: { orderBy: { createdAt: "desc" }, take: 20, include: { labResults: true, imagingReports: true, doctor: { select: { name: true } } } },
         },
       },
       appointments: { orderBy: { date: "desc" }, include: { doctor: { select: { name: true, specialty: true } } }, take: 10 },

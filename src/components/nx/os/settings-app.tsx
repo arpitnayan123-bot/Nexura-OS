@@ -218,7 +218,7 @@ export function SettingsApp() {
               </div>
               <div>
                 <p className="nx-display text-2xl text-ink">Hospital OS</p>
-                <p className="text-xs text-ink-3">Nexura Hospital Operating System · Version 3.0 “Meridian”</p>
+                <p className="text-xs text-ink-3">Nexura Hospital Operating System · Version 4.0 "Foundation"</p>
               </div>
             </div>
             <p className="text-sm leading-relaxed text-ink-2">

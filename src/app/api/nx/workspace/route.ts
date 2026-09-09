@@ -1,25 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireModule } from "@/lib/nx/session";
+import { getSessionFresh, canAccessModule } from "@/lib/nx/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET — role workspace: everything the signed-in role needs on one surface. */
 export async function GET(req: NextRequest) {
-  const asDoctor = await requireModule(req, "doctor");
-  const asNurse = await requireModule(req, "nurse");
-  const gate = "session" in asDoctor ? asDoctor : asNurse;
-  if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
-  const session = gate.session;
-  const hospitalId = session.hospitalId || (await db.hospital.findFirst())?.id;
+  // Single session resolution (previously 2× requireModule = 2× user+session queries).
+  const session = await getSessionFresh(req);
+  if (!session) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  const allowed = canAccessModule(session.role, "doctor") || canAccessModule(session.role, "nurse");
+  if (!allowed) return NextResponse.json({ error: "forbidden_module" }, { status: 403 });
+  if (!session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
+  const hospitalId: string = session.hospitalId;
 
   const ownerFilter: { ownerRole: string } | { ownerRole: { in: string[] } } =
     session.role === "nurse" ? { ownerRole: "nurse" } : { ownerRole: { in: ["doctor", "reception", "facilities", "admin"] } };
   const [myTasks, activeAdmissions, pendingOrders] = await Promise.all([
     db.nxTask.findMany({
       where: {
-        hospitalId: hospitalId!,
+        hospitalId,
         status: { in: ["open", "in_progress", "blocked"] },
         ...ownerFilter,
       },

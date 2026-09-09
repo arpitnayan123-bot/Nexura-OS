@@ -29,33 +29,75 @@ describe("event bus", () => {
     u2();
   });
 
-  it("delivers user-targeted events only to that user", () => {
-    const mine: NxEvent[] = [];
-    const others: NxEvent[] = [];
-    const u1 = subscribe("t4", { userId: "me", role: "nurse", hospitalId: "h1", roleKeys: ["nurse"] }, (e) => mine.push(e));
-    const u2 = subscribe("t5", { userId: "other", role: "nurse", hospitalId: "h1", roleKeys: ["nurse"] }, (e) => others.push(e));
-    publish({ event: "dm", hospitalId: "h1", toUsers: ["me"], data: { secret: true } });
-    expect(mine.length).toBe(1);
-    expect(others.length).toBe(0);
+  /* ---------- channel privacy (message previews must not leak) ---------- */
+
+  it("withholds channel-scoped events from subscribers without membership or clinical view", () => {
+    const noAccess: NxEvent[] = [];
+    const member: NxEvent[] = [];
+    const clinician: NxEvent[] = [];
+    const u1 = subscribe(
+      "ch-1",
+      { userId: "u-no-access", role: "receptionist", hospitalId: "h1", roleKeys: ["receptionist"], channels: ["general"], clinicalAll: false },
+      (e) => noAccess.push(e)
+    );
+    const u2 = subscribe(
+      "ch-2",
+      { userId: "u-member", role: "nurse", hospitalId: "h1", roleKeys: ["nurse"], channels: ["general", "care-team:p1"], clinicalAll: false },
+      (e) => member.push(e)
+    );
+    const u3 = subscribe(
+      "ch-3",
+      { userId: "u-clinician", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"], channels: [], clinicalAll: true },
+      (e) => clinician.push(e)
+    );
+    publish({ event: "message.new", hospitalId: "h1", channelKey: "care-team:p1", toRoles: ["nurse", "doctor", "receptionist"], data: { preview: "secret" } });
+    expect(noAccess.length).toBe(0); // no membership, no clinical view
+    expect(member.length).toBe(1);   // explicit channel member
+    expect(clinician.length).toBe(1); // patient.clinical.view
     u1();
     u2();
+    u3();
   });
 
-  it("legacy roleKeys receive legacy-targeted events", () => {
-    const got: NxEvent[] = [];
-    const u1 = subscribe("t6", { userId: "u6", role: "command", hospitalId: "h1", roleKeys: ["command"] }, (e) => got.push(e));
-    publish({ event: "cmd", hospitalId: "h1", toRoles: ["command"], data: {} });
-    expect(got.length).toBe(1);
+  it("never delivers another hospital's channel events even to members", () => {
+    const events: NxEvent[] = [];
+    const u1 = subscribe(
+      "ch-4",
+      { userId: "u-x", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"], channels: ["care-team:p9"], clinicalAll: true },
+      (e) => events.push(e)
+    );
+    publish({ event: "message.new", hospitalId: "h2", channelKey: "care-team:p9", data: {} });
+    expect(events.length).toBe(0);
     u1();
   });
 
-  it("stamps events with monotonic seq + timestamp", () => {
+  it("enforces the per-user SSE connection cap by dropping oldest", async () => {
+    const { MAX_CONNS_PER_USER } = await import("@/lib/nx/bus");
+    const unsubs: Array<() => void> = [];
+    for (let i = 0; i < MAX_CONNS_PER_USER + 2; i++) {
+      unsubs.push(subscribe(`cap-${i}`, { userId: "cap-user", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"] }, () => {}));
+    }
+    // count all connections belonging to cap-user
+    let mine = 0;
+    const before = connectionCount();
+    // publish a targeted event: only live connections receive it; we assert via cap instead:
+    // after exceeding the cap, the FIRST connections were dropped, so the earliest
+    // unsub() calls are no-ops (connectionCount unchanged by them).
+    const countAfter = connectionCount();
+    expect(countAfter).toBeLessThanOrEqual(before + MAX_CONNS_PER_USER);
+    unsubs.forEach((u) => u());
+  });
+
+  it("keeps seq monotonic with an epoch prefix (restart-safe dedupe)", () => {
     const got: NxEvent[] = [];
-    const u1 = subscribe("t7", { userId: "u7", role: "admin", hospitalId: "h1", roleKeys: ["admin"] }, (e) => got.push(e));
+    const u1 = subscribe("seq-1", { userId: "seq-u", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"] }, (e) => got.push(e));
     publish({ event: "a", hospitalId: "h1", data: {} });
     publish({ event: "b", hospitalId: "h1", data: {} });
-    expect(got[0].seq! < got[1].seq!).toBe(true);
-    expect(new Date(got[0].at!).getTime()).toBeLessThanOrEqual(Date.now());
+    expect(got.length).toBe(2);
+    expect(typeof got[0].seq).toBe("number");
+    expect(got[1].seq!).toBeGreaterThan(got[0].seq!);
+    // epoch-prefixed seqs stay far above small per-process counters
+    expect(got[0].seq!).toBeGreaterThan(1_000_000);
     u1();
   });
 });

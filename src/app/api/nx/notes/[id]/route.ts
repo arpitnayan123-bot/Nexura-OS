@@ -36,8 +36,10 @@ export const GET = withRoute("notes.get", async (req: NextRequest, { requestId }
   const id = req.nextUrl.pathname.split("/").pop() as string;
   const gate = await requirePermission(req, "patient.clinical.view");
   if ("error" in gate) return NextResponse.json({ error: gate.error, detail: gate.detail }, { status: gate.status });
-  const note = await db.clinicalNote.findUnique({
-    where: { id },
+  if (!gate.session.hospitalId) return fail("no_hospital", 400);
+  // Tenant-scoped: notes from other hospitals are invisible.
+  const note = await db.clinicalNote.findFirst({
+    where: { id, hospitalId: gate.session.hospitalId },
     include: { versions: { orderBy: { version: "desc" } } },
   });
   if (!note) return fail("not_found", 404);

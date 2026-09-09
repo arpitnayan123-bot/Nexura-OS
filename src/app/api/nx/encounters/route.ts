@@ -84,10 +84,12 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const gate = await requireModule(req, "patients");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
   if (!body.id || !body.action) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
 
-  const admission = await db.hospitalAdmission.findUnique({ where: { id: body.id }, include: { patient: true, bed: true } });
+  // Tenant-scoped: never discharge/transfer another hospital's admission.
+  const admission = await db.hospitalAdmission.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId }, include: { patient: true, bed: true } });
   if (!admission) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   if (body.action === "mark_discharge_pending") {

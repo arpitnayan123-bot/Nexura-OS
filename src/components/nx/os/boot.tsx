@@ -18,7 +18,7 @@ export function NxBoot({ leaving }: { leaving?: boolean }) {
       <div className="text-center">
         <p className="nx-display text-[26px] leading-tight text-ink">Hospital OS</p>
         <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.22em] text-ink-4">
-          Nexura · v3 “Meridian”
+          Nexura · v4 "Foundation"
         </p>
       </div>
       <div className="nx-boot-bar" aria-hidden>

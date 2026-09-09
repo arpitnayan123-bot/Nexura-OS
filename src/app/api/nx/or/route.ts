@@ -59,17 +59,24 @@ function computeReadiness(c: PreOpChecklist): { pct: number; missing: string[] }
 }
 
 /** PATCH — tick checklist item / change surgery status. */
+const CHECKLIST_KEYS = ["patient_verified", "consent_signed", "anesthesia_cleared", "equipment_checked"] as const;
 export async function PATCH(req: NextRequest) {
   const gate = await requireModule(req, "or");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
   if (!body.id) return NextResponse.json({ error: "missing_id" }, { status: 400 });
 
-  const surgery = await db.oTSurgery.findUnique({ where: { id: body.id } });
+  // Tenant-scoped: surgeries outside this hospital are unreachable.
+  const surgery = await db.oTSurgery.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId } });
   if (!surgery) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const data: Record<string, unknown> = {};
   if (body.checklistKey) {
+    // Whitelist the checklist keys — arbitrary keys must never be persisted.
+    if (!(CHECKLIST_KEYS as readonly string[]).includes(body.checklistKey)) {
+      return NextResponse.json({ error: "invalid_checklist_key", allowed: CHECKLIST_KEYS }, { status: 400 });
+    }
     let checklist: PreOpChecklist = {};
     try { checklist = JSON.parse(surgery.preOpChecklist || "{}"); } catch { /* ignore */ }
     checklist[body.checklistKey as keyof PreOpChecklist] = Boolean(body.value);

@@ -76,10 +76,12 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const gate = await requireModule(req, "ed");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
   if (!body.id) return NextResponse.json({ error: "missing_id" }, { status: 400 });
 
-  const admission = await db.hospitalAdmission.findUnique({ where: { id: body.id }, include: { patient: true } });
+  // Tenant-scoped triage target.
+  const admission = await db.hospitalAdmission.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId }, include: { patient: true } });
   if (!admission) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   if (body.note) {

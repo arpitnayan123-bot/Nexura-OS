@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowLeft, Bot, HeartPulse, Loader2, Search } from "lucide-react";
 import { toast } from "./os/toast";
 import { useBackLayer } from "./os/back";
-import { nx, useNx, timeAgo, fmtClock } from "./client";
+import { nx, useNx, useDebounced, timeAgo, fmtClock } from "./client";
 import { AiBanner, Empty, ErrorState, Loading, Panel, Pill, StatusPill } from "./bits";
 
 /* ============================================================
@@ -42,6 +42,9 @@ interface PatientRecord {
 
 export function PatientRegistry() {
   const [q, setQ] = useState("");
+  // Debounced search — previously every keystroke fired a racing API request
+  // and the slowest response won, showing wrong results.
+  const dq = useDebounced(q, 300);
   const { data, error, loading, refresh } = useNx<{ patients: PatientRow[] }>("/api/nx/patients?take=24");
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -55,9 +58,9 @@ export function PatientRegistry() {
     return () => window.removeEventListener("nx-open-patient", handler);
   }, []);
 
-  const { data: searched } = useNx<{ patients: PatientRow[] }>(q.trim().length >= 2 ? `/api/nx/patients?q=${encodeURIComponent(q.trim())}` : null);
+  const { data: searched } = useNx<{ patients: PatientRow[] }>(dq.trim().length >= 2 ? `/api/nx/patients?q=${encodeURIComponent(dq.trim())}` : null);
 
-  const rows = q.trim().length >= 2 ? searched?.patients : data?.patients;
+  const rows = dq.trim().length >= 2 ? searched?.patients : data?.patients;
 
   return (
     <div className="space-y-4">

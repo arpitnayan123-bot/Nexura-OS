@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { aiGate } from "@/lib/nx/ai-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +24,8 @@ Return STRICT JSON only: {"items":[...],"raw":"<cleaned transcript>"}. No prose.
 // POST /api/pharmacy/voice-bill
 // body: { transcript?: string, audio?: "<base64>" }
 export async function POST(req: NextRequest) {
+  const __ai = aiGate(req);
+  if (__ai) return __ai;
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });

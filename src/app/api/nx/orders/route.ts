@@ -114,10 +114,12 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const gate = await requireModule(req, "orders");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
   if (!body.id || !body.to) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
 
-  const order = await db.hospitalOrder.findUnique({ where: { id: body.id }, include: { patient: true, labResults: true } });
+  // Tenant-scoped: orders from other hospitals are unreachable.
+  const order = await db.hospitalOrder.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId }, include: { patient: true, labResults: true } });
   if (!order) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   if (body.to === "validate_result") {
@@ -125,9 +127,12 @@ export async function PATCH(req: NextRequest) {
     const { resultId, flag, value } = body;
     const result = await db.labResult.findUnique({ where: { id: resultId } });
     if (!result || result.orderId !== order.id) return NextResponse.json({ error: "result_not_found" }, { status: 404 });
+    // Whitelisted flags only — a forged "critical" would page the escalation chain.
+    const VALID_FLAGS = ["normal", "abnormal", "critical"];
+    const safeFlag = VALID_FLAGS.includes(flag) ? flag : result.abnormalFlag;
     const updated = await db.labResult.update({
       where: { id: resultId },
-      data: { abnormalFlag: flag || result.abnormalFlag, resultValue: value || result.resultValue, reportedAt: new Date() },
+      data: { abnormalFlag: safeFlag, resultValue: value || result.resultValue, reportedAt: new Date() },
     });
     await audit({
       hospitalId: order.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,

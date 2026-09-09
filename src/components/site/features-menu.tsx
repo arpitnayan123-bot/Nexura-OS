@@ -31,7 +31,7 @@ type Product = {
 
 const ITEMS: Product[] = [
   // Products
-  { id: "hospital", name: "Hospital OS", sub: "Flagship · v3 Meridian", desc: "The hospital operating system — command center, patient journeys, automations", icon: Building2, accent: "#C98A7A", href: "/hospital", badge: "Flagship", group: "products" },
+  { id: "hospital", name: "Hospital OS", sub: "Flagship · v4 Foundation", desc: "The hospital operating system — command center, patient journeys, automations", icon: Building2, accent: "#C98A7A", href: "/hospital", badge: "Flagship", group: "products" },
   { id: "clinic", name: "Clinic OS", sub: "EMR", desc: "HealthPlix-style clinic management", icon: Stethoscope, accent: "#D98B6E", href: "/clinic", badge: "New", group: "products" },
   { id: "pharmacy", name: "Pharmacia", sub: "POS", desc: "AI-powered pharmacy point of sale", icon: Pill, accent: "#F59E0B", href: "/pharmacy", badge: "New", group: "products" },
   { id: "portal", name: "Patient Portal", sub: "Unified Health", desc: "Your health records + blood test at home", icon: HeartPulse, accent: "#0EA5E9", href: "/portal", badge: "New", group: "products" },
