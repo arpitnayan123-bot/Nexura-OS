@@ -385,12 +385,13 @@ export async function getSessionFresh(req: NextRequest): Promise<NxSession | nul
   return session;
 }
 
-export function modulesForRole(role: NxRole): NxModule[] {
+export function modulesForRole(roleInput: NxRole | string): NxModule[] {
+  const role = (LEGACY_ROLE_MAP[roleInput]?.[0] ?? roleInput) as NxRole;
   // Module gates derived from the permission matrix so the OS shell stays in sync.
   const p = ROLE_PERMISSIONS[role] ?? [];
   const mods: NxModule[] = [];
   const has = (x: NxPermission) => p.includes(x);
-  if (has("analytics.view")) mods.push("command-center", "analytics");
+  if (has("analytics.view")) { if (role !== "auditor") mods.push("command-center"); mods.push("analytics"); }
   if (has("patient.clinical.view") || has("patient.demographics.view")) mods.push("patients");
   if (has("tasks.manage")) mods.push("tasks");
   if (has("appointments.manage") || has("appointments.view")) mods.push("schedule");
@@ -411,7 +412,7 @@ export function modulesForRole(role: NxRole): NxModule[] {
   return Array.from(new Set(mods)).filter((m) => MODULES.includes(m));
 }
 
-export function canAccessModule(role: NxRole, module: string): boolean {
+export function canAccessModule(role: NxRole | string, module: string): boolean {
   return modulesForRole(role).includes(module as NxModule);
 }
 
