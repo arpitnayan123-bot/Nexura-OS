@@ -2395,3 +2395,21 @@ Work Log:
 Stage Summary:
 - tsc 0 errors / eslint clean / vitest 39-39 / api-smoke 29-29 (x2 consecutive runs).
 - All changes committed in this repo state; dev server stable on port 3000.
+
+---
+
+Task ID: fix-2 (preview production hardening)
+Agent: Super Z (main)
+Task: Make the preview section reliably work; commit all changes.
+
+Work Log:
+- Diagnosed preview instability: the dev server (next-server RSS ~1.9 GB, 45% of container memory) was being reaped by the sandbox between sessions — the preview URL died whenever the process was killed.
+- Switched the preview to a production build: killed dev processes, ran `npm run build` (standalone output, all 40+ routes compiled clean).
+- Launched a self-healing supervisor: `while true; do node .next/standalone/server.js; sleep 3; done` bound to 0.0.0.0:3000, fully detached (setsid + subshell double-fork) — auto-restarts the server within 3s if it ever exits.
+- Verified on production: all 14 routes 200, DR.RAJESH login 200, overview/tasks/notifications 200, external Host-header probe 200.
+- Browser-verified (agent-browser): boot -> sign-in CMD.ANITA -> Command Center with live KPIs, bed lifecycle, critical alerts; zero page errors.
+- Memory now 879 MB used total (was 1.9 GB for dev alone) — no more OOM reaping.
+
+Stage Summary:
+- Preview is now served by a stable production server with auto-restart supervision on port 3000.
+- Working tree committed; demo sign-ins unchanged (PIN 2468 / Demo@12345).
