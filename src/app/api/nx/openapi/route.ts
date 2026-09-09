@@ -17,11 +17,10 @@ function op(summary: string, tag: string, opts?: { params?: string[]; body?: boo
     summary,
     tags: [tag],
     security: [{ sessionCookie: [] }],
-    responses: {
-      200: okResp("Success"),
-      401: errResp("Unauthenticated"),
-      ...(opts?.errors ?? []).flatMap((c) => ({ [c]: errResp("Client error") })),
-    },
+    responses: Object.assign(
+      { 200: okResp("Success"), 401: errResp("Unauthenticated") },
+      ...((opts?.errors ?? []).map((c) => ({ [c]: errResp("Client error") })))
+    ) as Record<number, unknown>,
   };
   if (opts?.params?.length) {
     o.parameters = opts.params.map((p) => ({ name: p, in: "query", schema: { type: "string" } }));
