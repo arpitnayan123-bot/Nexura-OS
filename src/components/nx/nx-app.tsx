@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Toaster } from "sonner";
 import {
-  Command as CommandIcon, Expand, Layers, LayoutGrid, Settings, SquareStack, Wallpaper as WallpaperIcon, WifiOff,
+  Command as CommandIcon, Expand, FlaskConical, Layers, LayoutGrid, Settings, SquareStack, TriangleAlert, Wallpaper as WallpaperIcon, WifiOff,
 } from "lucide-react";
-import { useNx, nx } from "./client";
+import { useNx, nx, useNxStream, type NxStreamEvent } from "./client";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { NxLogin } from "./nx-login";
 import { NxBoot } from "./os/boot";
 import { NxLock } from "./os/lock";
@@ -143,6 +145,49 @@ export function NxApp() {
       tone: "info",
     });
   }, [user, os.pushNotice]);
+
+  /* ---------- Nexura platform: system status banners (incident / maintenance / demo) ---------- */
+  const { data: sysStatus } = useNx<{ status: Record<string, { enabled: boolean; message: string | null; severity: string }> }>(
+    user ? "/api/nx/system-status" : null, { pollMs: 60000 }
+  );
+  const banner = sysStatus?.status?.incident_banner?.enabled
+    ? { tone: sysStatus.status.incident_banner.severity === "critical" ? "crit" : "warn", text: sysStatus.status.incident_banner.message || "Platform incident — some features may be degraded." }
+    : sysStatus?.status?.maintenance_mode?.enabled
+      ? { tone: "warn", text: sysStatus.status.maintenance_mode.message || "Maintenance mode active — data entry is discouraged." }
+      : null;
+
+  /* ---------- real-time stream: live events → notices + badge refresh ---------- */
+  const bump = useCallback(() => setTick((t) => t + 1), []);
+  const stream = useNxStream({
+    enabled: Boolean(user),
+    onEvent: (ev: NxStreamEvent) => {
+      const d = (ev.data ?? {}) as Record<string, string>;
+      switch (ev.event) {
+        case "lab.critical":
+          toast.error(`Critical lab: ${d.test ?? "result"}`, { description: d.patient ?? undefined });
+          os.pushNotice({ title: "Critical lab result", body: `${d.test ?? "Result"} — ${d.patient ?? ""}`, tone: "crit", moduleKey: "labs" });
+          bump();
+          break;
+        case "message.new":
+          if (d.severity === "urgent") {
+            os.pushNotice({ title: `Urgent message from ${d.sender ?? "care team"}`, body: d.preview ?? "", tone: "warn", moduleKey: "messages" });
+          }
+          bump();
+          break;
+        case "task.created":
+        case "task.updated":
+        case "notification.new":
+          bump();
+          break;
+        case "bed.updated":
+          bump();
+          break;
+        default:
+          break;
+      }
+    },
+  });
+  const demoMode = (session as { demo?: boolean } | undefined)?.demo ?? true;
 
   /* ---------- global keyboard system ---------- */
   useEffect(() => {
@@ -314,6 +359,26 @@ export function NxApp() {
         onSignOut={signOut}
       />
 
+      {/* demo + incident/maintenance banners */}
+      {(demoMode || banner) && (
+        <div className="pointer-events-none absolute left-1/2 top-[46px] z-[52] flex -translate-x-1/2 flex-col items-center gap-1 pt-1.5" aria-live="polite">
+          {banner && (
+            <div className={cn(
+              "flex items-center gap-2 rounded-full border px-4 py-1 text-[11.5px] font-medium backdrop-blur",
+              banner.tone === "crit" ? "border-crit-line bg-crit-soft text-crit" : "border-warn-line bg-warn-soft text-warn"
+            )}>
+              <TriangleAlert className="h-3.5 w-3.5" />
+              {banner.text}
+            </div>
+          )}
+          {demoMode && (
+            <div className="flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-0.5 text-[10.5px] font-medium text-amber-500 backdrop-blur">
+              <FlaskConical className="h-3 w-3" /> Demo environment — synthetic data
+            </div>
+          )}
+        </div>
+      )}
+
       {/* stage */}
       <main
         className="relative min-h-0 flex-1"
@@ -328,7 +393,7 @@ export function NxApp() {
         {!online && (
           <div className="absolute bottom-20 left-1/2 z-[56] flex -translate-x-1/2 items-center gap-2 rounded-full border border-warn-line bg-warn-soft px-4 py-1.5 text-[12px] font-medium text-warn backdrop-blur">
             <WifiOff className="h-3.5 w-3.5" />
-            Offline — windows show cached data. Reconnecting…
+            Offline — windows show cached data. Reconnecting… (last sync {stream.lastSyncedAt ? new Date(stream.lastSyncedAt).toLocaleTimeString("en-IN") : "—"})
           </div>
         )}
       </main>

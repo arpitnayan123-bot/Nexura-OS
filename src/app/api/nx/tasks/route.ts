@@ -77,28 +77,30 @@ export const GET = withRoute("tasks.list", async (req: NextRequest) => {
   const sp = req.nextUrl.searchParams;
   const status = sp.get("status");
   const priority = sp.get("priority");
-  const mine = sp.get("mine") === "1";
+  const mine = sp.get("mine"); // "1" = assigned to me (v2); role key = ownerRole (legacy)
+  const type = sp.get("type");
   const view = sp.get("view");
 
   let savedView: { name: string; filters: Record<string, string> } | null = null;
   if (view) {
     const rec = await db.nxTaskView.findFirst({ where: { userId: g.session.userId, name: view } });
-    if (rec) {
-      savedView = { name: rec.name, filters: JSON.parse(rec.filters || "{}") };
-    }
+    if (rec) savedView = { name: rec.name, filters: JSON.parse(rec.filters || "{}") };
   }
   const eff = { ...(savedView?.filters ?? {}) };
-  if (status) eff.status = status;
-  if (priority) eff.priority = priority;
-  if (mine) eff.assignedToUserId = g.session.userId;
-
-  const where = {
-    hospitalId,
-    ...(eff.status ? { status: { in: eff.status.split(",") } } : { status: { in: ACTIVE_STATUSES } }),
-    ...(eff.priority ? { priority: { in: eff.priority.split(",") } } : {}),
-    ...(eff.assignedToUserId ? { assignedToUserId: eff.assignedToUserId } : {}),
-    ...(p.q ? { OR: [{ title: { contains: p.q } }, { patientName: { contains: p.q } }, { patientUhid: { contains: p.q } }] } : {}),
-  };
+  const statusParam = status ?? eff.status;
+  const ACTIVE = [...ACTIVE_STATUSES];
+  const where: Record<string, unknown> = { hospitalId };
+  if (statusParam && statusParam !== "active" && statusParam !== "all") {
+    where.status = statusParam.includes(",") ? { in: statusParam.split(",").flatMap((s) => (s === "open" ? ["open", "new"] : [s])) } : statusParam === "open" ? { in: ["open", "new"] } : statusParam;
+  } else if (statusParam !== "all") {
+    where.status = { in: ACTIVE };
+  }
+  const priorityParam = priority ?? eff.priority;
+  if (priorityParam) where.priority = { in: priorityParam.split(",") };
+  if (mine === "1") where.assignedToUserId = g.session.userId;
+  else if (mine) where.ownerRole = mine;
+  if (type) where.type = type;
+  if (p.q) where.OR = [{ title: { contains: p.q } }, { patientName: { contains: p.q } }, { patientUhid: { contains: p.q } }];
 
   const [rows, total] = await Promise.all([
     db.nxTask.findMany({
@@ -110,7 +112,36 @@ export const GET = withRoute("tasks.list", async (req: NextRequest) => {
     }),
     db.nxTask.count({ where }),
   ]);
-  return ok({ tasks: rows, meta: pageMeta(p, total) });
+
+  const now = Date.now();
+  const enriched = rows.map((t) => {
+    const overdue = t.dueAt ? new Date(t.dueAt).getTime() < now && !["done", "cancelled"].includes(t.status) : false;
+    const dueMins = t.dueAt ? Math.round((new Date(t.dueAt).getTime() - now) / 60000) : null;
+    return { ...t, overdue, dueMins, checklist: t.checklist ? JSON.parse(t.checklist) : [] };
+  });
+
+  // Backward-compatible counts (legacy statuses + new ones)
+  const activeIn = ["open", "new", "assigned", "in_progress", "blocked", "waiting", "escalated"];
+  const [cOpen, cInProgress, cBlocked, cCritical, cDoneToday] = await Promise.all([
+    db.nxTask.count({ where: { hospitalId, status: { in: ["open", "new"] } } }),
+    db.nxTask.count({ where: { hospitalId, status: "in_progress" } }),
+    db.nxTask.count({ where: { hospitalId, status: "blocked" } }),
+    db.nxTask.count({ where: { hospitalId, priority: "critical", status: { in: activeIn } } }),
+    db.nxTask.count({ where: { hospitalId, status: "done", completedAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } } }),
+  ]);
+
+  return ok({
+    tasks: enriched,
+    counts: {
+      open: cOpen,
+      inProgress: cInProgress,
+      blocked: cBlocked,
+      critical: cCritical,
+      overdue: enriched.filter((t) => t.overdue).length,
+      doneToday: cDoneToday,
+    },
+    meta: pageMeta(p, total),
+  });
 });
 
 export const POST = withRoute("tasks.create", async (req: NextRequest) => {

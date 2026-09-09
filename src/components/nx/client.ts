@@ -78,3 +78,73 @@ export function fmtClock(iso: string | Date | null | undefined): string {
   const d = typeof iso === "string" ? new Date(iso) : iso;
   return d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 }
+
+/* ============================================================
+   REAL-TIME — Server-Sent Events hook with reconnect + dedupe.
+   Emits the last sync time so modules can reconcile missed
+   events after reconnect (offline → lastSyncedAt shown in bar).
+   ============================================================ */
+
+export interface NxStreamEvent {
+  event: string;
+  hospitalId: string;
+  data: Record<string, unknown>;
+  at: string;
+  seq?: number;
+}
+
+export function useNxStream(opts?: { onEvent?: (ev: NxStreamEvent) => void; enabled?: boolean }) {
+  const [connected, setConnected] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+  const seen = useRef<Set<number>>(new Set());
+  const handler = useRef(opts?.onEvent);
+  handler.current = opts?.onEvent;
+  const enabled = opts?.enabled !== false;
+
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") return;
+    let es: EventSource | null = null;
+    let retry: ReturnType<typeof setTimeout> | null = null;
+    let closed = false;
+
+    const connect = () => {
+      if (closed) return;
+      es = new EventSource("/api/nx/stream");
+      es.addEventListener("hello", (e) => {
+        try {
+          const data = JSON.parse((e as MessageEvent).data);
+          if (data.lastSyncedAt) setLastSyncedAt(data.lastSyncedAt);
+        } catch { /* noop */ }
+        setConnected(true);
+      });
+      es.addEventListener("nx", (e) => {
+        try {
+          const ev = JSON.parse((e as MessageEvent).data) as NxStreamEvent;
+          // duplicate suppression: server seq per connection cycle
+          if (typeof ev.seq === "number") {
+            if (seen.current.has(ev.seq)) return;
+            seen.current.add(ev.seq);
+            if (seen.current.size > 500) seen.current = new Set(Array.from(seen.current).slice(-200));
+          }
+          setLastSyncedAt(ev.at ?? new Date().toISOString());
+          handler.current?.(ev);
+        } catch { /* noop */ }
+      });
+      es.onerror = () => {
+        setConnected(false);
+        es?.close();
+        // reconnect with backoff
+        retry = setTimeout(connect, 2500 + Math.random() * 2000);
+      };
+    };
+    connect();
+    return () => {
+      closed = true;
+      if (retry) clearTimeout(retry);
+      es?.close();
+      setConnected(false);
+    };
+  }, [enabled]);
+
+  return { connected, lastSyncedAt };
+}
