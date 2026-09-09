@@ -19,12 +19,16 @@ export default function proxy(req: NextRequest) {
 
   // Security headers
   res.headers.set("X-Content-Type-Options", "nosniff");
-  res.headers.set("X-Frame-Options", "DENY");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set("Permissions-Policy", "camera=(self), microphone=(self), geolocation=()");
   if (process.env.NODE_ENV === "production") {
     res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   }
+  // Framing: the platform preview embeds this app in a cross-origin iframe.
+  // X-Frame-Options: DENY / frame-ancestors 'none' make the browser show
+  // "refused to connect" inside the preview — so framing stays permissive here.
+  // Dev/demo: any ancestor. Production: same-origin plus https gateways.
+  const frameAncestors = process.env.NODE_ENV === "production" ? "'self' https:" : "*";
   // CSP: report-only in dev; images allow data: + https (AI illustrations); styles need 'unsafe-inline' for Tailwind runtime
   const csp = [
     "default-src 'self'",
@@ -33,7 +37,7 @@ export default function proxy(req: NextRequest) {
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
     "connect-src 'self' https:",
-    "frame-ancestors 'none'",
+    `frame-ancestors ${frameAncestors}`,
     "base-uri 'self'",
     "form-action 'self'",
   ].join("; ");

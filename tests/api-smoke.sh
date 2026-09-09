@@ -82,7 +82,8 @@ say "idempotent payment replay";    [ -n "$PAY1" ] && [ "$PAY1" = "$PAY2" ] && o
 
 # validation errors
 say "invalid task payload → 400";   [ "$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" -X POST $BASE/api/nx/tasks -H 'Content-Type: application/json' -d '{"title":"x"}' --max-time 30)" = "400" ] && ok || bad "validation"
-say "security headers present";     curl -s -D- -o /dev/null $BASE/api/health --max-time 20 | grep -qi "x-frame-options" && ok || bad "headers"
+say "security headers present";     H=$(curl -s -D- -o /dev/null $BASE/api/health --max-time 20); echo "$H" | grep -qi "x-content-type-options" && ! echo "$H" | grep -qi "x-frame-options: DENY" && ok || bad "headers"
+say "preview embeddable (no XFO deny, frame-ancestors set)"; H=$(curl -s -D- -o /dev/null $BASE/api/health --max-time 20); ! echo "$H" | grep -qi "x-frame-options" && echo "$H" | grep -qi "frame-ancestors" && ok || bad "framing"
 
 echo "──────────────────────────────────────────────────────"
 echo "PASS: $PASS  FAIL: $FAIL"
