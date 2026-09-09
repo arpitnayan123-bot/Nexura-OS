@@ -175,6 +175,6 @@ export const PUT = withRoute("billing.payment.record", async (req: NextRequest) 
     }
     await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: parsed.data.refundOfId ? "billing.refund" : "billing.payment", entityType: "nx_payment", entityId: payment.id, patientId: patient.id, detail: { amount: parsed.data.amount, mode: parsed.data.mode } });
     return { status: 201, body: { data: { payment, receipt: { id: payment.id, amount: payment.amount, at: payment.receivedAt, receivedBy: payment.receivedBy, hospitalId } } } };
-  });
+  }, { bodyForHash: parsed.data });
 });
 void paginate; void pageMeta;

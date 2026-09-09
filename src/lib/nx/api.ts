@@ -172,7 +172,7 @@ export async function withIdempotency<T>(
   req: NextRequest,
   scope: string,
   fn: () => Promise<{ status: number; body: T }>,
-  opts?: { ttlHours?: number }
+  opts?: { ttlHours?: number; bodyForHash?: unknown }
 ): Promise<NextResponse> {
   const key = req.headers.get("x-idempotency-key");
   if (!key) {
@@ -180,8 +180,8 @@ export async function withIdempotency<T>(
     return NextResponse.json(r.body, { status: r.status });
   }
   const endpoint = `${req.method} ${req.nextUrl.pathname}`;
-  const raw = await req.clone().text().catch(() => "");
-  const requestHash = createHash("sha256").update(raw).digest("hex");
+  // Hash the already-parsed body (the request stream may be consumed by the handler)
+  const requestHash = createHash("sha256").update(JSON.stringify(opts?.bodyForHash ?? "")).digest("hex");
   const existing = await db.nxIdempotency.findUnique({ where: { key } }).catch(() => null);
   if (existing && existing.requestHash === requestHash && existing.responseBody && existing.expiresAt > new Date()) {
     return NextResponse.json(JSON.parse(existing.responseBody), { status: existing.responseStatus ?? 200 });

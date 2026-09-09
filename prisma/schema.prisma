@@ -351,39 +351,42 @@ model Hospital {
 }
 
 model HospitalPatient {
-  id                    String                 @id @default(cuid())
-  hospitalId            String
-  uhid                  String                 @unique // auto-generated UHID
-  abhaId                String? // ABHA Ayushman Bharat ID
-  abhaProfile           String? // JSON cached profile
-  fullName              String
-  dob                   String? // ISO date
-  age                   Int?
-  gender                String                 @default("male")
-  bloodGroup            String?
-  address               String?
-  district              String?
-  state                 String?
-  emergencyContactName  String?
-  emergencyContactPhone String?
-  primaryLanguage       String                 @default("English") // Hindi|English|Tamil|Telugu|Marathi|Bengali|Kannada|Gujarati|Punjabi|Odia
-  insuranceProvider     String?
-  insurancePolicyNo     String?
-  pmjayBeneficiary      Boolean                @default(false)
-  phone                 String?
-  allergy               String?
-  chronicConditions     String?
-  createdAt             DateTime               @default(now())
-  hospital              Hospital               @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  appointments          HospitalAppointment[]
-  admissions            HospitalAdmission[]
-  vitals                HospitalVital[]
-  clinicalNotes         ClinicalNote[]
-  orders                HospitalOrder[]
-  prescriptions         HospitalPrescription[]
-  bills                 HospitalBill[]
-  insuranceClaims       InsuranceClaim[]
-  otSurgeries           OTSurgery[]
+  id                        String                       @id @default(cuid())
+  hospitalId                String
+  uhid                      String                       @unique // auto-generated UHID
+  abhaId                    String? // ABHA Ayushman Bharat ID
+  abhaProfile               String? // JSON cached profile
+  fullName                  String
+  dob                       String? // ISO date
+  age                       Int?
+  gender                    String                       @default("male")
+  bloodGroup                String?
+  address                   String?
+  district                  String?
+  state                     String?
+  emergencyContactName      String?
+  emergencyContactPhone     String?
+  primaryLanguage           String                       @default("English") // Hindi|English|Tamil|Telugu|Marathi|Bengali|Kannada|Gujarati|Punjabi|Odia
+  insuranceProvider         String?
+  insurancePolicyNo         String?
+  pmjayBeneficiary          Boolean                      @default(false)
+  phone                     String?
+  allergy                   String?
+  chronicConditions         String?
+  createdAt                 DateTime                     @default(now())
+  hospital                  Hospital                     @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  appointments              HospitalAppointment[]
+  admissions                HospitalAdmission[]
+  vitals                    HospitalVital[]
+  clinicalNotes             ClinicalNote[]
+  orders                    HospitalOrder[]
+  prescriptions             HospitalPrescription[]
+  bills                     HospitalBill[]
+  insuranceClaims           InsuranceClaim[]
+  otSurgeries               OTSurgery[]
+  consents                  NxConsent[]
+  medicationAdministrations NxMedicationAdministration[]
+  files                     NxFileObject[]
 
   @@index([hospitalId])
   @@index([uhid])
@@ -1923,19 +1926,20 @@ model NxSystemStatus {
 }
 
 model NxConsent {
-  id          String    @id @default(cuid())
+  id          String          @id @default(cuid())
   hospitalId  String
   patientId   String
   patientUhid String?
   type        String // treatment|data_share|research|telemedicine|dhir|financial
-  status      String    @default("granted") // granted|denied|withdrawn|expired
+  status      String          @default("granted") // granted|denied|withdrawn|expired
   scope       String?
   recordedBy  String
   note        String?
-  grantedAt   DateTime  @default(now())
+  grantedAt   DateTime        @default(now())
   withdrawnAt DateTime?
   expiresAt   DateTime?
-  hospital    Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  hospital    Hospital        @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  patient     HospitalPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
   @@index([hospitalId, type])
@@ -2022,40 +2026,41 @@ model NxMessageRead {
 }
 
 model NxMedicationAdministration {
-  id             String    @id @default(cuid())
-  hospitalId     String
-  patientId      String
-  patientUhid    String
-  prescriptionId String?
-  orderId        String?
-  medicineName   String
-  dose           String?
-  route          String?
-  scheduledAt    DateTime
-  administeredAt DateTime?
-  administeredBy String?
-  status         String    @default("pending") // pending|given|held|refused|missed
-  notes          String?
-  controlled     Boolean   @default(false)
-  createdAt      DateTime  @default(now())
-  hospital       Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  id                String           @id @default(cuid())
+  hospitalId        String
+  patientId         String
+  patientUhid       String
+  prescriptionId    String?
+  orderId           String?
+  medicineName      String
+  dose              String?
+  route             String?
+  scheduledAt       DateTime
+  administeredAt    DateTime?
+  administeredBy    String?
+  status            String           @default("pending") // pending|given|held|refused|missed
+  notes             String?
+  controlled        Boolean          @default(false)
+  createdAt         DateTime         @default(now())
+  hospital          Hospital         @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  patient       HospitalPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([patientId, scheduledAt])
   @@index([hospitalId, status])
 }
 
 model NxImagingReport {
-  id              String   @id @default(cuid())
+  id              String        @id @default(cuid())
   hospitalId      String
   orderId         String
-  modality        String   @default("xray") // xray|ct|mri|ultrasound|pet
+  modality        String        @default("xray") // xray|ct|mri|ultrasound|pet
   findings        String?
   impression      String?
   radiologistName String?
-  status          String   @default("preliminary") // preliminary|final|amended
+  status          String        @default("preliminary") // preliminary|final|amended
   reportUrl       String?
-  createdAt       DateTime @default(now())
-  hospital        Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+  hospital        Hospital      @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   order           HospitalOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
@@ -2251,21 +2256,22 @@ model NxIntegrationEvent {
 }
 
 model NxFileObject {
-  id         String   @id @default(cuid())
+  id         String           @id @default(cuid())
   hospitalId String
   name       String
   mime       String
   size       Int
-  category   String   @default("document") // document|report|image|attachment
+  category   String           @default("document") // document|report|image|attachment
   patientId  String?
   ownerId    String?
   ownerName  String?
   data       String? // base64 for small demo files; production uses object storage
   url        String?
-  scanStatus String   @default("pending") // pending|clean|infected|skipped — malware scan integration point
-  createdAt  DateTime @default(now())
-  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-
+  scanStatus String           @default("pending") // pending|clean|infected|skipped — malware scan integration point
+  createdAt  DateTime         @default(now())
+  hospital   Hospital         @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  patient    HospitalPatient? @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
   @@index([hospitalId, category])
   @@index([patientId])
 }
