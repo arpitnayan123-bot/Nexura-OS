@@ -3,7 +3,7 @@ import { z, ZodSchema } from "zod";
 import { db } from "@/lib/db";
 import { createHash, randomUUID } from "crypto";
 import { log } from "@/lib/logger";
-import type { NxPermission, NxSession } from "./session";
+import type { EffectivePermissions, NxPermission, NxSession } from "./session";
 import { requirePermission } from "./session";
 
 /* ============================================================
@@ -71,7 +71,7 @@ export async function guard(
   req: NextRequest,
   permission: NxPermission,
   ctx?: { departmentId?: string | null; patientId?: string | null }
-): Promise<{ session: NxSession; requestId: string } | { response: NextResponse }> {
+): Promise<{ session: NxSession; perms: EffectivePermissions; requestId: string } | { response: NextResponse }> {
   const requestId = req.headers.get("x-request-id") || newRequestId();
   const result = await requirePermission(req, permission, ctx);
   if ("error" in result) {
@@ -79,7 +79,7 @@ export async function guard(
       response: fail(result.error, result.status, result.detail, requestId),
     };
   }
-  return { session: result.session, requestId };
+  return { session: result.session, perms: result.perms, requestId };
 }
 
 /** Parse + validate JSON body with a zod schema. Returns 400-ready error on failure. */

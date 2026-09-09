@@ -632,6 +632,7 @@ model HospitalOrder {
   admission        HospitalAdmission?   @relation(fields: [admissionId], references: [id])
   appointment      HospitalAppointment? @relation(fields: [appointmentId], references: [id])
   labResults       LabResult[]
+  imagingReports   NxImagingReport[]
   nxOrderEvents    NxOrderEvent[]
 
   @@index([patientId])
@@ -2055,6 +2056,7 @@ model NxImagingReport {
   reportUrl       String?
   createdAt       DateTime @default(now())
   hospital        Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  order           HospitalOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
 }
