@@ -98,7 +98,10 @@ export function useNxStream(opts?: { onEvent?: (ev: NxStreamEvent) => void; enab
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const seen = useRef<Set<number>>(new Set());
   const handler = useRef(opts?.onEvent);
-  handler.current = opts?.onEvent;
+  useEffect(() => {
+    // keep the latest callback in a ref without mutating during render
+    handler.current = opts?.onEvent;
+  });
   const enabled = opts?.enabled !== false;
 
   useEffect(() => {

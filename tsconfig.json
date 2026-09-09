@@ -40,6 +40,9 @@
     "node_modules",
     "upload",
     "tests/e2e",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "scripts/legacy",
+    "examples",
+    "skills"
   ]
 }
