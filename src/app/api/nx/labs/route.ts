@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 /** GET — laboratory work queue: specimen tasks + orders by stage + TAT. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "labs");
+  const gate = await requireModule(req, "labs");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 
 /** POST — record a result for an order (then validate via orders PATCH). */
 export async function POST(req: NextRequest) {
-  const gate = requireModule(req, "labs");
+  const gate = await requireModule(req, "labs");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
   if (!body.orderId || !body.testName) return NextResponse.json({ error: "missing_fields" }, { status: 400 });

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 /** GET — audit trail with chain verification. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "audit");
+  const gate = await requireModule(req, "audit");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 

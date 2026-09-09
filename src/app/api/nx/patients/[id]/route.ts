@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 /** GET — Universal Patient Record: profile + timeline + journey + open items. */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const gate = requireModule(req, "patients");
+  const gate = await requireModule(req, "patients");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const { id } = await params;
 

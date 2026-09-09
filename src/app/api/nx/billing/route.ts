@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 /** GET — revenue cycle: bills, claims, leakage signals. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "billing");
+  const gate = await requireModule(req, "billing");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 

@@ -25,7 +25,7 @@ const LIFECYCLE: Record<string, string[]> = {
 
 /** GET — bed board grouped by ward with lifecycle states. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "beds");
+  const gate = await requireModule(req, "beds");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
 
 /** PATCH — advance bed lifecycle (deterministic state machine + audit + automations). */
 export async function PATCH(req: NextRequest) {
-  const gate = requireModule(req, "beds");
+  const gate = await requireModule(req, "beds");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
   if (!body.bedId || !body.to) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
@@ -99,7 +99,7 @@ export async function PATCH(req: NextRequest) {
 
 /** POST — reserve a ready bed for a patient (admission prep). */
 export async function POST(req: NextRequest) {
-  const gate = requireModule(req, "beds");
+  const gate = await requireModule(req, "beds");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
   if (!body.bedId || !body.patientId) return NextResponse.json({ error: "missing_fields" }, { status: 400 });

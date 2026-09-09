@@ -19,7 +19,7 @@ function acuityFromVitals(v: { pulseRate?: number | null; spo2?: number | null; 
 
 /** GET — Emergency department board. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "ed");
+  const gate = await requireModule(req, "ed");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
 
 /** PATCH — assign acuity / update disposition note (triage). */
 export async function PATCH(req: NextRequest) {
-  const gate = requireModule(req, "ed");
+  const gate = await requireModule(req, "ed");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
   if (!body.id) return NextResponse.json({ error: "missing_id" }, { status: 400 });

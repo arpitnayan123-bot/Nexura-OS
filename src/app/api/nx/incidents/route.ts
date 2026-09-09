@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 /** GET — incident & escalation center. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "incidents");
+  const gate = await requireModule(req, "incidents");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
 /** POST — report incident. */
 export async function POST(req: NextRequest) {
-  const gate = requireModule(req, "incidents");
+  const gate = await requireModule(req, "incidents");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
   const body = await req.json().catch(() => ({}));
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
 
 /** PATCH — acknowledge / investigate / resolve. */
 export async function PATCH(req: NextRequest) {
-  const gate = requireModule(req, "incidents");
+  const gate = await requireModule(req, "incidents");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
   if (!body.id) return NextResponse.json({ error: "missing_id" }, { status: 400 });

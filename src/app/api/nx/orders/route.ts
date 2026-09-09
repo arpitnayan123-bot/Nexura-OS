@@ -17,7 +17,7 @@ const ORDER_FLOW: Record<string, string[]> = {
 
 /** GET — unified orders & results center. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "orders");
+  const gate = await requireModule(req, "orders");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
 
 /** POST — create order (fires routing automation). */
 export async function POST(req: NextRequest) {
-  const gate = requireModule(req, "orders");
+  const gate = await requireModule(req, "orders");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!["doctor", "admin"].includes(gate.session.role)) {
     return NextResponse.json({ error: "only_doctors_can_order", detail: "Ordering requires an authorized prescriber role" }, { status: 403 });
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
 
 /** PATCH — advance order lifecycle / validate result (fires critical-result automation). */
 export async function PATCH(req: NextRequest) {
-  const gate = requireModule(req, "orders");
+  const gate = await requireModule(req, "orders");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
   if (!body.id || !body.to) return NextResponse.json({ error: "missing_fields" }, { status: 400 });

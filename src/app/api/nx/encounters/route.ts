@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 /** GET — encounters (active admissions with full context). */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "patients");
+  const gate = await requireModule(req, "patients");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 
 /** POST — admit patient to a bed (ER handoff / elective admission). */
 export async function POST(req: NextRequest) {
-  const gate = requireModule(req, "patients");
+  const gate = await requireModule(req, "patients");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
   const body = await req.json().catch(() => ({}));
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
 
 /** PATCH — discharge / transfer (fires the discharge coordination cascade). */
 export async function PATCH(req: NextRequest) {
-  const gate = requireModule(req, "patients");
+  const gate = await requireModule(req, "patients");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
   if (!body.id || !body.action) return NextResponse.json({ error: "missing_fields" }, { status: 400 });

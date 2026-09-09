@@ -10,7 +10,7 @@ interface PreOpChecklist { consent?: boolean; fasted?: boolean; site_marked?: bo
 
 /** GET — operating room schedule + readiness. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "or");
+  const gate = await requireModule(req, "or");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 
@@ -60,7 +60,7 @@ function computeReadiness(c: PreOpChecklist): { pct: number; missing: string[] }
 
 /** PATCH — tick checklist item / change surgery status. */
 export async function PATCH(req: NextRequest) {
-  const gate = requireModule(req, "or");
+  const gate = await requireModule(req, "or");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
   if (!body.id) return NextResponse.json({ error: "missing_id" }, { status: 400 });

@@ -52,12 +52,13 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 /* ---------- Token Generation ---------- */
-export function generateAccessToken(user: AuthUser): string {
+export function generateAccessToken(user: AuthUser, claims?: { jti?: string; staffCode?: string; department?: string; hospitalId?: string; breakGlass?: boolean }): string {
   return jwt.sign(
     {
       userId: user.id,
       role: user.role,
       name: user.name,
+      ...(claims || {}),
     },
     JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXPIRY }
