@@ -736,3 +736,118 @@ html.nx-light {
 }
 .nx-file-row { transition: background var(--nx-t-fast) var(--nx-ease); }
 .nx-file-row[data-sel="true"] { background: var(--nx-accent-soft); }
+
+/* ---------------------------------------- universal back navigation */
+/* Pinterest-inspired frosted-glass controls: a capsule pill in the
+   system bar, a floating glass arrow on mobile and a quiet ghost
+   arrow in every window titlebar. Soft gradient ring on hover,
+   springy arrow nudge, fully theme-aware. */
+
+.nx-back-pill {
+  display: inline-flex; align-items: center; gap: 7px; flex: none;
+  height: 30px; padding: 0 12px 0 5px; border-radius: 9999px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.01em;
+  color: var(--nx-ink-2);
+  background: linear-gradient(135deg, var(--nx-accent-soft), transparent 70%), var(--nx-panel-2);
+  border: 1px solid var(--nx-line);
+  box-shadow: var(--nx-e1);
+  backdrop-filter: blur(var(--nx-blur)) saturate(var(--nx-sat));
+  transition:
+    color var(--nx-t-fast) var(--nx-ease),
+    border-color var(--nx-t) var(--nx-ease),
+    box-shadow var(--nx-t) var(--nx-ease),
+    transform var(--nx-t) var(--nx-ease-out);
+  animation: nx-back-in 340ms var(--nx-ease-out) both;
+}
+.nx-back-pill:hover {
+  color: var(--nx-ink);
+  border-color: var(--nx-accent-line);
+  box-shadow: var(--nx-e2), 0 0 0 3px var(--nx-accent-soft);
+  transform: translateY(-1px);
+}
+.nx-back-pill:active { transform: translateY(0) scale(0.97); }
+
+.nx-back-disc {
+  width: 21px; height: 21px; border-radius: 9999px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--nx-accent-ink);
+  background: linear-gradient(135deg, var(--nx-accent-2), var(--nx-accent));
+  box-shadow: 0 1px 3px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.25);
+  transition: transform var(--nx-t) var(--nx-ease-out);
+}
+.nx-back-pill:hover .nx-back-disc { transform: translateX(-2px); }
+.nx-back-pill:active .nx-back-disc { transform: translateX(-1px) scale(0.92); }
+
+.nx-back-count {
+  min-width: 16px; height: 16px; padding: 0 4px; border-radius: 9999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9.5px; font-weight: 800; font-variant-numeric: tabular-nums;
+  color: var(--nx-accent);
+  background: var(--nx-accent-soft);
+  border: 1px solid var(--nx-accent-line);
+}
+
+/* mobile — floating glass arrow, thumb-reachable above the dock */
+.nx-back-fab {
+  position: absolute; left: 14px; bottom: 14px; z-index: 56;
+  width: 50px; height: 50px; border-radius: 9999px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--nx-ink);
+  background: linear-gradient(150deg, var(--nx-panel-3), var(--nx-panel));
+  border: 1px solid var(--nx-line-2);
+  box-shadow: var(--nx-e4);
+  backdrop-filter: blur(var(--nx-blur)) saturate(var(--nx-sat));
+  transition:
+    transform var(--nx-t) var(--nx-ease-out),
+    border-color var(--nx-t) var(--nx-ease),
+    box-shadow var(--nx-t) var(--nx-ease);
+  animation: nx-back-in 380ms var(--nx-ease-out) both;
+}
+.nx-back-fab::before {
+  content: ""; position: absolute; inset: -4px; border-radius: inherit;
+  background: conic-gradient(from 140deg, var(--nx-accent), transparent 42%, var(--nx-accent-2) 78%, var(--nx-accent));
+  opacity: 0; transition: opacity var(--nx-t) var(--nx-ease); z-index: -1;
+  filter: blur(7px);
+}
+.nx-back-fab:hover, .nx-back-fab:focus-visible { border-color: var(--nx-accent-line); }
+.nx-back-fab:hover::before, .nx-back-fab:focus-visible::before { opacity: 0.55; }
+.nx-back-fab:active { transform: scale(0.9); }
+
+.nx-back-fab-badge {
+  position: absolute; top: -3px; right: -3px;
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9999px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; font-variant-numeric: tabular-nums;
+  color: var(--nx-accent-ink);
+  background: linear-gradient(135deg, var(--nx-accent-2), var(--nx-accent));
+  box-shadow: 0 2px 6px oklch(0 0 0 / 0.3);
+}
+
+@keyframes nx-back-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* window titlebar — quiet ghost arrow that lights up on hover */
+.nx-back-tb {
+  width: 22px; height: 22px; border-radius: 9999px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--nx-ink-3);
+  background: var(--nx-inset);
+  border: 1px solid var(--nx-line);
+  transition:
+    color var(--nx-t-fast) var(--nx-ease),
+    background var(--nx-t-fast) var(--nx-ease),
+    border-color var(--nx-t) var(--nx-ease),
+    transform var(--nx-t) var(--nx-ease-out);
+}
+.nx-back-tb:hover {
+  color: var(--nx-accent-ink);
+  background: linear-gradient(135deg, var(--nx-accent-2), var(--nx-accent));
+  border-color: var(--nx-accent-line);
+  transform: translateX(-1px);
+}
+.nx-back-tb:active { transform: scale(0.9); }
+
+.nx-root[data-motion="reduced"] .nx-back-pill,
+.nx-root[data-motion="reduced"] .nx-back-fab { animation: none; }

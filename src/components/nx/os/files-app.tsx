@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import {
-  ClipboardList, FileText, FileWarning, FlaskConical, FolderOpen, LayoutGrid, List,
+  ArrowLeft, ClipboardList, FileText, FileWarning, FlaskConical, FolderOpen, LayoutGrid, List,
   RotateCcw, Search, Trash2, UserRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { timeAgo, useNx } from "../client";
+import { useBackLayer } from "./back";
 import type { AppCtx } from "./registry";
 
 /* ============================================================
@@ -129,6 +130,9 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
   }, [files, folder, q, trashed]);
 
   const selectedFile = visible.find((f) => f.id === selected) ?? null;
+
+  /* the open document preview is one step back */
+  useBackLayer(Boolean(selectedFile), "files", "Documents", () => setSelected(null));
 
   const trashFile = (f: NxFile) => {
     setTrashed((t) => [...t, f.id]);
@@ -303,9 +307,14 @@ function FilePreview({ file, onClose, onTrash, onRestore, inTrash, ctx }: {
   return (
     <aside className="nx-scroll w-72 shrink-0 overflow-y-auto border-l border-line bg-panel-2 p-5" aria-label="Document preview">
       <div className="flex items-start justify-between gap-2">
-        <span className={cn("nx-file-tile", critical && "!border-crit-line !bg-crit-soft !text-crit")}>
-          {critical ? <FileWarning className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
-        </span>
+        <div className="flex items-center gap-2">
+          <button onClick={onClose} className="nx-back-tb" aria-label="Back to Documents" title="Back to Documents">
+            <ArrowLeft className="h-3.5 w-3.5" />
+          </button>
+          <span className={cn("nx-file-tile", critical && "!border-crit-line !bg-crit-soft !text-crit")}>
+            {critical ? <FileWarning className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+          </span>
+        </div>
         <button onClick={onClose} className="nx-bar-item h-7 px-2 text-[11px]" aria-label="Close preview">Close</button>
       </div>
       <p className="mt-3 text-[14.5px] font-semibold leading-snug text-ink">{file.name}</p>

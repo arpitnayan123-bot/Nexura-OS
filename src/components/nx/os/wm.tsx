@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeftRight, Maximize2, Minus, Pin, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { appFor, type AppCtx } from "./registry";
+import { NxTitlebarBack } from "./back-ui";
 import { BAR_H, DOCK_SAFE, WS_COUNT, useOs, type WinState } from "./store";
 import { CtxMenu, type CtxItem } from "./ctx";
 
@@ -292,6 +293,7 @@ function NxWindow({ win, focusedWin, exiting, isMobile, ghost, appCtx, ovTransfo
         }}
       >
         <div className="nx-tc-group flex items-center gap-2" onPointerDown={(e) => e.stopPropagation()}>
+          <NxTitlebarBack winKey={win.key} />
           <button aria-label="Close window" className="nx-tc nx-tc-close" onClick={() => useOs.getState().closeApp(win.key)}>
             <X className="h-2 w-2 text-black" />
           </button>

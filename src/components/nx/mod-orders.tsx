@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { toast } from "./os/toast";
-import { Plus, ScrollText } from "lucide-react";
+import { useBackLayer } from "./os/back";
+import { ArrowLeft, Plus, ScrollText } from "lucide-react";
 import { nx, useNx, timeAgo } from "./client";
 import { Empty, ErrorState, Loading, Panel, Pill, Stat, StatusPill } from "./bits";
 
@@ -35,6 +36,10 @@ export function OrdersCenter() {
   const [newOpen, setNewOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  /* dialogs and expanded details are one step back each */
+  useBackLayer(newOpen, "orders", "Orders & Results", () => setNewOpen(false));
+  useBackLayer(Boolean(expanded), "orders", "Orders & Results", () => setExpanded(null));
 
   async function advance(id: string, to: string) {
     setBusyId(id);
@@ -169,7 +174,12 @@ function NewOrder({ onClose, onDone }: { onClose: () => void; onDone: () => void
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div className="w-full max-w-md rounded-xl border border-line bg-[#0d1526] p-5" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-sm font-semibold text-ink">New order</h3>
+        <div className="flex items-center gap-2.5">
+          <button onClick={onClose} className="nx-back-tb" aria-label="Back to Orders & Results" title="Back to Orders & Results">
+            <ArrowLeft className="h-3.5 w-3.5" />
+          </button>
+          <h3 className="text-sm font-semibold text-ink">New order</h3>
+        </div>
         <p className="text-[11px] text-ink-3">Creating an order routes it automatically — lab → specimen collection, medication → pharmacist verification.</p>
         <div className="mt-3 space-y-2.5">
           <select value={patientId} onChange={(e) => setPatientId(e.target.value)} className="w-full rounded-lg border border-line-2 bg-panel px-3 py-2 text-sm text-ink outline-none focus:border-accent-line">

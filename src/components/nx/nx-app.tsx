@@ -21,6 +21,8 @@ import { NxSwitcher } from "./os/switcher";
 import { CtxMenu, type CtxItem } from "./os/ctx";
 import { APPS, appFor, type AppCtx } from "./os/registry";
 import { WS_COUNT, useOs, type Wallpaper } from "./os/store";
+import { NxBackSync, NxBackFab } from "./os/back-ui";
+import { useBack, useNxHistoryBridge } from "./os/back";
 
 /* ============================================================
    HOSPITAL OS — desktop orchestrator
@@ -45,6 +47,10 @@ export function NxApp() {
   const user: NxUser | null = signedOut ? null : session?.user || null;
 
   const os = useOs();
+
+  /* ---------- universal back: device/browser back walks in-app layers ---------- */
+  const backGate = useCallback(() => !useOs.getState().locked, []);
+  useNxHistoryBridge(true, backGate);
 
   /* ---------- boot: minimum splash duration, then fade ---------- */
   const [bootMin, setBootMin] = useState(false);
@@ -243,7 +249,12 @@ export function NxApp() {
         return;
       }
       if (e.key === "Escape") {
-        if (s.launcherOpen || s.paletteOpen || s.quickOpen || s.notifOpen || s.overviewOpen) s.closeOverlays();
+        const back = useBack.getState();
+        const top = back.stack[back.stack.length - 1];
+        /* while typing, never dismiss a whole window — only views/overlays */
+        if (typing && top?.kind === "window") return;
+        if (back.stack.length > 0) { back.goBack(); return; }
+        if (s.notifOpen || s.quickOpen) s.closeOverlays();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -303,6 +314,7 @@ export function NxApp() {
   /* ---------- sign out ---------- */
   async function signOut() {
     await nx("/api/nx/auth", { method: "DELETE" }).catch(() => null);
+    useBack.setState({ stack: [], armedAt: 0 });
     useOs.getState().closeOverlays();
     useOs.getState().unlock();
     setSignedOut(true);
@@ -388,6 +400,8 @@ export function NxApp() {
       >
         <NxDesktop />
         <NxWindowManager appCtx={appCtx} />
+        <NxBackSync enabled={Boolean(user)} />
+        {isMobile && <NxBackFab />}
 
         {/* offline banner */}
         {!online && (
