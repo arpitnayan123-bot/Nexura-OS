@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ appointment: appt });
 }
 
-/** PATCH — check-in / complete / cancel / no-show. */
+/** PATCH — check-in / complete / cancel / no-show / reschedule. Every transition is event-logged. */
 export async function PATCH(req: NextRequest) {
   const gate = await requireModule(req, "schedule");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
@@ -119,15 +119,42 @@ export async function PATCH(req: NextRequest) {
 
   const appt = await db.hospitalAppointment.findUnique({ where: { id: body.id } });
   if (!appt) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  if (appt.hospitalId !== gate.session.hospitalId) return NextResponse.json({ error: "forbidden", detail: "cross_hospital" }, { status: 403 });
 
   const allowed = ["scheduled", "waiting", "in_consultation", "completed", "no_show", "cancelled"];
   if (!allowed.includes(body.status)) return NextResponse.json({ error: "invalid_status" }, { status: 400 });
 
-  const updated = await db.hospitalAppointment.update({ where: { id: appt.id }, data: { status: body.status } });
+  // Reschedule support: new date → re-run conflict detection
+  let newDate: Date | undefined;
+  if (body.newDate) {
+    newDate = new Date(body.newDate);
+    const clash = await db.hospitalAppointment.findFirst({
+      where: { hospitalId: appt.hospitalId, doctorId: appt.doctorId, id: { not: appt.id }, date: { gte: new Date(newDate.getTime() - 7 * 60000), lte: new Date(newDate.getTime() + 7 * 60000) }, status: { notIn: ["cancelled", "no_show"] } },
+    });
+    if (clash) return NextResponse.json({ error: "slot_conflict", detail: "Doctor already booked in that slot" }, { status: 409 });
+  }
+
+  const updated = await db.hospitalAppointment.update({
+    where: { id: appt.id },
+    data: {
+      status: body.status,
+      ...(body.status === "waiting" && !appt.checkedInAt ? { checkedInAt: new Date() } : {}),
+      ...(body.note ? { notes: String(body.note).slice(0, 1000) } : {}),
+      ...(newDate ? { date: newDate, timeSlot: newDate.toISOString().slice(11, 16), rescheduledFromId: appt.id } : {}),
+    },
+  });
+  await db.nxAppointmentEvent.create({
+    data: { hospitalId: appt.hospitalId, appointmentId: appt.id, fromStatus: appt.status, toStatus: body.status, actorName: gate.session.name, note: body.note ?? null },
+  });
+  if (body.status === "no_show" && body.addToWaitlist) {
+    await db.nxAppointmentWaitlist.create({
+      data: { hospitalId: appt.hospitalId, patientId: appt.patientId, patientName: (await db.hospitalPatient.findUnique({ where: { id: appt.patientId }, select: { fullName: true } }))?.fullName, doctorId: appt.doctorId, priority: "routine", reason: "no-show rebook" },
+    });
+  }
   await audit({
     hospitalId: appt.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
     action: `appointment.${body.status}`, entityType: "HospitalAppointment", entityId: appt.id, patientId: appt.patientId,
-    detail: { from: appt.status, to: body.status },
+    detail: { from: appt.status, to: body.status, rescheduledTo: newDate?.toISOString() },
   });
   return NextResponse.json({ appointment: updated });
 }
