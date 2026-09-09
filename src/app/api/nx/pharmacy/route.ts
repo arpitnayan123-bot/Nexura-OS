@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 /** GET — pharmacy work queue: medication orders awaiting verification + inventory alerts. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "pharmacy");
+  const gate = await requireModule(req, "pharmacy");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
 
 /** PATCH — verify / dispense a medication order. */
 export async function PATCH(req: NextRequest) {
-  const gate = requireModule(req, "pharmacy");
+  const gate = await requireModule(req, "pharmacy");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
   if (!body.id || !body.to) return NextResponse.json({ error: "missing_fields" }, { status: 400 });

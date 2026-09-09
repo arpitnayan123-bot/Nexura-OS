@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 /** GET — universal patient search (name / UHID / phone). */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "patients");
+  const gate = await requireModule(req, "patients");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
   if (!hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 404 });

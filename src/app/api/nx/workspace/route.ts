@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 
 /** GET — role workspace: everything the signed-in role needs on one surface. */
 export async function GET(req: NextRequest) {
-  const asDoctor = requireModule(req, "doctor");
-  const asNurse = requireModule(req, "nurse");
+  const asDoctor = await requireModule(req, "doctor");
+  const asNurse = await requireModule(req, "nurse");
   const gate = "session" in asDoctor ? asDoctor : asNurse;
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const session = gate.session;

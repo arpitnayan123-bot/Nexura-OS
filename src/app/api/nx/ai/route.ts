@@ -27,8 +27,8 @@ async function logAI(hospitalId: string, name: string, role: string, feature: st
 }
 
 export async function POST(req: NextRequest) {
-  const asDoctor = requireModule(req, "doctor");
-  const asCommand = requireModule(req, "command-center");
+  const asDoctor = await requireModule(req, "doctor");
+  const asCommand = await requireModule(req, "command-center");
   const gate = "session" in asDoctor ? asDoctor : asCommand;
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const session = gate.session;

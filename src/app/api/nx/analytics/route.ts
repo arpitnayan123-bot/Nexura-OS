@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 /** GET — Analytics & performance center. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "analytics");
+  const gate = await requireModule(req, "analytics");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
   if (!hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 404 });

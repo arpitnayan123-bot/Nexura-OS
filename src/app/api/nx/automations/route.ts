@@ -11,7 +11,7 @@ const TRIGGERS: NxTrigger[] = ["result.critical", "discharge.confirmed", "bed.re
 
 /** GET — automation rules + recent runs (workflow builder data). */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "automations");
+  const gate = await requireModule(req, "automations");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 
 /** PATCH — enable/disable a rule (admin only, deterministic policy). */
 export async function PATCH(req: NextRequest) {
-  const gate = requireModule(req, "automations");
+  const gate = await requireModule(req, "automations");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!["admin", "leadership"].includes(gate.session.role)) {
     return NextResponse.json({ error: "admin_only", detail: "Toggling automation rules requires administrator approval" }, { status: 403 });
@@ -61,7 +61,7 @@ export async function PATCH(req: NextRequest) {
 
 /** POST — test-fire a rule trigger (admin only, creates real coordination artifacts). */
 export async function POST(req: NextRequest) {
-  const gate = requireModule(req, "automations");
+  const gate = await requireModule(req, "automations");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!["admin", "command"].includes(gate.session.role)) {
     return NextResponse.json({ error: "admin_only", detail: "Test execution requires elevated role" }, { status: 403 });

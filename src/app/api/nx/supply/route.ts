@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 
 /** GET — inventory (supplies) + equipment & assets. */
 export async function GET(req: NextRequest) {
-  const inv = requireModule(req, "inventory");
-  const eqGate = requireModule(req, "equipment");
+  const inv = await requireModule(req, "inventory");
+  const eqGate = await requireModule(req, "equipment");
   const gate = "session" in inv ? inv : eqGate;
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
@@ -42,8 +42,8 @@ export async function GET(req: NextRequest) {
 
 /** PATCH — adjust stock / toggle equipment status. */
 export async function PATCH(req: NextRequest) {
-  const inv = requireModule(req, "inventory");
-  const eqGate = requireModule(req, "equipment");
+  const inv = await requireModule(req, "inventory");
+  const eqGate = await requireModule(req, "equipment");
   const gate = "session" in inv ? inv : eqGate;
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));

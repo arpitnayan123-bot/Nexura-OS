@@ -1,0 +1,222 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z, ZodSchema } from "zod";
+import { db } from "@/lib/db";
+import { createHash, randomUUID } from "crypto";
+import { log } from "@/lib/logger";
+import type { NxPermission, NxSession } from "./session";
+import { requirePermission } from "./session";
+
+/* ============================================================
+   NEXURA HOSPITAL OS — API FOUNDATIONS
+   Consistent envelopes, validation, pagination, rate limiting,
+   idempotency, correlation IDs, structured logging.
+   ============================================================ */
+
+export interface ApiMeta {
+  requestId: string;
+  [k: string]: unknown;
+}
+
+export function newRequestId(): string {
+  return `req_${randomUUID().replace(/-/g, "").slice(0, 20)}`;
+}
+
+export function ok<T>(data: T, opts?: { requestId?: string; headers?: Record<string, string>; status?: number }) {
+  return NextResponse.json(
+    { data, meta: { requestId: opts?.requestId } },
+    { status: opts?.status ?? 200, headers: opts?.headers }
+  );
+}
+
+export function fail(code: string, status: number, detail?: string, requestId?: string, headers?: Record<string, string>) {
+  return NextResponse.json(
+    { error: code, detail, meta: { requestId } },
+    { status, headers }
+  );
+}
+
+/** Wrap a route handler: correlation ID, structured logs, uniform 500s, rate limits. */
+export function withRoute(
+  name: string,
+  handler: (req: NextRequest, ctx: { requestId: string }) => Promise<NextResponse>,
+  opts?: { rateLimit?: { max: number; windowMs: number } }
+) {
+  return async (req: NextRequest) => {
+    const requestId = req.headers.get("x-request-id") || newRequestId();
+    const started = Date.now();
+    try {
+      if (opts?.rateLimit) {
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+        const rl = rateLimit(`${name}:${ip}`, opts.rateLimit.max, opts.rateLimit.windowMs);
+        if (!rl.allowed) {
+          return fail("rate_limited", 429, "Too many requests — slow down.", requestId, {
+            "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+          });
+        }
+      }
+      const res = await handler(req, { requestId });
+      res.headers.set("x-request-id", requestId);
+      log.info("api", name, { requestId, ms: Date.now() - started, status: res.status });
+      return res;
+    } catch (err) {
+      log.error("api", name, { requestId, err: err instanceof Error ? err.message : String(err) });
+      // Never leak stack traces or internal errors to clients
+      return fail("internal", 500, "Something went wrong. The incident has been logged.", requestId);
+    }
+  };
+}
+
+/** Auth + permission guard returning either the session or a ready error response. */
+export async function guard(
+  req: NextRequest,
+  permission: NxPermission,
+  ctx?: { departmentId?: string | null; patientId?: string | null }
+): Promise<{ session: NxSession; requestId: string } | { response: NextResponse }> {
+  const requestId = req.headers.get("x-request-id") || newRequestId();
+  const result = await requirePermission(req, permission, ctx);
+  if ("error" in result) {
+    return {
+      response: fail(result.error, result.status, result.detail, requestId),
+    };
+  }
+  return { session: result.session, requestId };
+}
+
+/** Parse + validate JSON body with a zod schema. Returns 400-ready error on failure. */
+export async function parseBody<T>(
+  req: NextRequest,
+  schema: ZodSchema<T>
+): Promise<{ data: T } | { response: NextResponse; requestId: string }> {
+  const requestId = req.headers.get("x-request-id") || newRequestId();
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch {
+    return { response: fail("invalid_json", 400, "Request body must be valid JSON.", requestId), requestId };
+  }
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) {
+    const issues = parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })).slice(0, 8);
+    return { response: fail("invalid_request", 400, issues.map((i) => `${i.path}: ${i.message}`).join("; "), requestId), requestId };
+  }
+  return { data: parsed.data };
+}
+
+export interface PageParams {
+  page: number;
+  perPage: number;
+  skip: number;
+  take: number;
+  sort?: string;
+  order: "asc" | "desc";
+  q?: string;
+}
+
+export function paginate(req: NextRequest, defaults?: { perPage?: number; maxPerPage?: number }): PageParams {
+  const sp = req.nextUrl.searchParams;
+  const maxPerPage = defaults?.maxPerPage ?? 100;
+  const page = Math.max(1, Number(sp.get("page") || 1) || 1);
+  const perPageRaw = Number(sp.get("perPage") || defaults?.perPage || 25) || 25;
+  const perPage = Math.min(maxPerPage, Math.max(1, perPageRaw));
+  const order = sp.get("order") === "asc" ? "asc" : "desc";
+  return {
+    page,
+    perPage,
+    skip: (page - 1) * perPage,
+    take: perPage,
+    sort: sp.get("sort") || undefined,
+    order,
+    q: sp.get("q")?.trim() || undefined,
+  };
+}
+
+export function pageMeta(p: PageParams, total: number) {
+  return {
+    page: p.page,
+    perPage: p.perPage,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / p.perPage)),
+  };
+}
+
+/* ---------- Rate limiting (in-memory sliding window) ---------- */
+interface RateEntry {
+  count: number;
+  resetTime: number;
+}
+interface RateResult {
+  allowed: boolean;
+  remaining: number;
+  resetAt: number;
+}
+const buckets = new Map<string, RateEntry>();
+
+export function rateLimit(
+  identifier: string,
+  max: number,
+  windowMs: number
+): RateResult {
+  const now = Date.now();
+  const entry = buckets.get(identifier);
+  if (!entry || entry.resetTime < now) {
+    buckets.set(identifier, { count: 1, resetTime: now + windowMs });
+    return { allowed: true, remaining: max - 1, resetAt: now + windowMs };
+  }
+  entry.count += 1;
+  buckets.set(identifier, entry);
+  return { allowed: entry.count <= max, remaining: Math.max(0, max - entry.count), resetAt: entry.resetTime };
+}
+
+/* ---------- Idempotency for important writes ---------- */
+export async function withIdempotency<T>(
+  req: NextRequest,
+  scope: string,
+  fn: () => Promise<{ status: number; body: T }>,
+  opts?: { ttlHours?: number }
+): Promise<NextResponse> {
+  const key = req.headers.get("x-idempotency-key");
+  if (!key) {
+    const r = await fn();
+    return NextResponse.json(r.body, { status: r.status });
+  }
+  const endpoint = `${req.method} ${req.nextUrl.pathname}`;
+  const raw = await req.clone().text().catch(() => "");
+  const requestHash = createHash("sha256").update(raw).digest("hex");
+  const existing = await db.nxIdempotency.findUnique({ where: { key } }).catch(() => null);
+  if (existing && existing.requestHash === requestHash && existing.responseBody && existing.expiresAt > new Date()) {
+    return NextResponse.json(JSON.parse(existing.responseBody), { status: existing.responseStatus ?? 200 });
+  }
+  if (existing && existing.requestHash !== requestHash) {
+    return fail("idempotency_key_reuse", 409, "This idempotency key was used with a different payload.");
+  }
+  const r = await fn();
+  await db.nxIdempotency
+    .create({
+      data: {
+        key,
+        endpoint,
+        requestHash,
+        responseStatus: r.status,
+        responseBody: JSON.stringify(r.body),
+        expiresAt: new Date(Date.now() + (opts?.ttlHours ?? 24) * 3600_000),
+      },
+    })
+    .catch(() => {});
+  return NextResponse.json(r.body, { status: r.status });
+}
+
+/** Extract the caller IP best-effort (audit metadata only). */
+export function ipOf(req: NextRequest): string {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "local";
+}
+
+/** CSV export helper (reports, billing, inventory). */
+export function toCsv(rows: Record<string, unknown>[], columns?: string[]): string {
+  if (rows.length === 0) return "";
+  const cols = columns ?? Object.keys(rows[0]);
+  const esc = (v: unknown) => {
+    const s = v === null || v === undefined ? "" : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  return [cols.join(","), ...rows.map((r) => cols.map((c) => esc(r[c])).join(","))].join("\n");
+}

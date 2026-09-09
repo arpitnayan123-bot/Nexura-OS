@@ -10,7 +10,7 @@ const PRIORITY_RANK: Record<string, number> = { critical: 0, high: 1, medium: 2,
 
 /** GET — intelligent work queue. Deterministic priority order + transparent reasons. */
 export async function GET(req: NextRequest) {
-  const gate = requireModule(req, "tasks");
+  const gate = await requireModule(req, "tasks");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
   if (!hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 404 });
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
 
 /** POST — create a task. */
 export async function POST(req: NextRequest) {
-  const gate = requireModule(req, "tasks");
+  const gate = await requireModule(req, "tasks");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
   const body = await req.json().catch(() => ({}));
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
 
 /** PATCH — update status / assign / escalate. */
 export async function PATCH(req: NextRequest) {
-  const gate = requireModule(req, "tasks");
+  const gate = await requireModule(req, "tasks");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
   if (!body.id) return NextResponse.json({ error: "missing_id" }, { status: 400 });
