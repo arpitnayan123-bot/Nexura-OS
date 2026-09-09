@@ -273,3 +273,18 @@ export const GET = withRoute("auth.me", async (req) => {
     session: sessionRec ? { expiresAt: sessionRec.expiresAt, breakGlass: sessionRec.breakGlass } : null,
   });
 });
+
+/** DELETE — sign out (revoke current session + clear cookie). */
+export const DELETE = withRoute("auth.logout.delete", async (req: NextRequest) => {
+  const token = req.cookies.get("nx_access")?.value;
+  const res = ok({ signedOut: true });
+  res.cookies.set("nx_access", "", { httpOnly: true, path: "/", maxAge: 0 });
+  if (token) {
+    const decoded = verifyToken(token);
+    const jti = decoded ? (decoded as unknown as { jti?: string }).jti : null;
+    if (decoded && jti) {
+      await db.nxSessionRecord.updateMany({ where: { jti, revokedAt: null }, data: { revokedAt: new Date(), revokedReason: "logout" } });
+    }
+  }
+  return res;
+});
