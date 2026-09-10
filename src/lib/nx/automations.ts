@@ -40,7 +40,7 @@ function nowISO() {
   return new Date().toISOString();
 }
 
-async function createTask(input: {
+export async function createTask(input: {
   hospitalId: string;
   title: string;
   type?: string;
@@ -57,7 +57,7 @@ async function createTask(input: {
   relatedId?: string;
 }) {
   const dueAt = input.dueMinutes ? new Date(Date.now() + input.dueMinutes * 60000) : null;
-  await db.nxTask.create({
+  return db.nxTask.create({
     data: {
       hospitalId: input.hospitalId,
       title: input.title,

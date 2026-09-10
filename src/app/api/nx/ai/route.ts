@@ -4,6 +4,7 @@ import { getSessionFresh, canAccessModule } from "@/lib/nx/session";
 import { runText } from "@/lib/gemini";
 import { audit } from "@/lib/nx/audit";
 import { aiGate } from "@/lib/nx/ai-guard";
+import { confidenceHeuristic, checkAiConsent, enforceThreshold, logAiInteraction } from "@/lib/nx/ai-governance";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -65,8 +66,14 @@ export async function POST(req: NextRequest) {
         `Summarize this inpatient for a busy clinician. JSON: {"oneLine": str, "currentStatus": str, "activeProblems": str[], "medications": str[], "watchItems": str[], "dataGaps": str[], "suggestedNextSteps": str[]}. SuggestedNextSteps are coordination suggestions only, NOT clinical orders.\n${JSON.stringify(compact)}`,
         SYSTEM
       );
-      await logAI(hospitalId!, session.name, session.role, "patient_summary", "completed");
-      return NextResponse.json({ summary: out, generated: true, disclaimer: "AI-generated summary from structured data. Not a diagnosis. Requires clinician review.", at: new Date() });
+      const confidence = confidenceHeuristic(out);
+      const consentFlag = await checkAiConsent(hospitalId, patient.id);
+      const gate = await enforceThreshold(hospitalId, "patient_summary", confidence);
+      await logAiInteraction({ hospitalId, userName: session.name, userRole: session.role, feature: "patient_summary", status: gate.action === "blocked" ? "review_required" : "completed", output: out, confidence, consentFlag, thresholdAction: gate.action });
+      if (gate.action === "blocked") {
+        return NextResponse.json({ error: "ai_below_threshold", detail: "Output confidence below safety threshold — routed to clinician.", confidence, threshold: gate.min }, { status: 409 });
+      }
+      return NextResponse.json({ summary: out, generated: true, confidence, aiConsent: consentFlag, thresholdAction: gate.action, humanReviewRequired: gate.requireReview, promptVersion: "patient_summary@4", disclaimer: "AI-generated summary from structured data. Not a diagnosis. Requires clinician review.", at: new Date() });
     }
 
     if (feature === "handover") {
@@ -90,8 +97,13 @@ export async function POST(req: NextRequest) {
         `Prepare an SBAR shift handover brief. JSON: {"headline": str, "stable": str[], "needsAttention": str[], "pendingTasks": str[], "handoverNotes": str[]}. Be concise; max 1 line per patient.\n${JSON.stringify(compact)}`,
         SYSTEM
       );
-      await logAI(hospitalId!, session.name, session.role, "handover", "completed");
-      return NextResponse.json({ handover: out, generated: true, disclaimer: "AI-generated brief. Verify against the record before handover.", at: new Date() });
+      const confidence = confidenceHeuristic(out);
+      const gate = await enforceThreshold(hospitalId, "handover", confidence);
+      await logAiInteraction({ hospitalId, userName: session.name, userRole: session.role, feature: "handover", status: gate.action === "blocked" ? "review_required" : "completed", output: out, confidence, consentFlag: null, thresholdAction: gate.action });
+      if (gate.action === "blocked") {
+        return NextResponse.json({ error: "ai_below_threshold", detail: "Output confidence below safety threshold — prepare the handover manually.", confidence, threshold: gate.min }, { status: 409 });
+      }
+      return NextResponse.json({ handover: out, generated: true, confidence, thresholdAction: gate.action, humanReviewRequired: gate.requireReview, disclaimer: "AI-generated brief. Verify against the record before handover.", at: new Date() });
     }
 
     if (feature === "discharge_draft") {
@@ -114,8 +126,11 @@ export async function POST(req: NextRequest) {
         `Draft a discharge summary for clinician review. JSON: {"courseInHospital": str, "conditionAtDischarge": str (factual only), "dischargeMedicationsNote": str (say 'per final prescription — clinician to confirm'), "followUpPlan": str, "patientInstructions": str (simple language), "redFlags": str[]}. Do NOT invent medication names or doses.\n${JSON.stringify(compact)}`,
         SYSTEM
       );
-      await logAI(hospitalId!, session.name, session.role, "discharge_draft", "review_required");
-      return NextResponse.json({ draft: out, generated: true, disclaimer: "AI DRAFT — must be reviewed, edited and signed by the treating clinician before entering the official record.", at: new Date() });
+      const confidence = confidenceHeuristic(out);
+      const consentFlag = await checkAiConsent(hospitalId, admission.patientId);
+      const gate = await enforceThreshold(hospitalId, "discharge_draft", confidence);
+      await logAiInteraction({ hospitalId, userName: session.name, userRole: session.role, feature: "discharge_draft", status: "review_required", output: out, confidence, consentFlag, thresholdAction: gate.action });
+      return NextResponse.json({ draft: out, generated: true, confidence, aiConsent: consentFlag, thresholdAction: gate.action, humanReviewRequired: true, disclaimer: "AI DRAFT — must be reviewed, edited and signed by the treating clinician before entering the official record.", at: new Date() });
     }
 
     if (feature === "ops_recommend") {
@@ -138,13 +153,15 @@ export async function POST(req: NextRequest) {
         `Act as a hospital operations analyst. From this snapshot, produce coordination recommendations (operational only — no clinical advice). JSON: {"headline": str, "actions": [{"area": str, "recommendation": str, "why": str}], "watchlist": str[]}.\n${JSON.stringify(compact)}`,
         SYSTEM
       );
-      await logAI(hospitalId!, session.name, session.role, "ops_recommend", "completed");
-      return NextResponse.json({ ops: out, generated: true, disclaimer: "Operational recommendations only. Humans decide and act.", at: new Date() });
+      const confidence = confidenceHeuristic(out);
+      const gate = await enforceThreshold(hospitalId, "ops_recommend", confidence);
+      await logAiInteraction({ hospitalId, userName: session.name, userRole: session.role, feature: "ops_recommend", status: gate.action === "blocked" ? "review_required" : "completed", output: out, confidence, consentFlag: null, thresholdAction: gate.action });
+      return NextResponse.json({ ops: out, generated: true, confidence, thresholdAction: gate.action, humanReviewRequired: gate.requireReview, disclaimer: "Operational recommendations only. Humans decide and act.", at: new Date() });
     }
 
     return NextResponse.json({ error: "unknown_feature" }, { status: 400 });
   } catch (err) {
-    await logAI(hospitalId!, session.name, session.role, feature || "unknown", "failed");
+    await logAiInteraction({ hospitalId, userName: session.name, userRole: session.role, feature: feature || "unknown", status: "failed" });
     return NextResponse.json({ error: "ai_failed", detail: err instanceof Error ? err.message : "unknown" }, { status: 500 });
   }
 }
