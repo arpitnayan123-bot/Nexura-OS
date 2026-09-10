@@ -371,7 +371,19 @@ export function getSession(req: NextRequest): NxSession | null {
   };
 }
 
-/** Session-aware fetch: verifies the JWT *and* checks the session record is not revoked. */
+/** Session-aware fetch: verifies the JWT *and* checks the session record is
+ *  not revoked, not expired, AND not idle-expired (inactivity auto sign-out).
+ *  Idle budget: privileged roles 90 min, everyone else NX_SESSION_IDLE_MIN
+ *  (default 720). Keeps night-shift terminals from becoming account-sharing
+ *  hazards without nagging clinicians mid-round. */
+const IDLE_MIN_BY_ROLE: Partial<Record<string, number>> = {
+  super_admin: 90, org_admin: 90, hospital_admin: 120, billing_officer: 120,
+};
+export function idleBudgetMin(role: string): number {
+  const env = Number(process.env.NX_SESSION_IDLE_MIN || 0);
+  if (env > 0) return env;
+  return IDLE_MIN_BY_ROLE[role] ?? 720;
+}
 export async function getSessionFresh(req: NextRequest): Promise<NxSession | null> {
   const session = getSession(req);
   if (!session) return null;
@@ -380,6 +392,11 @@ export async function getSessionFresh(req: NextRequest): Promise<NxSession | nul
   if (session.jti) {
     const rec = await db.nxSessionRecord.findUnique({ where: { jti: session.jti } }).catch(() => null);
     if (!rec || rec.revokedAt || rec.expiresAt < new Date()) return null;
+    const idleMs = idleBudgetMin(session.role) * 60_000;
+    if (Date.now() - rec.lastSeenAt.getTime() > idleMs) {
+      db.nxSessionRecord.update({ where: { id: rec.id }, data: { revokedAt: new Date(), revokedReason: "idle_timeout" } }).catch(() => {});
+      return null;
+    }
     // Throttled lastSeen update (at most once a minute per session)
     if (Date.now() - rec.lastSeenAt.getTime() > 60_000) {
       db.nxSessionRecord.update({ where: { id: rec.id }, data: { lastSeenAt: new Date() } }).catch(() => {});

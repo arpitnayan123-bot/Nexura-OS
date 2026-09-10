@@ -7,13 +7,17 @@
 
 type Level = "debug" | "info" | "warn" | "error";
 
+import { redactDeep } from "@/lib/nx/redact";
+
 function emit(level: Level, subsystem: string, msg: string, meta?: Record<string, unknown>) {
   const line = JSON.stringify({
     ts: new Date().toISOString(),
     level,
     subsystem,
-    msg,
-    ...(meta ? { meta } : {}),
+    msg: redactDeep(msg),
+    // Privacy-by-design: meta is PHI-scrubbed (identifiers masked, secret-like
+    // keys dropped) even when a call site leaks a raw record into logs.
+    ...(meta ? { meta: redactDeep(meta) } : {}),
   });
   if (level === "error") console.error(line);
   else if (level === "warn") console.warn(line);
