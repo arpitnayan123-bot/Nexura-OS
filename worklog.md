@@ -2574,3 +2574,23 @@ Stage Summary:
 - Root cause was environment (dead servers + stale standalone build + wiped .env), not the feature code
 - Preview on :3000 now serves the current build with the How-it-works explorer fully working; supervisor self-heals asset sync on every restart
 - Commits: d90d996 (feature), 09f17cd (amended artifacts commit), 77ea52d (supervisor fix)
+
+---
+Task ID: GUARDIAN-1
+Agent: Super Z (main)
+Task: User reported the How-it-works feature still not visible on the preview and demanded (a) a serious check, (b) permanent prevention of this class of issue, (c) an automatic bug-detection/self-correction layer, (d) everything committed after building.
+
+Work Log:
+- Serious check found FOUR stacked environment failures from the sandbox reset: dead processes, wiped .env (only DATABASE_URL left), stale standalone bundle, and an EMPTY database (NxStaffUser count 0 — logins 401, smoke 10/46)
+- Root-caused a self-inflicted guardian bug: standalone BUILD_ID lives at .next/standalone/.next/BUILD_ID (not .next/standalone/BUILD_ID) — wrong path made every restart look stale (40s needless rebuild each time); fixed
+- Replaced flock single-instance (flock absent in sandbox) with pid-file + liveness + orphan sweep; guardian now boots via npm start — the platform's own boot entry
+- Guardian heal chain per cycle: heal .env (JWT_SECRET CSPRNG, DATABASE_URL preserved, DEMO_MODE) -> heal_db (seed hospital+nx+v4+v5 only when hospital count==0) -> rebuild only on real src/prisma drift -> sync statics -> kill stale next-server -> serve with 20s health probes (3 fails = restart)
+- .bashrc revival hook now health-gated (only when :3000 down) + 60s cooldown
+- Built the in-app Bug Sentinel: global error/rejection traps, stale-chunk auto-heal reload (throttled), rate-limited reporting to new /api/nx/system/errors collector (zod, 8KB cap, 30/5min per-IP, hashed IP, rotated JSONL); error boundaries auto-retry 2x per digest before fallback; system-status gained additive selfheal diagnostics
+- Reseeded the demo dataset end-to-end; logins 200 (doctor password + CMD.ANITA PIN)
+- Final gates: tsc 0 / eslint clean / vitest 69/69 / api-smoke 46/46 / build OK; kill-restart cycle 4s with NO rebuild; 65s stability clean; browser E2E: explorer opens with 20 sections
+
+Stage Summary:
+- The preview outage class (reset -> dead processes/env/db/build) is now self-healing at every layer; npm start alone can bring the whole preview back from a cold sandbox
+- Bug Sentinel gives runtime detection + auto-rectification (stale chunks) + near-realtime client-error visibility in system-status
+- Commit: feat(ops+selfheal): guardian boot layer + in-app Bug Sentinel
