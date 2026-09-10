@@ -101,7 +101,7 @@ export const ROLE_LABELS: Record<NxRole, string> = {
 
 /** Role → module gates (OS shells). Kept in sync with permission matrix. */
 export const MODULES = [
-  "command-center", "patients", "journey", "tasks", "schedule", "beds", "ed",
+  "command-center", "crisis-radar", "patients", "journey", "tasks", "schedule", "beds", "ed",
   "doctor", "nurse", "or", "labs", "pharmacy", "orders", "billing", "inventory",
   "equipment", "analytics", "incidents", "automations", "messages", "audit",
   "integrations", "admin", "staff", "reports", "governance",
@@ -414,7 +414,7 @@ export function modulesForRole(roleInput: NxRole | string): NxModule[] {
   const p = ROLE_PERMISSIONS[role] ?? [];
   const mods: NxModule[] = [];
   const has = (x: NxPermission) => p.includes(x);
-  if (has("analytics.view")) { if (role !== "auditor") mods.push("command-center"); mods.push("analytics"); }
+  if (has("analytics.view")) { if (role !== "auditor") { mods.push("command-center"); mods.push("crisis-radar"); } mods.push("analytics"); }
   if (has("patient.clinical.view") || has("patient.demographics.view")) mods.push("patients");
   if (has("tasks.manage")) mods.push("tasks");
   if (has("appointments.manage") || has("appointments.view")) mods.push("schedule");

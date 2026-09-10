@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import {
-  BarChart3, BedDouble, Boxes, CalendarDays, ClipboardList, FlaskConical, FolderOpen, HeartPulse,
+  BarChart3, BedDouble, Boxes, BrainCircuit, CalendarDays, ClipboardList, FlaskConical, FolderOpen, HeartPulse,
   LayoutDashboard, ListTodo, MessageSquare, Pill as PillIcon, Receipt, ScrollText, Settings,
   ShieldAlert, Siren, SquareTerminal, Stethoscope, Syringe, Users, Workflow,
 } from "lucide-react";
@@ -68,12 +68,14 @@ const AnalyticsCenter = app(() => import("../mod-analytics"), "AnalyticsCenter")
 const BillingCenter = app(() => import("../mod-billing"), "BillingCenter");
 const AdminCenter = app(() => import("../mod-admin"), "AdminCenter");
 const GovernanceCenter = app(() => import("../mod-governance"), "GovernanceCenter");
+const CrisisRadarApp = app(() => import("../mod-pie"), "CrisisRadarApp");
 const SettingsApp = app(() => import("./settings-app"), "SettingsApp");
 const FilesApp = app(() => import("./files-app"), "FilesApp");
 const ConsoleApp = app(() => import("./console-app"), "ConsoleApp");
 
 export const APPS: AppDef[] = [
   { key: "command-center", label: "Command Center", group: "Overview", icon: LayoutDashboard, desc: "Live census, beds, ED, OR and critical alerts", render: (c) => <CommandCenter onOpenModule={c.open} /> },
+  { key: "crisis-radar", label: "Crisis Radar", group: "Overview", icon: BrainCircuit, desc: "PIE — patients ranked by Time-to-Decay with pre-emptive protocols", render: () => <CrisisRadarApp /> },
   { key: "doctor", label: "Doctor Workspace", group: "Overview", icon: Stethoscope, desc: "Your patients, risk-sorted, with AI handover", render: () => <ClinicianWorkspace kind="doctor" /> },
   { key: "nurse", label: "Nurse Shift", group: "Overview", icon: HeartPulse, desc: "Shift tasks, vitals due and handover", render: () => <ClinicianWorkspace kind="nurse" /> },
   { key: "tasks", label: "Work Queue", group: "Overview", icon: ListTodo, desc: "Priority-ranked tasks with transparent reasons", badge: "tasks", render: () => <TaskInbox /> },
