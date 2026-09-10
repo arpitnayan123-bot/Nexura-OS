@@ -2594,3 +2594,22 @@ Stage Summary:
 - The preview outage class (reset -> dead processes/env/db/build) is now self-healing at every layer; npm start alone can bring the whole preview back from a cold sandbox
 - Bug Sentinel gives runtime detection + auto-rectification (stale chunks) + near-realtime client-error visibility in system-status
 - Commit: feat(ops+selfheal): guardian boot layer + in-app Bug Sentinel
+
+---
+Task ID: NAV-1
+Agent: Super Z (main)
+Task: User asked to replace the navbar Sign in button with How it works and remove Sign in entirely; verified live preview location of the button for the user.
+
+Work Log:
+- Diagnosed live preview first: server healthy, How it works visible at top-right navbar (between theme toggle and Sign in), explorer opens with all 20 sections; explained exact location to the user with screenshots
+- Edited src/components/site/navbar.tsx: removed the Sign in ghost button (href #dashboard) and moved How it works into the freed slot; final navbar order: Logo / Search / Theme / How it works / Book a visit
+- Gates: tsc 0, eslint clean; npx next build OK
+- During restart hit the CSS-404 outage class AGAIN: manual next build recreated standalone without statics; guardian (npm start entry) was running but only synced statics inside do_build and its probe checked API only - so it served unstyled pages while reporting healthy
+- Patched scripts/nx-guardian.sh: sync_statics before EVERY serve iteration; probe_healthy now checks API AND the first homepage-referenced CSS chunk; 3-fail auto-restart resyncs by boot
+- Briefly added nx-watchdog.sh as a second self-healing loop, then removed it to avoid split-brain with the guardian; guardian remains the single canonical loop
+- Browser E2E: navbar order verified, Sign in count 0, explorer opens from the new position; HTML probes Sign in 0 / How it works 1; homepage + CSS + system-status all 200
+- Commits: bc9d06d (navbar swap + watchdog, later superseded), afcfebb (guardian hardening)
+
+Stage Summary:
+- Navbar now shows How it works exactly where Sign in used to sit, left of Book a visit; no Sign in button on the homepage navbar
+- The recurring unstyled-preview/404-statics failure class is now structurally closed: every guardian boot resyncs statics and the health probe covers assets, not just the API
