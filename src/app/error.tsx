@@ -17,9 +17,37 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log error to console (in production: send to Sentry)
     console.error("[Error Boundary]", error);
-  }, [error]);
+    // Feed the Bug Sentinel collector (best-effort, never throws).
+    try {
+      void fetch("/api/nx/system/errors", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          kind: "boundary",
+          message: (error.message || "route render error").slice(0, 300),
+          stack: error.stack?.slice(0, 1500),
+          path: typeof location !== "undefined" ? location.pathname : undefined,
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    } catch {}
+
+    // AUTO-RECOVERY: transparently retry up to 2 times per digest
+    // before showing this fallback. Most transient render errors
+    // (HMR races, stale chunks, one-off fetch failures) heal here
+    // without the user ever seeing a broken page.
+    try {
+      const key = `nx:retry:${error.digest ?? error.message.slice(0, 80)}`;
+      const attempts = Number(sessionStorage.getItem(key) ?? 0);
+      if (attempts < 2) {
+        sessionStorage.setItem(key, String(attempts + 1));
+        setTimeout(() => reset(), 150 * (attempts + 1));
+      } else {
+        sessionStorage.removeItem(key);
+      }
+    } catch {}
+  }, [error, reset]);
 
   return (
     <div className="grid min-h-screen place-items-center bg-background px-4">

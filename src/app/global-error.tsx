@@ -20,7 +20,20 @@ export default function GlobalError({
     // Route through the structured logger so the digest lands in the JSON log
     // pipeline with the same shape as server-side errors.
     captureError(error, { scope: "global-error", digest: error.digest });
-  }, [error]);
+
+    // AUTO-RECOVERY: transparently retry up to 2 times before showing
+    // this fallback — transient root-level failures heal silently.
+    try {
+      const key = `nx:retry:global:${error.digest ?? error.message.slice(0, 80)}`;
+      const attempts = Number(sessionStorage.getItem(key) ?? 0);
+      if (attempts < 2) {
+        sessionStorage.setItem(key, String(attempts + 1));
+        setTimeout(() => reset(), 200 * (attempts + 1));
+      } else {
+        sessionStorage.removeItem(key);
+      }
+    } catch {}
+  }, [error, reset]);
 
   return (
     <html lang="en">

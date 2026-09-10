@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/site/theme-provider";
 import { BookingProvider } from "@/components/site/booking-context";
 import { BookingModal } from "@/components/site/booking-modal";
 import { PwaRegister } from "@/components/pwa-register";
+import { ErrorSentinel } from "@/components/nx/error-sentinel";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -78,6 +79,7 @@ export default function RootLayout({
               (46px) and never overlaps the dock or the mobile back FAB. */}
           <SonnerToaster position="top-center" offset={56} richColors closeButton visibleToasts={3} />
           <PwaRegister />
+          <ErrorSentinel />
         </ThemeProvider>
       </body>
     </html>
