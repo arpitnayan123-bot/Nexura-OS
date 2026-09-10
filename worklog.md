@@ -2613,3 +2613,23 @@ Work Log:
 Stage Summary:
 - Navbar now shows How it works exactly where Sign in used to sit, left of Book a visit; no Sign in button on the homepage navbar
 - The recurring unstyled-preview/404-statics failure class is now structurally closed: every guardian boot resyncs statics and the health probe covers assets, not just the API
+
+---
+Task ID: PREVIEW-1
+Agent: Super Z (main)
+Task: User still could not see How it works (or any update) in the preview window despite repeated healthy server-side checks; demanded the preview be updated to the latest version and everything committed.
+
+Work Log:
+- Deep diagnosis: only ONE app server (guardian's next-server on :3000); origin served the latest HTML; no competing ports. The staleness had to live between origin and the user's eyes
+- Found the two culprits: (1) static pages emitted Cache-Control s-maxage=31536000 — any proxy/CDN in the preview path could pin year-old HTML; (2) public/sw.js (PWA, nexura-shell-v1) precached "/" and served ALL same-origin requests cache-first forever — the user's browser replayed the first-visited build indefinitely
+- Fixed sw.js v2: navigations network-first with offline cache fallback; cache-first restricted to immutable /_next/static; precache uses {cache:'reload'}; version bump purges poisoned v1 caches on activate; SKIP_WAITING message hook added
+- Fixed HTML caching at the source: root layout export const revalidate = 0 — all pages dynamic, emitting Cache-Control no-store (was s-maxage=31536000)
+- Rebuilt; guardian restarted the server with statics synced (new every-boot sync confirmed in serve log)
+- Verified on origin: HTML no-store, sw.js v2, Sign in 0 / How it works 1, API 200
+- Acid test in a real browser: deliberately poisoned nexura-shell-v2 cache at / with a fake stale page, reloaded — the fresh build rendered (stalePoisonShown=false, howItWorksVisible=true); v1 would have shown the stale page forever
+- Gates: tsc 0, eslint clean, vitest 69/69
+- Commit: 8fc94d1
+
+Stage Summary:
+- The frozen-preview root cause is eliminated at every layer: browser SW (network-first + purge), HTTP headers (no-store on HTML), and the guardian (statics every boot + asset-aware probes)
+- User-facing recovery path: one normal refresh fetches sw.js (max-age=0) -> v2 activates with skipWaiting -> old caches purge -> page goes network-first; a second refresh guarantees the latest UI
