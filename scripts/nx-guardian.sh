@@ -17,9 +17,15 @@
 #                             (Next.js never copies these itself).
 #   4. Kills stale listeners— next-server renames its process title,
 #                             so blind pkill misses it; we match it.
-#   5. Serves + watches     — restarts the server if it dies; health
-#                             check every 20s; 3 consecutive failures
-#                             or source drift -> heal + rebuild cycle.
+#   5. Serves + watches     — statics are re-synced on EVERY boot (a
+#                             fresh standalone always needs the copy);
+#                             restarts the server if it dies; health
+#                             check every 20s covers BOTH the API and
+#                             the first CSS chunk referenced by the
+#                             homepage (catches unsynced/stale statics
+#                             that an API-only probe never sees);
+#                             3 consecutive failures or source drift
+#                             -> heal + rebuild cycle.
 #
 # Single-instance via pid-file (flock is NOT guaranteed in minimal
 # sandboxes). Logs to logs/guardian.log.
@@ -145,6 +151,19 @@ do_build() {
 SERVER_PID=""
 health_failures=0
 
+# Full-surface probe: the API being up proves nothing about static
+# assets (this Next version snapshots .next/static at boot). A homepage
+# that returns 200 but whose CSS chunk 404s IS an outage (unstyled
+# preview), so the probe checks the API AND the first referenced CSS.
+probe_healthy() {
+  curl -fs -o /dev/null "http://127.0.0.1:$PORT/api/nx/system-status" --max-time 8 || return 1
+  local css code
+  css="$(curl -fs --max-time 8 "http://127.0.0.1:$PORT/" 2>/dev/null | grep -oE '/_next/static/[^"]+\.css' | head -1)"
+  [ -n "$css" ] || return 1
+  code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 "http://127.0.0.1:$PORT$css")"
+  [ "$code" = "200" ]
+}
+
 health_loop() {
   # checks every 20s while the server runs; kills it after 3 fails,
   # and rebuilds if source drift is detected (checked every 10 min)
@@ -153,13 +172,13 @@ health_loop() {
     sleep 20
     kill -0 "$SERVER_PID" 2>/dev/null || break
     ticks=$((ticks + 1))
-    if curl -fs -o /dev/null "http://127.0.0.1:$PORT/api/nx/system-status" --max-time 8; then
+    if probe_healthy; then
       health_failures=0
     else
       health_failures=$((health_failures + 1))
       log "health: FAIL ($health_failures/3)"
       if [ "$health_failures" -ge 3 ]; then
-        log "health: 3 consecutive failures — restarting server"
+        log "health: 3 consecutive failures — restarting server (statics resync on boot)"
         kill -9 "$SERVER_PID" 2>/dev/null
         return
       fi
@@ -187,9 +206,14 @@ while true; do
   fi
 
   kill_stale_listeners
+  # ALWAYS re-sync statics before serving: next build (manual or via
+  # do_build) recreates .next/standalone without .next/static or public/,
+  # and a running server never picks up late copies — serving without
+  # this step is exactly how "unstyled preview + 404 chunks" happens.
+  sync_statics || { log "static sync failed; standalone missing — rebuilding"; kill_stale_listeners; do_build || { sleep 10; continue; }; }
 
   cd "$ROOT/.next/standalone" || { log "standalone dir missing; rebuilding"; sleep 2; continue; }
-  log "serve: starting server on :$PORT"
+  log "serve: starting server on :$PORT (statics synced)"
   NODE_ENV=production PORT=$PORT HOSTNAME=0.0.0.0 NX_PROJECT_ROOT="$ROOT" node server.js >> "$ROOT/server.log" 2>&1 &
   SERVER_PID=$!
   health_failures=0
