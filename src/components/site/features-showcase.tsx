@@ -5,7 +5,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import {
   Building2, Stethoscope, Pill, HeartPulse, MessageCircle,
-  Sparkles, Globe, Clock, TrendingUp, Shield,
+  Sparkles, Globe, Clock, TrendingUp, Shield, BrainCircuit,
   ArrowUpRight, type LucideIcon,
 } from "lucide-react";
 import { useBooking } from "./booking-context";
@@ -30,6 +30,7 @@ type Feature = {
 
 const PRODUCTS: Feature[] = [
   { id: "hospital", name: "Hospital OS", sub: "HMS", desc: "18-module hospital operating system — OPD, IPD, OT, EHR, Nursing, Lab, Radiology, Blood Bank, Billing, Insurance, AI Assistant. ABDM + NABH compliant.", icon: Building2, accent: "#C98A7A", href: "/hospital", badge: "Flagship" },
+  { id: "predictive", name: "Nexura Predictive", sub: "Predictive Health Engine", desc: "Predicts disease before it catches you — from routine, meals, exercise, sleep and city air. Crisis Radar + Living Twin inside, calibrated for Indian lives.", icon: BrainCircuit, accent: "#7C3AED", href: "/predictive", badge: "AI" },
   { id: "clinic", name: "Clinic OS", sub: "EMR", desc: "HealthPlix-style EMR with SOAP consultation, drug autocomplete from 54 Indian medicines, ABHA registry, public booking page.", icon: Stethoscope, accent: "#D98B6E", href: "/clinic", badge: "New" },
   { id: "pharmacy", name: "Pharmacia", sub: "POS", desc: "AI-powered pharmacy POS with voice billing, prescription OCR, GST e-invoice, Schedule H register, predictive analytics.", icon: Pill, accent: "#F59E0B", href: "/pharmacy", badge: "New" },
   { id: "portal", name: "Patient Portal", sub: "Unified Health", desc: "Unified health record across all products. Blood test at home with phlebotomist visit + AI report interpretation.", icon: HeartPulse, accent: "#0EA5E9", href: "/portal", badge: "New" },
@@ -77,7 +78,7 @@ export function FeaturesShowcase() {
             <span className="text-gradient-warm">Every feature.</span>
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            7 products + 6 quick actions. Built for Indian healthcare — hospitals, clinics, pharmacies, patients, and beyond.
+            8 products + 6 quick actions. Built for Indian healthcare — hospitals, clinics, pharmacies, patients, and beyond.
           </p>
         </motion.div>
 
@@ -114,7 +115,7 @@ export function FeaturesShowcase() {
           className="mt-12 flex flex-wrap items-center justify-center gap-6 text-center"
         >
           {[
-            { stat: "7", label: "Products" },
+            { stat: "8", label: "Products" },
             { stat: "6", label: "Quick Actions" },
             { stat: "15+", label: "AI Features" },
             { stat: "1.4B", label: "People building for" },
