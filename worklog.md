@@ -2747,3 +2747,22 @@ Work Log:
 
 Stage Summary:
 - Nexura Predictive is now reachable from FOUR places: homepage product grid (beside Hospital OS), navbar ghost link (desktop), command palette (Cmd+K), and the new hamburger drawer (all breakpoints) — plus the /predictive hero now says the user's exact line "Healthcare is reactive. But Nexura is Predictive."
+
+---
+Task ID: PREM-1
+Agent: Super Z (main)
+Task: User request — remove the search feature at the top of the homepage (that only); rebuild the Nexura Predictive page to be more premium ("top design"), trustworthy, with all fonts fully visible, plain English, and better overall; commit everything.
+
+Work Log:
+- Removed FeaturesMenu (command-palette Search + Cmd+K) from the navbar; deleted src/components/site/features-menu.tsx; fixed a self-inflicted ThemeToggle duplication caught in the edit diff; navbar is now Logo → Theme → How it works → Predictive → Book a visit → Hamburger
+- Rebuilt /predictive page end-to-end: new aurora hero (deep violet-black base, three blurred glow fields, fine grid texture, radial vignette for text crispness, teal live pulse badge, white/glass CTA pair, micro trust row "No sign-up / Runs in your browser / A doctor approves the final step", 4 glass stat cards, gradient hairline outro)
+- New "Why you can trust it" section (doctor-in-charge, every warning explains itself, DPDP privacy, built on Indian health data) — answers the trustworthy ask directly
+- Plain-English rewrite across the whole page: pipeline ("median-MAD outlier rejection" → "impossible readings thrown out"; "SHAP drivers" → "shows its reasons"; "sub-0.8 confidence never auto-acts" → "when the engine is not sure, it never acts alone"), Time-to-Decay → "urgency score" in headings/table header, signal cards, India chips, band descriptions, radar copy, What-If copy
+- Font visibility: all 10px captions bumped to 11-12px in IndiaRiskExplorer + WhatIfDemo; hero subtitle brightened to violet-100/90 with bold white emphasis; band label split ("Steady / Watch closely / Act now") reads plainly in both themes
+- Premium details: numbered signal/pipeline cards with hover ring + violet icon inversion, gradient trust icons, zebra-free radar table with row hover, elevated card shadows (violet-tinted), section eyebrows for rhythm, radar anchor id="radar" with scroll-mt
+- Incident: after dev-server restart, /api/nx/gateway/v1/patients served an HTML 404 (stale Turbopack routing state — UI-only changes cannot affect API routes); `touch route.ts` forced recompile, endpoint back to 401, smoke 56/56 again
+- Gates: tsc 0 (server stopped for RAM), eslint 0, vitest 119/119, smoke 56/56; dev server restored on :3000
+- E2E: hero (desktop) crisp; full-page light + dark screenshots clean with all text visible; mobile 390px stacks correctly; homepage shows no Search and keeps the hamburger; zero console errors
+
+Stage Summary:
+- Homepage navbar slimmed to its essentials (Search removed per instruction), and /predictive now reads like a flagship: aurora hero, explicit trust section, plain-English story end to end, no text below 11px, verified in light + dark + mobile

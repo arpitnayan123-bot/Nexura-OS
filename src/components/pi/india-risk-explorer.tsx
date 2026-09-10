@@ -173,11 +173,11 @@ export function IndiaRiskExplorer() {
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <p className="text-xs font-bold">{d.label}</p>
-                    <p className="text-[10px] text-muted-foreground">{d.hint}</p>
+                    <p className="text-[11px] text-muted-foreground">{d.hint}</p>
                   </div>
                   <div className="text-right">
                     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold ${BAND_STYLE[band]}`}>{BAND_LABEL[band]} · {pct}%</span>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground">5-year onset</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">5-year onset</p>
                   </div>
                 </div>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
@@ -206,12 +206,12 @@ export function IndiaRiskExplorer() {
             <div className="space-y-1.5">
               {result.drivers.map((d, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="w-44 shrink-0 truncate text-[11px] font-medium">{d.feature}</span>
+                  <span className="w-44 shrink-0 truncate text-xs font-medium">{d.feature}</span>
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
                     <div className={`h-full rounded-full ${d.modifiable ? "bg-violet-500" : "bg-slate-400"}`} style={{ width: `${Math.round(d.share * 100)}%` }} />
                   </div>
-                  <span className={`shrink-0 text-[10px] font-semibold ${d.modifiable ? "text-violet-600 dark:text-violet-400" : "text-muted-foreground"}`}>
-                    {d.modifiable ? "changeable" : "watch"}
+                  <span className={`shrink-0 text-[11px] font-semibold ${d.modifiable ? "text-violet-600 dark:text-violet-400" : "text-muted-foreground"}`}>
+                    {d.modifiable ? "you can change this" : "keep an eye"}
                   </span>
                 </div>
               ))}
@@ -220,9 +220,9 @@ export function IndiaRiskExplorer() {
         </div>
       </div>
 
-      <p className="border-t border-violet-100 bg-violet-50/40 px-5 py-3 text-[10px] leading-relaxed text-muted-foreground dark:border-violet-900/40 dark:bg-violet-950/20">
-        Demo model calibrated on aggregate Indian public-health patterns (ICMR-INDIAB, NFHS-5 style statistics) —
-        population-level priors, never personal data. It shows how Nexura reasons; it is not a medical diagnosis.
+      <p className="border-t border-violet-100 bg-violet-50/40 px-5 py-3 text-[11px] leading-relaxed text-muted-foreground dark:border-violet-900/40 dark:bg-violet-950/20">
+        Runs on public Indian health statistics (ICMR-INDIAB, NFHS-5 style) — population patterns, never personal
+        data. It shows how Nexura reasons. It is not a medical diagnosis.
       </p>
     </div>
   );

@@ -143,10 +143,10 @@ export function WhatIfDemo() {
       <div className="flex items-center gap-2">
         <FlaskConical className="h-4 w-4 text-violet-600 dark:text-violet-400" />
         <h3 className="text-sm font-semibold">Try the What-If Simulator</h3>
-        <span className="text-[10px] text-muted-foreground">· runs on a demo Living Twin</span>
+        <span className="text-[11px] text-muted-foreground">· runs on a demo Living Twin</span>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Pick interventions and watch the 90-day health-decay curve bend — exactly what clinicians see in the deep dive.
+        Pick one or two changes and watch the 90-day risk curve bend — exactly what a doctor sees in the deep dive.
       </p>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
@@ -194,9 +194,9 @@ export function WhatIfDemo() {
           </div>
           <div className="mt-2">
             <Curve points={points} />
-            <p className="mt-1 text-[10px] text-muted-foreground">
+            <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
               Dashed line: today&apos;s baseline ({BASELINE_90D}). Solid curve: your twin&apos;s projection with{" "}
-              {chosen.length} intervention{chosen.length === 1 ? "" : "s"} over 90 days.
+              {chosen.length} change{chosen.length === 1 ? "" : "s"} over 90 days.
             </p>
           </div>
           <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">
@@ -216,7 +216,7 @@ export function WhatIfDemo() {
             )}
           </ul>
           {chosen[0] && (
-            <p className="mt-2 border-t border-dashed border-black/10 pt-2 text-[10px] leading-relaxed text-muted-foreground dark:border-white/10">
+            <p className="mt-2 border-t border-dashed border-black/10 pt-2 text-[11px] leading-relaxed text-muted-foreground dark:border-white/10">
               {chosen[0].caveat}
             </p>
           )}

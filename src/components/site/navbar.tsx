@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./theme-toggle";
 import { useBooking } from "./booking-context";
-import { FeaturesMenu } from "./features-menu";
 import { HamburgerMenu } from "./hamburger-menu";
 import { HowItWorksExplorer } from "./how-it-works/explorer";
 
@@ -55,7 +54,6 @@ export function Navbar() {
 
           {/* Actions — single cluster, works on all breakpoints */}
           <div className="flex items-center gap-2">
-            <FeaturesMenu />
             <ThemeToggle />
             <Button
               onClick={() => setHowOpen(true)}
