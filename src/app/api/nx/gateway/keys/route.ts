@@ -27,6 +27,8 @@ export const GET = withRoute("gateway.keys.list", async (req: NextRequest, { req
 export const POST = withRoute("gateway.keys.issue", async (req: NextRequest, { requestId }) => {
   const g = await guard(req, "gateway.manage");
   if ("response" in g) return g.response;
+  const hospitalId = g.session.hospitalId;
+  if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const body = await parseBody(req, IssueSchema);
   if ("response" in body) return body.response;
   const tenant = await db.nxTenant.findUnique({ where: { id: body.data.tenantId } });
@@ -43,7 +45,7 @@ export const POST = withRoute("gateway.keys.issue", async (req: NextRequest, { r
     },
   });
   await audit({
-    hospitalId: g.session.hospitalId,
+    hospitalId,
     actorName: g.session.name,
     actorRole: g.session.role,
     action: "gateway.key.issue",
@@ -57,12 +59,14 @@ export const POST = withRoute("gateway.keys.issue", async (req: NextRequest, { r
 export const DELETE = withRoute("gateway.keys.revoke", async (req: NextRequest, { requestId }) => {
   const g = await guard(req, "gateway.manage");
   if ("response" in g) return g.response;
+  const hospitalId = g.session.hospitalId;
+  if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return fail("missing_id", 400, undefined, requestId);
   const key = await db.nxApiKey.update({ where: { id }, data: { revokedAt: new Date() } }).catch(() => null);
   if (!key) return fail("not_found", 404, undefined, requestId);
   await audit({
-    hospitalId: g.session.hospitalId,
+    hospitalId,
     actorName: g.session.name,
     actorRole: g.session.role,
     action: "gateway.key.revoke",

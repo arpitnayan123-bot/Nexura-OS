@@ -36,6 +36,8 @@ const UpsertSchema = z.object({
 export const POST = withRoute("tenants.post", async (req: NextRequest, { requestId }) => {
   const g = await guard(req, "tenants.manage");
   if ("response" in g) return g.response;
+  const hospitalId = g.session.hospitalId;
+  if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const body = await parseBody(req, UpsertSchema);
   if ("response" in body) return body.response;
   const d = body.data;
@@ -64,7 +66,7 @@ export const POST = withRoute("tenants.post", async (req: NextRequest, { request
     await db.hospital.updateMany({ where: { id: { in: d.hospitalIds } }, data: { tenantId: tenant.id } });
   }
   await audit({
-    hospitalId: g.session.hospitalId,
+    hospitalId,
     actorName: g.session.name,
     actorRole: g.session.role,
     action: d.id ? "tenant.update" : "tenant.create",
@@ -86,6 +88,8 @@ export const POST = withRoute("tenants.post", async (req: NextRequest, { request
 export const GET = withRoute("tenants.list", async (req: NextRequest, { requestId }) => {
   const g = await guard(req, "tenants.manage");
   if ("response" in g) return g.response;
+  const hospitalId = g.session.hospitalId;
+  if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const tenants = await db.nxTenant.findMany({
     orderBy: { createdAt: "desc" },
     include: { hospitals: { select: { id: true, name: true } }, apiKeys: { select: { id: true, name: true, revokedAt: true } } },

@@ -327,6 +327,7 @@ model Hospital {
   nxWaitlist          NxAppointmentWaitlist[]
   nxAppointmentEvents NxAppointmentEvent[]
   nxWebhooks          NxWebhookDelivery[]
+  nxWebhookEndpoints  NxWebhookEndpoint[]
   nxIntegrationEvents NxIntegrationEvent[]
   nxFiles             NxFileObject[]
   nxBreakGlassEvents  NxBreakGlassEvent[]
@@ -2247,6 +2248,23 @@ model NxAppointmentEvent {
   @@index([hospitalId])
 }
 
+model NxWebhookEndpoint {
+  id            String    @id @default(cuid())
+  hospitalId    String
+  name          String
+  url           String
+  secret        String // HMAC secret for outbound signatures
+  events        String // JSON string[] of WebhookEvent or "*"
+  active        Boolean   @default(true)
+  failureCount  Int       @default(0)
+  lastSuccessAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  hospital      Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, active])
+}
+
 model NxWebhookDelivery {
   id            String    @id @default(cuid())
   hospitalId    String?
@@ -2256,6 +2274,8 @@ model NxWebhookDelivery {
   status        String    @default("pending") // pending|delivered|failed|dead
   attempts      Int       @default(0)
   maxAttempts   Int       @default(5)
+  endpointId    String?
+  latencyMs     Int?
   lastAttemptAt DateTime?
   responseCode  Int?
   nextRetryAt   DateTime?

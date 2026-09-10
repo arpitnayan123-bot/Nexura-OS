@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { db } from "@/lib/db";
 import { ok, fail, paginate, pageMeta, withRoute } from "@/lib/nx/api";
 import { authenticateApiKey, hasScope } from "@/lib/nx/gateway";
 
