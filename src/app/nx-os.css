@@ -851,3 +851,56 @@ html.nx-light {
 
 .nx-root[data-motion="reduced"] .nx-back-pill,
 .nx-root[data-motion="reduced"] .nx-back-fab { animation: none; }
+
+/* ============================================================
+   v5 — DEVICE MODES & ACCESSIBILITY
+   Tablet mode: ward-round ergonomics (44px+ touch targets, larger
+   type). Kiosk mode: locked shared-device profile (dimmed chrome,
+   focus locked to active window). Reduced motion: respects the OS
+   preference for vestibular safety at bedside.
+   ============================================================ */
+
+html[data-nx-mode="tablet"] {
+  font-size: 17px;
+}
+html[data-nx-mode="tablet"] button,
+html[data-nx-mode="tablet"] [role="button"],
+html[data-nx-mode="tablet"] input,
+html[data-nx-mode="tablet"] select {
+  min-height: 44px;
+}
+html[data-nx-mode="tablet"] .nx-dock {
+  transform: scale(1.15);
+  transform-origin: bottom center;
+}
+
+html[data-nx-mode="kiosk"] .nx-dock,
+html[data-nx-mode="kiosk"] .nx-launcher {
+  opacity: 0.25;
+  pointer-events: none;
+}
+html[data-nx-mode="kiosk"] .nx-launcher-btn { opacity: 0.25; pointer-events: none; }
+html[data-nx-mode="kiosk"] .nx-launcher-legacy {
+  opacity: 0.25;
+  pointer-events: none;
+}
+html[data-nx-mode="kiosk"] .nx-win {
+  inset: 8px !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus visibility — keyboard operators at nursing stations */
+:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 2px;
+}

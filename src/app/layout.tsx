@@ -5,6 +5,7 @@ import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/site/theme-provider";
 import { BookingProvider } from "@/components/site/booking-context";
 import { BookingModal } from "@/components/site/booking-modal";
+import { PwaRegister } from "@/components/pwa-register";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
   title: "Nexura — A Calmer Operating System for Health",
   description:
     "Nexura unifies AI diagnostics, continuous monitoring, and human care into one warm, intelligent health platform. Home of Hospital OS. Care that listens, learns, and breathes with you.",
+  manifest: "/manifest.webmanifest",
   keywords: [
     "Nexura",
     "healthcare platform",
@@ -75,6 +77,7 @@ export default function RootLayout({
               renders every toast twice. top-center clears the OS system bar
               (46px) and never overlaps the dock or the mobile back FAB. */}
           <SonnerToaster position="top-center" offset={56} richColors closeButton visibleToasts={3} />
+          <PwaRegister />
         </ThemeProvider>
       </body>
     </html>

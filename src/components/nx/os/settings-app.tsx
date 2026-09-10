@@ -13,6 +13,7 @@ import { APPS } from "./registry";
 
 const SECTIONS = [
   { key: "appearance", label: "Appearance", icon: Palette },
+  { key: "language", label: "Language & Region", icon: Type },
   { key: "accessibility", label: "Accessibility", icon: PersonStanding },
   { key: "account", label: "Account", icon: UserRound },
   { key: "about", label: "About", icon: Info },
@@ -143,6 +144,8 @@ export function SettingsApp() {
             </Group>
           </div>
         )}
+
+        {section === "language" && <LanguageSection />}
 
         {section === "accessibility" && (
           <div className="max-w-xl space-y-8">
@@ -303,5 +306,72 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
       </span>
       {label}
     </button>
+  );
+}
+
+
+/* ============================================================
+   v5 — Language & Region (i18n) + device modes (tablet/kiosk)
+   Locale applies to OS chrome + date/time formatting. Device modes
+   optimize ward hardware: tablet = bigger touch targets, kiosk =
+   locked-down single-app fullscreen with reduced chrome.
+   ============================================================ */
+
+import { LOCALES, LOCALE_LABELS, type Locale, t as tr } from "@/lib/i18n";
+
+function readLS(key: string, fallback: string): string {
+  try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; }
+}
+
+export function LanguageSection() {
+  const [locale, setLocale] = useState<Locale>(() => readLS("nx-locale", "en") as Locale);
+  const [mode, setMode] = useState<"desktop" | "tablet" | "kiosk">(() => readLS("nx-mode", "desktop") as "desktop" | "tablet" | "kiosk");
+
+  const applyLocale = (l: Locale) => {
+    setLocale(l);
+    try { localStorage.setItem("nx-locale", l); } catch { /* private mode */ }
+    document.documentElement.lang = l;
+  };
+  const applyMode = (m: "desktop" | "tablet" | "kiosk") => {
+    setMode(m);
+    try { localStorage.setItem("nx-mode", m); } catch { /* private mode */ }
+    document.documentElement.dataset.nxMode = m;
+  };
+
+  return (
+    <div className="max-w-xl space-y-8">
+      <Group title="Language" icon={Type} hint="Applies to OS chrome, actions and statuses. Clinical content stays English until terminology review.">
+        <div className="grid grid-cols-3 gap-2">
+          {LOCALES.map((l) => (
+            <button
+              key={l}
+              onClick={() => applyLocale(l)}
+              aria-pressed={locale === l}
+              className={cn(
+                "rounded-xl border px-3 py-3 text-sm transition-colors",
+                locale === l ? "border-accent-line bg-accent-soft font-medium text-accent" : "border-line-2 bg-inset text-ink-2 hover:bg-panel-3"
+              )}
+            >
+              {LOCALE_LABELS[l]}
+              <span className="block text-[10px] font-normal text-ink-5">{tr(l, "shell.modules")} · {tr(l, "action.complete")}</span>
+            </button>
+          ))}
+        </div>
+      </Group>
+      <Group title="Device mode" icon={WallpaperIcon} hint="Tablet: 44px+ touch targets for ward rounds. Kiosk: locked fullscreen single-app mode for shared devices.">
+        <Segmented
+          value={mode}
+          onChange={(v) => applyMode(v as "desktop" | "tablet" | "kiosk")}
+          options={[
+            { value: "desktop", label: "Desktop" },
+            { value: "tablet", label: "Tablet" },
+            { value: "kiosk", label: "Kiosk" },
+          ]}
+        />
+        <p className="text-xs text-ink-5">
+          Mode sample — {tr(locale, "shell.online")} / {tr(locale, "offline.banner")}
+        </p>
+      </Group>
+    </div>
   );
 }

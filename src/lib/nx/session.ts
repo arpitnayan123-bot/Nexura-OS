@@ -104,7 +104,7 @@ export const MODULES = [
   "command-center", "patients", "journey", "tasks", "schedule", "beds", "ed",
   "doctor", "nurse", "or", "labs", "pharmacy", "orders", "billing", "inventory",
   "equipment", "analytics", "incidents", "automations", "messages", "audit",
-  "integrations", "admin", "staff", "reports",
+  "integrations", "admin", "staff", "reports", "governance",
 ] as const;
 export type NxModule = (typeof MODULES)[number];
 
@@ -427,6 +427,7 @@ export function modulesForRole(roleInput: NxRole | string): NxModule[] {
   if (has("communication.send")) mods.push("messages");
   if (has("audit.view")) mods.push("audit");
   if (has("users.manage") || has("staff.manage") || has("roles.manage")) mods.push("admin");
+  if (has("security.manage") || has("audit.view") || has("settings.manage")) mods.push("governance");
   if (role === "command" || role === "admin" || role === "hospital_admin") mods.push("incidents", "journey", "or");
   if (role === "auditor") mods.push("audit", "analytics");
   return Array.from(new Set(mods)).filter((m) => MODULES.includes(m));
