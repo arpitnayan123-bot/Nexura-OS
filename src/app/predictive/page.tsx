@@ -1,23 +1,32 @@
 import Link from "next/link";
 import {
-  Activity, ArrowRight, ArrowUpRight, BrainCircuit, Dna, FlaskConical, Footprints,
-  GitBranch, HeartPulse, Lock, Moon, ScanSearch, ShieldCheck, Stethoscope, Utensils, Wind,
+  Activity, ArrowRight, BrainCircuit, Dna, Footprints, GitBranch, HeartPulse, Lock,
+  Moon, ScanSearch, ShieldCheck, Stethoscope, Utensils, Wind,
 } from "lucide-react";
 import { db } from "@/lib/db";
 import { runRadar } from "@/modules/pi-engine/engine";
-import { RiskBadge } from "@/components/pi/risk-badge";
-import { WhatIfDemo } from "@/components/pi/what-if-demo";
+import { RiskGauge } from "@/components/pi/risk-gauge";
+import { CrisisRadarCanvas } from "@/components/pi/crisis-radar-canvas";
+import { TwinWhatIf } from "@/components/pi/twin-whatif";
+import { ConsoleBar, DeployCta } from "@/components/pi/console-bar";
 import { IndiaRiskExplorer } from "@/components/pi/india-risk-explorer";
 
-/* Public, always-fresh showcase: renders straight from the engine
-   (server-side), anonymized. Cinematic dark canvas — intentionally
-   theme-independent so every glyph sits on a controlled surface. */
+/* ============================================================
+ * NEXURA PREDICTIVE — "Glassmorphic Futurism" command center
+ * The bridge of the starship: a live bento-grid where the
+ * Predictive Intelligence Engine renders the hospital's future.
+ *
+ * Server component · force-dynamic · renders straight from the
+ * engine (runRadar sweep), anonymized for public view.
+ * Intentionally theme-independent: the console is always deep
+ * navy with frosted-glass tiles and neon data inks.
+ * ============================================================ */
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Nexura Predictive · Predict before it catches you",
+  title: "Nexura Predictive — Command Center",
   description:
-    "Healthcare is reactive. But Nexura is Predictive — the Predictive Intelligence Engine reads routine, meals, exercise, sleep, city air and the earliest physiological whispers to surface disease years before diagnosis. Calibrated on Indian epidemiology.",
+    "Healthcare is Reactive. Nexura Makes it Predictive. The Predictive Intelligence Engine streams routine, meals, exercise, sleep, city air and the earliest physiological whispers into a Living Twin — surfacing disease years before diagnosis. Calibrated on Indian epidemiology.",
 };
 
 /** Anonymize a demo patient name: "Suresh Kumar" -> "Suresh K." */
@@ -28,506 +37,367 @@ function anon(name: string): string {
 }
 
 const SIGNALS = [
-  {
-    icon: Utensils, name: "Meals & nutrition",
-    desc: "Outside-food frequency, sugary drinks, late dinners, refined-carb load — the strongest modifiable driver in Indian cohorts.",
-  },
-  {
-    icon: Footprints, name: "Movement & exercise",
-    desc: "Steps, brisk-walk minutes, activity spacing through the day. Sedentary routines multiply type-2 risk even at normal BMI.",
-  },
-  {
-    icon: Moon, name: "Sleep & stress rhythm",
-    desc: "Duration, regularity, late-night screenpush. Short sleep bends insulin resistance and blood pressure within weeks.",
-  },
-  {
-    icon: Activity, name: "Earliest symptoms",
-    desc: "Fatigue creep, fasting-glucose drift, resting-HR slope, HRV decline, exertional dyspnoea — read as trends, never one-offs.",
-  },
-  {
-    icon: Wind, name: "City air · AQI",
-    desc: "Metro particulate load weighted into cardiac and hypertension risk — city by city, season by season.",
-  },
-  {
-    icon: Dna, name: "Genes & family history",
-    desc: "First-degree history sharpens every prior and pulls screening a decade earlier. The curve changes today, not at 50.",
-  },
-];
-
-const TRUST = [
-  {
-    icon: Stethoscope, title: "Clinician-in-the-loop",
-    desc: "Every pre-emptive protocol drafts for human approval. Sub-0.8 confidence never auto-acts — a doctor signs every step that matters.",
-  },
-  {
-    icon: ScanSearch, title: "SHAP-grade explainability",
-    desc: "Each score ships its driver attribution — the Why behind every prediction, every time. No unexplained alarms, ever.",
-  },
-  {
-    icon: Lock, title: "DPDP-aligned privacy",
-    desc: "Consented streams, aggregate priors, nothing sold. Patient data never leaves the hospital boundary without consent.",
-  },
-  {
-    icon: ShieldCheck, title: "Governance & audit",
-    desc: "Drift monitoring, demographic fairness audits, documented Class II SaMD posture — engineered to medical-device standards.",
-  },
-];
-
-const INDIA_CHIPS = [
-  { k: "10 yrs earlier", v: "Indian onset curves run a decade ahead of Western cohorts — surveillance starts earlier" },
-  { k: "BMI 23 / 27.5", v: "Asian-Indian risk thresholds — not the Western 25 / 30" },
-  { k: "AQI-weighted", v: "cardiac & hypertension multipliers per metro, severe-episode aware" },
-  { k: "ICMR-INDIAB · NFHS-5", v: "aggregate population priors — never personal data" },
-];
-
-const BANDS = [
-  { range: "0–30", label: "Stable", glow: "shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]", tone: "text-emerald-300 border-emerald-400/25 bg-emerald-500/[0.08]", dot: "bg-emerald-400", desc: "Recovery on track. Routine care continues — the twin keeps watching quietly." },
-  { range: "31–70", label: "Watchlist", glow: "shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]", tone: "text-amber-300 border-amber-400/25 bg-amber-500/[0.08]", dot: "bg-amber-400", desc: "Early drift detected. The engine surfaces the drivers and pre-stages monitoring before anything turns acute." },
-  { range: "71–100", label: "Critical", glow: "shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]", tone: "text-rose-300 border-rose-400/30 bg-rose-500/[0.10]", dot: "bg-rose-400 animate-pulse", desc: "Crisis window open. A pre-emptive protocol is already drafting — 12–24 h before symptoms would force an emergency." },
+  { icon: Utensils, name: "Meals & nutrition", desc: "Outside-food frequency, refined-carb load, late dinners — the strongest modifiable driver in Indian cohorts." },
+  { icon: Footprints, name: "Movement & exercise", desc: "Steps, brisk-walk minutes, activity spacing. Sedentary routines multiply type-2 risk even at normal BMI." },
+  { icon: Moon, name: "Sleep & stress rhythm", desc: "Duration, regularity, late-night screenpush. Short sleep bends insulin resistance and BP within weeks." },
+  { icon: Activity, name: "Earliest symptoms", desc: "Fatigue creep, fasting-glucose drift, resting-HR slope, HRV decline — read as trends, never one-offs." },
+  { icon: Wind, name: "City air · AQI", desc: "Metro particulate load weighted into cardiac and hypertension risk — city by city, season by season." },
+  { icon: Dna, name: "Genes & family history", desc: "First-degree history sharpens every prior and pulls screening forward a decade." },
 ];
 
 const PIPELINE = [
-  { icon: Activity, name: "Life Stream", desc: "Vitals, labs, meds, wearables, meals, routine, notes and city air stream in — median-MAD cleansed, coded to clinical vocabularies." },
-  { icon: GitBranch, name: "Patient Graph", desc: "Every fact becomes a weighted edge — family history to risk, diet to glucose, air to cardiac load — so similar lives sit one query away." },
-  { icon: HeartPulse, name: "Living Twin", desc: "A digital twin per person: physiology baselines plus a personal, continuously-learned trajectory that answers what happens if nothing changes." },
-  { icon: BrainCircuit, name: "Crisis Radar", desc: "Everyone is scored 0–100 on Time-to-Decay and re-ranked continuously — years-scale lifestyle risk and hours-scale hospital crisis in one view." },
-  { icon: Stethoscope, name: "Pre-emptive Protocols", desc: "Red lines draft guideline-backed protocols and coordinate nurse, lab and pharmacy tasks — a clinician approves with one click." },
-  { icon: ShieldCheck, name: "Governance", desc: "SHAP Why on every prediction; sub-0.8 confidence never auto-acts; drift and demographic bias audited; documented Class II SaMD." },
+  { icon: Activity, name: "Life Stream", desc: "Vitals, labs, meds, wearables, meals, notes and city air stream in — median-MAD cleansed, coded to clinical vocabularies." },
+  { icon: GitBranch, name: "Patient Graph", desc: "Every fact becomes a weighted edge — family history to risk, diet to glucose, air to cardiac load." },
+  { icon: HeartPulse, name: "Living Twin", desc: "A digital twin per person: physiology baselines plus a continuously-learned personal trajectory." },
+  { icon: BrainCircuit, name: "Crisis Radar", desc: "Every patient scored 0–100 on Time-to-Decay, re-ranked continuously — years-scale and hours-scale risk in one view." },
+  { icon: Stethoscope, name: "Pre-Emptive Protocols", desc: "Critical bands draft guideline-backed protocols and coordinate nurse, lab and pharmacy tasks — clinician approves." },
+  { icon: ShieldCheck, name: "Governance", desc: "SHAP attribution on every prediction; sub-0.8 confidence never auto-acts; drift and bias audited." },
 ];
 
-const HERO_STATS = [
-  { k: "5–7 yrs", v: "head start on Indian onset curves" },
-  { k: "6 streams", v: "meals, movement, sleep, symptoms, air, genes" },
-  { k: "0–100", v: "one Time-to-Decay score per patient" },
-  { k: "100%", v: "of predictions carry a Why" },
+const TRUST = [
+  { icon: ScanSearch, k: "Explainable by design", v: "SHAP Why on every score" },
+  { icon: Lock, k: "Confidence-gated", v: "No auto-action below 0.80" },
+  { icon: ShieldCheck, k: "Audited models", v: "Drift + demographic bias reviews" },
+  { icon: Stethoscope, k: "Clinician sovereign", v: "Class II SaMD documentation" },
 ];
+
+const WARD_FALLBACK = "Unassigned";
 
 export default async function PredictivePage() {
+  /* [PIE API] Live cohort sweep — runRadar() scores the active
+     cohort on Time-to-Decay and sorts descending. In the Hospital
+     OS this payload streams from GET /api/nx/pi/radar; here it is
+     resolved server-side so the console always opens fresh. */
   const hospital = await db.hospital.findFirst({ select: { id: true, name: true } });
   const rows = hospital ? await runRadar(hospital.id, 8) : [];
   const counts = rows.reduce(
-    (acc, r) => ({ red: acc.red + (r.band === "red" ? 1 : 0), yellow: acc.yellow + (r.band === "yellow" ? 1 : 0), green: acc.green + (r.band === "green" ? 1 : 0) }),
+    (acc, r) => ({
+      red: acc.red + (r.band === "red" ? 1 : 0),
+      yellow: acc.yellow + (r.band === "yellow" ? 1 : 0),
+      green: acc.green + (r.band === "green" ? 1 : 0),
+    }),
     { red: 0, yellow: 0, green: 0 }
   );
+  const meanScore = rows.length ? Math.round(rows.reduce((a, r) => a + r.score, 0) / rows.length) : 0;
+  const radarNodes = rows.map((r) => ({ id: r.patientId, band: r.band, score: r.score }));
 
   return (
-    <div className="min-h-screen bg-[#07040E] text-slate-100 antialiased">
-      {/* ============================================================
-          HERO — cinematic aurora over deep space
-      ============================================================ */}
-      <section className="relative isolate overflow-hidden">
-        <div className="pointer-events-none absolute inset-0" aria-hidden>
-          <div className="absolute -top-40 left-[15%] h-[34rem] w-[34rem] rounded-full bg-violet-600/25 blur-[130px]" />
-          <div className="absolute top-1/4 -right-40 h-[30rem] w-[30rem] rounded-full bg-indigo-500/20 blur-[120px]" />
-          <div className="absolute bottom-0 left-0 h-[26rem] w-[26rem] rounded-full bg-fuchsia-600/15 blur-[110px]" />
-        </div>
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.05] [background-image:linear-gradient(rgba(255,255,255,0.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.7)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(75%_60%_at_50%_35%,black,transparent)]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute left-1/2 top-[-14rem] h-[36rem] w-[72rem] -translate-x-1/2 rounded-full border border-white/[0.07]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute left-1/2 top-[-8rem] h-[24rem] w-[52rem] -translate-x-1/2 rounded-full border border-white/[0.05]"
-        />
+    <div className="nxp-shell relative min-h-screen overflow-x-clip text-slate-200 antialiased">
+      {/* ambient moving mesh — data-flow aurora */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="nxp-drift absolute -top-32 left-[8%] h-[30rem] w-[30rem] rounded-full bg-cyan-500/[0.13] blur-[130px]" />
+        <div className="nxp-drift absolute top-[38%] -right-40 h-[28rem] w-[28rem] rounded-full bg-teal-400/[0.10] blur-[120px]" style={{ animationDelay: "-6s" }} />
+        <div className="nxp-drift absolute bottom-[-6rem] left-[30%] h-[32rem] w-[32rem] rounded-full bg-violet-600/[0.12] blur-[140px]" style={{ animationDelay: "-11s" }} />
+      </div>
+      <div className="nxp-grid pointer-events-none absolute inset-0" aria-hidden="true" />
 
-        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-24 sm:px-6 lg:px-8 lg:pb-28 lg:pt-32">
-          <div>
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.06] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-violet-200 backdrop-blur">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-300 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-300" />
-              </span>
-              Predictive Intelligence Engine · Live on the demo hospital
-            </div>
-          </div>
+      <ConsoleBar />
 
-          <div>
-            <h1 className="mt-7 max-w-4xl font-display text-[2.6rem] font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-[4.4rem]">
-              Healthcare is reactive.
-              <span className="mt-2 block bg-gradient-to-r from-violet-300 via-fuchsia-200 to-amber-200 bg-clip-text text-transparent">
-                But Nexura is Predictive.
-              </span>
-            </h1>
-          </div>
+      <main className="relative mx-auto max-w-[1400px] px-4 pb-24 sm:px-6 lg:px-10">
+        {/* ============================================================
+            HERO — the Crisis Radar
+        ============================================================ */}
+        <section aria-labelledby="pie-title" className="pt-12 lg:pt-16">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-6">
+            {/* title treatment — top left */}
+            <div className="lg:col-span-5">
+              <p className="inline-flex items-center gap-2.5 rounded-full border border-sky-400/20 bg-sky-400/[0.06] px-3.5 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-300">
+                <span className="nxp-live h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+                Predictive Intelligence Engine
+              </p>
 
-          <div>
-            <p className="mt-7 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
-              The Predictive Intelligence Engine streams a person&apos;s routine — meals, movement, sleep, city air,
-              vitals — into a <span className="font-semibold text-white">Living Twin</span> that surfaces disease{" "}
-              <span className="font-semibold text-white">years before diagnosis</span>. Time-to-Decay compresses every
-              patient to one actionable number. Calibrated on Indian epidemiology.
-            </p>
-          </div>
+              <h1 id="pie-title" className="mt-6 text-4xl font-bold leading-[1.06] tracking-tight text-white sm:text-5xl">
+                Healthcare is Reactive.
+                <span className="mt-2 block bg-gradient-to-r from-cyan-300 via-sky-200 to-violet-300 bg-clip-text text-transparent [text-shadow:0_0_40px_rgba(56,189,248,0.25)]">
+                  Nexura Makes it Predictive.
+                </span>
+              </h1>
 
-          <div>
-            <div className="mt-10 flex flex-wrap items-center gap-3.5">
-              <Link
-                href="#feel-it"
-                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0B0716] shadow-[0_0_50px_-12px_rgba(167,139,250,0.7)] transition hover:shadow-[0_0_60px_-8px_rgba(167,139,250,0.9)]"
-              >
-                Run the engine on your own routine
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-              <Link
-                href="#radar"
-                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.05] px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:border-white/35 hover:bg-white/10"
-              >
-                Watch the Crisis Radar — live
-              </Link>
-            </div>
-          </div>
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300">
+                One continuous intelligence layer across the institution. Six signal streams resolve into a Living Twin
+                per patient, scored on the <span className="font-semibold text-sky-300">Time-to-Decay index</span> and
+                re-ranked every ninety seconds — years-scale lifestyle risk and hours-scale hospital crisis in a single
+                field of view.
+              </p>
 
-          <div>
-            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-medium text-slate-400">
-              <span className="inline-flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-teal-300" /> Zero sign-up · in-browser privacy</span>
-              <span className="inline-flex items-center gap-1.5"><Stethoscope className="h-3.5 w-3.5 text-teal-300" /> Clinician-approved protocols only</span>
-            </div>
-          </div>
-
-          <div>
-            <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {HERO_STATS.map((s) => (
-                <div key={s.k} className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-4 backdrop-blur transition hover:border-violet-400/30 hover:bg-white/[0.07]">
-                  <p className="font-display text-xl font-bold text-white">{s.k}</p>
-                  <p className="mt-1 text-xs leading-snug text-slate-400">{s.v}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-400/40 to-transparent" />
-      </section>
-
-      {/* ============================================================
-          TRUST — the governance layer
-      ============================================================ */}
-      <section className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-300">01 · Trust architecture</p>
-          <h2 className="mt-4 max-w-2xl font-display text-3xl font-bold leading-tight text-white sm:text-4xl">
-            Prediction without trust is noise. Trust is engineered first.
-          </h2>
-        </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {TRUST.map((t, i) => (
-            <div key={t.title}>
-              <div className="group h-full rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition duration-300 hover:-translate-y-1 hover:border-violet-400/30 hover:bg-white/[0.06] hover:shadow-[0_24px_60px_-30px_rgba(139,92,246,0.5)]">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-[0_8px_24px_-8px_rgba(124,58,237,0.8)]">
-                  <t.icon className="h-5 w-5" strokeWidth={2.1} />
-                </div>
-                <h3 className="mt-4 text-sm font-bold text-white">{t.title}</h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-slate-400">{t.desc}</p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link
+                  href="#priority"
+                  className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-sky-500 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_0_36px_-10px_rgba(6,182,212,0.8)] transition hover:shadow-[0_0_46px_-8px_rgba(6,182,212,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+                >
+                  Open the Priority Queue
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+                <Link
+                  href="#twin"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-slate-200 backdrop-blur transition hover:border-sky-400/40 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+                >
+                  Simulate a Living Twin
+                </Link>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
-      {/* ============================================================
-          SIGNALS — what the engine reads
-      ============================================================ */}
-      <section className="relative border-y border-white/[0.07] bg-white/[0.015]">
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-300">02 · Signal surface</p>
-            <h2 className="mt-4 max-w-2xl font-display text-3xl font-bold leading-tight text-white sm:text-4xl">
-              Predicted from the life you actually live
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
-              Not a questionnaire filled once — a living model that sharpens every day. Six streams in, one pattern
-              out: the trajectory that becomes a diagnosis years from now.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {SIGNALS.map((s, i) => (
-              <div key={s.name}>
-                <div className="group relative h-full rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition duration-300 hover:-translate-y-1 hover:border-violet-400/30 hover:bg-white/[0.06] hover:shadow-[0_24px_60px_-30px_rgba(139,92,246,0.5)]">
-                  <span className="absolute right-5 top-5 font-display text-sm font-bold text-white/25 transition group-hover:text-violet-300/70">0{i + 1}</span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-400/20 bg-violet-500/15 text-violet-300 transition group-hover:bg-violet-500 group-hover:text-white">
-                    <s.icon className="h-5 w-5" strokeWidth={2.1} />
+              {/* live cohort counters */}
+              <dl className="mt-10 grid grid-cols-3 gap-3">
+                {[
+                  { k: "Cohort sweep", v: rows.length, tone: "text-slate-100" },
+                  { k: "Watchlist", v: counts.yellow, tone: "text-amber-300" },
+                  { k: "Critical", v: counts.red, tone: "text-red-400" },
+                ].map((s) => (
+                  <div key={s.k} className="rounded-2xl nxp-glass px-4 py-3.5">
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{s.k}</dt>
+                    <dd className={`mt-1 font-mono text-2xl font-bold tabular-nums ${s.tone}`}>{String(s.v).padStart(2, "0")}</dd>
                   </div>
-                  <h3 className="mt-4 text-sm font-bold text-white">{s.name}</h3>
-                  <p className="mt-2 text-[13px] leading-relaxed text-slate-400">{s.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+                ))}
+              </dl>
+            </div>
 
-          {/* India calibration panel */}
-          <div>
-            <div className="relative mt-10 overflow-hidden rounded-2xl border border-violet-400/20 bg-gradient-to-br from-violet-950/60 via-[#0D0819] to-indigo-950/40 p-[1px]">
-              <div className="rounded-2xl bg-[#0B0716]/80 p-6 sm:p-7">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-500 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_0_24px_-6px_rgba(139,92,246,0.9)]">
-                    India-calibrated
-                  </span>
-                  <p className="text-sm font-semibold text-white">
-                    Most health AI is trained on Western bodies. This engine starts from Indian ones.
+            {/* the radar — center-left centerpiece */}
+            <div className="relative lg:col-span-7 lg:flex lg:flex-col">
+              <div className="relative h-[340px] overflow-hidden rounded-3xl nxp-glass sm:h-[420px] lg:min-h-[480px] lg:flex-1">
+                {/* HUD corner brackets */}
+                <span aria-hidden className="absolute left-3 top-3 h-5 w-5 rounded-tl-lg border-l-2 border-t-2 border-sky-400/40" />
+                <span aria-hidden className="absolute right-3 top-3 h-5 w-5 rounded-tr-lg border-r-2 border-t-2 border-sky-400/40" />
+                <span aria-hidden className="absolute bottom-3 left-3 h-5 w-5 rounded-bl-lg border-b-2 border-l-2 border-sky-400/40" />
+                <span aria-hidden className="absolute bottom-3 right-3 h-5 w-5 rounded-br-lg border-b-2 border-r-2 border-sky-400/40" />
+
+                <CrisisRadarCanvas nodes={radarNodes} className="absolute inset-0" />
+
+                {/* HUD overlays */}
+                <div className="pointer-events-none absolute left-6 top-5">
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-300/90">Crisis Radar</p>
+                  <p className="mt-0.5 font-mono text-[10px] tracking-[0.14em] text-slate-400">
+                    SECTOR VIEW · {hospital?.name?.toUpperCase() ?? "DEMO HOSPITAL"} · WARDS A–F
                   </p>
                 </div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  {INDIA_CHIPS.map((c) => (
-                    <div key={c.k} className="rounded-xl border border-white/10 bg-white/[0.04] p-4 transition hover:border-violet-400/30">
-                      <p className="font-display text-base font-bold text-violet-300">{c.k}</p>
-                      <p className="mt-1.5 text-xs leading-relaxed text-slate-400">{c.v}</p>
-                    </div>
+                <div className="pointer-events-none absolute bottom-5 right-6 flex items-center gap-4 rounded-xl border border-white/10 bg-slate-950/60 px-3.5 py-2.5 backdrop-blur">
+                  {[
+                    { c: "bg-cyan-400", l: "Stable", n: counts.green },
+                    { c: "bg-amber-400", l: "Watchlist", n: counts.yellow },
+                    { c: "bg-red-400", l: "Critical", n: counts.red },
+                  ].map((b) => (
+                    <span key={b.l} className="flex items-center gap-1.5">
+                      <span className={`h-1.5 w-1.5 rounded-full ${b.c} ${b.l === "Critical" ? "nxp-heartbeat" : ""}`} aria-hidden="true" />
+                      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-300">
+                        {b.l} <span className="text-slate-500">{b.n}</span>
+                      </span>
+                    </span>
                   ))}
                 </div>
               </div>
+
+              {/* cohort mean gauge */}
+              <div className="mt-4 flex items-center justify-between rounded-2xl nxp-glass px-5 py-4">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Cohort mean · Time-to-Decay</p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                    Mean of every active twin in the current sweep — the index the radar is ranked by.
+                  </p>
+                </div>
+                <RiskGauge score={meanScore} size="md" showBand={false} label="Index / 100" />
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ============================================================
-          INTERACTIVE — run the engine yourself
-      ============================================================ */}
-      <section id="feel-it" className="scroll-mt-16">
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-300">03 · Hands on the engine</p>
-            <h2 className="mt-4 max-w-2xl font-display text-3xl font-bold leading-tight text-white sm:text-4xl">
-              Shape a life. Watch the engine think.
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
-              The same reasoning the twin runs nightly over real streams — deterministic, instant, and private by
-              construction. Everything computes in your browser; nothing leaves this page.
-            </p>
-          </div>
-          <div>
-            <div className="mt-9">
-              <IndiaRiskExplorer />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================
-          CRISIS RADAR — live clinician view
-      ============================================================ */}
-      <section id="radar" className="scroll-mt-16 border-y border-white/[0.07] bg-white/[0.015]">
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
-          <div>
-            <div className="flex flex-wrap items-end justify-between gap-5">
-              <div className="max-w-2xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-300">04 · Live production view</p>
-                <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-white sm:text-4xl">The Crisis Radar, running now</h2>
-                <p className="mt-4 text-sm leading-relaxed text-slate-400 sm:text-base">
-                  The real clinician screen of {hospital?.name ?? "the demo hospital"}, rendered live from the engine
-                  on the demo cohort. Names are abbreviated for privacy. Every row is scored by the same engine you
-                  just ran.
+        {/* ============================================================
+            BENTO ROW 2 — Priority Queue | Patient Twin Simulator
+        ============================================================ */}
+        <section aria-labelledby="priority-title" className="mt-6 grid gap-6 lg:grid-cols-12">
+          {/* Priority Queue */}
+          <div id="priority" className="scroll-mt-24 rounded-3xl nxp-glass p-5 sm:p-6 lg:col-span-7">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 id="priority-title" className="text-lg font-bold tracking-tight text-white">Priority Queue</h2>
+                <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                  Top critical alerts · Time-to-Decay desc
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-400/25 bg-rose-500/10 px-3 py-1.5 text-rose-300">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-rose-400" /> {counts.red} critical
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/25 bg-amber-500/10 px-3 py-1.5 text-amber-300">
-                  <span className="h-2 w-2 rounded-full bg-amber-400" /> {counts.yellow} watchlist
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-emerald-300">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" /> {counts.green} stable
-                </span>
-              </div>
+              <span className="rounded-full border border-sky-400/25 bg-sky-400/[0.07] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-300">
+                {rows.length} twins in sweep
+              </span>
             </div>
+
+            {/* [PIE API] Alert cards inject from runRadar rows —
+                patient, ward, UHID, score, top driver, drafted protocol. */}
+            <ul className="mt-5 space-y-3">
+              {rows.map((r) => (
+                <li
+                  key={r.patientId}
+                  className="nxp-glass-hover rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4 hover:border-sky-400/35"
+                >
+                  <div className="flex items-center gap-4">
+                    <RiskGauge score={r.score} size="sm" showBand={false} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-bold text-slate-100">{anon(r.patientName)}</p>
+                        <span className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-0.5 font-mono text-[10px] tracking-wider text-slate-300">
+                          {r.ward ?? WARD_FALLBACK}
+                        </span>
+                        <span className="font-mono text-[10px] tracking-wider text-slate-400">{r.uhid}</span>
+                        {r.uncertain && (
+                          <span className="rounded-md border border-amber-400/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">
+                            Manual review
+                          </span>
+                        )}
+                      </div>
+                      {r.topDriver && <p className="mt-1 truncate text-xs text-slate-400">{r.topDriver}</p>}
+                      <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                        {r.openProtocolId ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/35 bg-violet-500/12 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-300">
+                            <span className="nxp-heartbeat h-1.5 w-1.5 rounded-full bg-violet-300" aria-hidden="true" />
+                            Pre-Emptive Protocol drafted
+                          </span>
+                        ) : (
+                          <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                            Surveillance
+                          </span>
+                        )}
+                        <span className="font-mono text-[10px] tracking-wider text-slate-400">
+                          CONF {r.confidence.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {rows.length === 0 && (
+              <div className="mt-5 flex items-center justify-center rounded-2xl border border-dashed border-white/10 px-4 py-10">
+                <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-400">Cohort sweep returned zero rows — engine idle</p>
+              </div>
+            )}
           </div>
 
-          {rows.length === 0 ? (
-            <div className="mt-9 rounded-2xl border border-dashed border-white/15 p-12 text-center text-sm text-slate-400">
-              The radar is warming up — no scored patients yet. Admit a patient or record vitals inside Hospital OS
-              and this table fills within seconds.
+          {/* Patient Twin Simulator */}
+          <div id="twin" className="scroll-mt-24 rounded-3xl nxp-glass p-5 sm:p-6 lg:col-span-5">
+            <div className="mb-5">
+              <h2 className="text-lg font-bold tracking-tight text-white">Patient Twin Simulator</h2>
+              <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                Individual living twin · What-if horizon
+              </p>
             </div>
-          ) : (
-            <div>
-              <div className="mt-9 overflow-hidden rounded-2xl border border-white/10 bg-[#0B0716]/70 shadow-[0_40px_120px_-60px_rgba(139,92,246,0.4)] backdrop-blur">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.03] text-left text-[11px] uppercase tracking-[0.14em] text-slate-400">
-                      <th className="px-4 py-3.5 font-semibold">Time-to-Decay</th>
-                      <th className="px-4 py-3.5 font-semibold">Patient</th>
-                      <th className="hidden px-4 py-3.5 font-semibold sm:table-cell">Top driver</th>
-                      <th className="hidden px-4 py-3.5 font-semibold md:table-cell">Confidence</th>
-                      <th className="hidden px-4 py-3.5 font-semibold lg:table-cell">UHID</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((r) => (
-                      <tr key={r.patientId} className="border-t border-white/[0.06] transition-colors first:border-t-0 hover:bg-violet-500/[0.06]">
-                        <td className="px-4 py-3.5">
-                          <RiskBadge score={r.score} uncertain={r.uncertain} size="sm" />
-                        </td>
-                        <td className="px-4 py-3.5 font-medium text-white">{anon(r.patientName)}</td>
-                        <td className="hidden max-w-[280px] truncate px-4 py-3.5 text-slate-400 sm:table-cell">{r.topDriver ?? "—"}</td>
-                        <td className="hidden px-4 py-3.5 tabular-nums text-slate-400 md:table-cell">{(r.confidence * 100).toFixed(0)}%</td>
-                        <td className="hidden px-4 py-3.5 font-mono text-xs text-slate-400 lg:table-cell">{r.uhid}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-          <div>
-            <p className="mt-4 text-xs text-slate-400">
-              Time-to-Decay runs 0–100 — how fast a patient is decaying. The three bands below decode it.
+            <TwinWhatIf />
+          </div>
+        </section>
+
+        {/* ============================================================
+            BENTO ROW 3 — Signal Fabric | Population Efficacy Forecast
+        ============================================================ */}
+        <section aria-labelledby="signals-title" className="mt-6 grid gap-6 lg:grid-cols-12">
+          <div className="rounded-3xl nxp-glass p-5 sm:p-6 lg:col-span-5">
+            <h2 id="signals-title" className="text-lg font-bold tracking-tight text-white">Signal Fabric</h2>
+            <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Six streaming signal classes
             </p>
+            <ul className="mt-5 space-y-2.5">
+              {/* [PIE API] Each class maps to an ingestion stream in the
+                  Patient Graph; weights surface in the SHAP breakdown. */}
+              {SIGNALS.map((s) => (
+                <li
+                  key={s.name}
+                  className="nxp-glass-hover group flex items-start gap-3.5 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-3.5 hover:border-violet-400/35"
+                >
+                  <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-violet-400/25 bg-violet-500/10 text-violet-300 transition group-hover:shadow-[0_0_18px_-4px_rgba(139,92,246,0.7)]">
+                    <s.icon className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-100">{s.name}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-slate-400">{s.desc}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-      </section>
 
-      {/* ============================================================
-          TIME-TO-DECAY BANDS
-      ============================================================ */}
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-300">05 · The score</p>
-          <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-white sm:text-4xl">Time-to-Decay — one number for urgency</h2>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
-            The twin compresses physiology, trajectory and history into a single 0–100 score of how fast a patient is
-            decaying — and the entire product is colored around it, so triage is a glance, not a meeting.
-          </p>
-        </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {BANDS.map((b, i) => (
-            <div key={b.range}>
-              <div className={`h-full rounded-2xl border p-5 backdrop-blur transition hover:-translate-y-1 ${b.tone} ${b.glow}`}>
-                <div className="flex items-center gap-2.5">
-                  <span className={`h-2.5 w-2.5 rounded-full ${b.dot}`} />
-                  <p className="text-sm font-bold">{b.range} · {b.label}</p>
-                </div>
-                <p className="mt-3 text-[13px] leading-relaxed text-slate-300/90">{b.desc}</p>
+          <div id="forecast" className="scroll-mt-24 lg:col-span-7">
+            <IndiaRiskExplorer />
+          </div>
+        </section>
+
+        {/* ============================================================
+            PROTOCOL PIPELINE
+        ============================================================ */}
+        <section id="pipeline" aria-labelledby="pipeline-title" className="mt-6 scroll-mt-24 rounded-3xl nxp-glass p-5 sm:p-6">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 id="pipeline-title" className="text-lg font-bold tracking-tight text-white">Protocol Pipeline</h2>
+              <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                Ingest → Graph → Twin → Radar → Protocol → Governance
+              </p>
+            </div>
+            <span className="font-mono text-[10px] tracking-[0.16em] text-slate-400">RESCORED EVERY 90 s</span>
+          </div>
+
+          <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            {PIPELINE.map((p, i) => (
+              <li
+                key={p.name}
+                className="nxp-glass-hover relative rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 hover:border-cyan-400/35"
+              >
+                <span aria-hidden className="absolute right-3.5 top-3 font-mono text-[10px] font-semibold tracking-[0.18em] text-slate-600">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-400/25 bg-cyan-500/10 text-cyan-300">
+                  <p.icon className="h-4 w-4" />
+                </span>
+                <p className="mt-3 text-sm font-bold text-slate-100">{p.name}</p>
+                <p className="mt-1 text-xs leading-relaxed text-slate-400">{p.desc}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* ============================================================
+            CLINICAL GOVERNANCE STRIP
+        ============================================================ */}
+        <section aria-label="Clinical governance" className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {TRUST.map((t) => (
+            <div key={t.k} className="nxp-glass-hover flex items-center gap-3.5 rounded-2xl nxp-glass p-4">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/25 bg-emerald-500/[0.08] text-emerald-300">
+                <t.icon className="h-4.5 w-4.5" />
+              </span>
+              <div>
+                <p className="text-sm font-bold text-slate-100">{t.k}</p>
+                <p className="mt-0.5 font-mono text-[11px] tracking-wide text-slate-400">{t.v}</p>
               </div>
             </div>
           ))}
-        </div>
-      </section>
+        </section>
 
-      {/* ============================================================
-          PIPELINE — vertical timeline
-      ============================================================ */}
-      <section className="relative border-y border-white/[0.07] bg-white/[0.015]">
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-300">06 · Under the hood</p>
-            <h2 className="mt-4 max-w-2xl font-display text-3xl font-bold leading-tight text-white sm:text-4xl">How the engine thinks</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
-              Six stages, one loop — from the life a person lives to a coordinated, auditable pre-emption of the crisis.
-            </p>
-          </div>
-
-          <div className="relative mt-12">
-            {/* Glowing rail */}
-            <div aria-hidden className="absolute bottom-4 left-[22px] top-4 w-px bg-gradient-to-b from-violet-400/60 via-indigo-400/25 to-transparent sm:left-1/2" />
-            <div className="space-y-8">
-              {PIPELINE.map((p, i) => (
-                <div key={p.name}>
-                  <div className={`relative flex gap-5 sm:w-1/2 ${i % 2 === 0 ? "sm:pr-12" : "sm:ml-auto sm:pl-12"}`}>
-                    {/* Node */}
-                    <div
-                      aria-hidden
-                      className={`absolute top-5 grid h-11 w-11 place-items-center rounded-full border border-violet-400/30 bg-[#0B0716] font-display text-xs font-bold text-violet-300 shadow-[0_0_20px_-4px_rgba(139,92,246,0.7)] ${
-                        i % 2 === 0 ? "left-0 sm:-right-[22px] sm:left-auto" : "left-0 sm:-left-[22px]"
-                      }`}
-                    >
-                      0{i + 1}
-                    </div>
-                    <div className="ml-14 w-full rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition duration-300 hover:-translate-y-0.5 hover:border-violet-400/30 hover:bg-white/[0.06] sm:ml-0">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-violet-400/20 bg-violet-500/15 text-violet-300">
-                          <p.icon className="h-4.5 w-4.5" strokeWidth={2.1} />
-                        </div>
-                        <h3 className="text-sm font-bold text-white">{p.name}</h3>
-                      </div>
-                      <p className="mt-2.5 text-[13px] leading-relaxed text-slate-400">{p.desc}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+        {/* ============================================================
+            DEPLOYMENT CTA
+        ============================================================ */}
+        <section aria-labelledby="deploy-title" className="relative mt-16 overflow-hidden rounded-3xl border border-sky-400/20">
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[0.10] via-slate-900/60 to-violet-600/[0.12]" aria-hidden="true" />
+          <div className="nxp-grid absolute inset-0 opacity-60" aria-hidden="true" />
+          <div className="relative flex flex-col items-start gap-6 p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-300">
+                Bring the bridge to your institution
+              </p>
+              <h2 id="deploy-title" className="mt-3 max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                Deploy the Predictive Intelligence Engine in your hospital.
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300">
+                A deployment briefing walks your clinical leadership through the live radar, the twin simulator and the
+                governance model — mapped onto your wards, your EMR and your population.
+              </p>
             </div>
+            <DeployCta />
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ============================================================
-          WHAT-IF SIMULATOR
-      ============================================================ */}
-      <section className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-300">07 · Counterfactuals</p>
-          <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-white sm:text-4xl">The What-If Simulator</h2>
-          <p className="mt-4 text-sm leading-relaxed text-slate-400 sm:text-base">
-            Pick interventions and watch the 90-day decay curve bend — the same projection clinicians see in the deep
-            dive, running on a demo Living Twin.
+        {/* footer line */}
+        <footer className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] pt-6">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">
+            Nexura · Predictive Intelligence Engine · Demo sweep — anonymized
           </p>
-        </div>
-        <div>
-          <div className="mt-9">
-            <WhatIfDemo />
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================
-          CLOSING CTA
-      ============================================================ */}
-      <section className="relative overflow-hidden border-t border-white/[0.07]">
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 h-[22rem] w-[60rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/15 blur-[110px]" />
-        </div>
-        <div className="relative mx-auto max-w-4xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <div>
-            <h2 className="font-display text-3xl font-bold leading-tight text-white sm:text-5xl">
-              The first visit that happens
-              <span className="block bg-gradient-to-r from-violet-300 via-fuchsia-200 to-amber-200 bg-clip-text text-transparent">
-                before the first symptom.
-              </span>
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base">
-              Every deliverable of the engine is public — the API, the forecast, the radar. Walk through the
-              clinician view or come back to your own forecast anytime.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3.5">
-              <Link
-                href="/hospital"
-                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0B0716] shadow-[0_0_50px_-12px_rgba(167,139,250,0.7)] transition hover:shadow-[0_0_60px_-8px_rgba(167,139,250,0.9)]"
-              >
-                Launch Hospital OS
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-              <Link
-                href="/predictive/my-future"
-                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.05] px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:border-white/35 hover:bg-white/10"
-              >
-                My Health Forecast
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================
-          FOOTER STRIP
-      ============================================================ */}
-      <footer className="border-t border-white/[0.07] bg-black/20">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-7 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2.5 text-sm font-semibold text-white">
-            <FlaskConical className="h-4 w-4 text-violet-300" />
-            Nexura Predictive · Predictive Intelligence Engine
-          </div>
-          <div className="flex flex-wrap items-center gap-3 text-xs font-medium">
-            <Link href="/api/nx/predict/openapi" className="inline-flex items-center gap-1 rounded-full border border-white/15 px-3.5 py-2 text-slate-300 transition hover:bg-white/10 hover:text-white">
-              OpenAPI spec <ArrowUpRight className="h-3 w-3" />
-            </Link>
-            <Link href="/" className="inline-flex items-center gap-1 rounded-full border border-white/15 px-3.5 py-2 text-slate-300 transition hover:bg-white/10 hover:text-white">
-              nexura.os <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </div>
-        </div>
-      </footer>
+          <Link href="/" className="text-xs font-semibold text-slate-400 transition hover:text-sky-300">
+            Return to Hospital OS →
+          </Link>
+        </footer>
+      </main>
     </div>
   );
 }

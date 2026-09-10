@@ -501,3 +501,149 @@
 .nx-scroll::-webkit-scrollbar-thumb:hover { background: #334155; }
 
 .font-display { font-family: var(--font-fraunces), Georgia, serif; }
+
+/* ============================================================
+   NEXURA PREDICTIVE — "Glassmorphic Futurism" command center
+   Deep-space navy canvas · frosted glass tiles · neon data inks
+   Palette: cyan #06b6d4 (vitals) · violet #8b5cf6 (AI insight)
+            amber #f59e0b (caution) · crimson #ef4444 (critical)
+   ============================================================ */
+
+.nxp-shell {
+  background:
+    radial-gradient(1200px 620px at 12% -8%, rgba(6, 182, 212, 0.10), transparent 60%),
+    radial-gradient(900px 540px at 88% 12%, rgba(20, 184, 166, 0.08), transparent 60%),
+    radial-gradient(1100px 700px at 50% 118%, rgba(139, 92, 246, 0.10), transparent 62%),
+    linear-gradient(180deg, #0f172a 0%, #16213a 46%, #1e293b 100%);
+}
+
+/* Frosted glass tile — the single card language of the console */
+.nxp-glass {
+  background: linear-gradient(160deg, rgba(30, 41, 59, 0.72), rgba(15, 23, 42, 0.55));
+  border: 1px solid rgba(56, 189, 248, 0.16);
+  box-shadow:
+    0 24px 60px -28px rgba(2, 6, 23, 0.85),
+    inset 0 1px 0 rgba(148, 197, 255, 0.07);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+}
+.nxp-glass-hover {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s, box-shadow 0.35s;
+}
+.nxp-glass-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(56, 189, 248, 0.42);
+  box-shadow:
+    0 30px 70px -26px rgba(2, 6, 23, 0.9),
+    0 0 42px -10px rgba(56, 189, 248, 0.35),
+    inset 0 1px 0 rgba(148, 197, 255, 0.10);
+}
+
+/* Fine hairline grid texture over the deep canvas */
+.nxp-grid {
+  background-image:
+    linear-gradient(rgba(148, 197, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 197, 255, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(90% 70% at 50% 0%, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(90% 70% at 50% 0%, black 30%, transparent 100%);
+}
+
+/* Continuous vitals heartbeat */
+@keyframes nxp-heartbeat {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  12% { transform: scale(1.4); opacity: 0.85; }
+  24% { transform: scale(1); }
+  36% { transform: scale(1.22); opacity: 0.92; }
+  52% { transform: scale(1); }
+}
+.nxp-heartbeat { animation: nxp-heartbeat 1.15s ease-in-out infinite; transform-origin: center; }
+
+/* Live-engine status dot */
+@keyframes nxp-live {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+  50% { opacity: 0.65; box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+}
+.nxp-live { animation: nxp-live 2.1s ease-in-out infinite; }
+
+/* Slow drift for ambient mesh blobs */
+@keyframes nxp-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(3.5%, -4%, 0) scale(1.06); }
+}
+.nxp-drift { animation: nxp-drift 16s ease-in-out infinite; }
+
+/* Skeleton-glitch resolve — never a spinner */
+@keyframes nxp-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.nxp-glitch {
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.10) 0%,
+    rgba(56, 189, 248, 0.22) 48%,
+    rgba(148, 163, 184, 0.10) 100%
+  );
+  background-size: 200% 100%;
+  animation: nxp-shimmer 1.25s linear infinite;
+}
+
+/* Neon sweep used by the holographic scrub card */
+@keyframes nxp-holo {
+  0%, 100% { opacity: 0.92; }
+  50% { opacity: 0.72; }
+}
+.nxp-holo { animation: nxp-holo 2.4s ease-in-out infinite; }
+
+/* Time-to-Decay scrubber — holographic track + neon thumb */
+.nxp-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 26px;
+  background: transparent;
+  cursor: ew-resize;
+}
+.nxp-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(6, 182, 212, 0.55), rgba(139, 92, 246, 0.55));
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+.nxp-range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(6, 182, 212, 0.55), rgba(139, 92, 246, 0.55));
+}
+.nxp-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  border: 2px solid #06b6d4;
+  box-shadow: 0 0 0 5px rgba(6, 182, 212, 0.18), 0 0 18px rgba(6, 182, 212, 0.65);
+}
+.nxp-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  border: 2px solid #06b6d4;
+  box-shadow: 0 0 0 5px rgba(6, 182, 212, 0.18), 0 0 18px rgba(6, 182, 212, 0.65);
+}
+.nxp-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px #0f172a, 0 0 0 6px #22d3ee;
+}
+.nxp-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px #0f172a, 0 0 0 6px #22d3ee;
+}
+
+/* Full-accessibility fallback: still readable, no motion */
+@media (prefers-reduced-motion: reduce) {
+  .nxp-heartbeat, .nxp-live, .nxp-drift, .nxp-holo, .nxp-glitch { animation: none !important; }
+  .nxp-glass-hover, .nxp-glass-hover:hover { transition: none; transform: none; }
+}
