@@ -2676,3 +2676,19 @@ Work Log:
 Stage Summary:
 - PIE is live: "Healthcare is Reactive. Nexura Makes it Predictive." — the Crisis Radar is one launchpad click inside Hospital OS; the patient forecast lives at /predictive/my-future
 - Every directive deliverable shipped: /modules/pi-engine source, DB migrations, OpenAPI docs, reusable UI components, accuracy test suite, human-in-the-loop coordination
+
+---
+Task ID: RESTORE-1
+Agent: Super Z (main)
+Task: User reported the preview window broken and requested a summary of completed work; restore the live preview runtime.
+
+Work Log:
+- Found the sandbox reset had killed every process: guardian gone, no listener on :3000, no standalone build — the preview had literally nothing to load
+- .env intact (DATABASE_URL + JWT_SECRET), git tree clean at e303fbc (PIE-1 complete)
+- Re-booted the platform dev server on :3000 (npm run dev), per the PIE-1 decision to embrace the platform runtime as the preview
+- Warm-up + verification: homepage 200 in 71ms; /api/nx/system-status 200; homepage HTML has Sign in=0 / How it works=1; first CSS chunk 200
+- PIE surfaces verified live: /predictive/my-future 200; /api/nx/predict/radar + twin + governance correctly 401 unauthenticated (RBAC intact); bio ingestion 200; protocols 405 (POST-only); openapi route present
+- Full gate: npm run smoke PASS=56 FAIL=0
+
+Stage Summary:
+- Preview window restored to the latest build including the full PIE layer; no code changes were needed — the only fault was the dead runtime, and the freshness layers from PREVIEW-1 (no-store HTML, sw v2 network-first) are still in force so the user's browser will pick up the current build on one refresh
