@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./theme-toggle";
 import { useBooking } from "./booking-context";
 import { FeaturesMenu } from "./features-menu";
+import { HamburgerMenu } from "./hamburger-menu";
 import { HowItWorksExplorer } from "./how-it-works/explorer";
 
 export function Navbar() {
@@ -69,20 +70,22 @@ export function Navbar() {
             </Button>
             <Link
               href="/predictive"
-              className="inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="hidden sm:inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               <BrainCircuit className="h-4 w-4" />
-              <span className="hidden sm:inline">Predictive</span>
+              <span className="hidden lg:inline">Predictive</span>
             </Link>
             <Button
               onClick={() => openBooking()}
               className="group rounded-full bg-primary text-primary-foreground shadow-[0_8px_24px_-8px_oklch(0.70_0.145_45/0.7)] transition-all hover:shadow-[0_10px_30px_-8px_oklch(0.70_0.145_45/0.85)]"
             >
               <span className="flex items-center gap-1.5">
-                Book a visit
-                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                <span className="sm:hidden">Book</span>
+                <span className="hidden sm:inline">Book a visit</span>
+                <ChevronRight className="hidden h-4 w-4 transition-transform group-hover:translate-x-0.5 sm:inline" />
               </span>
             </Button>
+            <HamburgerMenu />
           </div>
         </nav>
       </div>

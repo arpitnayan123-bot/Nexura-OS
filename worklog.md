@@ -2730,3 +2730,20 @@ Work Log:
 
 Stage Summary:
 - Nexura Predictive now stands in the product lineup beside Hospital OS and Nexura Global, and its page sells the real thesis — catching disease at the beginning, from the life someone lives, calibrated for Indian bodies and Indian air — with a hands-on live predictor instead of marketing copy
+
+---
+Task ID: PIE-CARD-1
+Agent: Super Z (main)
+Task: User follow-up — "feature is not shown in the homepage, show it beside all the features like hospital os, nexura global, etc... and also add this into the hamburger menu."
+
+Work Log:
+- Ground-truthed the homepage: the "Nexura Predictive" product card IS live in the FeaturesShowcase Products grid at slot 2, directly beside Hospital OS (screenshot check-home-1.png, desktop 1440px, and mobile-grid-v2.png, 390px); the user's view was stale cache — no code change needed for placement
+- Root-caused "hamburger menu" request: the navbar had NO hamburger at all (Search palette + How-it-works + Predictive ghost link + Book CTA only; cramped at 390px with "Book a visit" clipped)
+- Built src/components/site/hamburger-menu.tsx — real slide-in navigation drawer: 9 products (Hospital OS, Nexura Predictive [violet ring + live pulse dot + AI badge, slot 2], Clinic OS, Pharmacia, Patient Portal, Nexura Connect, Know Your Health, Nexura Global, The Founder) + 6 quick actions; Escape/scrim close, body scroll lock, focus-on-open, framer-motion spring; footer carries the thesis line "Healthcare is reactive. But Nexura is Predictive."
+- Navbar rework: HamburgerMenu added rightmost on ALL breakpoints (user explicitly asked for it); standalone Predictive ghost link now hidden below sm (drawer covers mobile, no duplication); Book CTA shortened to "Book" below sm + chevron hidden — 390px navbar no longer clips
+- Retitled to the user's exact words in all three spots: /predictive hero h1 second line "But Nexura is Predictive." (gradient), page metadata description, how-it-works explorer kicker
+- Gates: tsc 0 (had to stop dev server first — tsc was OOM-killed at 137 with it running), eslint 0, vitest 119/119, smoke 56/56, dev server restarted on :3000
+- Browser E2E (agent-browser): hamburger opens on desktop, drawer lists Predictive beside Hospital OS, clicking it navigates to /predictive; new title renders; /predictive full-page screenshots clean in light AND dark; 390px navbar fits with hamburger; mobile grid shows the Predictive card; zero console errors on a clean load (an initial hydration warning was self-inflicted via manual localStorage theme injection, not reproducible on clean visit)
+
+Stage Summary:
+- Nexura Predictive is now reachable from FOUR places: homepage product grid (beside Hospital OS), navbar ghost link (desktop), command palette (Cmd+K), and the new hamburger drawer (all breakpoints) — plus the /predictive hero now says the user's exact line "Healthcare is reactive. But Nexura is Predictive."

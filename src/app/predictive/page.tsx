@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Nexura Predictive · Predict before it catches you",
   description:
-    "Healthcare is reactive. Nexura makes it predictive — we read your routine, meals, exercise, sleep, city air and earliest symptoms to see disease coming years early. Calibrated for Indian lives.",
+    "Healthcare is reactive. But Nexura is Predictive — we read your routine, meals, exercise, sleep, city air and earliest symptoms to see disease coming years early. Calibrated for Indian lives.",
 };
 
 /** Anonymize a demo patient name: "Suresh Kumar" -> "Suresh K." */
@@ -96,7 +96,7 @@ export default async function PredictivePage() {
           <h1 className="mt-5 max-w-3xl font-display text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
             Healthcare is reactive.
             <span className="block bg-gradient-to-r from-violet-300 via-fuchsia-200 to-amber-200 bg-clip-text text-transparent">
-              Nexura makes it predictive.
+              But Nexura is Predictive.
             </span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-violet-100/85 sm:text-lg">

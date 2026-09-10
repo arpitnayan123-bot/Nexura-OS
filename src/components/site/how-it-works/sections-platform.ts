@@ -97,7 +97,7 @@ export const SECTIONS_PLATFORM: HiwSection[] = [
     icon: BrainCircuit,
     accent: "#7C3AED",
     title: "The Predictive Intelligence Engine",
-    kicker: "Healthcare is reactive. Nexura makes it predictive — the Living Twin, Crisis Radar and pre-emptive protocols.",
+    kicker: "Healthcare is reactive. But Nexura is Predictive — the Living Twin, Crisis Radar and pre-emptive protocols.",
     minutes: "3 min",
     steps: [
       { title: "A twin for every patient", desc: "Vitals, labs, wearables, notes and social context stream into a Living Twin that blends physiology with a personal, continuously-learned trajectory." },
