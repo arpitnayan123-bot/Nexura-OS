@@ -71,6 +71,7 @@ export function MentalWellness() {
     try {
       const res = await fetch("/api/know-your-health/mental-wellness", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({ phq9, gad7, notes }),
       });
       if (!res.ok) {

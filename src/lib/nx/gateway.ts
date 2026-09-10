@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash, randomBytes, timingSafeEqual } from "crypto";
 import { db } from "@/lib/db";
 import { rateLimit } from "./api";
 
@@ -22,7 +22,8 @@ export function hashKey(secret: string): string {
 }
 
 export function generateApiKey(): { plaintext: string; prefix: string; hash: string } {
-  const rand = createHash("sha256").update(`${Date.now()}:${Math.random()}`).digest("hex").slice(0, 32);
+  // CSPRNG — Math.random()/Date.now() are predictable and must never mint secrets.
+  const rand = randomBytes(24).toString("base64url").replace(/[-_]/g, "").slice(0, 32);
   const plaintext = `nxk_live_${rand}`;
   return { plaintext, prefix: plaintext.slice(0, 12), hash: hashKey(plaintext) };
 }

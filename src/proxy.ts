@@ -91,7 +91,20 @@ export default async function proxy(req: NextRequest) {
   requestHeaders.set("x-request-id", requestId);
 
   const { pathname } = req.nextUrl;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "local";
+  // Rightmost XFF hop = the value our trusted platform proxy appended — the
+  // only IP a client cannot spoof (first hop is attacker-controlled).
+  const xffParts = req.headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
+  const ip = xffParts[xffParts.length - 1] || req.headers.get("x-real-ip") || "local";
+
+  // ---- request body cap (DoS guard before any route parses JSON) ----
+  // Largest legitimate body: KYH vision tools (~11.2MB base64 in JSON).
+  const contentLength = Number(req.headers.get("content-length") || 0);
+  if (pathname.startsWith("/api/") && contentLength > 13 * 1024 * 1024) {
+    return new NextResponse(JSON.stringify({ error: "payload_too_large", detail: "Request body exceeds the 13MB limit." }), {
+      status: 413,
+      headers: { "content-type": "application/json", "x-request-id": requestId },
+    });
+  }
 
   // ---- global API rate limit (all /api/* requests) ----
   let early: NextResponse | null = null;

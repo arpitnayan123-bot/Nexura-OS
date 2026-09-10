@@ -62,6 +62,15 @@ export const POST = withRoute("permissions.role.assign", async (req: NextRequest
   const user = await db.nxStaffUser.findFirst({ where: { id: parsed.data.userId, hospitalId } });
   if (!user) return fail("not_found", 404, "Staff member not found.");
   if (!(parsed.data.roleKey in ROLE_PERMISSIONS)) return fail("invalid_request", 400, "Unknown role key.");
+  // Privilege-escalation wall: a granter may never assign a role broader than
+  // their own (hospital_admin cannot mint super_admin/org_admin).
+  const isPlatform = g.session.role === "super_admin" || g.session.role === "org_admin";
+  if (!isPlatform && parsed.data.action === "assign") {
+    const granterPerms = ROLE_PERMISSIONS[g.session.role] ?? [];
+    const targetPerms = ROLE_PERMISSIONS[parsed.data.roleKey as keyof typeof ROLE_PERMISSIONS] ?? [];
+    const exceeds = targetPerms.some((perm) => !granterPerms.includes(perm));
+    if (exceeds) return fail("privilege_escalation", 403, "You cannot assign a role broader than your own.");
+  }
 
   if (parsed.data.action === "assign") {
     const existing = await db.nxUserRoleAssignment.findFirst({ where: { userId: user.id, roleKey: parsed.data.roleKey, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] } });

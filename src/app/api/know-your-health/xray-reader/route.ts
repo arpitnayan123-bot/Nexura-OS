@@ -22,10 +22,10 @@ export async function POST(req: NextRequest) {
     const image = body?.image;
     const base64 = typeof image?.base64 === "string" ? image.base64.trim() : "";
     const mimeType = typeof image?.mimeType === "string" ? image.mimeType.trim() : "";
-    if (!base64 || !mimeType) return NextResponse.json({ error: "no_image" }, { status: 400 });
+    if (!base64 || !mimeType) return NextResponse.json({ error: "no_image", detail: "Upload a photo first (JPG, PNG or WebP, max 8MB)." }, { status: 400 });
     if (!isValidImageBase64(base64)) return NextResponse.json({ error: "invalid_image" }, { status: 400 });
     if (base64.length > MAX_BASE64_LEN) return NextResponse.json({ error: "image_too_large" }, { status: 413 });
-    if (!/^image\/(jpeg|png|webp|heic|heif)$/i.test(mimeType)) return NextResponse.json({ error: "unsupported_mime" }, { status: 415 });
+    if (!/^image\/(jpeg|png|webp)$/i.test(mimeType)) return NextResponse.json({ error: "unsupported_mime" }, { status: 415 });
 
     const rawPart = typeof body?.bodyPart === "string" ? body.bodyPart.trim() : "";
     const bodyPart = BODY_PARTS.find((p) => p.toLowerCase() === rawPart.toLowerCase());

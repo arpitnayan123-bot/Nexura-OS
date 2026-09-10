@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { connectGate, doctorOnly } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,6 +21,10 @@ type RxItem = {
 // Updates ConnectCall.prescriptionSynced=true, pharmacySyncId=saleId.
 // Returns {synced, saleId}.
 export async function POST(req: NextRequest) {
+  const __gate = connectGate(req);
+  if (__gate) return __gate;
+  const __denied = doctorOnly(req);
+  if (__denied) return __denied;
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_pharmacy_branch" }, { status: 404 });

@@ -28,17 +28,36 @@ export const POST = withRoute("hl7.inbound", async (req: NextRequest, { requestI
     const adt = adtFromHl7(m.msg);
     if (!adt.ok) return fail("hl7_parse_error", 400, adt.error, requestId);
     if (!adt.data.uhid) return fail("hl7_missing_uhid", 422, "PID-3 (MRN) required.", requestId);
-    const patient = await db.hospitalPatient.upsert({
-      where: { uhid: adt.data.uhid },
-      create: {
-        hospitalId, uhid: adt.data.uhid, fullName: adt.data.patientName, gender: adt.data.sex === "F" ? "female" : adt.data.sex === "M" ? "male" : "other",
-        dob: adt.data.dob ? `${adt.data.dob.slice(0, 4)}-${adt.data.dob.slice(4, 6)}-${adt.data.dob.slice(6, 8)}` : null,
-      },
-      update: {
-        fullName: adt.data.patientName || undefined,
-        gender: adt.data.sex === "F" ? "female" : adt.data.sex === "M" ? "male" : undefined,
-      },
+    // Tenant-safe upsert: look up WITHIN this hospital only — a UHID belonging
+    // to another hospital must never be readable or overwritable via ADT.
+    const existing = await db.hospitalPatient.findFirst({
+      where: { uhid: adt.data.uhid, hospitalId },
+      select: { id: true },
     });
+    if (!existing && adt.data.trigger === "A08") {
+      return fail("hl7_unknown_patient", 422, `No patient with UHID ${adt.data.uhid} in this hospital.`, requestId);
+    }
+    const patient = existing
+      ? await db.hospitalPatient.update({
+          where: { id: existing.id },
+          data: {
+            fullName: adt.data.patientName || undefined,
+            gender: adt.data.sex === "F" ? "female" : adt.data.sex === "M" ? "male" : undefined,
+          },
+        })
+      : await db.hospitalPatient
+          .create({
+            data: {
+              hospitalId, uhid: adt.data.uhid, fullName: adt.data.patientName, gender: adt.data.sex === "F" ? "female" : adt.data.sex === "M" ? "male" : "other",
+              dob: adt.data.dob ? `${adt.data.dob.slice(0, 4)}-${adt.data.dob.slice(4, 6)}-${adt.data.dob.slice(6, 8)}` : null,
+            },
+          })
+          .catch((e: unknown) => {
+            // UHID is globally unique — a collision means another hospital owns it.
+            if (typeof e === "object" && e && "code" in e && (e as { code?: string }).code === "P2002") return null;
+            throw e;
+          });
+    if (!patient) return fail("hl7_uhid_conflict", 409, "UHID already registered to another hospital.", requestId);
     await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: `hl7.${adt.data.trigger.toLowerCase()}`, entityType: "patient", entityId: patient.id, detail: { controlId: adt.data.controlId } });
     busPublish({ event: "hl7.adt", hospitalId, data: { uhid: adt.data.uhid, trigger: adt.data.trigger } });
     return ok({ accepted: true, kind: "ADT", trigger: adt.data.trigger, patientId: patient.id }, { requestId });

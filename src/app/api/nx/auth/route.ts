@@ -87,6 +87,7 @@ async function issueSession(
       department: user.department ?? undefined,
       hospitalId: user.hospitalId,
       breakGlass: opts.breakGlass,
+      linkedPatientId: user.linkedPatientId ?? undefined,
     }
   );
   const roleKey = user.role as NxRole;

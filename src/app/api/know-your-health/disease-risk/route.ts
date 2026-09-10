@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = (await req.json().catch(() => ({}))) as Partial<Input>;
     const age = Number(body.age); const heightCm = Number(body.heightCm); const weightKg = Number(body.weightKg);
-    if (!age || !heightCm || !weightKg) return NextResponse.json({ error: "missing_required" }, { status: 400 });
+    if (!age || !heightCm || !weightKg) return NextResponse.json({ error: "missing_required", detail: "Age, height and weight are all required." }, { status: 400 });
 
     const profile: Input = {
       age, gender: String(body.gender || "male"), heightCm, weightKg,

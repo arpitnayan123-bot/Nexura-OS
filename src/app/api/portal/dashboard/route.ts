@@ -1,41 +1,13 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
+import { getPortalUser } from "@/lib/portal-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SESSION_COOKIE = "portal_session";
-
-/** Shared — fetch PortalUser from session cookie. */
+/** Shared — fetch PortalUser from the signed portal session cookie. */
 async function getUser() {
-  const store = await cookies();
-  const userId = store.get(SESSION_COOKIE)?.value;
-  if (!userId) return null;
-  return db.portalUser.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      phone: true,
-      fullName: true,
-      email: true,
-      dob: true,
-      gender: true,
-      bloodGroup: true,
-      address: true,
-      city: true,
-      state: true,
-      pincode: true,
-      abhaId: true,
-      profilePhoto: true,
-      hospitalPatientUhid: true,
-      familyHeadId: true,
-      relationToHead: true,
-      isOnboarded: true,
-      lastLoginAt: true,
-      createdAt: true,
-    },
-  });
+  return getPortalUser();
 }
 
 interface TimelineEvent {

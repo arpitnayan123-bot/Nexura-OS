@@ -154,6 +154,17 @@ interface RateResult {
   resetAt: number;
 }
 const buckets = new Map<string, RateEntry>();
+let lastSweep = 0;
+
+/** Evict expired buckets so long-lived processes don't grow the map forever
+ *  (cheap sweep amortised into call traffic; runs at most once per 60s). */
+function sweepBuckets(now: number): void {
+  if (now - lastSweep < 60_000 || buckets.size < 512) return;
+  lastSweep = now;
+  for (const [k, v] of buckets) {
+    if (v.resetTime < now) buckets.delete(k);
+  }
+}
 
 export function rateLimit(
   identifier: string,
@@ -161,6 +172,7 @@ export function rateLimit(
   windowMs: number
 ): RateResult {
   const now = Date.now();
+  sweepBuckets(now);
   const entry = buckets.get(identifier);
   if (!entry || entry.resetTime < now) {
     buckets.set(identifier, { count: 1, resetTime: now + windowMs });
@@ -196,7 +208,12 @@ export async function withIdempotency<T>(
   const endpoint = `${req.method} ${req.nextUrl.pathname}`;
   // Hash the already-parsed body (the request stream may be consumed by the handler)
   const requestHash = createHash("sha256").update(JSON.stringify(opts?.bodyForHash ?? "")).digest("hex");
-  const existing = await db.nxIdempotency.findUnique({ where: { key } }).catch(() => null);
+  // Scope the key to the caller so one tenant's replayed key can never return
+  // another caller's cached response (or 409-DoS them).
+  const sessionHint = req.headers.get("cookie")?.match(/nexura_access=([^;]+)/)?.[1] ?? "";
+  const callerScope = createHash("sha256").update(sessionHint).digest("hex").slice(0, 16);
+  const scopedKey = `${callerScope}:${key}`;
+  const existing = await db.nxIdempotency.findUnique({ where: { key: scopedKey } }).catch(() => null);
   if (existing && existing.requestHash === requestHash && existing.responseBody && existing.expiresAt > new Date()) {
     return NextResponse.json(JSON.parse(existing.responseBody), { status: existing.responseStatus ?? 200 });
   }
@@ -207,7 +224,7 @@ export async function withIdempotency<T>(
   await db.nxIdempotency
     .create({
       data: {
-        key,
+        key: scopedKey,
         endpoint,
         requestHash,
         responseStatus: r.status,
@@ -221,7 +238,16 @@ export async function withIdempotency<T>(
 
 /** Extract the caller IP best-effort (audit metadata only). */
 export function ipOf(req: NextRequest): string {
-  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "local";
+  // Behind exactly one trusted proxy (the platform gateway), the RIGHTMOST
+  // X-Forwarded-For entry is the one our proxy appended — the only value a
+  // client cannot spoof. Taking the first entry lets attackers rotate fake
+  // IPs to bypass every rate limit.
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) {
+    const parts = xff.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length > 0) return parts[parts.length - 1];
+  }
+  return req.headers.get("x-real-ip") || "local";
 }
 
 /** CSV export helper (reports, billing, inventory). */

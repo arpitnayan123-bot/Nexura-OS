@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
+import { getPortalCaller } from "@/lib/portal-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SESSION_COOKIE = "portal_session";
-
 async function getUser() {
-  const store = await cookies();
-  const userId = store.get(SESSION_COOKIE)?.value;
-  if (!userId) return null;
-  return db.portalUser.findUnique({
-    where: { id: userId },
-    select: { id: true, fullName: true, phone: true, familyHeadId: true },
-  });
+  return getPortalCaller();
 }
 
 /**

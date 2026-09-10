@@ -34,9 +34,11 @@ export async function POST(req: Request) {
 
       const otp = generateOTP();
       otpStore.set(phone, { otp, expiresAt: Date.now() + 5 * 60 * 1000, attempts: 0 });
-      console.log(`[OTP] ${phone}: ${otp}`);
+      // SECURITY: OTPs are never logged and never echoed in API responses —
+      // delivery is via the SMS/email provider integration point only.
+      console.log(`[OTP] issued for ${phone.slice(0, 4)}***`);
 
-      const res = NextResponse.json({ sent: true, message: "OTP sent", otp: process.env.NODE_ENV === "development" ? otp : undefined });
+      const res = NextResponse.json({ sent: true, message: "OTP sent" });
       addSecurityHeaders(res);
       return res;
     }
@@ -123,7 +125,10 @@ export async function GET(req: Request) {
       const refreshToken = cookieStore.get("nexura_refresh")?.value;
       if (!refreshToken) return NextResponse.json({ user: null });
       const refreshDecoded = verifyToken(refreshToken);
-      if (!refreshDecoded) return NextResponse.json({ user: null });
+      // Only refresh-scope tokens may mint a new access token.
+      if (!refreshDecoded || (refreshDecoded as unknown as { type?: string }).type !== "refresh") {
+        return NextResponse.json({ user: null });
+      }
 
       const portalUser = await db.portalUser.findUnique({ where: { id: refreshDecoded.userId } });
       if (!portalUser) return NextResponse.json({ user: null });

@@ -20,7 +20,9 @@ const STATUS_MAP = {
   controlled: { bg: "#9DB89E15", text: "#5A7A5B", label: "Controlled", accent: "#9DB89E" },
   borderline: { bg: "#E0B08015", text: "#B8893D", label: "Borderline", accent: "#E0B080" },
   uncontrolled: { bg: "#C98A7A20", text: "#7A4A3A", label: "Uncontrolled", accent: "#C98A7A" },
-};
+} as const;
+// Defensive fallback — an unexpected status must never crash the view.
+const statusOf = (s: string) => STATUS_MAP[s as keyof typeof STATUS_MAP] ?? STATUS_MAP.borderline;
 
 const inputCls = "glass-input h-10 w-full rounded-lg px-3 text-xs outline-none";
 
@@ -38,6 +40,7 @@ export function DiabetesCare() {
     try {
       const res = await fetch("/api/know-your-health/diabetes-care", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({ ...f, fastingSugar: Number(f.fastingSugar) || 0, postMealSugar: Number(f.postMealSugar) || 0, hba1c: f.hba1c ? Number(f.hba1c) : undefined }),
       });
       if (!res.ok) {
@@ -105,11 +108,11 @@ export function DiabetesCare() {
           <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-12}} className="space-y-4">
             <ResultCard accent={accent} title="Diabetes Status">
               <div className="flex flex-col items-center gap-3 py-3">
-                <div className="relative grid h-24 w-24 place-items-center rounded-full shadow-depth" style={{ background:`linear-gradient(135deg, ${STATUS_MAP[result.status].accent}, ${STATUS_MAP[result.status].accent}cc)` }}>
+                <div className="relative grid h-24 w-24 place-items-center rounded-full shadow-depth" style={{ background:`linear-gradient(135deg, ${statusOf(result.status).accent}, ${statusOf(result.status).accent}cc)` }}>
                   <HeartPulse className="h-9 w-9 text-white" />
                 </div>
                 <div className="text-center">
-                  <p className="font-serif text-2xl font-bold text-[#1F1B17]">{STATUS_MAP[result.status].label}</p>
+                  <p className="font-serif text-2xl font-bold text-[#1F1B17]">{statusOf(result.status).label}</p>
                   <p className="text-[0.65rem] text-[#9A8F84]">Glycemic control interpretation</p>
                 </div>
               </div>

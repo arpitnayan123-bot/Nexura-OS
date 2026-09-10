@@ -74,6 +74,7 @@ export function SymptomsChecker() {
     try {
       const res = await fetch("/api/know-your-health/symptoms-checker", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({ symptoms }),
       });
       if (!res.ok) {

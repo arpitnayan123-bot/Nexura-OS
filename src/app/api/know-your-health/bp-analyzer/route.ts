@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const clean = readings
       .filter((r) => r && Number(r.systolic) > 50 && Number(r.systolic) < 300 && Number(r.diastolic) > 30 && Number(r.diastolic) < 200)
       .map((r) => ({ systolic: Number(r.systolic), diastolic: Number(r.diastolic), date: String(r.date || ""), time: String(r.time || ""), arm: String(r.arm || ""), position: String(r.position || "") }));
-    if (clean.length === 0) return NextResponse.json({ error: "no_valid_readings" }, { status: 400 });
+    if (clean.length === 0) return NextResponse.json({ error: "no_valid_readings", detail: "Enter at least one blood-pressure reading (systolic 50–300, diastolic 30–200)." }, { status: 400 });
 
     const avgSys = Math.round(clean.reduce((a, r) => a + r.systolic, 0) / clean.length);
     const avgDia = Math.round(clean.reduce((a, r) => a + r.diastolic, 0) / clean.length);

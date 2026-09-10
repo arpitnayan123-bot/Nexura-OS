@@ -42,6 +42,7 @@ export function WomensCare() {
     try {
       const res = await fetch("/api/know-your-health/womens-care", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({ ...f, age: Number(f.age) || 0 }),
       });
       if (!res.ok) {
