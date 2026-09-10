@@ -2656,3 +2656,23 @@ Work Log:
 Stage Summary:
 - Publish verdict: GREEN. All sign-in surfaces work, 56/56 API endpoints behave, 69/69 tests pass, all pages render error-free, freshness + self-heal layers active
 - npm run smoke is now the canonical quick pre-publish check
+
+---
+Task ID: PIE-1
+Agent: Super Z (main)
+Task: Build the Predictive Intelligence Engine (PIE) per the Chief AI Architect directive — all 6 phases, every deliverable, executed end-to-end.
+
+Work Log:
+- Discovered mid-build sandbox reset #5: dev server (platform boot) owns :3000; my logs/guardian wiped; .env wiped (re-healed JWT_SECRET + DEMO_MODE); db survived schema but empty (re-ran seed:all + nx-v5); embraced the platform dev server as the preview runtime instead of fighting it
+- Prisma: added 12 Pie* models (bio signals, life stream, twin states, risk assessments, protocols, graph nodes/edges, SDoH, adherence, federated updates, model registry, bias audits); db push OK
+- Built src/modules/pi-engine/ (18 modules): ingestion (MAD outlier cleansing, EWMA 72h current + 14d trend windows, NLP SNOMED/ICD gazetteer with LLM hook, bio-signal engine, SDoH regional dataset + risk modifiers, adherence EWMA); graph layer (nodes/edges/weighted edges, 5-min sync via instrumentation, swarm-cohort queries); twin (physics baselines MAP/CO/SVR/BMR/eGFR/QT, online-SGD series model with LSTM-swappable interface, sepsis/readmission/chronic stratification → Time-to-Decay 0-100 + bands + SHAP drivers + confidence); counterfactual simulator (intervention catalog, renal caveats); protocols (guideline KB, 0.8 confidence fail-safe, coordination into NxTask); federation (FedAvg, privacy delta validation, DP-lite sanitize); governance (explain, drift, four-fifths bias audit, SaMD registry)
+- API: 12 predict routes incl. OpenAPI 3.1 spec; withRoute made generic over route params (backward compatible); bio ingestion at /api/nx/bio/[deviceId]
+- UI: RiskBadge/RiskSparkline, ProtocolCard (one-click approve), TwinSimulator, Crisis Radar app registered in Hospital OS shell (RBAC: crisis-radar module granted with analytics.view), /predictive/my-future patient forecast with interactive sliders + gamification
+- Live E2E through the preview server: radar renders 8 patients (2 critical/2 watchlist/4 stable); septic patient Suresh scored 96 RED with HR/Temp/Infection driver signature; Pre-Emptive Sepsis Bundle auto-generated with evidence; approval created 5 WorkQueue tasks (nurse/lab/pharmacy, critical priority) + 2 notifications; forecast sliders bend the curve (walk 50min → strain 38→31); bio endpoint rejected an implausible 9999 bpm reading; graph synced 30 nodes/6 edges; governance API serves 3 SaMD models
+- Fixed along the way: seed trajectory windows (deterioration must be recent), twin memory dilution (30d → 72h EWMA), composite→protocol driver sniffing, protocol fetch race, envelope unwrap in mod-pie, bandOf rename, tasks.manage approval guard
+- Gates: tsc 0 (skipLibCheck, memory-constrained sandbox), eslint 0 errors, vitest 105/105 (36 new PIE tests incl. sepsis accuracy separation, fail-safe gate, counterfactual invariants, FedAvg math, bias rule, Alert→Approve→Execute)
+- Commits: d45820f (engine core), 5307969 (API + UI + tests)
+
+Stage Summary:
+- PIE is live: "Healthcare is Reactive. Nexura Makes it Predictive." — the Crisis Radar is one launchpad click inside Hospital OS; the patient forecast lives at /predictive/my-future
+- Every directive deliverable shipped: /modules/pi-engine source, DB migrations, OpenAPI docs, reusable UI components, accuracy test suite, human-in-the-loop coordination
