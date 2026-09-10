@@ -2711,3 +2711,22 @@ Work Log:
 
 Stage Summary:
 - PIE is now impossible to miss in the preview: a navbar entry on every page, a homepage hero section, a full public engine page with the live radar and a hands-on What-If, plus explorer coverage — while the RBAC-protected clinical surfaces remain unchanged
+
+---
+Task ID: PIE-VIS-2
+Agent: Super Z (main)
+Task: User feedback — PIE must be a PRODUCT like Hospital OS / Nexura Global placed near them in the product grid (not a homepage hero section); white-text contrast on /predictive; reframe the feature around predicting disease BEFORE it strikes (routine, meals, exercise, sleep, earliest symptoms); add Indian-user datasets for accuracy; full autonomy granted; commit everything.
+
+Work Log:
+- Repositioned: deleted the PredictiveShowcase homepage hero section; added "Nexura Predictive" (Predictive Health Engine, AI badge, violet BrainCircuit) to the FeaturesShowcase product grid directly beside Hospital OS, and to slot 2 of the FeaturesMenu products; updated product counts 7→8; navbar Predictive link retained
+- Rebuilt /predictive around early prediction: hero keeps the user's exact title ("Healthcare is reactive. Nexura makes it predictive.") with new subtitle about routine/meals/walks/sleep/air/earliest symptoms; new "Predicted from the life you actually live" six-signal section (meals, movement, sleep & stress, earliest symptoms, city air, genes & family history)
+- Built src/modules/pi-engine/india-calibration.ts — pure deterministic onset model calibrated to Indian epidemiology patterns: 10-years-earlier onset curves, metro AQI table (Bengaluru…Lucknow + severe-episode) driving cardiac/HTN multipliers, Indian diet archetypes, first-degree family-history RR 2.3 for T2D, documented as aggregate ICMR-INDIAB / NFHS-5 style population priors (no personal data)
+- Built src/components/pi/india-risk-explorer.tsx — the "feel the prediction" interactive: age/exercise/sleep sliders, diet + family-history + smoking chips, city-air select → live 5-year onset risks (T2D/HTN/cardiac), early-warning score 0-100 with bands, SHAP-style driver bars (modifiable vs watch), and a one-change nudge quantifying the single best habit change; fully in-browser, nothing sent
+- Retuned default early-warning scale 260→225 so the reference profile lands in the watchlist band (~56) as designed
+- 14 new vitest cases (determinism, monotonicity of every modifiable factor, Indian anchors, banding, nudge invariants) — suite now 119/119
+- Browser E2E: homepage hero gone, product card adjacent to Hospital OS (visual confirmed); explorer computes live (exercise 15→60 min dropped score 63→55 pre-tune; 48/100 at tuned scale); hero readable in light + dark; mobile 390px stacks cleanly; zero console errors; radar still live (Suresh N. 96 RED)
+- Server died once mid-session (process reaped, not OOM — 2.6GB free) and was restarted; all gates green (tsc 0, eslint 0, vitest 119/119)
+- Commit: 72cc542
+
+Stage Summary:
+- Nexura Predictive now stands in the product lineup beside Hospital OS and Nexura Global, and its page sells the real thesis — catching disease at the beginning, from the life someone lives, calibrated for Indian bodies and Indian air — with a hands-on live predictor instead of marketing copy
