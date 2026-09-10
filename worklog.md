@@ -2766,3 +2766,21 @@ Work Log:
 
 Stage Summary:
 - Homepage navbar slimmed to its essentials (Search removed per instruction), and /predictive now reads like a flagship: aurora hero, explicit trust section, plain-English story end to end, no text below 11px, verified in light + dark + mobile
+
+---
+Task ID: LUX-1
+Agent: Super Z (main)
+Task: User feedback (angry) — remove the plain-English direction; the /predictive UI looks bad; demands modern top-tier premium design; fonts still not visible; "make it the best".
+
+Work Log:
+- Root-caused the recurring "not visible" class of bugs with a full-page screenshot: scroll-gated whileInView sections (framer-motion) render at opacity 0 until intersected — in full-page renders (and likely the user's preview iframe) entire sections are INVISIBLE. Stripped every Reveal wrapper from the page; all content now renders statically, nothing can ever be invisible
+- Rebuilt /predictive as a theme-independent cinematic dark canvas (#07040E) in the Linear/Stripe idiom: aurora glow fields, masked grid texture, concentric ring, teal live badge, glowing white CTA, glass stat cards; section eyebrows numbered 01–07 for editorial rhythm
+- Bulletproof type system: site theme tokens (bg-background/text-foreground/muted-foreground) eliminated on this page — hardcoded slate-100/300/400 on controlled dark surfaces; body 13px+ (card copy), 14-16px section copy; no transparent-clip-text on anything below H1
+- Restored technical copy: Time-to-Decay, SHAP-grade explainability, median-MAD cleansing, patient-graph weighted edges, sub-0.8 confidence gate, Class II SaMD posture, ICMR-INDIAB/NFHS-5 priors — plain-English direction fully reversed per user
+- New structures: Trust Architecture section (clinician-in-loop, explainability, DPDP privacy, governance), India-calibrated gradient-border panel, live Crisis Radar as dark glass table with band legend chips, Time-to-Decay tone cards, six-stage pipeline as alternating vertical timeline with glowing rail and numbered nodes, counterfactual What-If stage, closing CTA ("The first visit that happens before the first symptom."), footer strip
+- Interactive widgets (IndiaRiskExplorer, WhatIfDemo) intentionally left as bright instruments — deliberate contrast against the dark stage, readable in both site themes
+- Incident chain: dev server reaped again (restarted); transient TypeError from the mid-edit compile state cleared on reload; verified zero console errors on fresh load
+- Gates: tsc 0, eslint 0, vitest 119/119, smoke 56/56; E2E desktop full-page (all sections visible), mobile 390px hero + radar table + timeline all crisp
+
+Stage Summary:
+- /predictive is now a cinematic, always-visible, theme-independent dark product page with technical copy restored — the invisible-section failure mode is eliminated at the root, and the page reads flagship-grade on desktop and mobile
