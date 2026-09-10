@@ -78,3 +78,5 @@ upload/
 # Vercel deployment config is committed (vercel.json)
 # but .vercel cache is not
 .vercel/
+.nx-watchdog.lock
+download/
