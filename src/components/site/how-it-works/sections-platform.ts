@@ -1,5 +1,5 @@
 import {
-  Server, ShieldCheck, Network, WifiOff, Shield, Play,
+  Server, ShieldCheck, Network, WifiOff, Shield, Play, BrainCircuit,
 } from "lucide-react";
 import type { HiwSection } from "./types";
 
@@ -90,6 +90,24 @@ export const SECTIONS_PLATFORM: HiwSection[] = [
     ],
     hood: ["7 tabs", "Merkle anchoring", "W3C VC identity", "Smart-contract insurance", "Genomic risk", "Simulations"],
     cta: { kind: "link", label: "Open Compliance", href: "/compliance" },
+  },
+  {
+    id: "predictive-engine",
+    group: "platform",
+    icon: BrainCircuit,
+    accent: "#7C3AED",
+    title: "The Predictive Intelligence Engine",
+    kicker: "Healthcare is reactive. Nexura makes it predictive — the Living Twin, Crisis Radar and pre-emptive protocols.",
+    minutes: "3 min",
+    steps: [
+      { title: "A twin for every patient", desc: "Vitals, labs, wearables, notes and social context stream into a Living Twin that blends physiology with a personal, continuously-learned trajectory." },
+      { title: "Time-to-Decay, 0–100", desc: "The twin compresses each patient into one urgency score — green stable, yellow watchlist, red critical — and re-ranks the whole hospital continuously on the Crisis Radar." },
+      { title: "Act before the emergency", desc: "Crossing a red line drafts a guideline-backed protocol with evidence — sepsis flagged 12–24 h early — and coordinates nurse, lab and pharmacy tasks automatically." },
+      { title: "A human always approves", desc: "Clinicians approve or reject with one click inside Hospital OS; sub-0.8 confidence never auto-acts, and every prediction carries its Why (SHAP drivers)." },
+      { title: "See it without a login", desc: "The public engine page renders the real radar on the demo cohort — plus a What-If simulator you can drive yourself." },
+    ],
+    hood: ["Time-to-Decay 0–100", "Sepsis +12–24 h", "SHAP Why", "Class II SaMD", "FedAvg privacy"],
+    cta: { kind: "link", label: "Open the engine — live", href: "/predictive" },
   },
   {
     id: "try-it",

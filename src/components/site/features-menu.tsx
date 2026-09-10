@@ -7,7 +7,7 @@ import {
   Search, X, ArrowUpRight, CornerDownLeft, Command,
   Building2, Stethoscope, Pill, MessageCircle, Globe,
   HeartPulse, Sparkles, ChevronRight, type LucideIcon,
-  Clock, ArrowRight, TrendingUp, Shield,
+  Clock, ArrowRight, TrendingUp, Shield, BrainCircuit,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBooking } from "./booking-context";
@@ -38,6 +38,7 @@ const ITEMS: Product[] = [
   { id: "connect", name: "Nexura Connect", sub: "Communication", desc: "Chat, voice & video for doctor-patient", icon: MessageCircle, accent: "#10B981", href: "/connect", group: "products" },
   { id: "kyh", name: "Know Your Health", sub: "AI Tools", desc: "15 AI health tools — symptoms, derma, diet", icon: Sparkles, accent: "#9DB89E", href: "/know-your-health", group: "products" },
   { id: "global", name: "Nexura Global", sub: "Medical Tourism", desc: "Indian healthcare for international patients", icon: Globe, accent: "#1E40AF", href: "/global", group: "products" },
+  { id: "pie", name: "Predictive Engine", sub: "PIE · AI", desc: "Crisis Radar, Living Twin and pre-emptive care — see the engine run live", icon: BrainCircuit, accent: "#7C3AED", href: "/predictive", badge: "AI", group: "products" },
   { id: "founder", name: "The Founder", sub: "Arpit Nayan", desc: "The story behind Nexura OS — from Bihar to building an operating system", icon: HeartPulse, accent: "#C8A55B", href: "/founder", badge: "Story", group: "products" },
 
   // Quick actions
