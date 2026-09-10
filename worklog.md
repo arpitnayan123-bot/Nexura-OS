@@ -2476,3 +2476,30 @@ Stage Summary:
 - Gates: tsc 0 errors, eslint clean, vitest 47/47, api-smoke 30/30, all flows browser-verified.
 - Demo credentials unchanged (PIN 2468 / Demo@12345); JWT secret rotated (sessions reset — re-login).
 - Known remaining limitations (documented, deliberate): demo product families stay open while DEMO_MODE=true (middleware closes them in prod); money columns in legacy pharmacy/clinic stacks remain Float (v4 tables are integer paise); CSP retains unsafe-eval in prod (per KNOWN_LIMITATIONS).
+
+---
+Task ID: CFA-1 (Chief Future Architect)
+Agent: Super Z (main agent)
+Task: Execute the full Chief Future Architect mandate — evolve prototype into market-ready, scalable product per 50-todo plan (gap assessment → 5-phase roadmap → tenancy, DB portability, interop, security beyond RBAC, clinical rigor, AI governance, offline/PWA, i18n/a11y, patient-centric flagships, HaaS, plugins, event sourcing, quality gates)
+
+Work Log:
+- Recovered sandbox-reset baseline (env + DB + seeds) to green gates before starting
+- Docs: docs/GAP-ASSESSMENT.md (12 gap areas incl. blind spots), docs/ROADMAP-5-PHASES.md (5 phases × business/spec/security/QA/demo), docs/WHITEPAPER.md, docs/DATABASE-OPERATIONS.md
+- Schema: +24 additive models (NxTenant, NxApiKey, NxAbacPolicy, NxEscalationPolicy/Event, NxPathwayDef/Run, NxTimestampBlock, NxVerifiableCredential, NxInsuranceContract, NxWearable*, NxGenomicProfile, NxSimulation*, NxPlugin, NxHospitalTemplate, NxTeleConsult, NxAiThreshold/Feedback, NxDicomStudy, NxDocVersion, NxJourneyAnnotation, NxEventLog, NxWebhookEndpoint) + AI telemetry columns; 107→132 models
+- Tenancy: NxTenant aggregate + branding/modules/domains, tenant admin API, hospital→tenant binding, sandbox partner gateway (hashed API keys, scopes, per-key rate limits, tenant-scoped reads) w/ seeded demo key
+- DB: dialect abstraction (db-dialect.ts: provider profile, interactive-tx budgets, read-replica routing), backup rotation script, restore-validation drill (integrity + row-count drift, exit 2 on failure) — both tested live
+- Interop: FHIR R4 (Patient/Encounter/Observation/MedicationRequest + CapabilityStatement), HL7 v2 (ADT^A01/A08, ORU^R01 bidirectional, strict whitelist), signed webhooks (HMAC outbound w/ 3 retries + delivery records; verified inbound), DICOM registry + external viewer template
+- Security: ABAC engine (dept/ward/assignment/time-window, deny-wins, overnight windows) + policies API; step-up MFA tokens (action-bound, 5-min, two-person inspection); session idle-timeout by role + remote logout; HMAC-signed SSE events (per-hospital key over authenticated hello, WebCrypto verify client-side); security posture scoring (10 weighted checks, honest unknowns); PHI redaction wired into structured logger; consent dashboard + retention engine (3 profiles, live purge) + NABH/ISO/CBHI/DPDP compliance tracker (live metrics)
+- Clinical: pathway DSL (withinMin SLA, critical skip-prevention, forward-dependency guard, auto-tasks) + 3 seeded pathways; escalation tree (timed levels, sweep, L0-notify wired into automation triggers); DPCO two-person e-prescription signing (prescriber + independent verifier step-ups); EHR doc versioning w/ tracked edits; journey annotations/decision logs
+- AI governance: confidence heuristic (deterministic completeness), consent gate, per-feature thresholds w/ blocked→409 / human_fallback, full telemetry (response/confidence/consent/prompt@version/model), HITL feedback loop, daily performance report, automation explainability (why/alternatives/checkpoints)
+- UX/offline: i18n engine (en/hi/ta/te/gu/mr + Intl formats + fallback chain) + Language & Region settings; device modes (tablet 44px targets, kiosk locked chrome) + reduced-motion + focus-visible CSS; PWA (manifest + SW: shell cache-first, API network-first, writes never cached); IndexedDB write buffer w/ auto-flush + offline triage capture; SSE client signature verification
+- Governance & Trust Center OS app (7 tabs: Tenancy/Interop/Security/Compliance/AI/Plugins/Event Log) registered in shell + module RBAC
+- Flagships: W3C-VC identity (issue/verify, HMAC PoC proof), Merkle-block audit anchoring (prevHash chain + root verification + shareable proofs), milestone-linked insurance settlement state machine (illegal transitions 422, unmet-milestone settle guard), wearable ingestion + deterministic insights, digital twin projections, doctor-on-demand telehealth routing (specialty/duty/load scoring), consent-gated genomic risk from vault-refs, adaptive simulations w/ deterministic scoring, predicted care journey (pathway steps + median-LOS discharge ETA), HaaS templates + onboarding, plugin registry w/ slot validation, CQRS-lite event log
+- OpenAPI v2: +50 path families; api-smoke 30→46 assertions (FHIR, gateway auth matrix, tenancy/ABAC/posture RBAC gates, pathways, escalations, compliance, simulations, HL7 guard, openapi)
+- Tests: vitest 47→69 (interop mappers, HL7 round-trips, ABAC matrix incl. overnight windows, redaction, merkle, step-up, confidence) — found+fixed 4 real bugs (PID-3 component extraction, phone regex w/ +91, ABAC window parser stringification, HL7 type whitelist)
+- Verified: tsc 0 · eslint clean · vitest 69/69 · smoke 46/46 · production build OK · browser E2E (login×2 roles, Command Center live, Governance tabs: posture 68/C live, compliance 50% live, AI report, RBAC gates correct incl. tenancy platform-role wall, Language picker with 6 scripts, Device modes) · console clean
+
+Stage Summary:
+- 9 meaningful commits: aaea147 (strategy docs) → 7a00503 (tenancy+db) → 006ad5b (interop) → 6096ba4 (security) → 3a21d6f (clinical+ai) → 82674b9 (flagship) → 1e744ad (ux+offline) → 3227633 (HaaS+whitepaper) → 82aef79 (tests+openapi+lint)
+- All changes additive/backward-compatible; everything demonstrable on seeded data (seed-nx-v5.ts, idempotent)
+- Known limits (honest): Merkle proofs HMAC-based (Ed25519+notary = Phase 5 infra), dependency CVE scan needs registry (reported as unknown, never faked), genomic/wearable vendors are contracts not code, tenancy panel needs org/super admin role by design
