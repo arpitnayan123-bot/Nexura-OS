@@ -32,13 +32,13 @@ type Product = {
 const ITEMS: Product[] = [
   // Products
   { id: "hospital", name: "Hospital OS", sub: "Flagship · v4 Foundation", desc: "The hospital operating system — command center, patient journeys, automations", icon: Building2, accent: "#C98A7A", href: "/hospital", badge: "Flagship", group: "products" },
+  { id: "pie", name: "Nexura Predictive", sub: "Predictive Engine", desc: "Predicts disease before it catches you — routine, meals, sleep, air. See the engine run live", icon: BrainCircuit, accent: "#7C3AED", href: "/predictive", badge: "AI", group: "products" },
   { id: "clinic", name: "Clinic OS", sub: "EMR", desc: "HealthPlix-style clinic management", icon: Stethoscope, accent: "#D98B6E", href: "/clinic", badge: "New", group: "products" },
   { id: "pharmacy", name: "Pharmacia", sub: "POS", desc: "AI-powered pharmacy point of sale", icon: Pill, accent: "#F59E0B", href: "/pharmacy", badge: "New", group: "products" },
   { id: "portal", name: "Patient Portal", sub: "Unified Health", desc: "Your health records + blood test at home", icon: HeartPulse, accent: "#0EA5E9", href: "/portal", badge: "New", group: "products" },
   { id: "connect", name: "Nexura Connect", sub: "Communication", desc: "Chat, voice & video for doctor-patient", icon: MessageCircle, accent: "#10B981", href: "/connect", group: "products" },
   { id: "kyh", name: "Know Your Health", sub: "AI Tools", desc: "15 AI health tools — symptoms, derma, diet", icon: Sparkles, accent: "#9DB89E", href: "/know-your-health", group: "products" },
   { id: "global", name: "Nexura Global", sub: "Medical Tourism", desc: "Indian healthcare for international patients", icon: Globe, accent: "#1E40AF", href: "/global", group: "products" },
-  { id: "pie", name: "Predictive Engine", sub: "PIE · AI", desc: "Crisis Radar, Living Twin and pre-emptive care — see the engine run live", icon: BrainCircuit, accent: "#7C3AED", href: "/predictive", badge: "AI", group: "products" },
   { id: "founder", name: "The Founder", sub: "Arpit Nayan", desc: "The story behind Nexura OS — from Bihar to building an operating system", icon: HeartPulse, accent: "#C8A55B", href: "/founder", badge: "Story", group: "products" },
 
   // Quick actions
