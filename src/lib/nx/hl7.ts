@@ -31,7 +31,7 @@ export function parseHl7(raw: string): { ok: true; msg: Hl7Message } | { ok: fal
   const controlId = msh[10] ?? `nx-${Date.now()}`; // MSH-10
   const sendingApp = msh[2] ?? "unknown"; // MSH-3
   const receivingApp = msh[4] ?? "NEXURA"; // MSH-5
-  if (!/^(ADT|ORU)\^[A-Z0-9]{2,3}$/.test(messageType)) {
+  if (!/^(ADT\^A0[18]|ORU\^R01)$/.test(messageType)) {
     return { ok: false, error: `Unsupported message type "${messageType}". Supported: ADT^A01, ADT^A08, ORU^R01.` };
   }
   return { ok: true, msg: { sendingApp, receivingApp, messageType, controlId, segments } };
@@ -60,12 +60,12 @@ export function adtFromHl7(msg: Hl7Message): { ok: true; data: AdtInbound } | { 
     ok: true,
     data: {
       kind: "ADT", trigger,
-      uhid: pid[3] ?? "",
+      uhid: (pid[3] ?? "").split("^")[0],
       patientName: name || "Unknown",
       sex: pid[8] === "F" ? "F" : pid[8] === "M" ? "M" : "O",
       dob: pid[7] || undefined,
       ward: pv1?.[3] || undefined,
-      bed: pv1?.[3]?.includes("-") ? pv1[3].split("-")[1] : undefined,
+      bed: pv1?.[3]?.includes("-") ? pv1[3].split("-")[1].split("^")[0] : undefined,
       attendingDoctor: (pv1?.[7] ?? "").split("^").reverse().join(" ") || undefined,
       controlId: msg.controlId,
     },
@@ -95,7 +95,7 @@ export function oruFromHl7(msg: Hl7Message): { ok: true; data: OruInbound } | { 
       refRange: obx[7] || undefined,
     };
   });
-  return { ok: true, data: { kind: "ORU", uhid: pid[3] ?? "", controlId: msg.controlId, results } };
+  return { ok: true, data: { kind: "ORU", uhid: (pid[3] ?? "").split("^")[0], controlId: msg.controlId, results } };
 }
 
 const TS = (d: Date) =>

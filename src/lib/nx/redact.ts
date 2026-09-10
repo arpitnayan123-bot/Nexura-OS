@@ -12,7 +12,7 @@ const PATTERNS: { name: string; re: RegExp; mask: (m: string) => string }[] = [
   // ABHA 14-digit
   { name: "abha", re: /\b\d{2}-\d{4}-\d{4}-\d{4}\b/g, mask: () => "••-••••-••••-••••" },
   // Indian phones +10 digits
-  { name: "phone", re: /\b(?:\+91[- ]?)?[6-9]\d{9}\b/g, mask: (m) => `${m.slice(0, 3)}•••••${m.slice(-2)}` },
+  { name: "phone", re: /(?<!\d)(?:\+91[- ]?)?[6-9]\d{9}(?!\d)/g, mask: (m) => `${m.slice(0, 3)}•••••${m.slice(-2)}` },
   // emails
   { name: "email", re: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, mask: (m) => `${m.split("@")[0].slice(0, 2)}•••@${m.split("@")[1]}` },
 ];

@@ -169,6 +169,115 @@ export function GET() {
         get: op("Maintenance/incident banner state", "system"),
         put: op("Set banner state (settings.manage)", "system", { body: true }),
       },
+      /* ---------- v5 Chief Future Architect layer ---------- */
+      "/api/nx/tenants": {
+        get: op("List tenants with hospitals + active key counts (tenants.manage)", "tenancy"),
+        post: op("Create/update tenant: branding, modules, domains, hospital binding", "tenancy", { body: true, errors: [403, 409] }),
+      },
+      "/api/nx/gateway/keys": {
+        get: op("List partner API keys (hashed)", "gateway"),
+        post: op("Issue scoped API key (plaintext returned once)", "gateway", { body: true }),
+        delete: op("Revoke key", "gateway", { body: true }),
+      },
+      "/api/nx/gateway/v1/patients": { get: op("Partner sandbox read: patients (scope patients.read)", "gateway", { params: ["page", "perPage", "q"] }) },
+      "/api/nx/gateway/v1/observations": { get: op("Partner sandbox read: lab observations (scope observations.read)", "gateway", { params: ["patientId"] }) },
+      "/api/nx/fhir/metadata": { get: op("FHIR R4 CapabilityStatement", "fhir") },
+      "/api/nx/fhir/{resource}": { get: op("FHIR R4 search/read: Patient | Encounter | Observation | MedicationRequest", "fhir", { params: ["_id", "identifier", "name", "patient", "status"] }) },
+      "/api/nx/hl7": {
+        post: op("HL7 v2 inbound: ADT^A01/A08 + ORU^R01", "hl7", { body: true, errors: [400, 403, 422] }),
+        get: op("HL7 v2 outbound: ADT^A08 / ORU^R01", "hl7", { params: ["patientId", "kind"] }),
+      },
+      "/api/nx/webhooks/endpoints": {
+        get: op("Signed webhook endpoints + recent deliveries", "integrations"),
+        post: op("Register endpoint (secret shown once)", "integrations", { body: true }),
+        delete: op("Remove endpoint", "integrations", { body: true }),
+      },
+      "/api/nx/webhooks/inbound": { post: op("Partner push with HMAC signature verification", "integrations", { body: true, errors: [401, 422] }) },
+      "/api/nx/dicom": {
+        get: op("DICOM study registry + viewer deep links", "imaging", { params: ["patientId"] }),
+        post: op("Register study", "imaging", { body: true }),
+      },
+      "/api/nx/abac": {
+        get: op("List ABAC policies", "security"),
+        post: op("Upsert ABAC policy", "security", { body: true }),
+        delete: op("Delete policy", "security", { body: true }),
+      },
+      "/api/nx/auth/stepup": { post: op("Step-up second factor (PIN/TOTP) for privileged actions", "security", { body: true, errors: [401] }) },
+      "/api/nx/security/posture": { get: op("Security posture score + checks", "security") },
+      "/api/nx/compliance": {
+        get: op("NABH/ISO/CBHI metrics (audit.view)", "compliance"),
+        post: op("Run data-retention profile", "compliance", { body: true }),
+      },
+      "/api/nx/compliance/consents": {
+        get: op("Consent dashboard (consent.manage)", "compliance"),
+        post: op("Capture consent", "compliance", { body: true }),
+      },
+      "/api/nx/pathways": {
+        get: op("Pathway definitions + runs with SLA flags", "clinical"),
+        post: op("create_def | start | advance (critical skip blocked)", "clinical", { body: true, errors: [422] }),
+      },
+      "/api/nx/escalations": {
+        get: op("Escalation policies + events (runs overdue sweep)", "clinical"),
+        post: op("Upsert policy | advance event", "clinical", { body: true }),
+      },
+      "/api/nx/prescriptions/sign": {
+        post: op("DPCO two-person e-prescription signing", "clinical", { body: true, errors: [401, 422] }),
+        get: op("Signature records for an order", "clinical", { params: ["orderId"] }),
+      },
+      "/api/nx/docs/versions": {
+        get: op("Document versions with tracked edits", "clinical", { params: ["entityType", "entityId"] }),
+        post: op("Append version", "clinical", { body: true }),
+      },
+      "/api/nx/journey/annotations": {
+        get: op("Journey annotations + decision logs", "clinical", { params: ["patientId"] }),
+        post: op("Annotate journey event", "clinical", { body: true }),
+      },
+      "/api/nx/ai/feedback": {
+        get: op("Recent clinician AI feedback", "ai"),
+        post: op("HITL accept/correct/reject", "ai", { body: true }),
+      },
+      "/api/nx/ai/report": { get: op("Daily AI performance report", "ai") },
+      "/api/nx/ai/thresholds": {
+        get: op("Confidence thresholds + versions", "ai"),
+        post: op("Configure thresholds", "ai", { body: true }),
+      },
+      "/api/nx/automations/explain": { get: op("Explainable automations", "automations", { params: ["ruleId"] }) },
+      "/api/nx/identity/vc": {
+        post: op("Issue W3C-VC patient credential (PoC)", "identity", { body: true }),
+        get: op("Verify credential", "identity", { params: ["id"] }),
+      },
+      "/api/nx/audit/blocks": {
+        get: op("Merkle timestamp blocks + chain check", "audit"),
+        post: op("Anchor audit events into next block", "audit"),
+      },
+      "/api/nx/insurance/settlement": {
+        get: op("Settlement contracts + progress", "billing"),
+        post: op("Settlement state machine", "billing", { body: true, errors: [422] }),
+      },
+      "/api/nx/wearables/ingest": { post: op("Ingest wearable samples", "patient360", { body: true }) },
+      "/api/nx/wearables/insights": { get: op("Deterministic wearable insights", "patient360", { params: ["patientId"] }) },
+      "/api/nx/twin/simulate": { post: op("Digital twin projection (education only)", "patient360", { body: true }) },
+      "/api/nx/telehealth": {
+        get: op("Teleconsult queue", "telehealth"),
+        post: op("Doctor-on-demand routing + bandwidth mode", "telehealth", { body: true, errors: [503] }),
+      },
+      "/api/nx/genomics/profile": {
+        get: op("Genomic profile (vault-ref only)", "patient360", { params: ["patientId"] }),
+        post: op("Consent-gated risk computation", "patient360", { body: true, errors: [403] }),
+      },
+      "/api/nx/simulations": {
+        get: op("Adaptive symptom tree scenarios", "education"),
+        post: op("Run scenario with deterministic scoring", "education", { body: true }),
+      },
+      "/api/nx/journey/predicted": { get: op("Predicted care journey nodes", "clinical", { params: ["patientId"] }) },
+      "/api/nx/templates": { get: op("Hospital-as-a-Service templates", "platform") },
+      "/api/nx/onboard": { post: op("Apply HaaS template to provision hospital", "platform", { body: true }) },
+      "/api/nx/plugins": {
+        get: op("Plugin registry + sandbox policy", "platform"),
+        post: op("Register/enable plugin", "platform", { body: true }),
+      },
+      "/api/nx/events": { get: op("Event log replay per aggregate", "audit", { params: ["aggregateType", "aggregateId"] }) },
+      "/api/nx/offline/sync": { post: op("Flush offline write buffer (idempotent)", "offline", { body: true }) },
     },
   };
   return NextResponse.json(spec);

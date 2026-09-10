@@ -37,14 +37,7 @@ export const POST = withRoute("audit.blocks.anchor", async (req: NextRequest, { 
   if ("response" in g) return g.response;
   const hospitalId = g.session.hospitalId;
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
-  const result = await anchorAuditBlock(hospitalId, {
-    nxAuditEvent: { findMany: (a: object) => db.nxAuditEvent.findMany(a) },
-    nxTimestampBlock: {
-      findFirst: (a: object) => db.nxTimestampBlock.findFirst(a),
-      create: (d: { data: object }) => db.nxTimestampBlock.create(d as never),
-      count: (a: object) => db.nxTimestampBlock.count(a),
-    },
-  });
+  const result = await anchorAuditBlock(hospitalId);
   if (result.anchored > 0) {
     await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "audit.block.anchored", entityType: "nx_timestamp_block", detail: { index: result.index, leaves: result.anchored, root: result.merkleRoot } });
   }

@@ -327,16 +327,18 @@ export function LanguageSection() {
   const [locale, setLocale] = useState<Locale>(() => readLS("nx-locale", "en") as Locale);
   const [mode, setMode] = useState<"desktop" | "tablet" | "kiosk">(() => readLS("nx-mode", "desktop") as "desktop" | "tablet" | "kiosk");
 
-  const applyLocale = (l: Locale) => {
-    setLocale(l);
-    try { localStorage.setItem("nx-locale", l); } catch { /* private mode */ }
-    document.documentElement.lang = l;
-  };
-  const applyMode = (m: "desktop" | "tablet" | "kiosk") => {
-    setMode(m);
-    try { localStorage.setItem("nx-mode", m); } catch { /* private mode */ }
-    document.documentElement.dataset.nxMode = m;
-  };
+  // DOM side effects belong in effects, not inline handlers (compiler-safe)
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    try { localStorage.setItem("nx-locale", locale); } catch { /* private mode */ }
+  }, [locale]);
+  useEffect(() => {
+    document.documentElement.dataset.nxMode = mode;
+    try { localStorage.setItem("nx-mode", mode); } catch { /* private mode */ }
+  }, [mode]);
+
+  const applyLocale = (l: Locale) => setLocale(l);
+  const applyMode = (m: "desktop" | "tablet" | "kiosk") => setMode(m);
 
   return (
     <div className="max-w-xl space-y-8">
