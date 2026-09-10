@@ -2533,3 +2533,24 @@ Stage Summary:
 - AI status: no external key present in this environment; unified brain (OpenRouter when sk-or-* key set, else built-in z-ai GLM SDK) verified live across text + vision + assistant surfaces. Dropping a Gemini-via-OpenRouter key into .env switches providers with zero code change.
 - Demo credentials unchanged (PIN 2468 / Demo@12345); portal demo OTP auto-fill intact.
 - Remaining documented items (deliberate, low-risk): break-glass remains hospital-wide (per-patient needs ABAC threading — roadmap), CSP keeps unsafe-inline/eval for Next preview compatibility, demo surfaces stay open while DEMO_MODE=true (closed by middleware in prod), rate limits in-memory (Redis for multi-instance scale-out).
+
+---
+Task ID: HIW-1
+Agent: Super Z (main)
+Task: Add a "How it works" feature to the homepage navbar (beside Sign in / Book a visit) explaining every feature of the OS in a crisp, detailed format.
+
+Work Log:
+- Inspected navbar.tsx, features-menu.tsx, booking-modal.tsx, dialog.tsx, layout.tsx to match existing patterns (Radix Dialog, framer-motion, booking-context, ghost-pill button style)
+- Harvested accurate feature inventory: KYH 15-tool registry (tools.ts), product showcase, worklog feature list (products, modules, security, PoCs)
+- Built src/components/site/how-it-works/: types.ts, sections-patients.ts (7 sections), sections-clinical.ts (7), sections-platform.ts (6), content.ts merge — 20 sections total, each with numbered steps, under-the-hood chips, minutes badge, CTA (deep link or booking handoff)
+- Built explorer.tsx: two-pane dialog (grouped rail + detail pane), keyboard ↑↓ nav, AnimatePresence transitions, active-pill layoutId, mobile horizontal chip rail, prev/next footer, counter header
+- Wired "How it works" ghost button into navbar between ThemeToggle and Sign in (icon-only on <sm, full label on sm+); explorer mounts inside header
+- Fixed eslint react-hooks/set-state-in-effect via render-time state adjustment (wasOpen pattern)
+- Browser E2E (agent-browser): desktop + mobile (390px) verified; rail clicks, Next/Prev, ArrowUp/Down, booking CTA handoff (explorer closes → booking wizard opens), link CTA navigation to /know-your-health all pass; no console errors
+- Fixed mobile grid-track blowout (pane 1882px inside 390px viewport) with [grid-template-columns:minmax(0,1fr)] on DialogContent; re-verified scrollWidth==clientWidth
+- Gates: tsc 0 errors, eslint clean, vitest 69/69; browser session closed cleanly
+
+Stage Summary:
+- Feature live on homepage navbar: "How it works" explorer with 20 detailed sections covering every product and platform capability, verified E2E on desktop + mobile
+- Artifacts: src/components/site/how-it-works/{types,sections-patients,sections-clinical,sections-platform,content}.ts(x), explorer.tsx, navbar.tsx edit
+- Commit: feat(site): 'How it works' explorer in navbar — 20-section guided tour of every feature
