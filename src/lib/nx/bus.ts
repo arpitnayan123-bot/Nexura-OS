@@ -1,3 +1,4 @@
+import { createHmac } from "crypto";
 import { EventEmitter } from "events";
 
 /* ============================================================
@@ -29,6 +30,9 @@ export interface NxEvent {
   data: unknown;
   at?: string;
   seq?: number;
+  /** HMAC-SHA256 integrity signature — proves the event originated from
+   *  this server process, not from injected client code spoofing handlers. */
+  sig?: string;
 }
 
 export interface SubscriberScope {
@@ -60,6 +64,27 @@ g.__nxConns = conns;
 const EPOCH_BASE = Date.now() * 1000;
 let seqCounter = 0;
 
+/** Per-hospital SSE signing key (delivered ONLY in the authenticated hello frame).
+ *  Alert-integrity: without this key, injected scripts cannot forge valid
+ *  "critical result" toasts — the UI drops unsigned/mismatched events. */
+const signingKeys = new Map<string, string>();
+export function signingKeyFor(hospitalId: string): string {
+  let k = signingKeys.get(hospitalId);
+  if (!k) {
+    const secret = process.env.JWT_SECRET || "nx-dev-sse-secret";
+    k = createHmac("sha256", secret).update(`sse:${hospitalId}`).digest("hex").slice(0, 32);
+    signingKeys.set(hospitalId, k);
+  }
+  return k;
+}
+export function verifyEventSignature(ev: NxEvent): boolean {
+  if (!ev.sig) return false;
+  const expected = createHmac("sha256", signingKeyFor(ev.hospitalId))
+    .update(`${ev.seq}|${ev.event}|${JSON.stringify(ev.data ?? null)}`)
+    .digest("hex");
+  return ev.sig === expected;
+}
+
 /** Max simultaneous SSE connections per user — protects against leaked handles. */
 export const MAX_CONNS_PER_USER = 5;
 
@@ -75,8 +100,12 @@ function matches(conn: Conn, ev: NxEvent): boolean {
   return false;
 }
 
-export function publish(ev: Omit<NxEvent, "at" | "seq">): NxEvent {
-  const full: NxEvent = { ...ev, at: new Date().toISOString(), seq: EPOCH_BASE + ++seqCounter };
+export function publish(ev: Omit<NxEvent, "at" | "seq" | "sig">): NxEvent {
+  const seq = EPOCH_BASE + ++seqCounter;
+  const sig = createHmac("sha256", signingKeyFor(ev.hospitalId))
+    .update(`${seq}|${ev.event}|${JSON.stringify(ev.data ?? null)}`)
+    .digest("hex");
+  const full: NxEvent = { ...ev, at: new Date().toISOString(), seq, sig };
   for (const conn of conns.values()) {
     if (matches(conn, full)) {
       try {

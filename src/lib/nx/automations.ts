@@ -1,5 +1,7 @@
 import { db } from "@/lib/db";
 import { audit } from "./audit";
+import { dispatchWebhooks, type WebhookEvent } from "./webhooks";
+import { evaluateEscalation } from "./escalation";
 
 /* ============================================================
    NEXURA OS — automation engine
@@ -355,9 +357,18 @@ const RUNNERS: Record<NxTrigger, (ctx: AutomationCtx) => Promise<StepLog[]>> = {
   "appointment.created": runAppointmentCreated,
 };
 
-/** Fire every enabled rule bound to this trigger. Never throws. */
+/** Fire every enabled rule bound to this trigger. Never throws.
+ *  Also fans out to (a) webhook subscribers and (b) escalation policies —
+ *  integrations and safety nets ride the same deterministic trigger path. */
 export async function fire(trigger: NxTrigger, ctx: AutomationCtx): Promise<void> {
   try {
+    dispatchWebhooks(ctx.hospitalId, trigger as WebhookEvent, {
+      patientId: ctx.patientId,
+      patientUhid: ctx.patientUhid,
+      patientName: ctx.patientName,
+      relatedId: ctx.relatedId,
+    });
+    void evaluateEscalation(ctx.hospitalId, trigger as WebhookEvent, ctx.relatedId || "");
     const rules = await db.nxAutomationRule.findMany({
       where: { hospitalId: ctx.hospitalId, triggerType: trigger, enabled: true },
     });

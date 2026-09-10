@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionFresh, roleKeysForUser, permsForSession, hasPermission } from "@/lib/nx/session";
-import { subscribe, type NxEvent } from "@/lib/nx/bus";
+import { subscribe, signingKeyFor, type NxEvent } from "@/lib/nx/bus";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -59,8 +59,10 @@ export async function GET(req: NextRequest) {
       };
       req.signal.addEventListener("abort", cleanup);
 
-      // Initial hello with lastSyncedAt for client-side reconciliation
-      send(`event: hello\ndata: ${JSON.stringify({ hospitalId, userId: session.userId, lastSyncedAt: new Date().toISOString() })}\n\n`);
+      // Initial hello with lastSyncedAt for client-side reconciliation.
+      // signingKey is delivered ONLY over this authenticated stream so the
+      // client can verify event signatures (alert-integrity, anti-spoof).
+      send(`event: hello\ndata: ${JSON.stringify({ hospitalId, userId: session.userId, lastSyncedAt: new Date().toISOString(), signingKey: signingKeyFor(hospitalId) })}\n\n`);
 
       unsubscribe = subscribe(
         `${session.userId}:${Date.now()}`,
