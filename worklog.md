@@ -2503,3 +2503,33 @@ Stage Summary:
 - 9 meaningful commits: aaea147 (strategy docs) → 7a00503 (tenancy+db) → 006ad5b (interop) → 6096ba4 (security) → 3a21d6f (clinical+ai) → 82674b9 (flagship) → 1e744ad (ux+offline) → 3227633 (HaaS+whitepaper) → 82aef79 (tests+openapi+lint)
 - All changes additive/backward-compatible; everything demonstrable on seeded data (seed-nx-v5.ts, idempotent)
 - Known limits (honest): Merkle proofs HMAC-based (Ed25519+notary = Phase 5 infra), dependency CVE scan needs registry (reported as unknown, never faked), genomic/wearable vendors are contracts not code, tenancy panel needs org/super admin role by design
+
+---
+
+Task ID: SEC-1 (full-stack verification, AI live check, red-team hardening, KYH completion)
+Agent: Super Z (main agent)
+Task: User mandate — verify every feature works, verify the AI key/brain live, make Know-Your-Health every feature live, complete backend+frontend, add a hacker-mindset security layer that is appropriate and approved, make the whole codebase robust — "a real working healthcare ecosystem".
+
+Work Log:
+- Environment recovered first: DEMO_MODE restored to .env (AI surfaces demand sessions without it), dev server restarted, DB verified seeded (2.4MB), tree clean.
+- Live AI verification: built scripts/test-kyh-live.sh sweeping all 15 KYH AI routes + assistant with contract-correct payloads (v1 run exposed wrong payloads, v2 exposed the 20/5min AI gate working — pacing added). Symptoms-checker, diet-planner, med-interaction, womens-care, assistant all returned real model output; vision path proven with generated JPEGs.
+- Quality gates green before changes: tsc 0 / eslint clean / vitest 69/69 / api-smoke 46/46; 10 product pages 200; authenticated API sweep across nx routes with CMD.ANITA + DR.RAJESH sessions (403s confirmed as RBAC-by-design, 400s as param validation).
+- Two parallel read-only audit agents: AUDIT-SEC (red-team, found 3 CRITICAL / 6 HIGH / 11 MEDIUM) and AUDIT-KYH (15/15 payload wiring correct; 3 real bugs + UX gaps).
+- SECURITY FIXES implemented (commit 486df28):
+  * C1 /api/connect/* — new src/lib/nx/connect-auth.ts gate on all 10 handlers: 90/min/IP, session required in prod, doctor-side writes (fromRole:"doctor", prescriptions/sync) clinician-only. Demo mode preserved.
+  * C2 portal — shared src/lib/portal-session.ts resolving the signed service JWT (was bare-id reads, fail-closed); all 4 portal routes migrated; live-tested OTP→JWT→dashboard 200 (portal features are now actually working, not just safe).
+  * H1 HL7 ADT tenant-scoped upsert: within-hospital lookup, A08 on unknown UHID → 422, cross-hospital UHID collision → 409 (was cross-tenant overwrite).
+  * H2 gateway keys: hospital_admins bound to own tenant for issue/list/revoke; platform roles unaffected.
+  * H3 patient-role sessions scoped to own record in patients + encounters lists (was full directory read).
+  * H5 API keys minted via crypto.randomBytes (was Math.random+Date.now).
+  * H6 rightmost-hop XFF extraction in api.ts ipOf + proxy.ts (rate limits no longer bypassable by header rotation).
+  * M1 rate-bucket sweep (amortised, ≥512 entries, ≤1/min); M2 13MB body cap at proxy before JSON parse; M5 bed assignment tenant-scoped (encounters POST); M7 idempotency keys caller-scoped (was global replayable); M9 timingSafeEqual for webhook HMAC + step-up tokens; M3 role-hierarchy wall (granter can never assign broader role); M6 OTP never logged/echoed, refresh tokens must carry type:"refresh".
+- KYH FIXES: health-quiz GET cost-gated (was free unlimited LLM endpoint — live-verified 6×200 then 429); diabetes-care status normalized server-side + statusOf() client fallback (was render crash on unexpected enum); lab-analyzer NOW REALLY SUPPORTS PHOTO REPORTS: vision OCR extraction path + tabbed UI (photo/manual) + "Read from photo" verify badge — the advertised feature became real; human-readable detail on all 400s; HEIC dropped from whitelists; AbortSignal.timeout(75s) added to all 15 tools.
+- Robustness: dead-server incident diagnosed (dev process reaped between sessions), production standalone rebuilt and served by the self-healing supervisor (scripts/nx-supervisor.sh) with 3s auto-restart on :3000.
+- Verified end-to-end: browser E2E on dev (Hospital OS login → Command Center live KPIs/alerts; KYH landing → Lab Analyzer → real photo upload → vision extraction → interpretation with abnormal flags) AND on production (login + desktop render, 0 console errors). Live AI on prod correctly triaged chest-pain case as emergency→Cardiologist. Security headers verified (CSP/HSTS/nosniff), auth matrix verified (401 no-cookie, 401 bad PIN).
+
+Stage Summary:
+- Gates after all changes: tsc 0 · eslint clean · vitest 69/69 · api-smoke 46/46 · production build OK · browser E2E clean (dev + prod).
+- AI status: no external key present in this environment; unified brain (OpenRouter when sk-or-* key set, else built-in z-ai GLM SDK) verified live across text + vision + assistant surfaces. Dropping a Gemini-via-OpenRouter key into .env switches providers with zero code change.
+- Demo credentials unchanged (PIN 2468 / Demo@12345); portal demo OTP auto-fill intact.
+- Remaining documented items (deliberate, low-risk): break-glass remains hospital-wide (per-patient needs ABAC threading — roadmap), CSP keeps unsafe-inline/eval for Next preview compatibility, demo surfaces stay open while DEMO_MODE=true (closed by middleware in prod), rate limits in-memory (Redis for multi-instance scale-out).
