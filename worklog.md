@@ -2692,3 +2692,22 @@ Work Log:
 
 Stage Summary:
 - Preview window restored to the latest build including the full PIE layer; no code changes were needed — the only fault was the dead runtime, and the freshness layers from PREVIEW-1 (no-store HTML, sw v2 network-first) are still in force so the user's browser will pick up the current build on one refresh
+
+---
+Task ID: PIE-VIS-1
+Agent: Super Z (main)
+Task: Make the PIE feature visible in the preview window — the engine existed but was buried (Crisis Radar inside the Hospital OS shell, forecast on an unlinked route).
+
+Work Log:
+- Built /predictive, a public showcase page (server component, force-dynamic): renders the REAL Crisis Radar via runRadar on the demo cohort with anonymized names, band counts, Time-to-Decay band explainer (green/yellow/red), the six-stage pipeline, and links to the patient forecast, Hospital OS and the OpenAPI spec
+- Built src/components/pi/what-if-demo.tsx — a fully self-contained What-If simulator (baked-in demo twin, deterministic projection curve, intervention chips for walk/metformin/diet/sleep) so the public page has a live-feeling engine demo with zero API surface expansion
+- Built src/components/site/predictive-showcase.tsx — homepage hero card section ("Healthcare is reactive. Nexura makes it predictive.") with three tiles (Crisis Radar / Living Twin / Pre-emptive with a human in charge) and both CTAs
+- Wired visibility: navbar gained a Predictive ghost link (BrainCircuit) between How it works and Book a visit; FeaturesMenu gained a "Predictive Engine" product card (badge AI, accent violet); the How-it-works explorer gained a "predictive-engine" platform section with CTA into /predictive
+- Found and fixed a stacking bug on the new page: hero gradient layers used -z-10 and painted behind the page background (washed-out hero in screenshot); switched to pointer-events-none absolute layers + isolate on the section + relative content
+- Gates: tsc 0, eslint 0, vitest 105/105
+- Browser E2E (agent-browser): navbar Predictive navigates to /predictive; live radar shows 8 patients (Suresh N. 96 RED with "Heart rate rising — HR 101 bpm, slope +1.5/day"); What-If simulator run with 3 interventions produced −8.7 pts · 49/100 with bending curve; My Health Forecast link lands on the portal page; explorer shows the new PIE section; homepage section verified visually; zero console errors (one benign Next scroll-behavior warning)
+- Dev server died once mid-check (process reaped, no crash in log) — restarted, homepage warm again
+- Commit: f6089d5
+
+Stage Summary:
+- PIE is now impossible to miss in the preview: a navbar entry on every page, a homepage hero section, a full public engine page with the live radar and a hands-on What-If, plus explorer coverage — while the RBAC-protected clinical surfaces remain unchanged
