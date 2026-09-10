@@ -70,6 +70,9 @@ export const PERMISSIONS = [
   "breakglass.invoke",
   "consent.manage",
   "demo.reset",
+  "tenants.manage",
+  "gateway.manage",
+  "security.manage",
 ] as const;
 export type NxPermission = (typeof PERMISSIONS)[number];
 
@@ -118,7 +121,7 @@ export const ROLE_PERMISSIONS: Record<NxRole, readonly NxPermission[]> = {
     "billing.view", "billing.manage", "reports.export", "analytics.view", "users.manage", "roles.manage",
     "staff.manage", "settings.manage", "audit.view", "emergency.access", "labs.result.enter",
     "labs.result.verify", "imaging.report.write", "inventory.manage", "tasks.manage", "features.manage",
-    "delegation.manage", "breakglass.invoke", "consent.manage",
+    "delegation.manage", "breakglass.invoke", "consent.manage", "security.manage", "gateway.manage",
   ],
   dept_admin: [
     "patient.demographics.view", "patient.clinical.view", "patient.create", "encounter.create",

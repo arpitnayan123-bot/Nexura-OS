@@ -330,6 +330,28 @@ model Hospital {
   nxIntegrationEvents NxIntegrationEvent[]
   nxFiles             NxFileObject[]
   nxBreakGlassEvents  NxBreakGlassEvent[]
+  // v5 — Chief Future Architect layer (tenancy + governance + flagship)
+  tenant                    NxTenant?                 @relation(fields: [tenantId], references: [id])
+  tenantId                  String?
+  nxAbacPolicies            NxAbacPolicy[]
+  nxEscalationPolicies      NxEscalationPolicy[]
+  nxEscalationEvents        NxEscalationEvent[]
+  nxPathwayDefs             NxPathwayDef[]
+  nxPathwayRuns             NxPathwayRun[]
+  nxTimestampBlocks         NxTimestampBlock[]
+  nxVerifiableCredentials   NxVerifiableCredential[]
+  nxInsuranceContracts      NxInsuranceContract[]
+  nxWearableDevices         NxWearableDevice[]
+  nxGenomicProfiles         NxGenomicProfile[]
+  nxTeleConsults            NxTeleConsult[]
+  nxAiThresholds            NxAiThreshold[]
+  nxAiFeedbacks             NxAiFeedback[]
+  nxDicomStudies            NxDicomStudy[]
+  nxDocVersions             NxDocVersion[]
+  nxJourneyAnnotations      NxJourneyAnnotation[]
+  nxEventLogs               NxEventLog[]
+
+  @@index([tenantId])
 }
 
 model HospitalPatient {
@@ -1708,6 +1730,12 @@ model NxAIInteraction {
   userRole   String
   feature    String // patient_summary|handover|discharge_draft|queue_explain|ops_recommend|documentation
   prompt     String?
+  response   String? // AI output snapshot (redacted per retention policy)
+  confidence Float? // 0..1 self-reported or heuristic confidence
+  consentFlag Boolean? // patient AI consent verified at call time
+  promptVersion String? // e.g. patient_summary@3
+  modelVersion  String? // e.g. glm-4.6-air / openrouter:model@hash
+  thresholdAction String? // allowed|human_fallback|blocked
   status     String   @default("completed") // completed|failed|review_required
   createdAt  DateTime @default(now())
   hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
@@ -2287,4 +2315,384 @@ model NxIdempotency {
   expiresAt      DateTime
 
   @@index([expiresAt])
+}
+
+// ============================================================
+// NEXURA HOSPITAL OS v5 — Chief Future Architect layer
+// Tenancy, interoperability, governance, patient-centric PoCs.
+// ALL ADDITIVE: existing tenants/hospitals keep working unchanged.
+// ============================================================
+
+model NxTenant {
+  id           String   @id @default(cuid())
+  code         String   @unique // slug e.g. "apollo-group"
+  name         String
+  plan         String   @default("standard") // basic|standard|premium|ngo
+  status       String   @default("active") // active|suspended|offboarding
+  brandingJson String? // JSON {primary,logoText,locale,defaultTheme}
+  modulesJson  String? // JSON string[] of enabled module keys (null = all standard)
+  domainsJson  String? // JSON string[] custom domains
+  settingsJson String? // JSON {offlineMode,retentionProfile,aiThresholds}
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  hospitals    Hospital[]
+  apiKeys      NxApiKey[]
+
+  @@index([status])
+}
+
+model NxApiKey {
+  id             String    @id @default(cuid())
+  tenantId       String
+  name           String
+  prefix         String // display prefix e.g. nxk_live_ab12
+  keyHash        String    @unique // sha256 of full secret
+  scopes         String // JSON string[] e.g. ["patients.read","observations.read"]
+  rateLimitPerMin Int     @default(60)
+  lastUsedAt     DateTime?
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  tenant         NxTenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+}
+
+model NxAbacPolicy {
+  id           String   @id @default(cuid())
+  hospitalId   String
+  role         String? // null = applies to all roles
+  effect       String   @default("allow") // allow|deny
+  deptScope    String? // JSON string[] department ids/names
+  wardScope    String? // JSON string[] ward ids/names
+  patientScope String   @default("any") // any|assigned|ward
+  timeWindows  String? // JSON [{days:[1-7],from:"HH:MM",to:"HH:MM"}]
+  action       String // read|write|sign|dispense|approve (or *)
+  resource     String // patients|notes|orders|billing|medications|*
+  active       Boolean  @default(true)
+  note         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  hospital     Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, resource])
+}
+
+model NxEscalationPolicy {
+  id         String   @id @default(cuid())
+  hospitalId String
+  alertType  String // result.critical|incident.critical|med.safety|ed.overflow
+  levelsJson String // JSON [{afterMin,notifyRoles:[],notifyUsers:[],channel}]
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, alertType])
+}
+
+model NxEscalationEvent {
+  id         String   @id @default(cuid())
+  hospitalId String
+  policyId   String?
+  alertType  String
+  entityRef  String // e.g. "task:cuid" | "incident:cuid"
+  level      Int      @default(0)
+  actorName  String?
+  detailJson String?
+  createdAt  DateTime @default(now())
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, createdAt])
+}
+
+model NxPathwayDef {
+  id          String   @id @default(cuid())
+  hospitalId  String
+  code        String // sepsis-bundle|discharge-hf|chest-pain
+  name        String
+  specialty   String?
+  version     Int      @default(1)
+  stepsJson   String // DSL JSON [{id,title,withinMin,requires:[],onComplete:...,critical:true}]
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  runs        NxPathwayRun[]
+
+  @@index([hospitalId, code])
+}
+
+model NxPathwayRun {
+  id           String   @id @default(cuid())
+  hospitalId   String
+  defId        String
+  patientId    String?
+  patientName  String?
+  currentStep  String
+  stateJson    String? // JSON {completed:[stepId],skipped:[],evidence:{}}
+  status       String   @default("active") // active|completed|escalated|cancelled
+  startedBy    String?
+  startedAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  hospital     Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  definition   NxPathwayDef @relation(fields: [defId], references: [id])
+
+  @@index([hospitalId, status])
+}
+
+model NxTimestampBlock {
+  id         String   @id @default(cuid())
+  hospitalId String
+  index      Int
+  merkleRoot String
+  leafCount  Int
+  prevHash   String?
+  blockHash  String
+  anchoredAt DateTime @default(now())
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, index])
+}
+
+model NxVerifiableCredential {
+  id         String    @id @default(cuid())
+  patientId  String
+  type       String // NexuraHealthID|ImmunizationProof|ConsentScope
+  claimsJson String
+  issuerId   String // hospital/tenant issuer ref
+  signature  String // HMAC-SHA256 over canonical claims (PoC; ED25519 in prod)
+  holderHint String? // patient-controlled hint (e.g. last4 of ABIHA)
+  issuedAt   DateTime  @default(now())
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+  hospitalId String
+  hospital   Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+}
+
+model NxInsuranceContract {
+  id             String   @id @default(cuid())
+  hospitalId     String
+  patientId      String?
+  patientName    String?
+  insurer        String
+  policyNo       String
+  milestonesJson String // JSON [{id,title,amount,condition,met,metAt}]
+  state          String   @default("draft") // draft|active|milestone_met|submitted|settled|disputed
+  payoutTotal    Float    @default(0)
+  settledAmount  Float    @default(0)
+  historyJson    String? // JSON [{at,state,actor,note}]
+  claimId        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  hospital       Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, state])
+}
+
+model NxWearableDevice {
+  id         String   @id @default(cuid())
+  hospitalId String
+  patientId  String
+  source     String // apple_health|whoop|fitbit|manual
+  model      String?
+  active     Boolean  @default(true)
+  pairedAt   DateTime @default(now())
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  samples    NxWearableSample[]
+
+  @@index([patientId])
+}
+
+model NxWearableSample {
+  id         String   @id @default(cuid())
+  deviceId   String
+  metric     String // hrv|resting_hr|spo2|steps|sleep_minutes
+  value      Float
+  unit       String?
+  capturedAt DateTime
+  ingestedAt DateTime @default(now())
+  device     NxWearableDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, capturedAt])
+}
+
+model NxGenomicProfile {
+  id          String   @id @default(cuid())
+  hospitalId  String
+  patientId   String
+  vaultRef    String // external vault pointer — raw genotype NEVER stored here
+  variantsJson String? // JSON [{gene,variant,zygosity,classpath}]
+  riskJson    String? // JSON {cardio:0.12,diabetes:0.31,...}
+  consentId   String? // links NxConsent
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+}
+
+model NxSimulationScenario {
+  id         String  @id @default(cuid())
+  code       String  @unique
+  title      String
+  audience   String  @default("clinician") // clinician|student|public
+  difficulty String  @default("intermediate")
+  treeJson   String // adaptive branching tree DSL
+  active     Boolean @default(true)
+  createdAt  DateTime @default(now())
+  runs       NxSimulationRun[]
+
+  @@index([audience])
+}
+
+model NxSimulationRun {
+  id          String   @id @default(cuid())
+  scenarioId  String
+  subjectType String   @default("staff") // staff|patient|visitor
+  subjectName String?
+  choicesJson String // JSON path taken
+  outcome     String
+  score       Float    @default(0)
+  createdAt   DateTime @default(now())
+  scenario    NxSimulationScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
+  @@index([scenarioId, createdAt])
+}
+
+model NxPlugin {
+  id             String   @id @default(cuid())
+  code           String   @unique
+  name           String
+  version        String
+  vendor         String?
+  permissionsJson String // JSON string[] e.g. ["patients.read"]
+  entryJson      String // JSON {kind:"panel"|"hook", route, slots:[]}
+  enabled        Boolean  @default(false)
+  installedAt    DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model NxHospitalTemplate {
+  id         String   @id @default(cuid())
+  code       String   @unique
+  name       String
+  kind       String // multispecialty|clinic|ngo-rural|nursing-home
+  configJson String // JSON {modules,departments,wards,roles,locales,settings}
+  createdAt  DateTime @default(now())
+}
+
+model NxTeleConsult {
+  id            String    @id @default(cuid())
+  hospitalId    String
+  patientId     String
+  patientName   String?
+  doctorId      String?
+  doctorName    String?
+  state         String    @default("requested") // requested|routed|live|completed|failed|cancelled
+  bandwidthMode String    @default("auto") // auto|low|text-only
+  routedReason  String?
+  consentId     String? // NxConsent reference
+  eSignHash     String?
+  startedAt     DateTime?
+  endedAt       DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  hospital      Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, state])
+}
+
+model NxAiThreshold {
+  id            String   @id @default(cuid())
+  hospitalId    String
+  feature       String
+  minConfidence Float    @default(0.6)
+  requireReview Boolean  @default(true)
+  updatedAt     DateTime @updatedAt
+  hospital      Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, feature])
+}
+
+model NxAiFeedback {
+  id            String   @id @default(cuid())
+  hospitalId    String
+  interactionId String
+  staffName     String
+  staffRole     String
+  verdict       String // accepted|corrected|rejected
+  correction    String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  hospital      Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([interactionId])
+}
+
+model NxDicomStudy {
+  id          String    @id @default(cuid())
+  hospitalId  String
+  patientId   String
+  accession   String
+  studyUid    String
+  modality    String // CXR|CT|MR|US|ECG
+  bodyPart    String?
+  seriesCount Int       @default(1)
+  viewerUrl   String? // external viewer deep link (OHIF etc.)
+  status      String    @default("received") // received|reporting|reported
+  reportedBy  String?
+  reportedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  hospital    Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+}
+
+model NxDocVersion {
+  id          String   @id @default(cuid())
+  hospitalId  String
+  entityType  String // sbar|journey_summary|care_plan|discharge
+  entityId    String
+  version     Int
+  changeKind  String   @default("edit") // create|edit|coauthor|sign
+  authorName  String
+  authorRole  String
+  content     String
+  trackedJson String? // JSON [{field,from,to}]
+  createdAt   DateTime @default(now())
+  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, entityType, entityId])
+}
+
+model NxJourneyAnnotation {
+  id          String   @id @default(cuid())
+  hospitalId  String
+  patientId   String
+  eventRef    String? // journey event id this annotates
+  authorName  String
+  authorRole  String
+  body        String
+  decisionLog Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, createdAt])
+}
+
+model NxEventLog {
+  id            String   @id @default(cuid())
+  hospitalId    String
+  aggregateType String // appointment|admission|order|bed|task
+  aggregateId   String
+  type          String
+  seq           Int
+  payloadJson   String?
+  actorName     String?
+  createdAt     DateTime @default(now())
+  hospital      Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, aggregateType, aggregateId, seq])
 }
