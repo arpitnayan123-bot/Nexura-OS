@@ -1,4 +1,3 @@
-import { createHmac } from "crypto";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
@@ -15,9 +14,6 @@ import { verifyTotp } from "@/lib/nx/totp";
    via `consumeStepUp()`. Replay across actions/tokens is rejected.
    ============================================================ */
 
-const STEPUP_ACTIONS = ["billing.approve", "medication.verify", "prescription.sign"] as const;
-export type StepUpAction = (typeof STEPUP_ACTIONS)[number];
-
 const ReqSchema = z.object({
   action: z.enum(STEPUP_ACTIONS),
   method: z.enum(["pin", "totp"]),
@@ -25,31 +21,8 @@ const ReqSchema = z.object({
   subjectId: z.string().max(80).optional(), // e.g. prescription/order id being signed
 });
 
-function stepUpSecret(): string {
-  return process.env.JWT_SECRET || "nexura-os-dev-secret-change-in-prod";
-}
-
-export function issueStepUpToken(userId: string, action: StepUpAction, subjectId?: string): string {
-  const exp = Date.now() + 5 * 60_000;
-  const body = `${userId}|${action}|${subjectId ?? ""}|${exp}`;
-  const sig = createHmac("sha256", stepUpSecret()).update(body).digest("hex");
-  return `${Buffer.from(body).toString("base64url")}.${sig}`;
-}
-
-export function verifyStepUpToken(token: string | null | undefined, userId: string, action: StepUpAction, subjectId?: string): { ok: boolean; reason?: string } {
-  if (!token) return { ok: false, reason: "missing_token" };
-  const [b64, sig] = token.split(".");
-  if (!b64 || !sig) return { ok: false, reason: "malformed" };
-  const body = Buffer.from(b64, "base64url").toString();
-  const expect = createHmac("sha256", stepUpSecret()).update(body).digest("hex");
-  if (sig !== expect) return { ok: false, reason: "bad_signature" };
-  const [uid, act, subj, exp] = body.split("|");
-  if (uid !== userId) return { ok: false, reason: "wrong_user" };
-  if (act !== action) return { ok: false, reason: "wrong_action" };
-  if ((subj ?? "") !== (subjectId ?? "")) return { ok: false, reason: "wrong_subject" };
-  if (Number(exp) < Date.now()) return { ok: false, reason: "expired" };
-  return { ok: true };
-}
+import { issueStepUpToken } from "@/lib/nx/stepup";
+import { STEPUP_ACTIONS } from "@/lib/nx/stepup";
 
 export const POST = withRoute("auth.stepup", async (req: NextRequest, { requestId }) => {
   const g = await guard(req, "patient.demographics.view");
