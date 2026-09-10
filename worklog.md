@@ -2784,3 +2784,26 @@ Work Log:
 
 Stage Summary:
 - /predictive is now a cinematic, always-visible, theme-independent dark product page with technical copy restored — the invisible-section failure mode is eliminated at the root, and the page reads flagship-grade on desktop and mobile
+
+---
+Task ID: PIE-CC-1
+Agent: Super Z (main)
+Task: Complete "Glassmorphic Futurism" redesign of /predictive per the user's Lead-Product-Designer directive: premium sci-fi medical command center, animated Crisis Radar hero, risk gauges, Time-to-Decay scrubber with holographic card, bento layout, professional copy (no plain English), fully readable typography.
+
+Work Log:
+- Added JetBrains_Mono via next/font to root layout; mapped to --font-mono for all numerals/timestamps/codes
+- Appended PIE token layer to globals.css: .nxp-shell gradient canvas, .nxp-glass / .nxp-glass-hover (lift -4px + border glow), .nxp-grid, keyframes nxp-heartbeat / nxp-live / nxp-drift / nxp-shimmer (skeleton glitch) / nxp-holo, .nxp-range neon scrubber styling, reduced-motion fallbacks
+- Built risk-gauge.tsx: circular SVG gauge, animated stroke-dashoffset fill, cyan->amber->crimson band ramp, mono numeral, sm/md/lg
+- Built crisis-radar-canvas.tsx: canvas particle network seeded from runRadar rows (green=cyan pulse, yellow=amber throb, red=crimson rhythmic beat) + ambient nodes + k-nearest edges + conic radar sweep with node flare; DPR cap 2, ResizeObserver, visibilitychange pause, prefers-reduced-motion static frame, deterministic PRNG layout
+- Built twin-whatif.tsx (replaces what-if-demo.tsx, file removed): vitals strip with heartbeat icon, intervention catalog chips, auto-runs first projection on mount out of a skeleton-glitch resolve, Catmull-Rom spline + linear-gradient stroke (cyan->violet) + area gradient, dashed reactive baseline, Time-to-Decay scrubber (native range, pointer-scrub on svg, keyboard operable, aria-valuetext), floating holographic T+day card with band + delta, gauge + outcome readout
+- Built console-bar.tsx: sticky dark console header (status pill, Deploy CTA) + DeployCta footer button, both open the global booking modal via useBooking
+- Restyled india-risk-explorer.tsx to the dark glass language (professional labels: Early-warning index, Driver attribution, Modifiable/Fixed factor)
+- Rewrote /predictive/page.tsx as the bento command center: hero (title treatment + radar tile with HUD + cohort counters + cohort-mean gauge), Priority Queue (8 live alert cards), Twin Simulator, Signal Fabric, Population Efficacy Forecast, Protocol Pipeline, governance strip, deployment CTA; [PIE API] comments mark every dynamic injection point
+- Fixed hero right-column overflow (radar h-full + card overflowed grid row) by switching to lg:flex lg:flex-col + flex-1
+- Fixed scroll-audit confusion: nx-os.css scroll-behavior makes programmatic scrolls animated; used behavior:'instant' + waits for screenshots
+- Gates: pkill dev -> tsc 0 / eslint 0 (after fixing ref-during-render + useMemo inline-fn + unused directive) / vitest 119/119 -> dev restart -> smoke 56/56
+- E2E (agent-browser): desktop 1440 full + section shots, mobile 390 full, keyboard slider scrub (45->47 via ArrowRight), chip toggle + re-run projection (glitch -> deeper curve), zero console/page errors on clean reload; screenshots in download/cc-*.png
+- Removed dead what-if-demo.tsx after confirming zero references
+
+Stage Summary:
+- Commit 90b6db9 on main. /predictive is now an always-dark glassmorphic command center: live particle radar, neon gauges, spline forecasts, holographic scrub card, skeleton-glitch loading, professional clinical copy, AA-readable text. Theme-independent by design; home page untouched and verified.
