@@ -2633,3 +2633,26 @@ Work Log:
 Stage Summary:
 - The frozen-preview root cause is eliminated at every layer: browser SW (network-first + purge), HTTP headers (no-store on HTML), and the guardian (statics every boot + asset-aware probes)
 - User-facing recovery path: one normal refresh fetches sw.js (max-age=0) -> v2 activates with skipWaiting -> old caches purge -> page goes network-first; a second refresh guarantees the latest UI
+
+---
+Task ID: PUBLISH-1
+Agent: Super Z (main)
+Task: User demanded pre-publish verification — every feature and sign-in working, no bugs/errors, shared-link opens fine and runs smoothly, everything committed.
+
+Work Log:
+- Baseline: git tree clean, guardian + server healthy on :3000
+- Built persistent publish-readiness smoke (scripts/api-smoke.sh, npm run smoke): probes all 56 real /api/nx endpoints incl. subroute handlers (fhir/Patient, gateway/keys, staff/ops, system/errors, prescriptions/sign, etc.); accepts 200/207/400/401/403/405 as alive+behaving -> PASS=56 FAIL=0
+- Gates: tsc 0, eslint clean, vitest 69/69
+- Browser E2E, all green with ZERO console/page errors:
+  * Homepage: loads clean; How-it-works explorer opens; Book a visit modal opens
+  * Hospital OS staff-code login: CMD.ANITA / PIN 2468 -> Command Center (Anita Desai)
+  * Hospital OS email login (fresh session): doctor@demo.nexura.health / Demo@12345 -> Doctor Workspace (Dr. Rajesh Sharma)
+  * Patient portal: /portal/login demo phone +919820099880 + demo OTP -> "Namaste, Suresh" full portal (Overview/Blood Checkup/Records/Timeline/Family)
+  * Product pages: /know-your-health (15 Gemini tools render), /clinic, /pharmacy, /connect (doctor dashboard), /global, /pricing — all correct titles + content
+- Guardian log: 2 transient health FAILs at 16:13 during the heavy next build (CPU starvation -> probe timeouts), then manual restart for PREVIEW-1 rebuild; self-heal chain behaved as designed; server stable since 16:14 through the whole E2E
+- Shared-link readiness recap (from PREVIEW-1): HTML no-store, sw v2 network-first, guardian statics+asset probes — external preview path self-heals and always serves latest
+- Commit: 8e2f489
+
+Stage Summary:
+- Publish verdict: GREEN. All sign-in surfaces work, 56/56 API endpoints behave, 69/69 tests pass, all pages render error-free, freshness + self-heal layers active
+- npm run smoke is now the canonical quick pre-publish check
