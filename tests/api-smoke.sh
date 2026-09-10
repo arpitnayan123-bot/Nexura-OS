@@ -85,6 +85,24 @@ say "invalid task payload → 400";   [ "$(curl -s -o /dev/null -w '%{http_code}
 say "security headers present";     H=$(curl -s -D- -o /dev/null $BASE/api/health --max-time 20); echo "$H" | grep -qi "x-content-type-options" && ! echo "$H" | grep -qi "x-frame-options: DENY" && ok || bad "headers"
 say "preview embeddable (no XFO deny, frame-ancestors set)"; H=$(curl -s -D- -o /dev/null $BASE/api/health --max-time 20); ! echo "$H" | grep -qi "x-frame-options" && echo "$H" | grep -qi "frame-ancestors" && ok || bad "framing"
 
+# ---------- v5 enterprise layer: governance, interop, AI ----------
+say "FHIR CapabilityStatement → resources"; json $BASE/api/nx/fhir/metadata | grep -q '"fhirVersion":"4.0.1"' && ok || bad "fhir metadata"
+say "FHIR Patient search → bundle";       json "$BASE/api/nx/fhir/Patient?name=Suresh" | grep -q '"resourceType":"Bundle"' && ok || bad "fhir bundle"
+say "FHIR unauthenticated → 401";         [ "$(curl -s -o /dev/null -w '%{http_code}' $BASE/api/nx/fhir/Patient --max-time 20)" = "401" ] && ok || bad "fhir guard"
+say "gateway rejects missing key → 401";  [ "$(curl -s -o /dev/null -w '%{http_code}' $BASE/api/nx/gateway/v1/patients --max-time 20)" = "401" ] && ok || bad "gateway guard"
+say "gateway rejects bad key → 401";      [ "$(curl -s -o /dev/null -w '%{http_code}' -H 'Authorization: Bearer nxk_live_totallyinvalidkey000000000000' $BASE/api/nx/gateway/v1/patients --max-time 20)" = "401" ] && ok || bad "gateway bad key"
+say "gateway seeded demo key → 200";      [ "$(curl -s -o /dev/null -w '%{http_code}' -H 'Authorization: Bearer nxk_live_demo0000000000000000000000000000' $BASE/api/nx/gateway/v1/patients --max-time 30)" = "200" ] && ok || bad "gateway demo key"
+say "tenants API (doctor) → 403";         [ "$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" $BASE/api/nx/tenants --max-time 20)" = "403" ] && ok || bad "tenants guard"
+say "ABAC policies list (doctor) → 403";  [ "$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" $BASE/api/nx/abac --max-time 20)" = "403" ] && ok || bad "abac guard"
+say "posture requires security.manage";   [ "$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" $BASE/api/nx/security/posture --max-time 20)" = "403" ] && ok || bad "posture guard"
+say "AI report shape";                    curl -s -b "$JAR3" $BASE/api/nx/ai/report --max-time 30 | grep -q '"governance"' && ok || bad "ai report"
+say "pathways list → defs present";       json $BASE/api/nx/pathways | grep -q '"definitions"' && ok || bad "pathways"
+say "escalations list → policies";        json $BASE/api/nx/escalations | grep -q '"policies"' && ok || bad "escalations"
+say "compliance metrics → frameworks";    json -b "$JAR3" $BASE/api/nx/compliance | grep -q '"frameworks"' && ok || bad "compliance"
+say "simulations list → scenarios";       json $BASE/api/nx/simulations | grep -q 'anaphylaxis-ward' && ok || bad "simulations"
+say "HL7 inbound rejects unsigned/none";  [ "$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" -X POST $BASE/api/nx/hl7 -H 'Content-Type: application/json' -d '{"message":"MSH|^~\\&|HIS|C|NEXURA|N|20260910||ADT^A01|X|P|2.4"}' --max-time 20)" = "403" ] && ok || bad "hl7 guard"
+say "openapi spec lists v5 routes";       json $BASE/api/nx/openapi | grep -q 'tenants' && ok || bad "openapi"
+
 echo "──────────────────────────────────────────────────────"
 echo "PASS: $PASS  FAIL: $FAIL"
 rm -f $JAR $JAR2 $JAR3 /tmp/nx-smoke4-$$.txt /tmp/nx-smoke5-$$.txt 2>/dev/null

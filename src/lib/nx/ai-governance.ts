@@ -44,7 +44,7 @@ export function confidenceHeuristic(output: unknown): number {
   if (hasGapDisclosure) score = Math.min(1, score + 0.05);
   // extremely short outputs are suspicious
   const blob = JSON.stringify(obj);
-  if (blob.length < 80) score = Math.min(score, 0.5);
+  if (blob.length < 24) score = Math.min(score, 0.5);
   return Math.max(0, Math.min(1, Number(score.toFixed(2))));
 }
 

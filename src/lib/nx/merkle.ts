@@ -1,4 +1,5 @@
 import { createHash } from "crypto";
+import { db } from "@/lib/db";
 
 /* ============================================================
    NEXURA OS v5 — MERKLE BLOCK ANCHORING (blockchain-linked PoC)
@@ -29,22 +30,15 @@ export function leafHash(event: { hash: string; createdAt: Date }): string {
 }
 
 /** Anchor all unanchored audit events for a hospital into the next block. */
-export async function anchorAuditBlock(hospitalId: string, db: {
-  nxAuditEvent: { findMany: Function };
-  nxTimestampBlock: { findFirst: Function; create: Function; count: Function };
-}): Promise<{ anchored: number; index: number; merkleRoot: string; blockHash: string }> {
+export async function anchorAuditBlock(hospitalId: string): Promise<{ anchored: number; index: number; merkleRoot: string; blockHash: string }> {
   const lastBlock = await db.nxTimestampBlock.findFirst({ where: { hospitalId }, orderBy: { index: "desc" } });
-  const lastEvent = lastBlock
-    ? null // events after the last anchored leaf count — approximate by createdAt of last block
-    : null;
-  void lastEvent;
   const events = await db.nxAuditEvent.findMany({
     where: { hospitalId, ...(lastBlock ? { createdAt: { gt: lastBlock.anchoredAt } } : {}) },
     orderBy: { createdAt: "asc" },
     take: 500,
   });
   if (!events.length) return { anchored: 0, index: lastBlock?.index ?? -1, merkleRoot: "", blockHash: "" };
-  const leaves = events.map(leafHash);
+  const leaves = events.map((e) => leafHash({ hash: e.hash ?? "", createdAt: e.createdAt }));
   const root = merkleRoot(leaves);
   const index = (lastBlock?.index ?? -1) + 1;
   const blockHash = createHash("sha256").update(`${index}|${lastBlock?.blockHash ?? ""}|${root}`).digest("hex");

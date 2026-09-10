@@ -55,9 +55,20 @@ function mins(hhmm: string): number {
   return (h || 0) * 60 + (m || 0);
 }
 
+interface TimeWindow { days?: number[]; from?: string; to?: string }
+
+function parseWindows(raw: string | null): TimeWindow[] {
+  try {
+    const v = raw ? JSON.parse(raw) : [];
+    return Array.isArray(v) ? (v as TimeWindow[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 /** Is `now` inside ANY of the policy's time windows? Null/empty = always. */
 export function inTimeWindow(timeWindowsJson: string | null, now = new Date()): boolean {
-  const windows = safeArr(timeWindowsJson) as unknown as { days?: number[]; from?: string; to?: string }[];
+  const windows = parseWindows(timeWindowsJson);
   if (!windows.length) return true;
   const day = now.getDay() === 0 ? 7 : now.getDay(); // 1=Mon..7=Sun
   const cur = now.getHours() * 60 + now.getMinutes();
