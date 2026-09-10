@@ -2554,3 +2554,23 @@ Stage Summary:
 - Feature live on homepage navbar: "How it works" explorer with 20 detailed sections covering every product and platform capability, verified E2E on desktop + mobile
 - Artifacts: src/components/site/how-it-works/{types,sections-patients,sections-clinical,sections-platform,content}.ts(x), explorer.tsx, navbar.tsx edit
 - Commit: feat(site): 'How it works' explorer in navbar — 20-section guided tour of every feature
+
+---
+Task ID: HIW-2
+Agent: Super Z (main)
+Task: User reported "How it works not visible" — diagnose, fix, commit all changes. Everything in English.
+
+Work Log:
+- Diagnosed: ALL servers down (sandbox process reset) AND the production standalone build predated the feature; .env had been wiped to DATABASE_URL only (sandbox reset), so production build failed its own JWT_SECRET guard (src/lib/env.ts / src/lib/auth/jwt.ts fail-fast in prod)
+- Restored .env: DATABASE_URL=file:/home/z/my-project/db/custom.db (original absolute path preserved), fresh CSPRNG JWT_SECRET (64-hex), DEMO_MODE=true
+- Rebuilt production: next build OK; then fixed preview serving — standalone output lacked .next/static and public/ (Next.js never copies them automatically); classic unstyled-HTML + 404-chunks symptom
+- Hardened scripts/nx-supervisor.sh: rm+cp syncs .next/static and public/ into .next/standalone on every boot before server.js starts, so rebuilds can never leave the preview half-served
+- Killed stale listeners correctly: next-server renames its process title (pkill -f "server.js" misses it) — used pkill -f "next-server"; supervisor now owns :3000 cleanly
+- Amended an automated UUID-message commit into a proper English message (09f17cd)
+- Verified on PRODUCTION :3000 via browser E2E: HTML 200, CSS 200, JS 200, /api/nx/system-status healthy, "How it works" button present, explorer opens with all 20 rail sections; screenshot saved
+- All commits and messages in English; UI content of the feature is English-only
+
+Stage Summary:
+- Root cause was environment (dead servers + stale standalone build + wiped .env), not the feature code
+- Preview on :3000 now serves the current build with the How-it-works explorer fully working; supervisor self-heals asset sync on every restart
+- Commits: d90d996 (feature), 09f17cd (amended artifacts commit), 77ea52d (supervisor fix)
