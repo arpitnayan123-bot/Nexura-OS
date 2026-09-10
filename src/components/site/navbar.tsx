@@ -59,20 +59,13 @@ export function Navbar() {
             <Button
               onClick={() => setHowOpen(true)}
               variant="ghost"
-              className="rounded-full px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:px-3"
+              className="rounded-full text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               <span className="flex items-center gap-1.5">
                 <CircleHelp className="h-4 w-4" />
                 <span className="hidden lg:inline">How it works</span>
                 <span className="hidden sm:inline lg:hidden">How&nbsp;it&nbsp;works</span>
               </span>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className="hidden rounded-full text-sm font-medium sm:inline-flex"
-            >
-              <Link href="#dashboard">Sign in</Link>
             </Button>
             <Button
               onClick={() => openBooking()}
