@@ -39,12 +39,14 @@ export function fail(code: string, status: number, detail?: string, requestId?: 
  *  A modest default rate limit applies to every wrapped route (per IP + route);
  *  pass `{ rateLimit }` to tighten it for expensive/sensitive handlers. */
 export const DEFAULT_ROUTE_RATE_LIMIT = { max: 300, windowMs: 60_000 } as const;
-export function withRoute(
+/** Generic over route params so dynamic segments (e.g. [patientId])
+ *  flow through; existing handlers that ignore params are unaffected. */
+export function withRoute<P = Record<string, string>>(
   name: string,
-  handler: (req: NextRequest, ctx: { requestId: string }) => Promise<NextResponse>,
+  handler: (req: NextRequest, ctx: { requestId: string; params: Promise<P> }) => Promise<NextResponse>,
   opts?: { rateLimit?: { max: number; windowMs: number } }
 ) {
-  return async (req: NextRequest) => {
+  return async (req: NextRequest, routeCtx?: { params?: Promise<P> }) => {
     const requestId = req.headers.get("x-request-id") || newRequestId();
     const started = Date.now();
     try {
@@ -58,7 +60,7 @@ export function withRoute(
           });
         }
       }
-      const res = await handler(req, { requestId });
+      const res = await handler(req, { requestId, params: (routeCtx?.params ?? Promise.resolve({})) as Promise<P> });
       res.headers.set("x-request-id", requestId);
       log.info("api", name, { requestId, ms: Date.now() - started, status: res.status });
       return res;
