@@ -29,8 +29,37 @@ async function readAll(hospitalId: string) {
 export const GET = withRoute("system.status.get", async () => {
   const hospitalId = (await db.hospital.findFirst({ select: { id: true } }))?.id ?? "none";
   const status = await readAll(hospitalId);
-  return NextResponse.json({ data: { status } });
+  // Additive self-heal diagnostics (Bug Sentinel): recent client-side error
+  // aggregates so a single health probe sees frontend health too.
+  const selfheal = await readClientErrors();
+  return NextResponse.json({ data: { status, selfheal } });
 });
+
+async function readClientErrors() {
+  try {
+    const { promises: fs } = await import("fs");
+    const path = await import("path");
+    const root = process.env.NX_PROJECT_ROOT || "/home/z/my-project";
+    const file = path.join(root, "logs", "client-errors.jsonl");
+    const text = await fs.readFile(file, "utf8").catch(() => "");
+    const lines = text.trim().split("\n").filter(Boolean);
+    const byMessage = new Map<string, number>();
+    for (const line of lines.slice(-300)) {
+      try {
+        const row = JSON.parse(line) as { kind?: string; message?: string };
+        const key = `${row.kind ?? "?"}: ${String(row.message ?? "").slice(0, 80)}`;
+        byMessage.set(key, (byMessage.get(key) ?? 0) + 1);
+      } catch {}
+    }
+    const top = [...byMessage.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([message, count]) => ({ message, count }));
+    return { total: lines.length, top };
+  } catch {
+    return { total: 0, top: [] };
+  }
+}
 
 const SetSchema = z.object({
   key: z.enum(KEYS),
