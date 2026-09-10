@@ -60,6 +60,7 @@ export function FoodScan() {
     try {
       const res = await fetch("/api/know-your-health/food-scan", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({ image: { base64: image.base64, mimeType: image.mimeType }, mealType }),
       });
       if (!res.ok) {

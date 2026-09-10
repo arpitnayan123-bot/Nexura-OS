@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { connectGate } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,6 +8,8 @@ export const dynamic = "force-dynamic";
 // GET /api/connect/connections?doctorId=xxx OR ?patientId=xxx
 // Returns connections with lastMessage + unreadCount.
 export async function GET(req: NextRequest) {
+  const gate = connectGate(req);
+  if (gate) return gate;
   try {
     const { searchParams } = new URL(req.url);
     const doctorId = searchParams.get("doctorId");
@@ -59,6 +62,8 @@ export async function GET(req: NextRequest) {
 // Idempotent: if active connection exists for same doctorId+patientId, update lastConsultDate and return existing.
 // Sets whatsappSent=true. Returns {connection, whatsappSent, whatsappMessage}.
 export async function POST(req: NextRequest) {
+  const gate = connectGate(req);
+  if (gate) return gate;
   try {
     const body = await req.json().catch(() => ({}));
     const {

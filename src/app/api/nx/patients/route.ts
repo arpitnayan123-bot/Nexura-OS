@@ -16,16 +16,24 @@ export async function GET(req: NextRequest) {
   const q = (searchParams.get("q") || "").trim().toLowerCase();
   const take = Math.min(Number(searchParams.get("take")) || 20, 50);
 
+  // Patient-role accounts may only ever see their OWN record — never the
+  // hospital directory.
+  const selfScope =
+    gate.session.role === "patient" && gate.session.linkedPatientId
+      ? { id: gate.session.linkedPatientId }
+      : {};
+
   const where = q
     ? {
         hospitalId,
+        ...selfScope,
         OR: [
           { fullName: { contains: q } },
           { uhid: { contains: q } },
           { phone: { contains: q } },
         ],
       }
-    : { hospitalId };
+    : { hospitalId, ...selfScope };
 
   const patients = await db.hospitalPatient.findMany({
     where,

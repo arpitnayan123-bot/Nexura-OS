@@ -59,6 +59,7 @@ export function XrayReader() {
     try {
       const res = await fetch("/api/know-your-health/xray-reader", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({
           image: { base64: image.base64, mimeType: image.mimeType },
           bodyPart,

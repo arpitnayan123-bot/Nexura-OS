@@ -64,7 +64,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 /* ---------- Token Generation ---------- */
-export function generateAccessToken(user: AuthUser, claims?: { jti?: string; staffCode?: string; department?: string; hospitalId?: string; breakGlass?: boolean }): string {
+export function generateAccessToken(user: AuthUser, claims?: { jti?: string; staffCode?: string; department?: string; hospitalId?: string; breakGlass?: boolean; linkedPatientId?: string | null }): string {
   return jwt.sign(
     {
       userId: user.id,

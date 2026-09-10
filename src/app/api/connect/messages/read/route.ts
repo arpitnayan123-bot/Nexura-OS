@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { connectGate } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,6 +9,8 @@ export const dynamic = "force-dynamic";
 // Body: {connectionId, readByRole}
 // Marks all messages from the OTHER role as read.
 export async function PATCH(req: NextRequest) {
+  const __gate = connectGate(req);
+  if (__gate) return __gate;
   try {
     const body = await req.json().catch(() => ({}));
     const { connectionId, readByRole } = body as any;

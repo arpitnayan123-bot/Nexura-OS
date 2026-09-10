@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { connectGate } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,6 +8,8 @@ export const dynamic = "force-dynamic";
 // GET /api/connect/queue?doctorId=xxx
 // Returns grouped by mode: {queue:{chat:[],voice:[],video:[]}, totalWaiting}.
 export async function GET(req: NextRequest) {
+  const __gate = connectGate(req);
+  if (__gate) return __gate;
   try {
     const { searchParams } = new URL(req.url);
     const doctorId = searchParams.get("doctorId");
@@ -55,6 +58,8 @@ export async function GET(req: NextRequest) {
 // Body: {connectionId, requestedMode, reason?}
 // Creates a waiting entry.
 export async function POST(req: NextRequest) {
+  const __gate = connectGate(req);
+  if (__gate) return __gate;
   try {
     const body = await req.json().catch(() => ({}));
     const { connectionId, requestedMode = "chat", reason } = body as any;
@@ -86,6 +91,8 @@ export async function POST(req: NextRequest) {
 // Body: {queueId, doctorId}
 // Sets status="picked_up", pickedUpAt, pickedUpByDoctorId.
 export async function PATCH(req: NextRequest) {
+  const __gate = connectGate(req);
+  if (__gate) return __gate;
   try {
     const body = await req.json().catch(() => ({}));
     const { queueId, doctorId } = body as any;

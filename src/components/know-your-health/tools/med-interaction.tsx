@@ -73,6 +73,7 @@ export function MedInteraction() {
     try {
       const res = await fetch("/api/know-your-health/med-interaction", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({ medications: cleanMeds, conditions: cleanConds, age: Number(age) || 0, gender, kidneyFunction: kidney, liverFunction: liver }),
       });
       if (!res.ok) {

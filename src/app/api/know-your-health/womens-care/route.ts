@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const concern = typeof body?.concern === "string" ? body.concern.trim() : "";
     const symptoms = typeof body?.symptoms === "string" ? body.symptoms.trim() : "";
-    if (!concern && !symptoms) return NextResponse.json({ error: "no_input" }, { status: 400 });
+    if (!concern && !symptoms) return NextResponse.json({ error: "no_input", detail: "Describe your concern so we can help." }, { status: 400 });
 
     const profile = {
       concern, age: Number(body?.age) || null,

@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 
 /* Step-up verification tokens (5-min, action-bound, single-purpose).
    Used by privileged actions: billing approval, medication verification,
@@ -34,7 +34,8 @@ export function inspectStepUpToken(token: string | null | undefined, action: Ste
   if (!b64 || !sig) return { ok: false, reason: "malformed" };
   const body = Buffer.from(b64, "base64url").toString();
   const expect = createHmac("sha256", stepUpSecret()).update(body).digest("hex");
-  if (sig !== expect) return { ok: false, reason: "bad_signature" };
+  const a = Buffer.from(expect), b = Buffer.from(sig);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return { ok: false, reason: "bad_signature" };
   const [uid, act, subj, exp] = body.split("|");
   if (act !== action) return { ok: false, reason: "wrong_action" };
   if ((subj ?? "") !== (subjectId ?? "")) return { ok: false, reason: "wrong_subject" };

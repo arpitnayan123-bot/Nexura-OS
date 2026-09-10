@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { aiGate } from "@/lib/nx/ai-guard";
+import { getPortalCaller } from "@/lib/portal-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const SESSION_COOKIE = "portal_session";
 
 const SYSTEM_PROMPT =
   "You are Nexa AI, a clinical lab report interpreter for Indian patients. Analyze the lab values, identify abnormal results, explain in plain language, suggest next steps. Always include disclaimer. Use markdown. Under 300 words.";
@@ -31,15 +29,14 @@ export async function POST(req: NextRequest) {
   const __ai = aiGate(req);
   if (__ai) return __ai;
   try {
-    const store = await cookies();
-    const userId = store.get(SESSION_COOKIE)?.value;
-    if (!userId) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    const caller = await getPortalCaller();
+    if (!caller) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
     const bookingId = body.bookingId;
     if (!bookingId) return NextResponse.json({ error: "bookingId is required" }, { status: 400 });
 
-    const booking = await db.bloodBooking.findFirst({ where: { id: bookingId, userId } });
+    const booking = await db.bloodBooking.findFirst({ where: { id: bookingId, userId: caller.id } });
     if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     if (!booking.reportJson) return NextResponse.json({ error: "No report available for this booking yet" }, { status: 400 });
 

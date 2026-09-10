@@ -52,6 +52,7 @@ export function HealthQuiz() {
     try {
       const res = await fetch("/api/know-your-health/health-quiz", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({ questions, answers }),
       });
       if (!res.ok) {

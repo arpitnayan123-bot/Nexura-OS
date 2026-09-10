@@ -38,6 +38,7 @@ export function SleepQuality() {
     try {
       const res = await fetch("/api/know-your-health/sleep-quality", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({
           ...f,
           sleepLatencyMin: Number(f.sleepLatencyMin), awakenings: Number(f.awakenings),

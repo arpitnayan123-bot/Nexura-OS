@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     const body = (await req.json().catch(() => ({}))) as Partial<Input>;
     const age = Number(body.age); const heightCm = Number(body.heightCm); const weightKg = Number(body.weightKg);
     const calorieTarget = Number(body.calorieTarget);
-    if (!age || !heightCm || !weightKg || !calorieTarget) return NextResponse.json({ error: "missing_required" }, { status: 400 });
+    if (!age || !heightCm || !weightKg || !calorieTarget) return NextResponse.json({ error: "missing_required", detail: "Age, height, weight and calorie target are all required." }, { status: 400 });
 
     const profile: Input = {
       goal: String(body.goal || "maintain"), dietaryPreference: String(body.dietaryPreference || "vegetarian"),

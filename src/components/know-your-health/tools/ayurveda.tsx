@@ -64,6 +64,7 @@ export function Ayurveda() {
     try {
       const res = await fetch("/api/know-your-health/ayurveda", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({ answers: cleaned }),
       });
       if (!res.ok) {

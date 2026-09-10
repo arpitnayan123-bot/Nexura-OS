@@ -1,4 +1,4 @@
-import { createHmac, randomUUID } from "crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "crypto";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 
@@ -111,10 +111,11 @@ async function deliver(endpoint: EndpointLike, event: string, payload: Record<st
   }
 }
 
-/** Verify an inbound webhook signature. */
+/** Verify an inbound webhook signature (timing-safe). */
 export function verifyInbound(secret: string, rawBody: string, signature: string | null): boolean {
   if (!signature) return false;
   const expected = signPayload(secret, rawBody);
-  if (expected.length !== signature.length) return false;
-  return createHmac("sha256", secret).update(rawBody).digest("hex") === signature.replace("sha256=", "");
+  const provided = signature.replace("sha256=", "");
+  if (expected.length !== provided.length) return false;
+  return timingSafeEqual(Buffer.from(expected), Buffer.from(provided));
 }

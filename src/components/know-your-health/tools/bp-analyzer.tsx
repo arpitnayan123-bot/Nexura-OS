@@ -49,6 +49,7 @@ export function BpAnalyzer() {
     try {
       const res = await fetch("/api/know-your-health/bp-analyzer", {
         method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({ readings: clean, age: Number(age) || 0, gender }),
       });
       if (!res.ok) {

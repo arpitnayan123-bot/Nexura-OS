@@ -7,7 +7,9 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 // GET /api/know-your-health/health-quiz — generate 10 fresh questions
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const __ai = aiGate(req, { max: 6, windowMs: 5 * 60_000 });
+  if (__ai) return __ai;
   try {
     const prompt = `Generate 10 fresh multiple-choice health quiz questions adapted for an Indian audience. Cover nutrition, hygiene, common diseases (diabetes, hypertension, dengue, TB), first aid, mental health, and lifestyle.
 Return STRICT JSON only:

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { connectGate } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,6 +8,8 @@ export const dynamic = "force-dynamic";
 // GET /api/connect/calls?doctorId=xxx OR ?connectionId=xxx
 // Returns call logs (most recent first).
 export async function GET(req: NextRequest) {
+  const __gate = connectGate(req);
+  if (__gate) return __gate;
   try {
     const { searchParams } = new URL(req.url);
     const doctorId = searchParams.get("doctorId");
@@ -37,6 +40,8 @@ export async function GET(req: NextRequest) {
 // Body: {connectionId, type:"voice"|"video", initiatedBy}
 // Creates a call with status="initiated".
 export async function POST(req: NextRequest) {
+  const __gate = connectGate(req);
+  if (__gate) return __gate;
   try {
     const body = await req.json().catch(() => ({}));
     const { connectionId, type = "video", initiatedBy = "patient" } = body as any;
@@ -68,6 +73,8 @@ export async function POST(req: NextRequest) {
 // Body: {callId, status, durationSec?, callSummary?, prescriptionJson?}
 // Sets answeredAt/endedAt based on status.
 export async function PATCH(req: NextRequest) {
+  const __gate = connectGate(req);
+  if (__gate) return __gate;
   try {
     const body = await req.json().catch(() => ({}));
     const { callId, status, durationSec, callSummary, prescriptionJson } = body as any;

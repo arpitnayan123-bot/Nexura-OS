@@ -13,8 +13,14 @@ export async function GET(req: NextRequest) {
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
 
+  // Patient-role accounts only see their own admissions.
+  const selfScope =
+    gate.session.role === "patient" && gate.session.linkedPatientId
+      ? { patientId: gate.session.linkedPatientId }
+      : {};
+
   const admissions = await db.hospitalAdmission.findMany({
-    where: { hospitalId },
+    where: { hospitalId, ...selfScope },
     orderBy: { admissionDate: "desc" },
     take: 50,
     include: {
@@ -46,7 +52,8 @@ export async function POST(req: NextRequest) {
 
   const [patient, bed] = await Promise.all([
     db.hospitalPatient.findFirst({ where: { id: body.patientId, hospitalId } }),
-    db.hospitalBed.findUnique({ where: { id: body.bedId }, include: { ward: true } }),
+    // Tenant-safe: a bed from ANOTHER hospital must never be assignable here.
+    db.hospitalBed.findFirst({ where: { id: body.bedId, ward: { hospitalId } }, include: { ward: true } }),
   ]);
   if (!patient) return NextResponse.json({ error: "patient_not_found" }, { status: 404 });
   if (!bed) return NextResponse.json({ error: "bed_not_found" }, { status: 404 });

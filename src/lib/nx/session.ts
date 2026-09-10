@@ -308,6 +308,7 @@ export interface NxSession {
   staffCode?: string;
   jti?: string;
   breakGlass?: boolean;
+  linkedPatientId?: string | null;
 }
 
 /** Cache of effective permissions per request cycle (per process, short TTL). */
@@ -358,6 +359,7 @@ export function getSession(req: NextRequest): NxSession | null {
     staffCode?: string;
     jti?: string;
     breakGlass?: boolean;
+    linkedPatientId?: string | null;
   };
   return {
     userId: decoded.userId,
@@ -368,6 +370,7 @@ export function getSession(req: NextRequest): NxSession | null {
     staffCode: raw.staffCode,
     jti: raw.jti,
     breakGlass: raw.breakGlass,
+    linkedPatientId: raw.linkedPatientId ?? null,
   };
 }
 

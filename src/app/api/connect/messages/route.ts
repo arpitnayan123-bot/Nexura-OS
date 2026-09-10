@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { connectGate, doctorOnly } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,6 +8,8 @@ export const dynamic = "force-dynamic";
 // GET /api/connect/messages?connectionId=xxx
 // Returns messages ASC + connection info.
 export async function GET(req: NextRequest) {
+  const gate = connectGate(req);
+  if (gate) return gate;
   try {
     const { searchParams } = new URL(req.url);
     const connectionId = searchParams.get("connectionId");
@@ -34,14 +37,22 @@ export async function GET(req: NextRequest) {
 // Body: {connectionId, fromRole, fromName?, text, attachmentType?, attachmentUrl?}
 // If fromRole="doctor", mark prior patient messages as read.
 export async function POST(req: NextRequest) {
+  const gate = connectGate(req);
+  if (gate) return gate;
   try {
     const body = await req.json().catch(() => ({}));
-    const { connectionId, fromRole = "patient", fromName, text, attachmentType, attachmentUrl } = body as any;
+    const { connectionId, fromRole: requestedRole = "patient", fromName, text, attachmentType, attachmentUrl } = body as any;
+    // Doctor-side writes require a clinician session in production — a
+    // patient account can never forge clinician replies.
+    let fromRole = requestedRole;
+    if (fromRole === "doctor") {
+      const denied = doctorOnly(req);
+      if (denied) return denied;
+    } else if (!["patient", "doctor"].includes(fromRole)) {
+      return NextResponse.json({ error: "invalid_role" }, { status: 400 });
+    }
     if (!connectionId || !text || typeof text !== "string") {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
-    }
-    if (!["patient", "doctor"].includes(fromRole)) {
-      return NextResponse.json({ error: "invalid_role" }, { status: 400 });
     }
 
     const connection = await db.connectConnection.findUnique({ where: { id: connectionId } });
