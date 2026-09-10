@@ -8,6 +8,13 @@ import { BookingModal } from "@/components/site/booking-modal";
 import { PwaRegister } from "@/components/pwa-register";
 import { ErrorSentinel } from "@/components/nx/error-sentinel";
 
+// Preview freshness guarantee: without this, fully static pages emit
+// "Cache-Control: s-maxage=31536000" and any proxy/CDN between the
+// sandbox and the user's preview window pins stale HTML for a year.
+// revalidate=0 renders pages dynamically and emits no-store headers,
+// so every preview load reflects the latest deployed build.
+export const revalidate = 0;
+
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
