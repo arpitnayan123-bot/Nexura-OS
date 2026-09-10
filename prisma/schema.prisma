@@ -2716,3 +2716,205 @@ model NxEventLog {
 
   @@index([hospitalId, aggregateType, aggregateId, seq])
 }
+
+// ============================================================
+// PIE — PREDICTIVE INTELLIGENCE ENGINE
+// "Healthcare is Reactive. Nexura Makes it Predictive."
+// Multi-modal ingestion, living digital twin, pre-emptive
+// protocols, federated learning, governed as Class II SaMD.
+// ============================================================
+
+model PieBioSignal {
+  id         String   @id @default(cuid())
+  deviceId   String
+  patientId  String?
+  metric     String // heart_rate|hrv|spo2|sleep_stage|glucose|resp_rate|temp|systolic|diastolic|steps
+  value      Float
+  unit       String?
+  quality    Float    @default(1) // 0..1 signal quality flag
+  capturedAt DateTime
+  ingestedAt DateTime @default(now())
+
+  @@index([patientId, metric, capturedAt])
+  @@index([deviceId, capturedAt])
+  @@map("pie_bio_signals")
+}
+
+model PieLifeStreamEvent {
+  id            String   @id @default(cuid())
+  patientId     String
+  hospitalId    String?
+  source        String // vitals|labs|medications|encounters|notes|bio|sdoh|behavior
+  kind          String // observation|result|order|note_extract|signal|context|adherence
+  conceptCode   String? // SNOMED-CT or ICD-10 mapped concept
+  conceptSystem String? // SNOMED|ICD10|LOINC|LOCAL
+  title         String
+  value         Float?
+  unit          String?
+  severity      String? // info|watch|alert
+  outlier       Boolean  @default(false) // cleansed z-score outlier, retained but flagged
+  dataJson      String?
+  ts            DateTime
+  createdAt     DateTime @default(now())
+
+  @@index([patientId, ts])
+  @@index([patientId, source, ts])
+  @@map("pie_lifestream_events")
+}
+
+model PieTwinState {
+  id           String   @id @default(cuid())
+  patientId    String   @unique
+  stateJson    String // high-dimensional state vector snapshot
+  baselineJson String // physics-based baseline parameters
+  weightsJson  String? // per-patient series-model correction weights
+  updatedAt    DateTime @default(now())
+
+  @@map("pie_twin_states")
+}
+
+model PieRiskAssessment {
+  id            String   @id @default(cuid())
+  patientId     String
+  hospitalId    String?
+  domain        String // sepsis|readmission|chronic_deterioration|cardiac|composite
+  score         Float // Time-to-Decay 0..100
+  band          String // green|yellow|red
+  confidence    Float // 0..1, <0.8 => uncertain, manual review
+  horizonHours  Int      @default(24)
+  driversJson   String // SHAP-like attribution, top factors
+  trendJson     String? // recent score trajectory for sparklines
+  modelVersion  String
+  uncertain     Boolean  @default(false)
+  reviewedBy    String?
+  createdAt     DateTime @default(now())
+
+  @@index([patientId, createdAt])
+  @@index([hospitalId, band, createdAt])
+  @@map("pie_risk_assessments")
+}
+
+model PieProtocol {
+  id             String    @id @default(cuid())
+  patientId      String
+  assessmentId   String?
+  code           String // sepsis_bundle|hf_exacerbation|dka|htn_urgency|hypoglycemia|aki|copd
+  title          String
+  alert          String
+  primaryDriver  String
+  immediateJson  String // JSON action list
+  monitoringJson String
+  dispo          String?
+  evidence       String
+  confidence     Float
+  status         String    @default("pending_approval") // pending_approval|approved|rejected|executed
+  createdBy      String    @default("PIE")
+  approvedBy     String?
+  approvedAt     DateTime?
+  executedAt     DateTime?
+  tasksCreated   Boolean   @default(false)
+  rejectReason   String?
+  createdAt      DateTime  @default(now())
+
+  @@index([patientId, status, createdAt])
+  @@map("pie_protocols")
+}
+
+model PieGraphNode {
+  id        String @id @default(cuid())
+  label     String // Patient|Condition|Gene|Drug|LifestyleFactor|Environment|Observation
+  key       String // stable business key e.g. patient:uhid, drug:metformin
+  propsJson String?
+
+  @@unique([label, key])
+  @@map("pie_graph_nodes")
+}
+
+model PieGraphEdge {
+  id         String @id @default(cuid())
+  type       String // HIGH_RISK_OF|INTERACTS_WITH|HAS_CONDITION|EXPOSED_TO|SIMILAR_TO|IMPROVES|WORSENS
+  fromNodeId String
+  toNodeId   String
+  weight     Float  @default(1)
+  propsJson  String?
+
+  @@unique([type, fromNodeId, toNodeId])
+  @@index([fromNodeId])
+  @@index([toNodeId])
+  @@map("pie_graph_edges")
+}
+
+model PieSdohProfile {
+  id              String   @id @default(cuid())
+  patientId       String   @unique
+  regionKey       String // pincode or district key
+  aqi             Int?
+  tempC           Float?
+  humidity        Float?
+  foodDesertKm    Float?
+  crimeIndex      Float?
+  greenSpaceIndex Float?
+  updatedFrom     String   @default("nexura-regional-dataset")
+  updatedAt       DateTime @default(now())
+
+  @@map("pie_sdoh_profiles")
+}
+
+model PieAdherenceEvent {
+  id        String   @id @default(cuid())
+  patientId String
+  kind      String // med_logged|med_missed|appointment_kept|appointment_missed|app_login|plan_task_done|sleep_debt
+  value     Float    @default(1)
+  ts        DateTime @default(now())
+
+  @@index([patientId, ts])
+  @@map("pie_adherence_events")
+}
+
+model PieFederatedUpdate {
+  id         String   @id @default(cuid())
+  tenantId   String
+  modelId    String // sepsis_early_warning|readmission|chronic_decay
+  versionBase String
+  versionNew String
+  deltaJson  String // weight deltas only — no patient data leaves the tenant
+  samples    Int
+  loss       Float?
+  aggregated Boolean  @default(false)
+  uploadedAt DateTime @default(now())
+
+  @@index([modelId, aggregated, uploadedAt])
+  @@map("pie_federated_updates")
+}
+
+model PieModelRegistry {
+  id             String   @id @default(cuid())
+  modelId        String
+  version        String
+  samdClass      String   @default("Class II SaMD")
+  stage          String   @default("validated") // experimental|validated|production|retired
+  trainingWindow String // e.g. "2025-01..2026-08 retrospective, n=18420"
+  validationJson String // sensitivity/specificity/AUROC etc.
+  driftBaseline  Float    @default(0.85)
+  status         String   @default("active")
+  registeredAt   DateTime @default(now())
+
+  @@unique([modelId, version])
+  @@map("pie_model_registry")
+}
+
+model PieBiasAudit {
+  id        String   @id @default(cuid())
+  modelId   String
+  slice     String // age|gender|ethnicity
+  groupA    String
+  groupB    String
+  rateA     Float
+  rateB     Float
+  ratio     Float // min/max disparate impact ratio; >=0.8 passes four-fifths rule
+  pass      Boolean
+  createdAt DateTime @default(now())
+
+  @@index([modelId, createdAt])
+  @@map("pie_bias_audits")
+}
