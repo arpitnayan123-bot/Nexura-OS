@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Activity, ChevronRight } from "lucide-react";
+import { Activity, ChevronRight, CircleHelp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./theme-toggle";
 import { useBooking } from "./booking-context";
 import { FeaturesMenu } from "./features-menu";
+import { HowItWorksExplorer } from "./how-it-works/explorer";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [howOpen, setHowOpen] = useState(false);
   const { openBooking } = useBooking();
 
   useEffect(() => {
@@ -55,6 +57,17 @@ export function Navbar() {
             <FeaturesMenu />
             <ThemeToggle />
             <Button
+              onClick={() => setHowOpen(true)}
+              variant="ghost"
+              className="rounded-full px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:px-3"
+            >
+              <span className="flex items-center gap-1.5">
+                <CircleHelp className="h-4 w-4" />
+                <span className="hidden lg:inline">How it works</span>
+                <span className="hidden sm:inline lg:hidden">How&nbsp;it&nbsp;works</span>
+              </span>
+            </Button>
+            <Button
               asChild
               variant="ghost"
               className="hidden rounded-full text-sm font-medium sm:inline-flex"
@@ -73,6 +86,9 @@ export function Navbar() {
           </div>
         </nav>
       </div>
+
+      {/* How-it-works explorer — every feature of the ecosystem, in crisp steps */}
+      <HowItWorksExplorer open={howOpen} onOpenChange={setHowOpen} />
     </header>
   );
 }
