@@ -185,6 +185,23 @@ export interface NxStreamEvent {
   data: Record<string, unknown>;
   at: string;
   seq?: number;
+  sig?: string;
+}
+
+/** HMAC-SHA256 verification via WebCrypto (async, fire-and-forget safe). */
+async function verifyEventSig(ev: NxStreamEvent, key: string): Promise<boolean> {
+  if (!ev.sig) return false;
+  try {
+    const enc = new TextEncoder();
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw", enc.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]
+    );
+    const mac = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(`${ev.seq}|${ev.event}|${JSON.stringify(ev.data ?? null)}`));
+    const hex = Array.from(new Uint8Array(mac)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    return hex === ev.sig;
+  } catch {
+    return false;
+  }
 }
 
 export function useNxStream(opts?: { onEvent?: (ev: NxStreamEvent) => void; enabled?: boolean }) {
@@ -203,6 +220,7 @@ export function useNxStream(opts?: { onEvent?: (ev: NxStreamEvent) => void; enab
     let es: EventSource | null = null;
     let retry: ReturnType<typeof setTimeout> | null = null;
     let closed = false;
+    let signingKey = "";
 
     const connect = () => {
       if (closed) return;
@@ -211,10 +229,14 @@ export function useNxStream(opts?: { onEvent?: (ev: NxStreamEvent) => void; enab
         try {
           const data = JSON.parse((e as MessageEvent).data);
           if (data.lastSyncedAt) setLastSyncedAt(data.lastSyncedAt);
+          // Alert-integrity: per-hospital HMAC key delivered only over the
+          // authenticated stream — injected code cannot forge signed events.
+          if (data.signingKey) signingKey = String(data.signingKey);
         } catch { /* noop */ }
         setConnected(true);
       });
       es.addEventListener("nx", (e) => {
+        void (async () => {
         try {
           const ev = JSON.parse((e as MessageEvent).data) as NxStreamEvent;
           // duplicate suppression: server seq per connection cycle
@@ -223,10 +245,14 @@ export function useNxStream(opts?: { onEvent?: (ev: NxStreamEvent) => void; enab
             seen.current.add(ev.seq);
             if (seen.current.size > 500) seen.current = new Set(Array.from(seen.current).slice(-200));
           }
+          // Drop unsigned/mismatched events (anti-spoof for critical alerts)
+          const verified = signingKey ? await verifyEventSig(ev, signingKey) : true;
+          if (!verified) return;
           setLastSyncedAt(ev.at ?? new Date().toISOString());
           handler.current?.(ev);
           window.dispatchEvent(new CustomEvent("nx-live-event", { detail: ev }));
         } catch { /* noop */ }
+        })();
       });
       es.onerror = () => {
         setConnected(false);

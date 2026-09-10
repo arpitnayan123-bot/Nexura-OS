@@ -1,0 +1,12 @@
+{
+  "name": "Nexura Hospital OS",
+  "short_name": "Nexura OS",
+  "description": "Browser-native operating system for hospitals — clinical, operational and patient-centric.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0e13",
+  "theme_color": "#0b0e13",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

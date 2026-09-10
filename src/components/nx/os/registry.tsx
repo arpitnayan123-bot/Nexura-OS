@@ -67,6 +67,7 @@ const AutomationBuilder = app(() => import("../mod-automations"), "AutomationBui
 const AnalyticsCenter = app(() => import("../mod-analytics"), "AnalyticsCenter");
 const BillingCenter = app(() => import("../mod-billing"), "BillingCenter");
 const AdminCenter = app(() => import("../mod-admin"), "AdminCenter");
+const GovernanceCenter = app(() => import("../mod-governance"), "GovernanceCenter");
 const SettingsApp = app(() => import("./settings-app"), "SettingsApp");
 const FilesApp = app(() => import("./files-app"), "FilesApp");
 const ConsoleApp = app(() => import("./console-app"), "ConsoleApp");
@@ -92,6 +93,7 @@ export const APPS: AppDef[] = [
   { key: "billing", label: "Revenue Cycle", group: "System", icon: Receipt, desc: "Claims, billing and payments", render: () => <BillingCenter /> },
   { key: "audit", label: "Audit Trail", group: "System", icon: ScrollText, desc: "Tamper-evident chain of every action", render: () => <AdminCenter view="audit" /> },
   { key: "admin", label: "Administration", group: "System", icon: Settings, desc: "Staff, integrations and security", render: () => <AdminCenter view="admin" /> },
+  { key: "governance", label: "Governance & Trust", group: "System", icon: ShieldAlert, desc: "Tenancy, interoperability, security posture, compliance, AI governance", render: () => <GovernanceCenter /> },
   { key: "files", label: "Documents", group: "System", icon: FolderOpen, desc: "Dossiers, orders with results and reports", system: true, render: (c) => <FilesApp ctx={c} /> },
   { key: "console", label: "Console", group: "System", icon: SquareTerminal, desc: "Terminal over the live hospital APIs", system: true, render: (c) => <ConsoleApp ctx={c} /> },
   { key: "settings", label: "System Settings", group: "System", icon: Settings, desc: "Appearance, accessibility and account", system: true, render: () => <SettingsApp /> },

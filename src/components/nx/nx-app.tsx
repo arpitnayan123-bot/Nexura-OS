@@ -22,6 +22,7 @@ import { APPS, appFor, type AppCtx } from "./os/registry";
 import { WS_COUNT, useOs, type Wallpaper } from "./os/store";
 import { NxBackSync, NxBackFab } from "./os/back-ui";
 import { useBack, useNxHistoryBridge } from "./os/back";
+import { installOfflineAutoFlush, queueOp } from "@/lib/nx-client/offline";
 
 /* ============================================================
    HOSPITAL OS — desktop orchestrator
@@ -99,14 +100,26 @@ export function NxApp() {
     return () => mq.removeEventListener("change", apply);
   }, [theme, accent, setResolved]);
 
-  /* ---------- connectivity ---------- */
+  /* ---------- connectivity + offline write buffer ---------- */
   useEffect(() => {
     const on = () => setOnline(true);
     const off = () => setOnline(false);
     queueMicrotask(() => setOnline(navigator.onLine));
     window.addEventListener("online", on);
     window.addEventListener("offline", off);
-    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
+    // v5: auto-flush queued triage/drafts when connectivity returns
+    const uninstall = installOfflineAutoFlush();
+    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); uninstall(); };
+  }, []);
+
+  /* ---------- v5: locale + device mode boot from settings ---------- */
+  useEffect(() => {
+    try {
+      const locale = localStorage.getItem("nx-locale");
+      if (locale) document.documentElement.lang = locale;
+      const mode = localStorage.getItem("nx-mode");
+      if (mode) document.documentElement.dataset.nxMode = mode;
+    } catch { /* private mode */ }
   }, []);
 
   /* ---------- keep windows inside the stage on resize ---------- */
@@ -407,11 +420,24 @@ export function NxApp() {
         <NxBackSync enabled={Boolean(user)} />
         {isMobile && <NxBackFab />}
 
-        {/* offline banner */}
+        {/* offline banner + capture affordance */}
         {!online && (
           <div className="absolute bottom-20 left-1/2 z-[56] flex -translate-x-1/2 items-center gap-2 rounded-full border border-warn-line bg-warn-soft px-4 py-1.5 text-[12px] font-medium text-warn backdrop-blur">
             <WifiOff className="h-3.5 w-3.5" />
-            Offline — windows show cached data. Reconnecting… (last sync {stream.lastSyncedAt ? new Date(stream.lastSyncedAt).toLocaleTimeString("en-IN") : "—"})
+            Offline — windows show cached data. Critical triage stays available.
+            <button
+              className="rounded-full bg-warn-soft px-2 py-0.5 text-[11px] font-semibold underline-offset-2 hover:underline"
+              onClick={async () => {
+                const uhid = window.prompt("Patient UHID (if known — leave blank for unknown):") ?? "";
+                const complaint = window.prompt("Presenting complaint:") ?? "";
+                if (!complaint) return;
+                await queueOp({ type: "triage", patientUhid: uhid || undefined, payload: { complaint, capturedBy: user?.name } });
+                toast.success("Triage captured offline — will sync automatically");
+              }}
+            >
+              Capture triage
+            </button>
+            <span id="nx-offline-pending" />
           </div>
         )}
       </main>
