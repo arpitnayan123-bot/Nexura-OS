@@ -3,6 +3,7 @@ import { Hero } from "@/components/site/hero";
 import { FeaturesShowcase } from "@/components/site/features-showcase";
 import { FounderBadge } from "@/components/site/founder-badge";
 import { ProductShowcase } from "@/components/site/product-showcase";
+import { PredictiveShowcase } from "@/components/site/predictive-showcase";
 import { CleanFooter } from "@/components/site/clean-footer";
 import { HealthAssistant } from "@/components/widgets/health-assistant";
 import { BackToTop } from "@/components/site/back-to-top";
@@ -27,6 +28,7 @@ export default function Home() {
         <Hero />
         <FeaturesShowcase />
         <FounderBadge />
+        <PredictiveShowcase />
       </main>
 
       <CleanFooter />
