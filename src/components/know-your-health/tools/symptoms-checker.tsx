@@ -180,15 +180,15 @@ export function SymptomsChecker() {
                 className="overflow-hidden rounded-2xl glass-soft shadow-depth"
               >
                 <div className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white" style={{ background: "linear-gradient(135deg, #D98B6E, #C98A7A)" }}>
-                  <MessageCircle className="h-3.5 w-3.5" /> Nexura Connect — Talk to a real doctor
+                  <MessageCircle className="h-3.5 w-3.5" /> Nexura Connect — Consult a doctor
                 </div>
                 <div className="p-4">
                   <div className="flex items-start gap-3">
                     <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#D98B6E] to-[#C98A7A] font-serif text-base font-bold text-white shadow-depth">AK</span>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-[#1F1B17]">Dr. Aanya Kapoor</p>
-                      <p className="text-[0.7rem] text-[#9A8F84]">General Physician · Available now · Avg reply &lt; 5 min</p>
-                      <p className="mt-1.5 text-xs text-[#5C544D]">Your symptoms suggest it would help to talk to a doctor. Connect now for chat, voice, or video follow-up.</p>
+                      <p className="text-[0.7rem] text-[#9A8F84]">General Physician · via Nexura Connect</p>
+                      <p className="mt-1.5 text-xs text-[#5C544D]">Your symptoms suggest it would help to talk to a doctor. Create a connection and follow up in Nexura Connect.</p>
                     </div>
                   </div>
                   <button
