@@ -2807,3 +2807,20 @@ Work Log:
 
 Stage Summary:
 - Commit 90b6db9 on main. /predictive is now an always-dark glassmorphic command center: live particle radar, neon gauges, spline forecasts, holographic scrub card, skeleton-glitch loading, professional clinical copy, AA-readable text. Theme-independent by design; home page untouched and verified.
+
+---
+Task ID: PIE-AG2
+Agent: Super Z (main)
+Task: Second premium redesign pass on /predictive — "Aurora Glass v2": brighter font colors, true glassmorphism, fix white slab below the console; restore demo cohort data lost to a DB volume reset.
+
+Work Log:
+- Diagnosed user complaints: dim text (slate-400/500 on navy), weak glass read (flat dark tiles), white slab under the page footer (mesh blob bottom:-6rem extended document scroll by 96px).
+- globals.css: rebuilt nxp system — gradient hairline borders via masked ::before, specular inset top edge, hover sheen sweep, blur(26px) saturate(1.45), deeper aurora canvas, readability tokens --nxp-hi/body/dim/mute (all WCAG AA+), body:has(.nxp-shell) dark safety net, ::selection styling.
+- page.tsx: brightness pass on 19 text spots (body→slate-200/300, mono labels→sky-300, footer→slate-300/400); ambient mesh container clipped with overflow-hidden (overflowPx now 0).
+- crisis-radar-canvas.tsx: instrument range rings + crosshair + center dot, tracked-target rings flare as sweep passes, brighter edges (alpha .08→.16 flare) / beam (.13) / halos (.30).
+- twin-whatif / india-risk-explorer / risk-gauge / console-bar: batch dim-text brightening (slate-400→300, slate-500→400); console bar brand label → sky-300.
+- DB volume was reset (hospital+patients gone, radar idled at 00): added scripts/seed-hospital-bootstrap.ts (idempotent hospital + 12-patient roster), re-ran seed-pie.ts → 5 living twins (4 critical, 1 stable, cohort mean 67).
+- Gates after pkill: tsc 0, eslint 0, vitest 119/119, smoke 56/56. E2E agent-browser: desktop 1440 + mobile 390 screenshots; verified scrollH==shellH and bodyBg #0C1424.
+
+Stage Summary:
+- /predictive now renders the Aurora Glass v2 command center with readable neon inks, true frosted tiles and a live 5-twin cohort; commit <this-commit>; screenshots download/pie-v2-*.png.
