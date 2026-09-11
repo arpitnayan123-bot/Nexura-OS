@@ -3670,3 +3670,20 @@ Work Log:
 
 Stage Summary:
 - The homepage now wears the complete Nexura Linen system: warm canvas + General Sans + inset-glass surfaces + honest proof anatomy + a single warm-dark AI moment + warm globe + auditable trust rail + crisis band. Strictly additive/honest (no fabricated metrics; pills are qualifiers not growth claims). Scoped to .nx-linen — every other page byte-identical in styling. Globe cost-tamed for low-end GPUs. AI CTA verified to route to /know-your-health.
+
+---
+Task ID: NXP-AI-GARDEN (AI strip -> minimal "night garden" redesign)
+Agent: Super Z (main)
+Task: User: keep Nexura Intelligence above the world globe, but make it much smaller/minimal, redesign it to match the globe, as a garden-style nature scene.
+
+Work Log:
+- Redesign concept "Night Garden above the Earth": strip keeps its position (AiStrip -> GlobeCard) and adopts the globe card's own language — same #1F1B17 canvas, sand #D9C7AE + terracotta #D98B6E, warm ember glow — so the two cards read as a matched pair. Height cut ~470px -> 255px.
+- SCENE (all aria-hidden, pure CSS/SVG in globals.css + component): three-layer dusk-sage hill silhouettes (SVG, preserveAspectRatio=none), 4 swaying leaf stems (.nx-stem, nx-sway rotate keyframes, per-stem duration/delay), 7 drifting fireflies (.nx-fly, nx-drift upward + flicker, sand/terracotta glow echoing the globe's pulses), soft ember + sage radial glows, and the thinking orb shrunk to a 68px "moon" (.nx-orb-sm scaled insets) — its dotted rings rhyme with the globe's dot matrix.
+- MINIMALIZED CONTENT: big beam prompt card -> slim 40px pill bar (cycling prompts + caret + thinking chip, nx-fade swap); fact chips -> one micro line "12 risk domains · 40 symptom patterns · 130+ weighted factors"; heading kept but 24-30px; long paragraph dropped; CTA + honesty note ("Free in beta · educational guidance, not a diagnosis") kept, terracotta pill.
+- MOBILE BUG FOUND+FIXED: prompt bar's truncate(nowrap) text gave it ~390px min-content, flooring the copy grid item (min-width:auto) wider than the 310px track -> right-edge clipping at 390px. Fixed with min-w-0 on the copy column; verified zero overflowing nodes afterwards.
+- A11Y: scene decorative + aria-hidden; reduced-motion freezes sway/drift/orb/fade (nx-stem/nx-fly/nx-fade added to the kill list; fireflies rest at 0.35 opacity so the garden still reads).
+- Gates: tsc 0, eslint 0. Deploys x2 via deploy-preview.sh — DEPLOY VERIFIED (0 dev fingerprints, chunks 200, markers, cache headers).
+- Browser E2E (agent-browser, prod build): desktop strip 255px, garden+globe pair screenshotted; prompt cycling advancing; CTA -> /know-your-health verified by click; mobile 390px docWidth=390 no overflow; zero page errors, clean console.
+
+Stage Summary:
+- Nexura Intelligence now lives in a compact dusk-garden band directly above the warm globe — same canvas, same sand/terracotta signals, half the size, fully reduced-motion-safe. Screenshots: download/garden-ai-strip.png, garden-pair-globe.png, garden-final-desktop.png, garden-mobile.png.
