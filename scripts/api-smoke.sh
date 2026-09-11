@@ -36,6 +36,8 @@ probe "/api/nx/telehealth/route"
 probe "/api/nx/twin/simulate"
 probe "/api/nx/wearables/insights"
 probe "/api/nx/webhooks/endpoints"
+probe "/api/nx/foresight/history"
+probe "/api/nx/foresight/data"
 probe "/api/nx/ai"
 probe "/api/nx/ai/thresholds"
 # Nexura Predictive Health Intelligence (PHI) — status is public (200);

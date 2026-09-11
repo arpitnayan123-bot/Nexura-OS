@@ -1,84 +1,73 @@
 import type { Metadata } from "next";
+import { ForesightExperience } from "@/components/foresight/experience";
 
 /* ============================================================
- * NEXURA PREDICTIVE — /predictive
+ * NEXURA PREDICTIVE 2.0 — HEALTH FORESIGHT · /predictive
  *
- * HOLLOW SHELL. The previous feature build has been fully
- * removed; this route intentionally renders a minimal dark
- * placeholder while the next-generation experience is built
- * from scratch. The site chrome (navbar, hamburger, homepage
- * caption) remains untouched and keeps pointing here.
+ * "Healthcare is Reactive. But Nexura is Predictive."
  *
- * The inline canvas paint + :has() body rule are kept from the
- * white-screen hardening: this page must never render white,
- * even if the Tailwind chunk fails to load.
+ * Decision-support, NOT diagnosis: a deterministic, versioned,
+ * explainable disease-risk-signal engine calibrated for Indian
+ * users (symptoms, diet, South-Asian BMI bands, fitness, sleep,
+ * vitals, labs, history, air quality). Red-flag triage always
+ * runs before analysis; emergencies withhold the map entirely.
+ *
+ * The experience is client-rendered — so this shell carries the
+ * anti-white-screen hardening: inline canvas paint + :has()
+ * body rule that survive even a failed CSS chunk.
  * ============================================================ */
 
 export const metadata: Metadata = {
-  title: "Nexura Predictive",
+  title: "Nexura Predictive — Health Foresight",
   description:
-    "Healthcare is Reactive. Nexura is Predictive. The next generation of Nexura Predictive is being rebuilt.",
+    "Healthcare is Reactive. But Nexura is Predictive. Map twelve disease-risk domains from your symptoms, diet, BMI, fitness, sleep, vitals and history — calibrated for Indian bodies, explainable by design. Decision support, never a diagnosis.",
 };
 
-const HOLLOW_SHELL_CSS = `
-html:has(.nxp-hollow),
-body:has(.nxp-hollow) {
-  background: #0A1220 !important;
+const NXP_SHELL_CSS = `
+html:has(.nxf-root),
+body:has(.nxf-root) {
+  background: #070D1A !important;
 }
-html:has(.nxp-hollow) { color-scheme: dark; }
-@keyframes nxpHollowPulse {
-  0%, 100% { opacity: 0.35; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.25); }
-}
-.nxp-hollow-dot { animation: nxpHollowPulse 1.8s ease-in-out infinite; }
+html:has(.nxf-root) { color-scheme: dark; }
+@keyframes nxfSpin { to { transform: rotate(360deg); } }
+.nxf-spin { animation: nxfSpin 0.9s linear infinite; }
+@keyframes nxfPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.35); } }
+.nxf-pulse-dot { animation: nxfPulse 1.6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
-  .nxp-hollow-dot { animation: none; }
+  .nxf-spin, .nxf-pulse-dot { animation: none; }
 }
+.nxf-root ::selection { background: rgba(45, 212, 191, 0.32); }
 `;
 
 export default function PredictivePage() {
   return (
     <div
-      className="nxp-hollow flex min-h-screen flex-col"
-      style={{ backgroundColor: "#0A1220", minHeight: "100dvh", colorScheme: "dark" }}
+      className="nxf-root nxf-canvas"
+      style={{ backgroundColor: "#070D1A", minHeight: "100dvh", colorScheme: "dark" }}
     >
-      <style dangerouslySetInnerHTML={{ __html: HOLLOW_SHELL_CSS }} />
-      <main
-        className="flex flex-1 items-center justify-center px-6"
-        style={{ minHeight: "100dvh" }}
-      >
-        <div className="mx-auto max-w-md text-center">
-          <div className="mb-6 flex items-center justify-center gap-2" aria-hidden="true">
-            <span className="nxp-hollow-dot inline-block h-2 w-2 rounded-full bg-teal-300" />
-            <span
-              className="nxp-hollow-dot inline-block h-2 w-2 rounded-full bg-teal-300"
-              style={{ animationDelay: "0.3s" }}
-            />
-            <span
-              className="nxp-hollow-dot inline-block h-2 w-2 rounded-full bg-teal-300"
-              style={{ animationDelay: "0.6s" }}
-            />
-          </div>
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-teal-300">
-            Nexura Predictive
+      <style dangerouslySetInnerHTML={{ __html: NXP_SHELL_CSS }} />
+      {/* aurora + starfield live behind the experience */}
+      <div className="nxf-aurora" aria-hidden="true" />
+      <noscript>
+        <div
+          style={{
+            minHeight: "100dvh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1.5rem",
+            textAlign: "center",
+            color: "#D8E3F2",
+            fontFamily: "system-ui, sans-serif",
+          }}
+        >
+          <p style={{ maxWidth: "28rem", lineHeight: 1.6 }}>
+            Nexura Predictive needs JavaScript to run its safety screening and
+            foresight engine privately for you. Please enable JavaScript and reload.
           </p>
-          <h1 className="mt-4 text-2xl font-semibold tracking-tight text-white">
-            Healthcare is Reactive.
-            <span className="block text-teal-300">But Nexura is Predictive.</span>
-          </h1>
-          <p className="mt-4 text-sm leading-relaxed text-slate-400">
-            The next generation of Predictive Health Intelligence is being rebuilt
-            from the ground up. It will read your symptoms, diet, fitness, sleep and
-            history to map your health trajectory — calibrated for Indian lives.
-          </p>
-          <a
-            href="/"
-            className="mt-8 inline-flex min-h-[44px] items-center rounded-full border border-white/10 px-5 text-sm font-medium text-slate-200 transition hover:border-teal-300/40 hover:text-white"
-          >
-            Return to Hospital OS
-          </a>
         </div>
-      </main>
+      </noscript>
+      <ForesightExperience />
     </div>
   );
 }

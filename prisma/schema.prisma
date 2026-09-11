@@ -2918,3 +2918,28 @@ model PieBiasAudit {
   @@index([modelId, createdAt])
   @@map("pie_bias_audits")
 }
+
+/**
+ * ============================================================
+ * NEXURA PREDICTIVE — HEALTH FORESIGHT ENGINE
+ * Deterministic, explainable disease-risk signal engine for
+ * Indian users. One table: every run stores its full input
+ * + generated report so trends and history survive reloads.
+ * No diagnosis claims — signal levels within screening scope.
+ * ============================================================
+ */
+
+model ForesightRun {
+  id           String   @id @default(cuid())
+  subjectKey   String
+  score        Int
+  band         String
+  triageLevel  String   @default("STANDARD")
+  topDomainId  String
+  inputJson    String
+  reportJson   String
+  engineVer    String
+  createdAt    DateTime @default(now())
+
+  @@index([subjectKey, createdAt])
+}
