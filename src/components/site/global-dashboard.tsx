@@ -313,6 +313,19 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
     setLoading(true);
     setError("");
     setTimeout(() => {
+      // Honest demo gate: only the demo coordinator identity signs in.
+      // Any other email/password combination is rejected so the desk
+      // behaves like a real sign-in instead of accepting everything.
+      const emailOk =
+        email.trim().toLowerCase() === (DEMO_COORD.email ?? "").toLowerCase();
+      const passwordOk = password === "nexura123";
+      if (!emailOk || !passwordOk) {
+        setLoading(false);
+        setError(
+          "Invalid credentials. Demo desk: coordinator@nexura.global / nexura123",
+        );
+        return;
+      }
       onLogin(DEMO_COORD);
       setLoading(false);
     }, 700);

@@ -3604,3 +3604,19 @@ Work Log:
 
 Stage Summary:
 - Preview staleness can no longer recur: the only thing the platform can boot (`bun run dev`) IS the production guardian; stray dev servers are evicted and detected via HTML fingerprints; documents are uncacheable; every deploy self-verifies its SERVED output and fails loudly. Health: /predictive 200. All 24 loop features intact.
+
+---
+Task ID: NXP-AUTH-AUDIT (every sign-in verified end-to-end)
+Agent: Super Z (main)
+Task: Check every sign-in across all Nexura OS features in a real browser; fix anything broken.
+
+Work Log:
+- Inventoried all auth surfaces: /hospital (NxApp nx-login -> /api/nx/auth: PIN + password modes, MFA step-up, forgot password, lock screen), /portal/login (phone+OTP -> /api/portal/auth), /global/dashboard (coordinator login), /connect (demo doctor view, no auth by design), clinic/pharmacy (no auth surfaces). Demo creds confirmed in DB: 18/21 staff have email+passwordHash (seed-nx-v4 DEMO_PW=Demo@12345, PIN 2468), portal DEMO_PHONE=+919820099880, OTP demo fallback 1234, issued OTPs are 6-digit.
+- Browser E2E (agent-browser, production deploy): /hospital PIN wrong-then-correct (0000 rejected, CMD.ANITA/2468 enters OS shell), password login as doctor@demo.nexura.health/Demo@12345 works, wrong password rejected, forgot-password returns honest demo message, lock screen -> PIN unlock works, sign out works. /portal: OTP arrives (toast "Demo OTP: <code>"), verify -> /portal dashboard, logout works, authenticated /portal/login visit redirects to /portal (correct), wrong OTP rejected server-side ("Invalid OTP.").
+- BUG #1 FIXED (portal-login.tsx): OTP input had maxLength={4} but the API issues 6-digit codes (randomInt(0,1e6) padStart 6) — the issued OTP was IMPOSSIBLE to type; only the hidden 1234 fallback worked. maxLength 4->6, placeholder 4->6 dots; verify gate still >=4 so the 1234 fallback and full 6-digit code both work. Re-tested: fresh OTP 464687 typed in full -> Verify -> /portal dashboard.
+- BUG #2 FIXED (global-dashboard.tsx): coordinator login accepted ANY non-empty email/password (client-only setTimeout). Now validates against the demo coordinator identity (coordinator@nexura.global / nexura123) and shows "Invalid credentials. Demo desk: ..." otherwise. Re-tested: imposter@evil.com/wrongpass rejected with the hint; correct creds enter the desk. Session persistence (sessionStorage) and icon Sign-out confirmed present.
+- Notes: no MFA-enabled demo users seeded, so the MFA step-up UI path remains untestable with demo data (code path intact in nx-login + /api/nx/auth/mfa). /connect patient-view has no auth strings (demo by design).
+- Gates: tsc clean (after null-coalesce fix on DEMO_COORD.email), eslint 0, vitest 13 files / 183 tests green. Redeployed via deploy-preview.sh — DEPLOY VERIFIED (0 dev fingerprints, chunks 200, markers, cache headers); /portal/login, /global/dashboard, /hospital all 200.
+
+Stage Summary:
+- 2 real sign-in bugs fixed (portal 6-digit OTP untypeable; global desk accepting any credentials). All other flows verified working end-to-end in a real browser against the production build: accept/reject/session/persistence/sign-out/lock for hospital, portal, and global desk.
