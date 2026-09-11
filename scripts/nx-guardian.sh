@@ -65,19 +65,49 @@ acquire_pidfile() {
 }
 acquire_pidfile
 
+SEED_FLAG="$ROOT/.guardian-seed-cooldown"
+
 heal_db() {
-  # A sandbox reset can leave the SQLite file pristine (schema, no rows).
-  # A hospital preview with zero hospitals is a dead preview — reseed ONCE,
-  # only when the database is completely empty. Never touches existing data.
+  # A sandbox reset / platform snapshot restore can leave the SQLite file
+  # HOLLOW-BUT-NOT-EMPTY: the hospital core (hospital, staff) survives while
+  # every loop-era dataset (drug catalog, pharmacy, clinic, connect, tourism,
+  # PIE signals) is gone. Checking ONLY hospital.count()==0 missed that state
+  # (this actually happened: preview alive, features hollow). So probe ONE
+  # marker table per seed script — if ANY is empty, run the FULL ordered
+  # chain. Cooldown flag prevents a failing seed from re-running every loop.
   cd "$ROOT" || return 1
-  local count
-  count="$(node -e "const{PrismaClient}=require('@prisma/client');const p=new PrismaClient();p.hospital.count().then(c=>{console.log(c);return p.\$disconnect()}).catch(()=>console.log('err'))" 2>/dev/null)"
-  if [ "$count" = "0" ]; then
-    log "db: empty database detected — running full seed chain"
-    npm run seed:all >> "$LOG" 2>&1 \
-      && bun scripts/seed-nx-v5.ts >> "$LOG" 2>&1 \
-      && log "db: seed chain complete"
+  local probe
+  probe="$(node -e "
+    const{PrismaClient}=require('@prisma/client');
+    const p=new PrismaClient();
+    const q=(m)=>p[m].count().then(c=>[m,c]);
+    Promise.all(['hospital','nxStaffUser','indianDrug','pharmaBranch','scheduleHEntry','clinicPatient','connectConnection','phlebotomist','tourismProcedure','pieBioSignal'].map(q))
+      .then(rs=>{console.log(rs.filter(r=>r[1]===0).map(r=>r[0]).join(',')||'OK');return p.\$disconnect()})
+      .catch(()=>console.log('err'));
+  " 2>/dev/null)"
+  if [ "$probe" = "OK" ] || [ "$probe" = "err" ]; then
+    return 0
   fi
+  # cooldown: at most one heal attempt per 10 minutes
+  if [ -f "$SEED_FLAG" ] && [ -n "$(find "$SEED_FLAG" -mmin -10 2>/dev/null)" ]; then
+    log "db: hollow tables ($probe) — seed cooldown active, skipping"
+    return 0
+  fi
+  touch "$SEED_FLAG"
+  log "db: hollow database detected (missing: $probe) — running full seed chain"
+  npm run seed:all >> "$LOG" 2>&1 \
+    && bun scripts/seed-nx-v5.ts >> "$LOG" 2>&1 \
+    && bun scripts/seed-hospital-bootstrap.ts >> "$LOG" 2>&1 \
+    && bun scripts/legacy/seed-pharmacy.ts >> "$LOG" 2>&1 \
+    && bun scripts/seed-pharmacy-compliance.ts >> "$LOG" 2>&1 \
+    && bun scripts/seed-clinic-drugs.ts >> "$LOG" 2>&1 \
+    && bun scripts/legacy/seed-clinic.ts >> "$LOG" 2>&1 \
+    && bun scripts/seed-connect.ts >> "$LOG" 2>&1 \
+    && bun scripts/seed-portal.ts >> "$LOG" 2>&1 \
+    && bun scripts/seed-tourism.ts >> "$LOG" 2>&1 \
+    && bun scripts/seed-chronic.ts >> "$LOG" 2>&1 \
+    && bun scripts/seed-pie.ts >> "$LOG" 2>&1 \
+    && log "db: full seed chain complete (was hollow: $probe)"
 }
 
 heal_env() {
