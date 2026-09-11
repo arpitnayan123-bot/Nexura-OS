@@ -45,7 +45,7 @@ export function EmergencyTakeover({ report, onAcknowledge }: { report: Foresight
 
         <div className="mt-6 space-y-3">
           {t.hits.map((h) => (
-            <div key={h.id} className="rounded-2xl border border-rose-400/25 bg-black/20 p-4">
+            <div key={h.id} className="rounded-2xl border border-rose-400/25 bg-white/[0.07] p-4">
               <p className="text-[15px] font-semibold nxf-hi">{h.title}</p>
               <p className="mt-1 text-[13px] leading-relaxed nxf-body">{h.why}</p>
               <p className="mt-2 text-[13px] font-semibold leading-relaxed text-rose-200">{h.action}</p>
