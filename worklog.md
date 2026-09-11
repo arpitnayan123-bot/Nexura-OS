@@ -2964,3 +2964,23 @@ Work Log:
 
 Stage Summary:
 - NEXURA PREDICTIVE HEALTH INTELLIGENCE is live on /predictive: consent-scoped intake -> triage-first deterministic assessment -> explainable results + clinician handoff, 15 API endpoints, 153 new tests, full governance docs. Committed as the PHI rebuild.
+
+---
+Task ID: PHI-WHITEFIX-1
+Agent: Super Z (main)
+Task: User reported the whole /predictive page rendering white — reproduce, root-cause and fix the bug.
+
+Work Log:
+- Reproduced the report in agent-browser: with /_next/static/chunks blocked, /predictive rendered an all-white page with only a tiny unstyled "Loading your secure session…" stub (download/phi-bug-17.png)
+- Root cause: page is fully client-rendered; SSR ships only the boot loader and the dark canvas depended entirely on the Tailwind CSS chunk; body is bg-background (white in light theme), so a slow/failed chunk (proxy hiccup or stale HTML after redeploy) = blank white screen
+- Secondary defect found: boot-error CalmError used my-10 margins that collapse through ancestors, exposing a 40px white strip at the top of the error shell (phi-bug-13.png); also mixed EN/HI strings in the error dialog and on the landing resume panel (missing HI keys), and stale entry-card copy still advertising deleted Aurora-v2 features (Crisis Radar + Living Twin)
+- Fixed page.tsx: inline dark backgroundColor + minHeight + color-scheme on .phi-root; html/body painted dark via :has() while mounted; phiSpin keyframes + noscript note all in an inline <style> that survives chunk failures
+- Fixed ui-primitives.tsx: CalmLoader rebuilt as inline-styled dark shell with pure-CSS spinner (SSR-safe, chunk-independent); CalmError gained fullScreen variant (padding, no collapsing margins); nested (post-hydration) usages untouched
+- phi-experience.tsx: boot error now uses fullScreen
+- strings.ts: added 13 missing high-visibility HI keys (app.errorTitle/errorBody/demoTag/langLabel/close/saving/killSwitchTitle/killSwitchBody, landing.how1d/how2d/how3d/continueDesc/backToSite); verified no duplicate keys
+- features-showcase.tsx + hamburger-menu.tsx: /predictive cards rewritten to the shipped PHI check-in copy
+- E2E verified: chunk-blocked load now renders a dark centered branded boot screen (phi-fix-1.png); API-failure boot error centered with no white strip (phi-fix-2.png); normal landing EN (phi-fix-3.png); HI landing with fully translated How-it-works + footer (phi-fix-4/5.png); mobile 390px (phi-fix-6.png)
+- Gates after fix: tsc 0, eslint 0, vitest 272/272, smoke 70/70 (dev server restarted with node_modules/.bin/next after pkill for tsc)
+
+Stage Summary:
+- White screen on /predictive eliminated with defense in depth: inline-styled canvas, :has() body paint, chunk-independent boot shells, complete Hindi landing/error strings, truthful entry-card copy. Committed as b335cc2.
