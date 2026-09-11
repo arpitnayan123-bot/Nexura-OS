@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Phone, Heart, Wind, AlertTriangle, Activity } from "lucide-react";
+import { Sparkles, Phone, Heart, Wind, AlertTriangle, Activity, Moon, Sun, MessageCircle } from "lucide-react";
 import { TOOLS_BY_ID } from "@/components/know-your-health/tools";
 import { ToolHeader, RunButton, LoadingResult, ResultCard, SeverityBadge, Disclaimer, ResetButton, showError } from "@/components/know-your-health/ui";
 
@@ -183,6 +183,19 @@ export function MentalWellness() {
                 </ul>
               </ResultCard>
             )}
+
+            <ResultCard accent="#7A9A7B" title="What helps next">
+              <p className="mb-3 text-[0.65rem] text-[#9A8F84]">Small, evidence-informed starters — pick one and keep it easy.</p>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2 text-sm text-[#1F1B17]"><Moon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#5A7A5B]" /><span>Keep a <strong>regular sleep window</strong> — same bedtime and wake-up time, even on weekends. Sleep is the fastest lever on mood and worry.</span></li>
+                <li className="flex items-start gap-2 text-sm text-[#1F1B17]"><Sun className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#5A7A5B]" /><span>Get <strong>20–30 minutes of movement</strong> each day — a brisk walk in morning light counts. Daylight plus movement reliably lifts mood.</span></li>
+                <li className="flex items-start gap-2 text-sm text-[#1F1B17]"><MessageCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#5A7A5B]" /><span><strong>Tell one trusted person</strong> how you've been feeling — a friend, family member, or a counsellor (Tele-MANAS 14416 is free and 24×7).</span></li>
+              </ul>
+              <div className="mt-3 flex items-start gap-2.5 rounded-xl bg-[#C98A7A15] p-3">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#9A6A5A]" />
+                <p className="text-xs leading-relaxed text-[#1F1B17]"><strong className="text-[#7A4A3A]">When to reach out now:</strong> if you have thoughts of harming yourself or feel unsafe, call <a href="tel:14416" className="font-semibold text-[#9A6A5A] underline underline-offset-2">Tele-MANAS 14416</a> (also 1-800-891-4416) right away (free, 24×7) or dial <a href="tel:108" className="font-semibold text-[#9A6A5A] underline underline-offset-2">108</a> in an emergency. Reaching out early is a strength — you don't have to wait.</p>
+              </div>
+            </ResultCard>
 
             <ResultCard accent="#C98A7A" title="When to Seek Help">
               <div className="flex items-start gap-3">
