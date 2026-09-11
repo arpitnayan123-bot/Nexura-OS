@@ -3482,3 +3482,18 @@ Work Log:
 
 Stage Summary:
 - The clinic Patients tab now surfaces a live chronic-care watchlist that was previously invisible (route + dead-code module only): chronic patients, their conditions, last-visit recency, and ICMR checkup cadence with an overdue flag. Flagged for future loops: clinic-modules-extra.tsx (SymptomTriageModule, ChronicCareModule, etc.) is entirely unmounted dead code — either mount those modules or delete them; visit-derived conditions only consider the LATEST visit diagnosis (take:1) by design; a follow-up could reuse the same additive pattern for a Today-tab KPI ("N chronic patients").
+
+---
+Task ID: 18-a
+Agent: general-purpose (implementation subagent)
+Task: Mental-health support depth — mental-wellness.tsx: additive "What helps next" card after a result is shown (3 self-care starters + "When to reach out now" strip with Tele-MANAS 14416 / 108). Verify foresight mind-domain Tele-MANAS mention; engine copy untouched.
+
+Work Log:
+- Read worklog tail (16-a, 17-a). Read mental-wellness.tsx + sibling ResultCard (ui.tsx) + lucide usage across KYH tools to match styling.
+- ONE ADDITIVE BLOCK (mental-wellness.tsx, result view between "Recommendations" and "When to Seek Help"): ResultCard accent #7A9A7B "What helps next" — micro sub-line "Small, evidence-informed starters — pick one and keep it easy." + 3 compact icon rows: regular sleep window (Moon; same bedtime/wake, weekends included — fastest lever on mood and worry), 20–30 min daily movement with morning light counting (Sun), tell one trusted person or a counsellor, Tele-MANAS 14416 free 24×7 (MessageCircle). Below, warm strip (bg #C98A7A15, AlertTriangle) "When to reach out now:" thoughts of harming yourself or feeling unsafe → tel:14416 link Tele-MANAS (also 1-800-891-4416, free 24×7) / tel:108 in an emergency, plus "Reaching out early is a strength — you don't have to wait."
+- Import line gained Moon, Sun, MessageCircle (all already used elsewhere in KYH — zero new deps). No existing copy touched: crisis cards, AI reflection, 112 note, scores all as-were; card placed before the AI-generated "When to Seek Help" so platform-static guidance precedes dynamic output.
+- FORESIGHT CHECK (verify-only): src/modules/foresight/domains.ts mind section already grounds help-seeking in Tele-MANAS at lines 757 ("Tele-MANAS 14416 is free and 24×7", cadence "now") and 761 ("Telling one trusted person (or a Tele-MANAS counsellor)…") — correct and consistent with the new KYH card; engine copy left untouched per mission.
+- Gates: npx tsc --noEmit exit 0; eslint exit 0 on the touched file. No servers/builds/commits. English-only; safety-first tone, no diagnostic language ("screen, not a diagnosis" footer already present and kept); helplines included per canon (14416 / 1-800-891-4416 / 108).
+
+Stage Summary:
+- The KYH Mental Wellness result view now ends every reflection with grounded, compact next steps — three evidence-informed self-care starters and a hard-miss "When to reach out now" strip that surfaces Tele-MANAS 14416 (alt 1-800-891-4416) and 108 without requiring users to scroll to the crisis card. Foresight mind-domain copy verified consistent; zero engine changes. Residual for a future pass: other KYH tools' result views have no equivalent "what helps next" pattern (intentional scope — this mission covered mental-wellness only).
