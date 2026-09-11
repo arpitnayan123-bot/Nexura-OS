@@ -105,7 +105,7 @@ export function Hero() {
                   size="lg"
                   className="h-12 rounded-full border-border bg-background/60 px-5 backdrop-blur"
                 >
-                  <Link href="#dashboard" className="flex items-center gap-2">
+                  <Link href="/hospital" className="flex items-center gap-2">
                     <PlayCircle className="h-4.5 w-4.5 text-primary" />
                     Watch the demo
                   </Link>
@@ -149,18 +149,18 @@ export function Hero() {
                     ))}
                   </div>
                   <span>
-                    <strong className="text-foreground">4.9</strong> · 2.4k reviews
+                    <strong className="text-foreground">DPDP</strong>-aligned · privacy-first
                   </span>
                 </div>
                 <div className="hidden h-4 w-px bg-border sm:block" />
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-sage" />
-                  HIPAA &amp; GDPR certified
+                  Built on HIPAA &amp; GDPR principles
                 </div>
                 <div className="hidden h-4 w-px bg-border sm:block" />
                 <div className="flex items-center gap-2">
                   <HeartPulse className="h-4 w-4 text-coral anim-breathe" />
-                  <AnimatedNumber value={184320} suffix=" cared for" />
+                  <AnimatedNumber value={22} suffix=" apps · one OS" />
                 </div>
               </div>
             </Reveal>
@@ -231,9 +231,9 @@ function HeroVisual() {
           </span>
           <div className="leading-tight">
             <p className="text-[0.7rem] font-medium text-muted-foreground">
-              AI diagnosis
+              AI risk signals
             </p>
-            <p className="text-sm font-semibold">98.2% precision</p>
+            <p className="text-sm font-semibold">12 domains mapped</p>
           </div>
         </div>
         <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">

@@ -3161,3 +3161,49 @@ Stage Summary:
 - Commit 215e81f "feat(predictive): billion-dollar interactive pass" (6 files).
 - The page now has: cursor spotlight on every glass card, sheen-swept CTAs, orbiting hero aurora ring, radar engine loader, sliding nav pill, directional wizard slides, glowing step dots, tri-tone scroll progress, rotating halo orbit, real count-up numbers — all under the unbroken white-ink directive, rose still reserved for emergencies.
 - Protocol note: deploy-preview.sh prints only the FIRST css chunk; when that one is a shared chunk its hash may not change even on real CSS deploys - always grep markers across ALL served chunks.
+
+---
+Task ID: 1-b
+Agent: research-only subagent (general-purpose)
+Task: Verify exact implementation facts of Predictive Health Foresight (src/modules/foresight, src/components/foresight, src/app/api/nx/foresight) so landing-page claims can be corrected. RESEARCH ONLY — no file edits, no server, no commits (this worklog append excepted per instructions).
+
+Work Log:
+- Read worklog tail (NXP-PREMIUM-LOOP, NXP-WORKSPACE, NXP-WHITE-INK*, NXP-PREVIEW-FIX, NXP-BILLION-DOLLAR) for context.
+- Counted intake steps: STEPS = 10 — You, Symptoms, Diet, Movement, Sleep, Readings, Labs, History, Environment, Review (experience.tsx:32-43).
+- Counted domains: ALL_DOMAIN_IDS = 12, exact same list as landing copy (types.ts:240-257).
+- Counted weighted factors: 132 distinct factor ids across 170 weighted call-sites in domains.ts (claim says 60+ — under-claim).
+- Horizon: HORIZONS = [1, 3, 5] (workspace.ts:25); trajectory is illustrative ~5y (types.ts:268-273).
+- i18n: FsLang = "en" | "hi" (ui.tsx:14) but the hi dictionary covers only 13 chrome strings (ui.tsx:35-50); wizard/results/landing are English-only.
+- Red-flag order: runForesight runs triage FIRST, withholds all analysis on EMERGENCY (engine.ts:125-141; redflags.ts:354-362); test-verified.
+- Factors-with-scores: FactorHit {weight, direction} on every DomainResult (types.ts:207-234); domain-modal renders all factors + weights.
+- Calibration: BMI overweight band starts 23; WAIST_CUTOFF male 90 / female 80 (calibration.ts:27-35).
+- Versioning/determinism: ENGINE/RULESET/CALIBRATION versions stamped on report (types.ts:22-24, engine.ts:211-213), persisted engineVer (run/route.ts:47); determinism test exists (tests/unit/foresight/engine.test.ts:19-25).
+- Doctor summary: summarizeForDoctor server-side (engine.ts:239-270; run/route.ts:34), one-tap copy sheet (results.tsx:556-563, extras.tsx:235).
+- Symptom patterns: exactly 40 canonical SYMPTOM_IDS (redflags.ts:31-72) and exactly 40 UI catalog items (intake.tsx:22-113) — "40+" is a stretch.
+- Signal layers: landing heading says "Seven layers" but renders 6 cards (landing.tsx:12-19,116); ForesightInput actually has 10 top-level input categories (profile, symptoms, diet, activity, sleep, vitals, labs, history, environment, freeText — types.ts:161-172); cards omit Movement and History entirely.
+- "Four minutes": no code basis — unverifiable marketing estimate.
+- Free/anonymous/delete: no payment paths; anonymous httpOnly cookie subject (subject.ts:10-43); DELETE /api/nx/foresight/data wipes all runs (data/route.ts:16) — BUT the localStorage draft nx_fs_form (experience.tsx:27, loadForm) is NOT cleared on wipe, so "delete everything" leaves the saved check-in draft in-browser.
+
+Stage Summary:
+- 10/15 claims fully MATCH the code. 3 need copy fixes: symptom patterns are exactly 40 (not "40+"); "Seven layers of you" vs 6 cards matches neither the cards nor the engine (true count: 10 input categories / 8 merged layers); "EN · हिंदी" is chrome-only Hindi (13 strings) — weak enough to mislead.
+- 2 softer flags: "four minutes" has no code basis; "delete everything" skips the localStorage draft (nx_fs_form) — wipe deletes server runs only.
+- "60+ factors" is technically true but a big under-claim: engine defines 132 distinct weighted factors (170 weighted call-sites).
+- Corrected copy values delivered to main agent: 10-step check-in · 12 domains · 130+ weighted factors · 40 symptom patterns · horizons 1/3/5 (5y max) · 8 signal layers (or 10 raw inputs) · "delete my runs" phrasing + clear nx_fs_form in wipe.
+
+---
+Task ID: 1-a
+Agent: Explore (research-only subagent)
+Task: Accuracy audit of every "How it works" / feature-description block across all routes (/, /clinic, /pharmacy, /know-your-health, /connect, /connect/patient, /portal, /global, /compliance, /pricing, /hospital, /investors, /founder, /predictive landing). Extract claims, verdict them against the codebase, report prioritized fix list. NO code edits.
+
+Work Log:
+- Read worklog (last 3 sections) for context; mapped all 13 app-router pages + their section components.
+- Read fully: site/global-page.tsx (2,122 lines, all 6 chunks — hero stats, directory, cost table, calculator, how-it-works, testimonials, footer, inquiry modal, WhatsApp), foresight/landing.tsx (190 lines), site/hero.tsx, features-showcase.tsx, founder-badge.tsx, know-your-health/app.tsx + tools.ts, investors/compliance-page.tsx + pricing-page.tsx.
+- Cross-checked concrete claims: src/modules/foresight/{types,domains,redflags,calibration,workspace,engine}.ts (12 domains exact-match landing list; 40 SYMPTOM_IDS = "40+ patterns"; BMI band 23 + IDF waist ✓; HORIZONS [1,3,5] default 5y ✓; ENGINE_VERSION ✓; runTriage precedes scoring ✓), foresight ui/experience/extras/results (EN·हिंदी toggle ✓, DELETE /api/nx/foresight/data wipe ✓, doctor-summary copy-to-clipboard ✓, STEPS array = 10 ✓).
+- Counted ground truth: nx/os/registry.tsx = 25 APPS (22 non-system) vs "18 modules" claim; prisma/schema.prisma = 145 models vs deck's "62"; 172 API route files vs deck's "50+"; KYH TOOLS = 15 = 15 /api/know-your-health/* endpoints ✓; TEST_PANELS = 8 ✓ ("8 test panels").
+- Queried live SQLite (db/custom.db, read-only): IndianDrug = 0 rows, Hospital/Tourism*/HospitalDoctor = 0 rows → clinic "54 medicines" autocomplete and /global "verified directory" are unbacked (page shows hardcoded fallback demo hospitals/testimonials with 2026 dates marked "Verified").
+- Verified Connect calls: DB-backed logs + queue exist but NO RTCPeerConnection/getUserMedia anywhere → voice/video are simulated lifecycle, not real media. "Auto-connects when consultations complete" claim has no code path (only manual prescriptions/sync).
+- Spot-verified functional claims: /api/clinic/symptom-triage + SymptomTriageModule UI ✓; pharmacy billing interaction checker + Schedule H + voice mic ✓; portal blood-bookings with Phlebotomist model + auto-assign ✓; /api/global GET actions + POST submit_inquiry ✓; homepage "#dashboard" anchor has NO matching section on / (lazy-dashboard not imported) → broken.
+- Noted evidence of a corrupted bulk find/replace in clinic/pharmacy code ("voice"→"ln": invoiceNo→inlnNo, "Parsing your ln…"; "Multi-clic" typo on /pricing) affecting user-visible strings.
+
+Stage Summary:
+- No files edited (research-only). Findings: foresight landing is the most accurate block in the app (all 14 concrete claims verified); worst offenders are /global (fabricated trust stats + demo data shown as "verified"), homepage hero (fake 98.2% precision, "certified"), investor-deck traction (stale counts, fabricated pilots), /compliance + /pricing FAQ (AES-256/at-rest + AWS Mumbai + free-trial promises with no infra), 18-module and 54-med counts stale, Connect voice/video overstated. Full verdict table + top-10 fix list delivered in report. Next: owner picks copy fixes; suggest 1-b implementation task.
