@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, X, Plus, Minus, Trash2, Loader2, ShieldAlert,
@@ -28,7 +28,11 @@ type CartItem = {
 
 const GST_SLABS = [0, 5, 12, 18];
 
-export function BillingModule() {
+// memo: BillingModule takes no props; memo keeps the heaviest module (full
+// billing UI + inventory search + cart) from re-rendering when the shell
+// above it updates (30s mini-dashboard poll, online/offline flips,
+// module-switch transitions). Internal state is unaffected.
+export const BillingModule = memo(function BillingModule() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [query, setQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
@@ -381,7 +385,7 @@ export function BillingModule() {
       <InteractionModal data={showInteraction} onClose={() => setShowInteraction(null)} />
     </div>
   );
-}
+});
 
 /* ============== Batch FEFO Panel ============== */
 

@@ -37,6 +37,7 @@ export function FounderBadge() {
             <img
               src="/founder-arpit-circle-white.jpg"
               alt="Arpit Nayan — Founder & CEO, Nexura OS"
+              loading="lazy"
               className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover ring-2 ring-[#C8A55B]/20"
             />
           </div>
