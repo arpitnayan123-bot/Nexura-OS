@@ -511,7 +511,7 @@
    pure white; depth and color now live in surfaces, borders
    and glows instead of text inks. Canvas deepened slightly so
    white type pops (page.tsx keeps an inline boot paint synced
-   at #0D1936).
+   at #0B1630).
    ============================================================ */
 .nxf-canvas {
   position: relative;
@@ -769,10 +769,125 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
 @keyframes nxf-spin { to { transform: rotate(360deg); } }
 .nxf-spin { animation: nxf-spin .9s linear infinite; }
 
+/* ============================================================
+   BILLION-DOLLAR INTERACTIVE PASS — motion + depth systems.
+   All colour lives in surfaces, glows and borders; every text
+   stays white ink (see WHITE INK OVERRIDE below).
+   ============================================================ */
+
+/* cursor spotlight — a soft light follows the pointer across
+   glass surfaces. --mx/--my are set from GlassCard/Spotlight. */
+.nxf-spot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .45s ease;
+  background: radial-gradient(250px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.11), rgba(45, 212, 191, 0.06) 45%, transparent 72%);
+}
+.nxf-spot:hover::after { opacity: 1; }
+
+/* CTA sheen — one bright band sweeps across on hover.
+   Ghost CTAs stay clean (no sheen). */
+.nxf-cta { position: relative; overflow: hidden; }
+.nxf-cta::after {
+  content: "";
+  position: absolute;
+  top: -20%; bottom: -20%;
+  width: 34%;
+  left: -55%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.34), transparent);
+  transform: skewX(-18deg);
+  transition: left .65s cubic-bezier(.2, .7, .2, 1);
+  pointer-events: none;
+}
+.nxf-cta:hover::after { left: 128%; }
+.nxf-cta-ghost::after { content: none; }
+
+/* shared rotation keyframe (pure rotate — SVG orbits, radar) */
+@keyframes nxf-rot { to { transform: rotate(360deg); } }
+
+/* hero halo ring — a soft conic aurora band slowly orbits the
+   headline. Masked to a blurred ring so the centre stays clear. */
+.nxf-hero-ring {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: min(76vw, 620px);
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: conic-gradient(from 90deg,
+    transparent 0deg,
+    rgba(45, 212, 191, 0.38) 55deg,
+    transparent 120deg,
+    transparent 185deg,
+    rgba(252, 211, 77, 0.26) 250deg,
+    transparent 315deg);
+  -webkit-mask: radial-gradient(farthest-side,
+    transparent calc(100% - 120px), rgba(0, 0, 0, 0.95) calc(100% - 48px), transparent 100%);
+  mask: radial-gradient(farthest-side,
+    transparent calc(100% - 120px), rgba(0, 0, 0, 0.95) calc(100% - 48px), transparent 100%);
+  filter: blur(12px);
+  opacity: 0.55;
+  animation: nxf-rot-hero 34s linear infinite;
+}
+@keyframes nxf-rot-hero { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+/* radar sweep — running state: a teal radar band scans inside
+   the pulsing ring while the engine thinks. */
+.nxf-radar {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(from 0deg,
+    rgba(45, 212, 191, 0.50), rgba(45, 212, 191, 0.12) 24%, transparent 42%);
+  -webkit-mask: radial-gradient(farthest-side,
+    transparent calc(100% - 34px), #000 calc(100% - 33px), #000 calc(100% - 6px), transparent calc(100% - 5px));
+  mask: radial-gradient(farthest-side,
+    transparent calc(100% - 34px), #000 calc(100% - 33px), #000 calc(100% - 6px), transparent calc(100% - 5px));
+  animation: nxf-rot 2.4s linear infinite;
+}
+
+/* halo orbit — a faint dotted satellite ring rotating behind
+   the Health Halo polygon for observatory depth. */
+.nxf-orbit {
+  transform-origin: 50% 50%;
+  animation: nxf-rot 52s linear infinite;
+}
+
+/* scroll progress — hairline tri-tone bar under the sticky nav,
+   driven by --p (0..1) from a rAF scroll listener. */
+.nxf-progress {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 2px;
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--p, 0));
+  background: linear-gradient(90deg, #2DD4BF, #FCD34D 55%, #8B5CF6);
+  box-shadow: 0 0 12px rgba(45, 212, 191, 0.45);
+  pointer-events: none;
+}
+
+/* wizard step dots — the active step gets a soft gold bloom,
+   completed steps a quieter one. */
+.nxf-dot-active { box-shadow: 0 0 14px rgba(252, 211, 77, 0.55); }
+.nxf-dot-done   { box-shadow: 0 0 8px rgba(252, 211, 77, 0.28); }
+
 @media (prefers-reduced-motion: reduce) {
-  .nxf-aurora, .nxf-star, .nxf-pulse-dot, .nxf-draw, .nxf-bar-fill, .nxf-spin { animation: none !important; }
+  .nxf-aurora, .nxf-star, .nxf-pulse-dot, .nxf-draw, .nxf-bar-fill, .nxf-spin,
+  .nxf-hero-ring, .nxf-radar, .nxf-orbit { animation: none !important; }
   .nxf-draw { stroke-dashoffset: 0 !important; }
   .nxf-bar-fill { transform: scaleX(1) !important; }
+  .nxf-spot::after, .nxf-cta::after { transition: none !important; }
 }
 
 /* ============================================================

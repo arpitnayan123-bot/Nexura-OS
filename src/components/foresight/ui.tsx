@@ -6,7 +6,7 @@
  * data stamps. Rose is reserved EXCLUSIVELY for emergencies.
  * ============================================================ */
 
-import { type ReactNode } from "react";
+import { useEffect, useRef, useState, type HTMLAttributes, type MouseEvent, type ReactNode } from "react";
 import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -126,16 +126,46 @@ export function FsError({
 
 /* ---------------- layout primitives ---------------- */
 
+/** Sets --mx/--my so the .nxf-spot::after spotlight follows the
+    pointer across a glass surface. Cheap: one rAF-free handler. */
+export function spotHandlers() {
+  return {
+    onMouseMove: (e: MouseEvent<HTMLElement>) => {
+      const el = e.currentTarget;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    },
+  };
+}
+
 export function GlassCard({
   children, className, hover = true, ...rest
 }: { children: ReactNode; className?: string; hover?: boolean } & Omit<HTMLMotionProps<"div">, "children">) {
+  const spot = spotHandlers();
   return (
     <motion.div
-      className={cn("nxf-glass", hover && "nxf-glass-hover", className)}
+      className={cn("nxf-glass nxf-spot", hover && "nxf-glass-hover", className)}
       {...rest}
+      onMouseMove={(e) => { spot.onMouseMove(e); rest.onMouseMove?.(e); }}
     >
       {children}
     </motion.div>
+  );
+}
+
+/** Spotlight for plain (non-motion) surfaces — keeps tinted
+    borders like the reactive-vs-predictive landing cards. */
+export function Spotlight({ children, className, ...rest }: HTMLAttributes<HTMLDivElement>) {
+  const spot = spotHandlers();
+  return (
+    <div
+      className={cn("nxf-spot relative", className)}
+      {...rest}
+      onMouseMove={(e) => { spot.onMouseMove(e); rest.onMouseMove?.(e); }}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -245,28 +275,41 @@ export function PillGroup({
   );
 }
 
-export function CountUp({ to, duration = 1.4 }: { to: number; duration?: number }) {
-  return (
-    <motion.span
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <motion.span
-          key={to}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration }}
-        >
-          {to}
-        </motion.span>
-      </motion.span>
-    </motion.span>
-  );
+export function CountUp({ to, duration = 1.5 }: { to: number; duration?: number }) {
+  const [val, setVal] = useState(0);
+  const fromRef = useRef(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    let raf = 0;
+    let reduced = false;
+    try {
+      reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch { /* keep animation */ }
+    /* every setState defers to a frame callback — never
+       synchronous inside the effect body (react-hooks rule) */
+    const jump = () => {
+      raf = requestAnimationFrame(() => {
+        if (!cancelled) { fromRef.current = to; setVal(to); }
+      });
+    };
+    if (reduced) { jump(); return () => { cancelled = true; cancelAnimationFrame(raf); }; }
+    const from = fromRef.current;
+    const start = typeof performance !== "undefined" ? performance.now() : Date.now();
+    const tick = (now: number) => {
+      if (cancelled) return;
+      const t = Math.min(1, (now - start) / (duration * 1000));
+      const e = 1 - Math.pow(1 - t, 3);
+      const v = Math.round(from + (to - from) * e);
+      fromRef.current = v;
+      setVal(v);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => { cancelled = true; cancelAnimationFrame(raf); };
+  }, [to, duration]);
+
+  return <span>{val}</span>;
 }
 
 export const fadeUp = {

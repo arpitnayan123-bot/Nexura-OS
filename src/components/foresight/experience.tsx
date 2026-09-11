@@ -86,8 +86,34 @@ export function ForesightExperience() {
   const [historyCount, setHistoryCount] = useState(0);
   const [summaryText, setSummaryText] = useState<string | null>(null);
   const [runningLine, setRunningLine] = useState(0);
+  const [stepDir, setStepDir] = useState(1);
   const topRef = useRef<HTMLDivElement | null>(null);
+  const progressRef = useRef<HTMLDivElement | null>(null);
   const scrollToTop = () => topRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+
+  /* scroll progress: rAF-throttled, writes a CSS var directly —
+     no re-render on scroll. Sits under the sticky nav. */
+  useEffect(() => {
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const el = progressRef.current;
+      if (!el) return;
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - window.innerHeight;
+      const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      el.style.setProperty("--p", p.toFixed(4));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    update();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   /* boot: hydrate form + language, count history (fail-soft).
      All setState is deferred to a microtask so the effect body
@@ -176,18 +202,31 @@ export function ForesightExperience() {
 
   const goLanding = () => { setView("landing"); scrollToTop(); };
 
+  const gotoStep = (next: number) => {
+    setStepDir((d) => (next === step ? d : next > step ? 1 : -1));
+    setStep(next);
+  };
+
   const navBtn = (label: string, target: View, Icon: typeof Activity, active: boolean) => (
     <button
       type="button"
       onClick={() => { setView(target); scrollToTop(); }}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition",
-        active ? "bg-amber-300/10 text-[#FDE68A]" : "text-[#C0BAA9] hover:bg-white/5 hover:text-[#FFFEFA]"
+        "relative inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition",
+        active ? "text-[#FDE68A]" : "text-[#C0BAA9] hover:bg-white/5 hover:text-[#FFFEFA]"
       )}
     >
-      <Icon aria-hidden="true" className="h-4 w-4" />
-      <span className="hidden sm:inline">{label}</span>
+      {active && (
+        <motion.span
+          layoutId="nxf-nav-pill"
+          className="absolute inset-0 rounded-full border border-amber-300/25 bg-amber-300/10"
+          transition={{ type: "spring", stiffness: 420, damping: 34 }}
+          aria-hidden="true"
+        />
+      )}
+      <Icon aria-hidden="true" className="relative z-10 h-4 w-4" />
+      <span className="relative z-10 hidden sm:inline">{label}</span>
     </button>
   );
 
@@ -239,6 +278,7 @@ export function ForesightExperience() {
             </button>
           </div>
         </div>
+        <div ref={progressRef} className="nxf-progress" aria-hidden="true" />
       </div>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
@@ -266,9 +306,9 @@ export function ForesightExperience() {
                 <div className="mt-2.5 flex gap-1.5">
                   {STEPS.map((s, i) => (
                     <button key={s.id} type="button" aria-label={`Step ${i + 1}: ${s.label}`}
-                      onClick={() => { setStep(i); }}
+                      onClick={() => { gotoStep(i); }}
                       className={cn("h-1.5 flex-1 rounded-full transition-all",
-                        i < step ? "bg-amber-400/70" : i === step ? "bg-amber-300" : "bg-white/10")} />
+                        i < step ? "nxf-dot-done bg-amber-400/70" : i === step ? "nxf-dot-active bg-amber-300" : "bg-white/10")} />
                   ))}
                 </div>
               </div>
@@ -279,8 +319,18 @@ export function ForesightExperience() {
                 </div>
               )}
 
-              <div className="nxf-glass p-5 sm:p-7">
-                {stepComponent}
+              <div className="nxf-glass overflow-hidden p-5 sm:p-7">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={step}
+                    initial={{ opacity: 0, x: 34 * stepDir }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -30 * stepDir }}
+                    transition={{ duration: 0.28, ease: [0.2, 0.7, 0.2, 1] }}
+                  >
+                    {stepComponent}
+                  </motion.div>
+                </AnimatePresence>
               </div>
 
               {runError && (
@@ -291,13 +341,13 @@ export function ForesightExperience() {
                 <button
                   type="button"
                   className="nxf-cta nxf-cta-ghost"
-                  onClick={() => { if (step === 0) goLanding(); else setStep((s) => s - 1); scrollToTop(); }}
+                  onClick={() => { if (step === 0) goLanding(); else gotoStep(step - 1); scrollToTop(); }}
                 >
                   {step === 0 ? tr(lang, "app.home") : tr(lang, "app.back")}
                 </button>
                 {step < STEPS.length - 1 ? (
                   <button type="button" className="nxf-cta" disabled={!canContinue}
-                    onClick={() => { setStep((s) => s + 1); scrollToTop(); }}>
+                    onClick={() => { gotoStep(step + 1); scrollToTop(); }}>
                     {tr(lang, "app.continue")}
                   </button>
                 ) : (
@@ -312,13 +362,19 @@ export function ForesightExperience() {
           {view === "running" && (
             <motion.div key="running" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
-              <div className="relative">
+              <div className="relative h-24 w-24">
+                {/* radar sweep scans the ring while the engine thinks */}
+                <div className="nxf-radar absolute inset-0" aria-hidden="true" />
+                <div className="absolute inset-0 rounded-full border border-white/10" aria-hidden="true" />
                 <motion.div
-                  className="h-20 w-20 rounded-full border border-amber-300/35"
-                  animate={{ scale: [1, 1.12, 1], opacity: [0.5, 1, 0.5] }}
+                  className="absolute inset-3 rounded-full border border-amber-300/35"
+                  animate={{ scale: [1, 1.08, 1], opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  aria-hidden="true"
                 />
-                <div className="absolute inset-3 rounded-full border-2 border-amber-300/70 border-t-transparent nxf-spin" />
+                <div className="absolute inset-0 grid place-items-center" aria-hidden="true">
+                  <Activity className="h-5 w-5 text-white/85" />
+                </div>
               </div>
               <AnimatePresence mode="wait">
                 <motion.p key={runningLine} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }}
