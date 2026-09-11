@@ -38,6 +38,22 @@ probe "/api/nx/wearables/insights"
 probe "/api/nx/webhooks/endpoints"
 probe "/api/nx/ai"
 probe "/api/nx/ai/thresholds"
+# Nexura Predictive Health Intelligence (PHI) — status is public (200);
+# everything else is session-gated (401) or method-gated (405) or bad-input (400)
+probe "/api/nx/phi/status"
+probe "/api/nx/phi/session"
+probe "/api/nx/phi/consent"
+probe "/api/nx/phi/profile"
+probe "/api/nx/phi/intake/symptoms"
+probe "/api/nx/phi/assessment"
+probe "/api/nx/phi/assessment/run"
+probe "/api/nx/phi/trends"
+probe "/api/nx/phi/summary"
+probe "/api/nx/phi/share"
+probe "/api/nx/phi/feedback"
+probe "/api/nx/phi/export"
+probe "/api/nx/phi/data"
+probe "/api/nx/phi/audit"
 echo "PASS=$PASS FAIL=$FAIL"
 for f in "${FAILED[@]}"; do echo "  FAIL: $f"; done
 [ "$FAIL" -eq 0 ]
