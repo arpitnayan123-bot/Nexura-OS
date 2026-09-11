@@ -820,6 +820,7 @@ function PhiExperienceInner() {
   if (bootState === "error") {
     return (
       <CalmError
+        fullScreen
         title={t("app.errorTitle")}
         body={t("app.errorBody")}
         onRetry={() => void boot()}

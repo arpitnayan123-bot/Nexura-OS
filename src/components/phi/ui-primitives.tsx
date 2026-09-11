@@ -419,17 +419,47 @@ export function SaveStateChip({
   );
 }
 
-/* ---------------- Loading & error states ---------------- */
+/* ---------------- Boot shells ----------------
+ * CalmLoader + CalmError(fullScreen) are the ONLY markup present in
+ * the SSR HTML and in the boot-error state. They therefore must not
+ * depend on the Tailwind CSS chunk: every visual property that keeps
+ * them presentable on the dark canvas is set INLINE. Class-based
+ * polish (spinner animation via .phi-boot-spin) is defined in an
+ * inline <style> tag on the page itself, so it also survives a
+ * failed CSS chunk. See src/app/predictive/page.tsx.
+ * ----------------------------------------------- */
 
 export function CalmLoader({ label }: { label: string }) {
   return (
     <div
       role="status"
       aria-live="polite"
-      className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-slate-400"
+      style={{
+        minHeight: "100dvh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "1rem",
+        padding: "1.5rem",
+        textAlign: "center",
+        color: "#A9BBD6",
+        backgroundColor: "transparent",
+      }}
     >
-      <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-teal-300" />
-      <p className="text-sm">{label}</p>
+      <span
+        aria-hidden="true"
+        className="phi-boot-spin"
+        style={{
+          width: 26,
+          height: 26,
+          borderRadius: "50%",
+          border: "3px solid rgba(94, 234, 212, 0.22)",
+          borderTopColor: "#5EEAD4",
+          display: "inline-block",
+        }}
+      />
+      <p style={{ fontSize: "0.875rem", margin: 0 }}>{label}</p>
     </div>
   );
 }
@@ -439,28 +469,97 @@ export function CalmError({
   body,
   onRetry,
   retryLabel,
+  fullScreen = false,
 }: {
   title: string;
   body: string;
   onRetry: () => void;
   retryLabel: string;
+  /** Boot-level errors render alone on the canvas — center them at
+   * full height WITHOUT margins (margins collapse through ancestors
+   * and expose the white app body above the dark shell). */
+  fullScreen?: boolean;
 }) {
-  return (
+  const card = (
     <div
-      role="alert"
-      className="mx-auto my-10 max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-center"
+      style={{
+        maxWidth: "26rem",
+        textAlign: "center",
+        padding: "1.75rem 1.5rem",
+        borderRadius: "1rem",
+        border: "1px solid rgba(255, 255, 255, 0.10)",
+        background: "rgba(255, 255, 255, 0.04)",
+        color: "#F8FAFC",
+      }}
     >
-      <Info aria-hidden="true" className="mx-auto h-6 w-6 text-teal-300" />
-      <h2 className="mt-3 text-lg font-semibold tracking-tight text-white">{title}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-slate-400">{body}</p>
+      <Info aria-hidden="true" size={22} color="#5EEAD4" />
+      <h2
+        style={{
+          marginTop: "0.75rem",
+          fontSize: "1.125rem",
+          fontWeight: 600,
+          letterSpacing: "-0.01em",
+          color: "#F8FAFC",
+        }}
+      >
+        {title}
+      </h2>
+      <p
+        style={{
+          marginTop: "0.5rem",
+          fontSize: "0.875rem",
+          lineHeight: 1.6,
+          color: "#A9BBD6",
+        }}
+      >
+        {body}
+      </p>
       <button
         type="button"
         onClick={onRetry}
-        className="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-teal-300 px-5 py-2.5 text-sm font-semibold text-[#0A1220] transition hover:bg-teal-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-300"
+        style={{
+          marginTop: "1.25rem",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.5rem",
+          minHeight: "44px",
+          padding: "0 1.25rem",
+          borderRadius: 9999,
+          background: "#5EEAD4",
+          color: "#0A1220",
+          fontWeight: 600,
+          fontSize: "0.875rem",
+          border: "none",
+          cursor: "pointer",
+        }}
       >
-        <RotateCcw aria-hidden="true" className="h-4 w-4" />
+        <RotateCcw aria-hidden="true" size={16} />
         {retryLabel}
       </button>
+    </div>
+  );
+
+  if (fullScreen) {
+    return (
+      <div
+        role="alert"
+        style={{
+          minHeight: "100dvh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1.5rem",
+        }}
+      >
+        {card}
+      </div>
+    );
+  }
+
+  return (
+    <div role="alert" className="mx-auto my-10 max-w-md px-4">
+      {card}
     </div>
   );
 }
