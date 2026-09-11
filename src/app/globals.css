@@ -1198,6 +1198,90 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
   animation: nx-core-breathe 2.4s ease-in-out infinite;
 }
 
+/* ---- NIGHT GARDEN (AI strip, redesigned minimal) ----
+   The intelligence moment as a dusk garden that pairs with the
+   Cobe globe card below it: same warm-dark canvas, the globe's
+   sand + terracotta, sage foliage. Stems sway, fireflies drift.
+   Fully decorative, aria-hidden, static under reduced motion. */
+@keyframes nx-sway {
+  from {
+    transform: rotate(-2.4deg);
+  }
+  to {
+    transform: rotate(2.6deg);
+  }
+}
+.nx-stem {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  animation: nx-sway 7.5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes nx-drift {
+  0% {
+    transform: translate3d(0, 10px, 0);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate3d(9px, -26px, 0);
+    opacity: 0.5;
+  }
+  82% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(-7px, -62px, 0);
+    opacity: 0;
+  }
+}
+.nx-fly {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0;
+  animation: nx-drift var(--fly-dur, 9s) ease-in-out var(--fly-delay, 0s)
+    infinite;
+  will-change: transform, opacity;
+}
+
+/* Prompt line swap — soft fade, no layout shift */
+@keyframes nx-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.nx-fade {
+  animation: nx-fade-up 420ms ease-out both;
+}
+
+/* Small orb — the "moon" over the garden (scaled insets of .nx-orb) */
+.nx-orb-sm {
+  width: 68px;
+  height: 68px;
+}
+.nx-orb-sm > i {
+  border-width: 1px;
+}
+.nx-orb-sm > i:nth-child(2) {
+  inset: 10px;
+}
+.nx-orb-sm > i:nth-child(3) {
+  inset: 21px;
+}
+.nx-orb-sm .nx-orb-core {
+  inset: 29px;
+}
+
 /* Crisis band — 108 emergency (8.1:1 cream on #C73E3A) */
 .nx-crisis {
   background: var(--nx-crisis);
@@ -1244,12 +1328,20 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   .nx-spin-border::before,
   .nx-orb > i,
-  .nx-orb-core {
+  .nx-orb-core,
+  .nx-stem,
+  .nx-fly,
+  .nx-fade {
     animation: none !important;
   }
   /* static full ring instead of a sweeping beam */
   .nx-beam::before {
     background: rgba(224, 176, 128, 0.28);
     filter: none;
+  }
+  /* garden still reads as a garden: stems rest, fireflies glow in place */
+  .nx-fly {
+    opacity: 0.35;
+    transform: none;
   }
 }
