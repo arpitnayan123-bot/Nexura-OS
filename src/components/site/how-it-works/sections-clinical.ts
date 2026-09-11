@@ -18,7 +18,7 @@ export const SECTIONS_CLINICAL: HiwSection[] = [
       { title: "OT, nursing & alerts", desc: "Operation-theatre scheduling, nursing-station handoffs, and BPA alerts that fire the moment a care milestone slips." },
       { title: "EHR to e-Rx", desc: "Structured notes and lab orders connect to an e-prescription path that lands directly in the pharmacy queue." },
       { title: "Money reconciles itself", desc: "Billing, insurance & TPA claims and packages all reconcile against the same encounters the clinicians created." },
-      { title: "India rails built in", desc: "ABHA linking, WhatsApp notifications, GST-ready invoices, blood bank and supply chain — NABH-aligned audits underneath." },
+      { title: "India rails built in", desc: "ABHA ID capture (demo lookup), WhatsApp notifications, GST-ready invoices, blood bank and supply chain — NABH-aligned audits underneath." },
     ],
     hood: ["Command Center", "21+ modules", "ABHA + WhatsApp", "Insurance/TPA", "Blood bank", "Supply chain"],
     cta: { kind: "link", label: "Open Hospital OS", href: "/hospital" },

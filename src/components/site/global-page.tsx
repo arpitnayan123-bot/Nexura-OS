@@ -1614,7 +1614,7 @@ function GlobalFooter({ t }: { t: typeof I18N["en"] }) {
               <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> NABH Accredited Network</li>
               <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> JCI Certified Partners</li>
               <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> HIPAA & GDPR Compliant</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> ABDM Integrated</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> ABDM-ready — alignment in progress</li>
               <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> Medical Visa Support</li>
             </ul>
           </div>

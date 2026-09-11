@@ -14,7 +14,7 @@ const TIERS = [
     href: "/hospital",
     plans: [
       { name: "Starter", price: "₹50,000", period: "/month", desc: "Up to 50 beds", features: ["Dashboard + OPD + IPD", "EHR + Nursing", "Basic billing", "Email support", "1 hospital location"], cta: "Start free trial" },
-      { name: "Professional", price: "₹1,50,000", period: "/month", desc: "Up to 200 beds", features: ["All 18 modules", "AI clinical assistant", "Insurance + TPA claims", "Blood Bank + Radiology", "ABDM integration", "Priority support", "1 hospital location"], cta: "Start free trial", popular: true },
+      { name: "Professional", price: "₹1,50,000", period: "/month", desc: "Up to 200 beds", features: ["All 18 modules", "AI clinical assistant", "Insurance + TPA claims", "Blood Bank + Radiology", "ABDM-ready (alignment in progress)", "Priority support", "1 hospital location"], cta: "Start free trial", popular: true },
       { name: "Enterprise", price: "₹5,00,000", period: "/month", desc: "200+ beds / multi-location", features: ["Everything in Professional", "Multi-hospital chain", "Custom AI training", "Dedicated CSM", "99.9% SLA", "On-premise option", "API access"], cta: "Contact sales" },
     ],
   },
@@ -25,7 +25,7 @@ const TIERS = [
     href: "/clinic",
     plans: [
       { name: "Solo", price: "₹2,000", period: "/month", desc: "1 doctor", features: ["SOAP consultation", "Drug autocomplete (54 meds)", "Patient register", "Basic billing", "Public booking page"], cta: "Start free trial" },
-      { name: "Practice", price: "₹8,000", period: "/month", desc: "Up to 5 doctors", features: ["Everything in Solo", "ABHA registry", "AI symptom triage", "Telemedicine", "Follow-up reminders (call-based)", "Revenue analytics"], cta: "Start free trial", popular: true },
+      { name: "Practice", price: "₹8,000", period: "/month", desc: "Up to 5 doctors", features: ["Everything in Solo", "ABHA lookup (simulated)", "AI symptom triage", "Telemedicine", "Follow-up reminders (call-based)", "Revenue analytics"], cta: "Start free trial", popular: true },
       { name: "Chain", price: "₹15,000", period: "/month", desc: "Unlimited doctors", features: ["Everything in Practice", "Multi-clinic management", "Centralized patient DB", "Custom branding", "API access", "Priority support"], cta: "Contact sales" },
     ],
   },
@@ -176,7 +176,7 @@ export function PricingPage() {
               { q: "Is there a free trial?", a: "Yes. All paid plans come with a 14-day free trial. No credit card required. You can explore all features with demo data before committing." },
               { q: "Can I switch plans later?", a: "Absolutely. You can upgrade or downgrade at any time. Changes take effect immediately and we prorate the difference." },
               { q: "Do you offer discounts for NGOs or government hospitals?", a: "Yes. We offer up to 50% discount for government hospitals, NGO-run clinics, and charitable trusts. Contact sales for details." },
-              { q: "Is my data secure?", a: "All data is encrypted at rest (AES-256) and in transit (TLS 1.3). We're DPDP 2023 compliant and ABDM-compatible. Patient data never leaves India." },
+              { q: "Is my data secure?", a: "All data is encrypted at rest (AES-256) and in transit (TLS 1.3). We're DPDP 2023 compliant and ABDM-ready (alignment in progress, not yet integrated). Patient data never leaves India." },
               { q: "Do you provide training?", a: "Yes. Every plan includes free onboarding training. Professional and Enterprise plans include dedicated training sessions for your team." },
               { q: "What payment modes do you accept?", a: "We accept UPI, credit/debit cards, net banking, and bank transfers. Annual billing gets 2 months free." },
             ].map((faq, i) => (
