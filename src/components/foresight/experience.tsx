@@ -336,6 +336,7 @@ export function ForesightExperience() {
                 report={report}
                 input={input}
                 onRerun={() => { setView("wizard"); setStep(0); scrollToTop(); }}
+                onEditInputs={() => { setView("wizard"); setStep(STEPS.length - 1); scrollToTop(); }}
                 onSummary={(text) => setSummaryText(text || report.doctorSummary || "")}
               />
             </motion.div>

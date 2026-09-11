@@ -1,19 +1,17 @@
 "use client";
 
 /* ============================================================
- * FORESIGHT WHAT-IF STUDIO — the interactive lever board.
+ * SCENARIO PLANNING — the formal what-if lab.
  *
- * The engine is a pure deterministic function, so the browser
- * can replay it instantly: toggle a lifestyle lever, re-run
- * `runForesight` on a modified copy of YOUR normalized input,
- * and watch the halo/score respond live. No server round-trip,
- * no fabricated numbers — the exact same versioned engine.
+ * Three named scenarios over the SAME deterministic engine:
+ *   · Baseline        — your pattern exactly as shared
+ *   · Committed plan  — every available lifestyle lever, on
+ *   · Custom mix      — your own lever selection
  *
- * SAFETY POSTURE:
- *  - lifestyle levers only. Labs, symptoms and vitals are
- *    never "toggled away" — you cannot simulate away an HbA1c.
- *  - levers auto-disable when already optimal (honest baseline).
- *  - copy repeats: simulation ≠ prediction ≠ promise.
+ * The selection drives EVERYTHING above it (halo, forecast
+ * chart, metrics) through the parent's simIds state, so no two
+ * sections can ever disagree. Labs/vitals/symptoms are never
+ * togglable — you cannot simulate away an HbA1c.
  * ============================================================ */
 
 import { useMemo } from "react";
@@ -118,28 +116,48 @@ export function applyScenarios(base: ForesightInput, ids: string[]): ForesightIn
   return out;
 }
 
-/* ---------------- the studio panel ---------------- */
+export type ScenarioMode = "baseline" | "plan" | "custom";
 
-export function WhatIfStudio({
-  baseInput, baseReport, active, onChange,
+export function ScenarioLab({
+  baseInput,
+  baseReport,
+  mode,
+  onMode,
+  customIds,
+  onCustomIds,
+  simReport,
 }: {
   baseInput: ForesightInput;
   baseReport: ForesightReport;
-  active: string[];
-  onChange: (ids: string[]) => void;
+  mode: ScenarioMode;
+  onMode: (m: ScenarioMode) => void;
+  customIds: string[];
+  onCustomIds: (ids: string[]) => void;
+  simReport: ForesightReport | null;
 }) {
-  const simReport = useMemo(
-    () => (active.length ? runForesight(applyScenarios(baseInput, active)) : null),
-    [baseInput, active]
-  );
+  const availableIds = useMemo(() => SCENARIOS.filter((s) => s.available(baseInput)).map((s) => s.id), [baseInput]);
 
   const delta = simReport ? simReport.foresightScore - baseReport.foresightScore : 0;
-  const bandMove = simReport
-    ? bandOrd(simReport.scoreBand) - bandOrd(baseReport.scoreBand)
-    : 0;
+  const bandMove = simReport ? bandOrd(simReport.scoreBand) - bandOrd(baseReport.scoreBand) : 0;
+
+  /* scenario endpoint comparison (engine's own trajectory endpoints) */
+  const scenarios: { key: ScenarioMode; name: string; today: number; at: number; note: string }[] = useMemo(() => {
+    const planReport = runForesight(applyScenarios(baseInput, availableIds));
+    return [
+      { key: "baseline", name: "Baseline — as shared", today: baseReport.foresightScore, at: baseReport.trajectory.unchangedScore, note: "your current pattern, five years out" },
+      { key: "plan", name: "Committed plan", today: planReport.foresightScore, at: planReport.trajectory.withActionsScore, note: `all ${availableIds.length} available levers held for five years` },
+      {
+        key: "custom",
+        name: "Custom mix",
+        today: simReport && customIds.length ? simReport.foresightScore : baseReport.foresightScore,
+        at: simReport && customIds.length ? simReport.trajectory.unchangedScore : baseReport.trajectory.unchangedScore,
+        note: customIds.length ? `${customIds.length} lever${customIds.length === 1 ? "" : "s"} of your choosing` : "toggle levers below to build yours",
+      },
+    ];
+  }, [baseInput, baseReport, availableIds, simReport, customIds]);
 
   const domainDeltas: { d: DomainResult; diff: number }[] = useMemo(() => {
-    if (!simReport) return [];
+    if (!simReport || customIds.length === 0) return [];
     return simReport.domains
       .map((d) => {
         const base = baseReport.domains.find((b) => b.id === d.id);
@@ -148,59 +166,137 @@ export function WhatIfStudio({
       .filter((x) => Math.abs(x.diff) >= 1)
       .sort((a, b) => b.diff - a.diff)
       .slice(0, 4);
-  }, [simReport, baseReport]);
+  }, [simReport, baseReport, customIds]);
 
-  const toggle = (id: string) =>
-    onChange(active.includes(id) ? active.filter((x) => x !== id) : [...active, id]);
+  const appliedLevers = useMemo(() => {
+    const ids = mode === "plan" ? availableIds : customIds;
+    return SCENARIOS.filter((s) => ids.includes(s.id));
+  }, [mode, availableIds, customIds]);
+
+  const toggleCustom = (id: string) =>
+    onCustomIds(customIds.includes(id) ? customIds.filter((x) => x !== id) : [...customIds, id]);
 
   return (
     <GlassCard className="relative overflow-hidden p-5 sm:p-7" {...fadeUp}>
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent" />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <Eyebrow className="mb-2">What-if studio · live engine replay</Eyebrow>
+          <Eyebrow className="mb-2">Scenario planning · live engine replay</Eyebrow>
           <h2 className="font-display text-xl font-semibold tracking-tight nxf-hi sm:text-2xl">
-            Bend the curve — see what each change is worth
+            Three futures, one honest engine
           </h2>
           <p className="mt-1 max-w-xl text-[13px] leading-relaxed nxf-dim">
-            Flip a lever and the same versioned engine re-runs instantly on your signals —
-            the halo above responds live. This is the honest math of your own pattern, not a promise.
+            Pick a scenario and the same versioned engine re-runs instantly on your signals — the halo, the
+            forecast chart and every metric above move together. Direction, not destiny.
           </p>
         </div>
         <FlaskConical className="hidden h-6 w-6 nxf-gold sm:block" aria-hidden="true" />
       </div>
 
-      {/* levers */}
-      <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="What-if levers">
-        {SCENARIOS.map((s) => {
-          const usable = s.available(baseInput);
-          const on = active.includes(s.id);
+      {/* scenario selector */}
+      <div className="nxf-seg mt-5 w-fit" role="radiogroup" aria-label="Scenario">
+        {([
+          { key: "baseline", label: "Baseline" },
+          { key: "plan", label: "Committed plan" },
+          { key: "custom", label: "Custom mix" },
+        ] as const).map((s) => (
+          <button
+            key={s.key}
+            type="button"
+            role="radio"
+            aria-checked={mode === s.key}
+            onClick={() => onMode(s.key)}
+            className={cn("nxf-seg-btn", mode === s.key && "nxf-seg-on")}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {/* outcome cards */}
+      <div className="mt-4 grid gap-3 sm:grid-cols-3" aria-live="polite">
+        {scenarios.map((s) => {
+          const dToday = s.today - baseReport.foresightScore;
+          const dAt = s.at - baseReport.trajectory.unchangedScore;
+          const active = mode === s.key;
           return (
-            <button
-              key={s.id}
-              type="button"
-              aria-pressed={on}
-              disabled={!usable}
-              onClick={() => toggle(s.id)}
-              title={usable ? s.hint : "Already in a good place — no simulated change needed"}
+            <div
+              key={s.key}
               className={cn(
-                "nxf-pill",
-                on && "!border-amber-300/70 !bg-amber-300/[0.16] !text-amber-100",
-                !usable && "cursor-default opacity-45"
+                "rounded-2xl border p-4 transition",
+                active ? "border-amber-300/55 bg-amber-300/[0.08]" : "border-white/[0.09] bg-white/[0.03]"
               )}
             >
-              <span aria-hidden="true" className={cn("text-[11px]", on ? "nxf-gold" : "nxf-mute")}>
-                {usable ? (on ? "✦" : "○") : "✓"}
-              </span>
-              <span>{s.label}</span>
-            </button>
+              <p className="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-[0.12em] nxf-mute">
+                {s.name}
+                {active && <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-300 nxf-pulse-dot" />}
+              </p>
+              <p className="mt-2 flex items-baseline gap-1.5">
+                <span className="font-display text-[1.65rem] font-semibold leading-none nxf-hi">{s.today}</span>
+                <span className="text-[11.5px] nxf-mute">today</span>
+                {dToday !== 0 && (
+                  <span className={cn("text-[11.5px] font-bold", dToday > 0 ? "nxf-teal" : "text-rose-300")}>
+                    {dToday > 0 ? `+${dToday}` : dToday}
+                  </span>
+                )}
+              </p>
+              <p className="mt-1 flex items-baseline gap-1.5">
+                <span className="font-display text-[1.65rem] font-semibold leading-none nxf-hi">{s.at}</span>
+                <span className="text-[11.5px] nxf-mute">at +5y</span>
+                {dAt !== 0 && (
+                  <span className={cn("text-[11.5px] font-bold", dAt > 0 ? "nxf-teal" : "text-rose-300")}>
+                    {dAt > 0 ? `+${dAt}` : dAt}
+                  </span>
+                )}
+              </p>
+              <p className="mt-2 text-[11px] leading-relaxed nxf-mute">{s.note}</p>
+            </div>
           );
         })}
       </div>
 
-      {/* readout */}
+      {/* custom levers */}
+      {mode === "custom" && (
+        <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Custom levers">
+          {SCENARIOS.map((s) => {
+            const usable = s.available(baseInput);
+            const on = customIds.includes(s.id);
+            return (
+              <button
+                key={s.id}
+                type="button"
+                aria-pressed={on}
+                disabled={!usable}
+                onClick={() => toggleCustom(s.id)}
+                title={usable ? s.hint : "Already in a good place — no simulated change needed"}
+                className={cn(
+                  "nxf-pill",
+                  on && "!border-amber-300/70 !bg-amber-300/[0.16] !text-amber-100",
+                  !usable && "cursor-default opacity-45"
+                )}
+              >
+                <span aria-hidden="true" className={cn("text-[11px]", on ? "nxf-gold" : "nxf-mute")}>
+                  {usable ? (on ? "✦" : "○") : "✓"}
+                </span>
+                <span>{s.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* assumptions + readout */}
       <div className="mt-5 flex flex-wrap items-center gap-4">
-        {simReport && delta !== 0 ? (
+        <div className="min-w-0 flex-1 rounded-2xl border border-white/[0.09] bg-white/[0.03] p-4">
+          <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] nxf-mute">Assumptions in this scenario</p>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed nxf-dim">
+            {appliedLevers.length === 0
+              ? "None — your pattern exactly as you shared it. Labs, vitals and symptoms stay fixed in every scenario; the engine will not pretend a test result away."
+              : appliedLevers.map((l) => l.label).join(" · ") + ". Labs, vitals and symptoms stay fixed — no simulated test results."}
+          </p>
+        </div>
+
+        {simReport && delta !== 0 && (
           <motion.div
             key={delta}
             initial={{ opacity: 0, y: 8 }}
@@ -209,63 +305,57 @@ export function WhatIfStudio({
             className="flex items-baseline gap-2 rounded-2xl border border-amber-300/40 bg-amber-300/[0.10] px-4 py-3"
           >
             <TrendingUp className="h-5 w-5 self-center nxf-gold" aria-hidden="true" />
-            <span className="nxf-mono text-3xl font-bold nxf-gold">
-              {delta > 0 ? `+${delta}` : delta}
-            </span>
+            <span className="nxf-mono text-3xl font-bold nxf-gold">{delta > 0 ? `+${delta}` : delta}</span>
             <span className="text-[12px] nxf-dim">
-              foresight score<br />
+              vs your saved run
+              <br />
               {bandMove > 0 ? (
                 <span className="font-semibold nxf-gold">band improved → {simReport.scoreBand}</span>
               ) : bandMove < 0 ? (
-                <span className="font-semibold nxf-rose">band slipped — unlikely, review levers</span>
+                <span className="font-semibold text-rose-300">band slipped — review levers</span>
               ) : (
                 <span>same band ({simReport.scoreBand})</span>
               )}
             </span>
           </motion.div>
-        ) : (
-          <p className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[13px] nxf-mute">
-            {active.length === 0
-              ? "Toggle a lever — the halo above re-draws with the simulated pattern."
-              : "±0 on the composite for this mix — the engine won't inflate a lever that doesn't move your pattern."}
-          </p>
         )}
 
-        {domainDeltas.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {domainDeltas.map(({ d, diff }) => (
-              <span
-                key={d.id}
-                className={cn(
-                  "rounded-full border px-3 py-1.5 text-[11.5px] font-semibold",
-                  diff > 0
-                    ? "border-emerald-300/35 bg-emerald-300/[0.08] text-emerald-200"
-                    : "border-rose-300/30 bg-rose-300/[0.06] text-rose-200"
-                )}
-              >
-                {DOMAIN_META[d.id]?.label ?? d.id} burden {diff > 0 ? "−" : "+"}
-                {Math.abs(diff)}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {active.length > 0 && (
+        {mode !== "baseline" && (
           <button
             type="button"
-            onClick={() => onChange([])}
-            className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-[12.5px] font-semibold nxf-body transition hover:border-amber-300/50 hover:text-amber-100"
+            onClick={() => { onMode("baseline"); onCustomIds([]); }}
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-[12.5px] font-semibold nxf-body transition hover:border-amber-300/50 hover:text-amber-100"
           >
-            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" /> Reset simulation
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" /> Reset to baseline
           </button>
         )}
       </div>
 
+      {/* per-domain deltas for the active custom mix */}
+      {domainDeltas.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2" aria-live="polite">
+          {domainDeltas.map(({ d, diff }) => (
+            <span
+              key={d.id}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-[11.5px] font-semibold",
+                diff > 0
+                  ? "border-emerald-300/35 bg-emerald-300/[0.08] text-emerald-200"
+                  : "border-rose-300/30 bg-rose-300/[0.06] text-rose-200"
+              )}
+            >
+              {DOMAIN_META[d.id]?.label ?? d.id} burden {diff > 0 ? "−" : "+"}
+              {Math.abs(diff)}
+            </span>
+          ))}
+        </div>
+      )}
+
       <p className="mt-4 text-[11.5px] leading-relaxed nxf-mute">
-        Simulation on the signals you shared today — it is not a prediction of outcomes and not medical
-        advice. Labs anchor your map: when a lab signal dominates, lifestyle levers move the composite
-        less, because pretending otherwise would be a lie. Re-run a real check-in after 8–12 weeks of
-        change and compare the two maps.
+        Simulations replay the exact versioned engine on the signals you shared today — they are not
+        predictions of outcomes and not medical advice. Labs anchor your map: when a lab signal dominates,
+        lifestyle levers move the composite less, because pretending otherwise would be a lie. Re-run a real
+        check-in after 8–12 weeks of change and compare the two maps.
       </p>
     </GlassCard>
   );

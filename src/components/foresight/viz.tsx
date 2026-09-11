@@ -153,7 +153,9 @@ export function HealthHalo({
   return (
     <div className="relative mx-auto" style={{ width: size, maxWidth: "100%" }}>
       <svg
-        viewBox={`0 0 ${size} ${size}`}
+        /* viewBox is padded so long edge labels ("Haemoglobin",
+           "Blood Pressure") never clip at smaller halo sizes */
+        viewBox={`${-size * 0.075} ${-size * 0.02} ${size * 1.15} ${size * 1.04}`}
         width={size}
         height={size}
         className="mx-auto block max-w-full"
