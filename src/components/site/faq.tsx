@@ -40,7 +40,7 @@ const FAQS = [
   },
   {
     q: "What if I have an emergency?",
-    a: "Nexura OS detects deteriorating vitals and can escalate to emergency contacts and local EMS automatically. It complements — never replaces — emergency services. Always dial your local emergency number in a crisis.",
+    a: "Nexura OS detects deteriorating vitals and can escalate to emergency contacts and local EMS automatically. It complements — never replaces — emergency services. Always dial 108 (ambulance) or 112 (India emergency) in a crisis.",
     tags: ["emergency", "safety", "alert", "vitals"],
   },
   {

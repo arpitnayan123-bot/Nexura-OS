@@ -57,6 +57,9 @@ export function CleanFooter() {
             Cosmetics Rules 1945, ICD-10, IRDAI TPA guidelines &amp; Indian GST
             e-invoice structure.
           </p>
+          <p className="text-center text-[0.65rem] leading-relaxed text-muted-foreground/60">
+            Emergencies: call 108 · Mental health: Tele-MANAS 14416 (free, 24×7)
+          </p>
         </motion.div>
       </div>
     </footer>

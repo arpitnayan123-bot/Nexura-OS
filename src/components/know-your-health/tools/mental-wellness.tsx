@@ -194,6 +194,7 @@ export function MentalWellness() {
             <ResultCard accent="#C98A7A" title="Crisis Resources — Available Now">
               <div className="grid gap-2 sm:grid-cols-3">
                 {(result.crisisResources?.length ? result.crisisResources : [
+                  { name: "Tele-MANAS (Govt of India)", phone: "14416", hours: "24x7 · Free · All Indian languages" },
                   { name: "iCall", phone: "9152987821", hours: "Mon-Sat 8am-10pm" },
                   { name: "Vandrevala Foundation", phone: "1860-2662-345", hours: "24x7" },
                   { name: "AASRA", phone: "9820466726", hours: "24x7" },
@@ -205,7 +206,7 @@ export function MentalWellness() {
                   </a>
                 ))}
               </div>
-              <p className="mt-2 text-[0.65rem] text-[#9A8F84]">If you're in immediate danger, please call 112 (India emergency) or go to your nearest hospital.</p>
+              <p className="mt-2 text-[0.65rem] text-[#9A8F84]">If you're in immediate danger, please call Tele-MANAS 14416 (free, 24×7) or 112 (India emergency), or go to your nearest hospital.</p>
             </ResultCard>
 
             <div className="flex items-center gap-3">
