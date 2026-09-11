@@ -3222,3 +3222,21 @@ Work Log:
 
 Stage Summary:
 - Commit "fix(loop-1): truth-pass on feature copy...". OS inventory: 18 routes, 172 API routes, 145 Prisma models, 25 nx apps (22 user-facing), 15 KYH tools, foresight 12 domains/40 symptoms/132 factors/10 steps.
+
+---
+Task ID: 2-a
+Agent: Explore (research-only subagent)
+Task: Map homepage (/) composition completely — section order, remaining numeric/factual claims, every internal link/anchor verified against src/app routes, "OS at a glance" gap analysis, styling system notes. NO code edits.
+
+Work Log:
+- Read worklog tail (1-a, 1-b, L1) for loop-1 fix list; read src/app/page.tsx (39 lines) + all rendered components: navbar.tsx (109), hero.tsx (311), features-showcase.tsx (212), founder-badge.tsx (70), clean-footer.tsx (64), hamburger-menu.tsx (233), how-it-works/sections-*.ts CTAs, health-assistant.tsx (278), back-to-top/skip-link/cursor-glow/cookie-consent, booking-context/booking-modal, ambient.tsx exports.
+- Order on /: SkipLink -> CursorGlow -> Navbar (HowItWorksExplorer modal + HamburgerMenu drawer) -> Hero -> FeaturesShowcase (8 products + 6 actions + stat strip) -> FounderBadge -> CleanFooter -> HealthAssistant/BackToTop/CookieConsent overlays; BookingModal mounted in layout.tsx:90.
+- Loop-1 verification: hero DPDP/HIPAA-principles/22-apps/12-domains fixes PRESENT; features-showcase 22-module + connect desc PRESENT; clean-footer "Built for ABDM alignment" PRESENT. NOT PRESENT despite L1 claiming it: hero.tsx:50 still ships "Now in private beta · 40+ hospitals" (git show HEAD confirms; DB hospitals = 0 rows).
+- Found loop-1 blind spot: hamburger-menu.tsx drawer (rendered on /) still carries all three stale claims L1 fixed in features-showcase — :33 "18-module", :35 "54 Indian medicines", :38 "voice & video / auto-connects".
+- Other unfixed homepage numbers: features-showcase.tsx:120 "15+ AI Features" (exactly 15), :121 "1.4B People building for" (marketing); hero mockup chips (Dr. Amelia Hart "Live", 72 bpm, A+) are decorative.
+- Links: all 13 internal route targets exist under src/app (hospital/predictive/clinic/pharmacy/portal/connect/connect/patient/know-your-health/global/founder/investors/pricing/compliance); HowItWorksExplorer 14 CTAs all valid; #top and #main anchors exist; /know-your-health#symptoms-checker works via app.tsx hash router (app.tsx:17-22). NO broken routes. "#book" has NO matching DOM id anywhere — both usages (features-showcase.tsx:43 button, hamburger-menu.tsx:45 preventDefault) open the booking modal, so pseudo-anchor, not user-visible broken. FounderBadge CTA is <a> not <Link> (full reload). page.tsx:5 imports ProductShowcase but never renders it (dead import).
+- Real-stats gap: homepage shows only 22 apps / 15 AI tools / 12 domains + the showcase mini-strip (8/6/15+/1.4B); no engineering-inventory band (22 user-facing apps of 25 in registry.tsx:76, 172 API routes, 145 Prisma models, 15 KYH tools, foresight 12 domains/40 patterns/130+ factors/10 steps). Insertion point: page.tsx:28-29 between showcase stat strip and FounderBadge.
+- Styling: Tailwind v4 tokens coral/sage/honey/primary in globals.css:104-106 (dark 151-153); .glass-premium:310, .glass-chip:356, .text-gradient-warm:381, .anim-breathe/anim-gradient:263-265; fonts Fraunces display / Jakarta / JetBrains Mono; shadcn/ui 48 components available (Button/Card/Badge/Tabs/Accordion/Dialog/Sheet...); site wrappers Reveal (ambient.tsx:263), Magnetic, AnimatedNumber; card idiom rounded-[1.5rem] glass-premium + accent-hex gradient + framer-motion whileInView.
+
+Stage Summary:
+- No files edited (research-only). Homepage = 6 visual blocks; 0 broken routes; 2 real gaps for next loops: (1) hero.tsx:50 "40+ hospitals" + hamburger-menu.tsx:33/35/38 stale copy = the actual remaining truth-pass on /, (2) missing "OS at a glance" proof band — slot between FeaturesShowcase (page.tsx:28-29) and FounderBadge, style as border-t bg-card/30 with Reveal + text-gradient-warm numerals citing 22 apps / 172 API routes / 145 models / 15 tools. "#book" pseudo-anchor noted. Dead ProductShowcase import in page.tsx:5.

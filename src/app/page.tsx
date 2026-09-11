@@ -1,8 +1,8 @@
 import { Navbar } from "@/components/site/navbar";
 import { Hero } from "@/components/site/hero";
 import { FeaturesShowcase } from "@/components/site/features-showcase";
+import { OsGlance } from "@/components/site/os-glance";
 import { FounderBadge } from "@/components/site/founder-badge";
-import { ProductShowcase } from "@/components/site/product-showcase";
 import { CleanFooter } from "@/components/site/clean-footer";
 import { HealthAssistant } from "@/components/widgets/health-assistant";
 import { BackToTop } from "@/components/site/back-to-top";
@@ -26,6 +26,7 @@ export default function Home() {
       <main id="main" className="flex-1">
         <Hero />
         <FeaturesShowcase />
+        <OsGlance />
         <FounderBadge />
       </main>
 

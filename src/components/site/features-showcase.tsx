@@ -117,8 +117,8 @@ export function FeaturesShowcase() {
           {[
             { stat: "8", label: "Products" },
             { stat: "6", label: "Quick Actions" },
-            { stat: "15+", label: "AI Features" },
-            { stat: "1.4B", label: "People building for" },
+            { stat: "15", label: "AI Tools" },
+            { stat: "1.4B", label: "People we build for" },
           ].map((s, i) => (
             <div key={i}>
               <div className="font-display text-2xl font-bold text-gradient-warm">{s.stat}</div>
