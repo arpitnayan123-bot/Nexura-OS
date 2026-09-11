@@ -2824,3 +2824,20 @@ Work Log:
 
 Stage Summary:
 - /predictive now renders the Aurora Glass v2 command center with readable neon inks, true frosted tiles and a live 5-twin cohort; commit <this-commit>; screenshots download/pie-v2-*.png.
+
+---
+Task ID: PIE-HOLLOW
+Agent: Super Z (main)
+Task: Per user directive — remove everything inside the Predictive Analysis section, keep the section as a hollow feature for a from-scratch rebuild next prompt. English-only chat from now on.
+
+Work Log:
+- Mapped all dependencies before deletion: mod-pie.tsx (Hospital OS) depends on risk-badge/protocol-card/twin-simulator; my-future page was the only importer of health-forecast; nxp-* CSS had no users outside the deleted set.
+- Rewrote src/app/predictive/page.tsx as a minimal dark hollow shell (mono eyebrow + "module cleared" headline + return link); no data calls, no feature imports.
+- git rm: crisis-radar-canvas.tsx, twin-whatif.tsx, risk-gauge.tsx, console-bar.tsx, india-risk-explorer.tsx, health-forecast.tsx, src/app/predictive/my-future/ (what-if-demo.tsx was already gone in 90b6db9).
+- Stripped the 221-line NEXURA PREDICTIVE v2 "Aurora Glass" block from globals.css.
+- Deliberately kept: src/modules/pi-engine/ (engine + tests), /api/nx/predict/* endpoints, risk-badge/protocol-card/twin-simulator (OS module deps).
+- Gates: pkill → tsc 0 · eslint 0 · vitest 119/119 · smoke 56/56; dev restarted; /predictive 200; E2E screenshots download/pie-hollow-desktop.png + pie-hollow-mobile.png.
+- Committed dd8a74a.
+
+Stage Summary:
+- /predictive is now an intentional hollow vessel; all site links to the section still resolve. Working tree clean after commit. Ready for the from-scratch rebuild next prompt.
