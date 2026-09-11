@@ -664,6 +664,44 @@
   color: #FDA4AF;
 }
 
+/* segmented control (workspace horizon + scenario selector) */
+.nxf-seg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.13);
+  background: rgba(255,255,255,0.045);
+  gap: 2px;
+}
+.nxf-seg-btn {
+  border-radius: 9999px;
+  padding: 0.32rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #C0BAA9;
+  cursor: pointer;
+  transition: background .2s, color .2s, box-shadow .2s;
+  min-height: 34px;
+  display: inline-flex; align-items: center;
+}
+.nxf-seg-btn:hover { color: #F3EFE3; }
+.nxf-seg-btn[aria-checked="true"] {
+  background: linear-gradient(135deg, rgba(252,211,77,0.22), rgba(252,211,77,0.13));
+  color: #FDE68A;
+  box-shadow: inset 0 0 0 1px rgba(252,211,77,0.45);
+}
+.nxf-seg-btn:focus-visible {
+  outline: 2px solid rgba(252,211,77,0.75);
+  outline-offset: 2px;
+}
+
+/* keyboard focus ring for chart inspection layer */
+.nxf-focus-ring:focus-visible {
+  outline: 2px solid rgba(252,211,77,0.75);
+  outline-offset: 3px;
+  border-radius: 1rem;
+}
+
 /* inputs */
 .nxf-input {
   width: 100%;

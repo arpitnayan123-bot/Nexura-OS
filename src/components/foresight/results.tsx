@@ -1,23 +1,55 @@
 "use client";
 
 /* ============================================================
- * FORESIGHT RESULTS — the payoff.
- * Order is safety-locked: triage first, halo second, then
- * explainable domain cards, trajectory, plan, diet, questions.
+ * FORESIGHT RESULTS — the Predictive Analysis workspace.
+ *
+ * Information architecture (top -> bottom, safety-locked):
+ *   0. triage takeovers (EMERGENCY fully withholds analysis)
+ *   A. workspace header   — status, horizon, exports, refresh
+ *   B. executive strip    — standing, direction, confidence,
+ *                           risk, next event
+ *   C. overview band      — Health Halo + six key metrics
+ *   D. forecast chart     — observed vs projected + envelope
+ *   E. what this means    — grounded narrative insights
+ *   F. drivers            — ranked, merged, signed
+ *   G. risk register      — severity, evidence, mitigation
+ *   H. scenario planning  — baseline / plan / custom (engine
+ *                           replay drives halo+chart together)
+ *   I. recommended actions— priority board with tracking
+ *   J. timeline           — calendarizable milestones
+ *   K. plan depth         — signal cards, atlas, screening,
+ *                           diet, clinician handoff
+ *   L. transparency       — model & data drawer
+ *
+ * All curves/models come from the pure workspace layer —
+ * no section can ever contradict another.
  * ============================================================ */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Activity, AlertTriangle, ArrowRight, BadgeCheck, CheckCircle2,
-  Copy, HeartPulse, Leaf, PhoneCall, ShieldCheck, Sparkles, Stethoscope, TrendingUp,
+  Copy, HeartPulse, Leaf, PhoneCall, Sparkles, Stethoscope,
 } from "lucide-react";
 import type { DomainId, ForesightInput, ForesightReport } from "@/modules/foresight/types";
-import { DOMAIN_META, HealthHalo, TrajectoryChart } from "./viz";
-import { Bar, Eyebrow, GlassCard, LevelChip, Ornament, SectionHead, fadeUp } from "./ui";
-import { WhatIfStudio, applyScenarios } from "./whatif";
+import {
+  buildActions, buildDrivers, buildExecStrip, buildForecast, buildInsights,
+  buildMetricCards, buildRisks, buildTimeline, type ScoreSeriesEntry,
+} from "@/modules/foresight/workspace";
+import { DOMAIN_META, HealthHalo } from "./viz";
+import { Eyebrow, GlassCard, LevelChip, Ornament, SectionHead, Bar, fadeUp } from "./ui";
+import { ScenarioLab, SCENARIOS, applyScenarios, type ScenarioMode } from "./whatif";
 import { DomainModal } from "./domain-modal";
 import { runForesight } from "@/modules/foresight/engine";
+import { WorkspaceHeader } from "./workspace/header";
+import { ExecStripView, MetricCards } from "./workspace/metrics";
+import { ForecastChart } from "./workspace/forecast-chart";
+import { WhatThisMeans } from "./workspace/insights";
+import { DriversPanel } from "./workspace/drivers";
+import { RisksPanel } from "./workspace/risks";
+import { ActionsBoard, loadActionState, type ActionState } from "./workspace/actions";
+import { TimelinePanel } from "./workspace/timeline";
+import { TransparencyPanel } from "./workspace/transparency";
 import { cn } from "@/lib/utils";
 
 const BAND_COPY: Record<string, { headline: string; sub: string }> = {
@@ -27,7 +59,7 @@ const BAND_COPY: Record<string, { headline: string; sub: string }> = {
   ATTENTION: { headline: "Your body is asking for help", sub: "Multiple domains are loaded. Start with the top card — and take the doctor list seriously." },
 };
 
-/* ---------------- triage takeovers ---------------- */
+/* ---------------- triage takeovers (unchanged, safety first) ---------------- */
 
 export function EmergencyTakeover({ report, onAcknowledge }: { report: ForesightReport; onAcknowledge: () => void }) {
   const t = report.triage;
@@ -97,32 +129,107 @@ function SameDayBanner({ report }: { report: ForesightReport }) {
 /* ---------------- results view ---------------- */
 
 export function ResultsView({
-  report, input, onRerun, onSummary,
+  report, input, onRerun, onEditInputs, onSummary,
 }: {
   report: ForesightReport;
-  /** normalized input behind this run — powers the What-if studio */
+  /** normalized input behind this run — powers the scenario lab */
   input?: ForesightInput | null;
   onRerun: () => void;
+  onEditInputs: () => void;
   onSummary: (text: string) => void;
 }) {
   const [emergencyAck, setEmergencyAck] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [simIds, setSimIds] = useState<string[]>([]);
+  const [horizon, setHorizon] = useState<5 | 3 | 1>(5);
+  const [mode, setMode] = useState<ScenarioMode>("baseline");
+  const [customIds, setCustomIds] = useState<string[]>([]);
+  const [actionState, setActionState] = useState<ActionState>({});
   const [openDomain, setOpenDomain] = useState<DomainId | null>(null);
+  const [series, setSeries] = useState<ScoreSeriesEntry[] | null>(null);
   const band = BAND_COPY[report.scoreBand] ?? BAND_COPY.BUILDING;
   const topDomains = report.topDomainIds
     .map((id) => report.domains.find((d) => d.id === id))
     .filter((d): d is NonNullable<typeof d> => !!d);
 
-  /* What-if replay: the SAME pure engine re-run on a modified copy
-     of this run's normalized input. Instant, deterministic, honest. */
+  /* real score history (observed line + previous-run delta), fail-soft */
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/nx/foresight/history")
+      .then((r) => r.json())
+      .then((j) => {
+        if (!alive) return;
+        window.setTimeout(() => {
+          if (alive && j?.ok) setSeries((j.data?.scoreSeries ?? []) as ScoreSeriesEntry[]);
+        }, 0);
+      })
+      .catch(() => { /* offline — workspace still renders from this run alone */ });
+    return () => { alive = false; };
+  }, []);
+
+  /* persisted action tracking hydrates client-side only */
+  useEffect(() => {
+    const t = window.setTimeout(() => setActionState(loadActionState()), 0);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  /* scenario mapping: mode -> simIds -> one engine replay that drives
+     the halo, the chart overlay and the scenario cards together */
+  const availableIds = useMemo(
+    () => (input ? SCENARIOS.filter((s) => s.available(input)).map((s) => s.id) : []),
+    [input]
+  );
+  const simIds = mode === "plan" ? availableIds : mode === "custom" ? customIds : [];
   const simActive = simIds.length > 0 && !!input && !report.analysisWithheld;
   const simReport = useMemo(
     () => (simActive && input ? runForesight(applyScenarios(input, simIds)) : null),
     [simActive, input, simIds]
   );
-  const display = simReport ?? report;
   const simDelta = simReport ? simReport.foresightScore - report.foresightScore : 0;
+
+  /* workspace model — pure functions over the report */
+  const forecast = useMemo(
+    () => buildForecast(report, series ?? [], { horizon, simulation: simReport }),
+    [report, series, horizon, simReport]
+  );
+  const timeline = useMemo(() => buildTimeline(report), [report]);
+  const drivers = useMemo(() => buildDrivers(report, 14), [report]);
+  const risks = useMemo(() => buildRisks(report), [report]);
+  const actions = useMemo(() => buildActions(report), [report]);
+
+  const prevRun = useMemo(() => {
+    if (!series) return null;
+    const gen = new Date(report.generatedAt).getTime();
+    const prior = [...series].reverse().find((s) => new Date(s.at).getTime() < gen - 1000);
+    return prior ?? null;
+  }, [series, report.generatedAt]);
+
+  const insights = useMemo(() => buildInsights(report, prevRun, drivers), [report, prevRun, drivers]);
+  const exec = useMemo(() => buildExecStrip(report, forecast, timeline), [report, forecast, timeline]);
+  const metricCards = useMemo(() => buildMetricCards(report, forecast, timeline, prevRun), [report, forecast, timeline, prevRun]);
+
+  const watchList = useMemo(
+    () => drivers.filter((d) => d.direction === "risk").slice(0, 3).map((d) => `${d.label} — loads ${d.domains.map((x) => x.label).join(", ")}`),
+    [drivers]
+  );
+
+  const briefText = useMemo(() => {
+    const lines = [
+      `NEXURA PREDICTIVE — EXECUTIVE BRIEF (engine ${report.engineVersion})`,
+      `Standing: ${report.foresightScore}/100 (${report.scoreBand}) · confidence: ${exec.confidenceText}`,
+      `Direction: ${exec.direction.label}`,
+      `Risk: ${exec.risk.count === 0 ? "no elevated domains" : `${exec.risk.count} elevated+ (led by ${exec.risk.topLabel})`}`,
+      exec.nextEvent ? `Next: ${exec.nextEvent.title} (${exec.nextEvent.horizon}, ${exec.nextEvent.when})` : "",
+      "",
+      "TOP DRIVERS:",
+      ...drivers.filter((d) => d.direction === "risk").slice(0, 3).map((d) => `- ${d.label} → ${d.domains.map((x) => x.label).join(", ")}`),
+      "",
+      "START HERE:",
+      ...actions.filter((a) => a.priority === 1).slice(0, 3).map((a) => `- ${a.title} (${a.domainLabel})`),
+      "",
+      report.disclaimer,
+    ].filter((l) => l !== undefined);
+    return lines.join("\n");
+  }, [report, exec, drivers, actions]);
 
   const atlasSorted = useMemo(
     () => [...report.domains].sort((a, b) => b.burden - a.burden),
@@ -137,12 +244,14 @@ export function ResultsView({
     } catch { /* clipboard blocked — no-op */ }
   };
 
+  const resetScenario = () => { setMode("baseline"); setCustomIds([]); };
+
   if (report.triage.level === "EMERGENCY" && !emergencyAck) {
     return <EmergencyTakeover report={report} onAcknowledge={() => setEmergencyAck(true)} />;
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-11">
       {report.triage.level === "EMERGENCY" && (
         <button type="button" onClick={() => setEmergencyAck(false)}
           className="w-full rounded-2xl border border-rose-400/40 bg-rose-400/[0.08] p-4 text-left">
@@ -153,131 +262,187 @@ export function ResultsView({
       )}
       {report.triage.level === "SAME_DAY" && <SameDayBanner report={report} />}
 
-      {/* HERO — halo (morphs live while a simulation is active) */}
-      <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center">
-        <Eyebrow className="mb-3">Your foresight map · engine {report.engineVersion}</Eyebrow>
-        <h1 className="mx-auto max-w-2xl font-display text-3xl font-semibold tracking-tight nxf-hi sm:text-[2.6rem] sm:leading-[1.12]">
-          {report.analysisWithheld ? "Analysis paused for your safety" : band.headline}
-        </h1>
-        {!report.analysisWithheld && (
-          <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed nxf-dim">{band.sub}</p>
-        )}
+      {/* A — WORKSPACE HEADER */}
+      <WorkspaceHeader
+        report={report}
+        horizon={horizon}
+        onHorizon={setHorizon}
+        simActive={simActive}
+        briefText={briefText}
+        onRefresh={onRerun}
+        onConfigure={onEditInputs}
+      />
+
+      {/* B — EXECUTIVE STRIP + simulation banner */}
+      <div className="space-y-3">
+        <ExecStripView exec={exec} />
         {simActive && (
-          <div className="mx-auto mt-5 flex w-fit flex-wrap items-center justify-center gap-2 rounded-full border border-amber-300/50 bg-amber-300/[0.12] px-4 py-2">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl border border-amber-300/45 bg-amber-300/[0.10] px-4 py-2.5"
+            aria-live="polite"
+          >
             <span className="relative flex h-2 w-2" aria-hidden="true">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-300" />
             </span>
             <p className="text-[12.5px] font-semibold nxf-gold">
-              LIVE SIMULATION — {simDelta >= 0 ? `+${simDelta}` : simDelta} vs your saved run
+              Viewing the {mode === "plan" ? "committed plan" : "custom mix"} scenario — {simDelta >= 0 ? `+${simDelta}` : simDelta} vs your saved run. Halo, chart and scenario cards move together; your saved run is untouched.
             </p>
-            <button type="button" onClick={() => setSimIds([])}
+            <button type="button" onClick={resetScenario}
               className="rounded-full border border-amber-300/40 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider nxf-gold transition hover:bg-amber-300/20">
               back to my run
             </button>
-          </div>
+          </motion.div>
         )}
-        <div className="mt-8">
-          <HealthHalo
-            domains={display.domains}
-            score={display.foresightScore}
-            band={display.scoreBand}
-            size={430}
-            live={simActive}
-            onSelectDomain={report.analysisWithheld ? undefined : (id) => setOpenDomain(id)}
-            activeId={openDomain}
-          />
-        </div>
-        <p className="mx-auto mt-4 max-w-2xl text-[12px] leading-relaxed nxf-mute">
-          {report.analysisWithheld
-            ? "The halo expands toward domains carrying more risk-burden. It reads signal patterns — never a diagnosis, never a probability."
-            : "Tap any halo axis to open its full story — every factor, test and action. The halo expands toward more risk-burden; it reads patterns, never diagnoses."}
-        </p>
-      </motion.section>
+      </div>
 
-      {/* protective strip */}
-      {report.protectiveFactors.length > 0 && (
-        <GlassCard className="p-5 sm:p-6" {...fadeUp}>
-          <div className="flex items-start gap-3.5">
-            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 nxf-teal" aria-hidden="true" />
-            <div>
-              <p className="text-[15px] font-semibold nxf-hi">What's already protecting you</p>
-              <p className="mt-1 text-[13px] leading-relaxed nxf-dim">{report.protectiveFactors.join(" · ")}</p>
+      {/* C — OVERVIEW BAND: signature halo + key metrics */}
+      {!report.analysisWithheld && (
+        <section aria-label="Overview — score and key metrics">
+          <div className="grid items-start gap-6 lg:grid-cols-12">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.7 }}
+              className="text-center lg:col-span-5"
+            >
+              <Eyebrow className="mb-3">Signal topology · tap an axis</Eyebrow>
+              <HealthHalo
+                domains={(simReport ?? report).domains}
+                score={(simReport ?? report).foresightScore}
+                band={(simReport ?? report).scoreBand}
+                size={380}
+                live={simActive}
+                onSelectDomain={(id) => setOpenDomain(id)}
+                activeId={openDomain}
+              />
+              <p className="mx-auto mt-3 max-w-sm text-[12px] leading-relaxed nxf-mute">
+                The halo expands toward more risk-burden — it reads patterns, never diagnoses. {band.sub}
+              </p>
+            </motion.div>
+            <div className="lg:col-span-7">
+              <MetricCards cards={metricCards} />
             </div>
           </div>
+        </section>
+      )}
+
+      {/* D — FORECAST CHART (the centerpiece) */}
+      {!report.analysisWithheld && (
+        <GlassCard className="p-5 sm:p-7" {...fadeUp}>
+          <SectionHead
+            eyebrow="The forecast"
+            title="Observed truth vs projected direction"
+            sub="Left of TODAY: your measured runs. Right of it: the engine's two futures inside an honest uncertainty envelope — wider where your data is thinner."
+          />
+          <ForecastChart model={forecast} generatedAt={report.generatedAt} />
         </GlassCard>
       )}
 
-      {/* WHAT-IF STUDIO — interactive engine replay */}
-      {input && !report.analysisWithheld && (
-        <WhatIfStudio baseInput={input} baseReport={report} active={simIds} onChange={setSimIds} />
+      {/* E — WHAT THIS MEANS */}
+      {!report.analysisWithheld && (
+        <WhatThisMeans
+          insights={insights}
+          watchList={watchList}
+          coverageNote={`Coverage ${report.completeness.pct}% · ${prevRun ? "previous-run delta computed from your real history" : "this is your first recorded run — the delta read appears next check-in"}.`}
+        />
       )}
 
-      {/* DOMAIN CARDS */}
-      <motion.section {...fadeUp}>
-        <SectionHead
-          eyebrow="Signal cards"
-          title="Where the weight sits — and why"
-          sub="Every card lists the exact factors that moved it, the screening worth discussing, and the actions that move it back."
+      {/* F — DRIVERS */}
+      {!report.analysisWithheld && <DriversPanel drivers={drivers} total={drivers.length} />}
+
+      {/* G — RISK REGISTER */}
+      {!report.analysisWithheld && <RisksPanel risks={risks} />}
+
+      {/* H — SCENARIO PLANNING (drives halo + chart overlay) */}
+      {input && !report.analysisWithheld && (
+        <ScenarioLab
+          baseInput={input}
+          baseReport={report}
+          mode={mode}
+          onMode={setMode}
+          customIds={customIds}
+          onCustomIds={setCustomIds}
+          simReport={simReport}
         />
-        <div className="grid gap-4 lg:grid-cols-3">
-          {topDomains.map((d, i) => (
-            <GlassCard key={d.id} className="flex flex-col p-5" {...fadeUp} transition={{ duration: 0.6, delay: i * 0.08 }}>
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <p className="flex items-center gap-2 text-[15px] font-semibold nxf-hi">
-                  <span aria-hidden="true" className="nxf-gold nxf-glyph-glow">{DOMAIN_META[d.id]?.glyph}</span>
-                  {DOMAIN_META[d.id]?.label ?? d.id}
-                </p>
-                <LevelChip level={d.level} />
-              </div>
-              <p className="text-[13px] leading-relaxed nxf-body">{d.headline}</p>
+      )}
 
-              <div className="mt-3.5">
-                <div className="mb-1.5 flex items-center justify-between text-[11px] nxf-mute">
-                  <span>signal burden</span><span className="nxf-mono">{d.burden}/100</span>
+      {/* I — RECOMMENDED ACTIONS */}
+      {!report.analysisWithheld && <ActionsBoard actions={actions} state={actionState} onChange={setActionState} />}
+
+      {/* J — TIMELINE */}
+      {!report.analysisWithheld && <TimelinePanel milestones={timeline} />}
+
+      {/* K1 — SIGNAL CARDS (deep per-domain stories) */}
+      {!report.analysisWithheld && (
+        <motion.section {...fadeUp}>
+          <SectionHead
+            eyebrow="Signal cards"
+            title="Where the weight sits — and why"
+            sub="Every card lists the exact factors that moved it, the screening worth discussing, and the actions that move it back."
+          />
+          <div className="grid gap-4 lg:grid-cols-3">
+            {topDomains.map((d, i) => (
+              <GlassCard key={d.id} className="flex flex-col p-5" {...fadeUp} transition={{ duration: 0.6, delay: i * 0.08 }}>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <p className="flex items-center gap-2 text-[15px] font-semibold nxf-hi">
+                    <span aria-hidden="true" className="nxf-gold nxf-glyph-glow">{DOMAIN_META[d.id]?.glyph}</span>
+                    {DOMAIN_META[d.id]?.label ?? d.id}
+                  </p>
+                  <LevelChip level={d.level} />
                 </div>
-                <Bar pct={d.burden} tone={d.level === "HIGH" ? "rose" : d.level === "ELEVATED" ? "orange" : d.level === "WATCH" ? "amber" : "emerald"} />
-              </div>
+                <p className="text-[13px] leading-relaxed nxf-body">{d.headline}</p>
 
-              <div className="mt-4 space-y-1.5">
-                {d.factors.slice(0, 5).map((f) => (
-                  <p key={f.id} className="flex items-start gap-2 text-[12px] leading-relaxed">
-                    <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", f.direction === "risk" ? (d.level === "HIGH" ? "bg-rose-300" : "bg-amber-300") : "bg-emerald-300")} />
-                    <span className="nxf-dim">{f.label}</span>
-                  </p>
-                ))}
-              </div>
+                <div className="mt-3.5">
+                  <div className="mb-1.5 flex items-center justify-between text-[11px] nxf-mute">
+                    <span>signal burden</span><span className="nxf-mono">{d.burden}/100</span>
+                  </div>
+                  <Bar pct={d.burden} tone={d.level === "HIGH" ? "rose" : d.level === "ELEVATED" ? "orange" : d.level === "WATCH" ? "amber" : "emerald"} />
+                </div>
 
-              {d.screening.length > 0 && (
-                <div className="mt-4 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
-                  <p className="mb-1.5 flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] nxf-violet">
-                    <Stethoscope className="h-3.5 w-3.5" /> Discuss with a doctor
-                  </p>
-                  {d.screening.slice(0, 2).map((s) => (
-                    <p key={s.test} className="text-[12px] leading-relaxed nxf-dim">
-                      <span className="font-semibold nxf-hi">{s.test}</span> — {s.why}
+                <div className="mt-4 space-y-1.5">
+                  {d.factors.slice(0, 5).map((f) => (
+                    <p key={f.id} className="flex items-start gap-2 text-[12px] leading-relaxed">
+                      <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", f.direction === "risk" ? (d.level === "HIGH" ? "bg-rose-300" : "bg-amber-300") : "bg-emerald-300")} />
+                      <span className="nxf-dim">{f.label}</span>
                     </p>
                   ))}
                 </div>
-              )}
 
-              {d.actions.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  {d.actions.slice(0, 2).map((a) => (
-                    <div key={a.title} className="rounded-xl border border-teal-400/15 bg-teal-400/[0.05] p-3">
-                      <p className="text-[12.5px] font-semibold text-teal-200">{a.title}</p>
-                      <p className="mt-0.5 text-[12px] leading-relaxed nxf-dim">{a.detail}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <p className="mt-auto pt-3 text-[10.5px] nxf-mute">confidence: {d.confidence.replaceAll("_", " ").toLowerCase()}</p>
-            </GlassCard>
-          ))}
-        </div>
-      </motion.section>
+                {d.screening.length > 0 && (
+                  <div className="mt-4 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
+                    <p className="mb-1.5 flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] nxf-violet">
+                      <Stethoscope className="h-3.5 w-3.5" /> Discuss with a doctor
+                    </p>
+                    {d.screening.slice(0, 2).map((s) => (
+                      <p key={s.test} className="text-[12px] leading-relaxed nxf-dim">
+                        <span className="font-semibold nxf-hi">{s.test}</span> — {s.why}
+                      </p>
+                    ))}
+                  </div>
+                )}
 
-      {/* FULL ATLAS — all twelve domains, nothing hidden */}
+                {d.actions.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {d.actions.slice(0, 2).map((a) => (
+                      <div key={a.title} className="rounded-xl border border-teal-400/15 bg-teal-400/[0.05] p-3">
+                        <p className="text-[12.5px] font-semibold text-teal-200">{a.title}</p>
+                        <p className="mt-0.5 text-[12px] leading-relaxed nxf-dim">{a.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="mt-auto pt-3 text-[10.5px] nxf-mute">confidence: {d.confidence.replaceAll("_", " ").toLowerCase()}</p>
+              </GlassCard>
+            ))}
+          </div>
+        </motion.section>
+      )}
+
+      {/* K2 — FULL ATLAS */}
       {!report.analysisWithheld && (
         <motion.section {...fadeUp}>
           <SectionHead
@@ -313,27 +478,7 @@ export function ResultsView({
         </motion.section>
       )}
 
-      {/* TRAJECTORY */}
-      {!report.analysisWithheld && (
-        <GlassCard className="p-5 sm:p-7" {...fadeUp}>
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <div>
-              <Eyebrow className="mb-2">Five-year direction</Eyebrow>
-              <h2 className="font-display text-xl font-semibold tracking-tight nxf-hi sm:text-2xl">Two futures from today</h2>
-              <p className="mt-1 text-[13px] nxf-dim">Illustrative slope — the curve bends with the actions above, not with luck.</p>
-            </div>
-            <TrendingUp className="hidden h-6 w-6 nxf-teal sm:block" aria-hidden="true" />
-          </div>
-          <TrajectoryChart unchangedScore={report.trajectory.unchangedScore} withActionsScore={report.trajectory.withActionsScore} currentScore={report.foresightScore} />
-          <div className="mt-2 flex flex-wrap gap-4 text-[12px]">
-            <span className="flex items-center gap-1.5 nxf-dim"><span className="h-0.5 w-5 rounded bg-rose-300" /> stay on current course — {report.trajectory.unchangedScore}</span>
-            <span className="flex items-center gap-1.5 nxf-dim"><span className="h-0.5 w-5 rounded bg-teal-300" /> act on the plan — {report.trajectory.withActionsScore}</span>
-          </div>
-          <p className="mt-2 text-[11px] leading-relaxed nxf-mute">{report.trajectory.note}</p>
-        </GlassCard>
-      )}
-
-      {/* SCREENING PLAN */}
+      {/* K3 — SCREENING PLAN */}
       {!report.analysisWithheld && (
         <motion.section {...fadeUp}>
           <SectionHead eyebrow="Screening plan" title="Worth testing, worth asking" sub="A short list to carry into your next check-up — doctors confirm or drop each item." />
@@ -368,7 +513,7 @@ export function ResultsView({
         </motion.section>
       )}
 
-      {/* DIET PRESCRIPTION */}
+      {/* K4 — DIET PRESCRIPTION */}
       {!report.analysisWithheld && (
         <GlassCard className="p-5 sm:p-7" {...fadeUp}>
           <div className="mb-4 flex items-center justify-between gap-4">
@@ -404,7 +549,7 @@ export function ResultsView({
         </GlassCard>
       )}
 
-      {/* DOCTOR SUMMARY */}
+      {/* K5 — DOCTOR SUMMARY */}
       <GlassCard className="p-5 sm:p-7" {...fadeUp}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -420,34 +565,29 @@ export function ResultsView({
         </div>
       </GlassCard>
 
-      {/* completeness + footer stamps */}
-      <div className="flex flex-col gap-3 pb-4 text-center">
-        <Ornament label="Honest data · versioned engine" className="mb-1" />
-        <div className="mx-auto flex flex-wrap items-center justify-center gap-2">
-          <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] nxf-mute">
-            information shared: <span className="nxf-mono nxf-gold">{report.completeness.pct}%</span>
-          </span>
-          {report.completeness.missing.length > 0 && (
-            <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] nxf-mute">
-              missing: {report.completeness.missing.slice(0, 4).join(", ")}
-            </span>
-          )}
+      {/* L — TRANSPARENCY + closing honesty */}
+      {!report.analysisWithheld ? (
+        <TransparencyPanel report={report} />
+      ) : (
+        <div className="flex flex-col gap-3 pb-4 text-center">
+          <Ornament label="Honest data · versioned engine" className="mb-1" />
+          <p className="mx-auto max-w-2xl text-[11.5px] leading-relaxed nxf-mute">{report.disclaimer}</p>
         </div>
-        <p className="mx-auto max-w-2xl text-[11.5px] leading-relaxed nxf-mute">{report.disclaimer}</p>
+      )}
+
+      <div className="flex flex-col items-center gap-3 pb-4 text-center">
         <p className="nxf-mono text-[10px] tracking-wider text-[#C0BAA9]">
           <span aria-hidden="true" className="nxf-glyph-glow nxf-gold">✦ </span>
           engine {report.engineVersion} · rules {report.rulesetVersion} · calibration {report.calibrationVersion}
         </p>
-        <div className="pt-1">
-          <button type="button" onClick={onRerun} className="nxf-cta nxf-cta-ghost">
-            <Activity className="h-4 w-4" aria-hidden="true" /> Run a fresh check-in
-          </button>
-        </div>
+        <button type="button" onClick={onRerun} className="nxf-cta nxf-cta-ghost">
+          <Activity className="h-4 w-4" aria-hidden="true" /> Run a fresh check-in
+        </button>
       </div>
 
       {/* domain drill-down — from halo axes + atlas cards */}
       <DomainModal
-        domain={report.domains.find((d) => d.id === openDomain) ?? null}
+        domain={(simReport ?? report).domains.find((d) => d.id === openDomain) ?? report.domains.find((d) => d.id === openDomain) ?? null}
         onClose={() => setOpenDomain(null)}
       />
     </div>
