@@ -8,6 +8,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown, Footprints, HeartPulse, History, MoonStar, ShieldCheck, Sparkles, Wind, UtensilsCrossed, Dna, Activity } from "lucide-react";
 import { Eyebrow, CountUp, GlassCard, Ornament, Spotlight, fadeUp } from "./ui";
+import { DomainGlossary } from "./glossary";
 
 const SIGNAL_SOURCES = [
   { icon: Activity, label: "Symptoms", sub: "40 patterns, severity-weighted" },
@@ -128,6 +129,9 @@ export function Landing({
           ))}
         </div>
       </motion.section>
+
+      {/* ---------------- TWELVE DOMAINS GLOSSARY ---------------- */}
+      <DomainGlossary />
 
       {/* ---------------- HOW IT WORKS ---------------- */}
       <motion.section {...fadeUp}>

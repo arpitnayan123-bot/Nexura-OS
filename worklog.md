@@ -3240,3 +3240,22 @@ Work Log:
 
 Stage Summary:
 - No files edited (research-only). Homepage = 6 visual blocks; 0 broken routes; 2 real gaps for next loops: (1) hero.tsx:50 "40+ hospitals" + hamburger-menu.tsx:33/35/38 stale copy = the actual remaining truth-pass on /, (2) missing "OS at a glance" proof band — slot between FeaturesShowcase (page.tsx:28-29) and FounderBadge, style as border-t bg-card/30 with Reveal + text-gradient-warm numerals citing 22 apps / 172 API routes / 145 models / 15 tools. "#book" pseudo-anchor noted. Dead ProductShowcase import in page.tsx:5.
+
+---
+Task ID: 3-a
+Agent: general-purpose (research-only subagent)
+Task: Build an engine-accurate fact sheet for all 12 foresight domains (domains.ts + types.ts + calibration.ts): per-domain top-3 burden-raising factors with weights, Indian-specific calibration facts, plain-English domain roles, LEVEL burden thresholds, and score/halo band names. RESEARCH ONLY — no edits, no servers, no commits (worklog append excepted).
+
+Work Log:
+- Read worklog tail (1-b, 1-a, L1, 2-a) for loop context; read domains.ts fully (789 l), calibration.ts (187 l), types.ts (319 l), engine.ts scoring core (100-208), viz.tsx DOMAIN_META, results.tsx BAND_COPY, plus greps for halo/band strings.
+- Burden mechanics (domains.ts finish():71-90): Σrisk − Σprotective; ×1.3 when ≥5 risk hits (weight ≥2.5), ×1.15 when ≥3; lab anchors set floors via burden=Math.max; factors sorted by weight.
+- LEVEL bands (calibration.ts:127-132): HIGH ≥66 · ELEVATED ≥40 · WATCH ≥18 · LOW <18. Anchor floors per domain: metabolic 68/64/46/42; bp 46/24; hemoglobin 58/42; vitamin_d 46/40; b12 46/38/24; thyroid 46/42; pcos 42; sleep 45/40; mind 42.
+- Top-3 RAISE factors per domain (weight): metabolic m.hba1c 9 / m.fbs 8.5 / m.rbs 7 & m.bmi-obese 7; bp bp.value 8 / bp.salt 4 / bp.family 3.5; heart h.smoke 6.5 / h.ldl 6.5 / h.tg 5; hemoglobin an.hb 7.5 / an.preg 4 / an.veg_f 3.5; vitamin_d vd.level 6.5 / vd.sun 3 / vd.bone 2.5; b12 b12.level 6.5 / b12.combo 6 / b12.tingle 5.5; thyroid th.tsh 6 / th.wgain 3 / th.family 3; pcos pc.cycles 5 / pc.known 4 / pc.waist 3; sleep sl.hours 5 / sl.snore-gasp 5 / sl.daytime 4; lungs lu.smoke 5.5 / lu.aqi 5 (severe band) / lu.cough 4.5 (TB 21-day rule); liver li.waist 4.5 / li.alcohol 4.5 / li.known 4; mind mi.low 5 / mi.stress 4 / mi.panic 3.5.
+- Indian calibration inventory (calibration.ts + factor labels): BMI_BANDS_SOUTH_ASIAN 18.5/23/25/27.5 ("23+ here, not 25"); WAIST_CUTOFF male 90 / female 80 (intersex 85/95); ICMR Hb 13 ♂ / 12 ♀ g/dL + antenatal screening; TSH 0.4-5.5 broad screen; TG high 200 (South-Asian risk-at-lower-TG note); BP 130/85 Indian prehypertension watch zone; BAND_POINTS diet bands (daily 4.5) with mithai/fried/sugary-drinks/rice_heavy; AQI_POINTS urban bands (poor 2 / very_poor 3.5 / severe 5); Vit-D weekly 60,000-IU Indian repletion; Tele-MANAS 14416; quitline 1800-11-2356; "madhumeh"/"PCOD" regexes; chai tannins vs iron; cast-iron kadhai; 5 g/day salt target.
+- Score/halo bands: SCORE_BANDS THRIVING 80 / RESILIENT 65 / BUILDING 45, else ATTENTION (calibration.ts:157-168; ScoreBand type types.ts:261-265); halo copy strings results.tsx:56-59 ("You're building something rare" / "Solid ground, a few edges" / "Real signals — real headroom" / "Your body is asking for help"). Composite score: 100 − (0.35·wAvg + 0.35·top3Avg + 0.30·max)×1.05 + protective bonus (damped ×0.6 if max ≥40, ×0.3 if ≥66; engine.ts:143-170).
+- Noted engine facts: pcos returns INSUFFICIENT_INFORMATION/burden 0 for non-female profiles; diet/AQI factor weights are band-variable (BAND_POINTS daily 4.5; AQI severe 5); DOMAIN_SCORE_WEIGHTS emphasize metabolic 1.15 / bp·heart 1.1 / mind 1.0 over vit_d·b12·pcos 0.6.
+
+Stage Summary:
+- No files edited (research-only). Delivered 39-line fact sheet: 12 domain blocks (role / top-3 raise factors + weights / India calibration), LEVEL thresholds (HIGH ≥66 / ELEVATED ≥40 / WATCH ≥18 / LOW <18), score+halo bands (THRIVING ≥80 / RESILIENT ≥65 / BUILDING ≥45 / ATTENTION <45) with their four halo strings.
+- Copy-usable numbers: 9 heaviest single factors in the engine are m.hba1c 9, m.fbs 8.5, m.rbs/m.bmi 7, an.hb 7.5, h.smoke/h.ldl 6.5, vd.level/b12.level 6.5; heaviest cross-domain hook is BMI-23 + waist 90/80 (used by metabolic/bp/heart/pcos/sleep/liver).
+- No gaps found in the 12-domain coverage: every ALL_DOMAIN_IDS entry has a registered scorer in DOMAIN_SCORERS (domains.ts:771-784) and finish() guarantees level+explainable factors.
