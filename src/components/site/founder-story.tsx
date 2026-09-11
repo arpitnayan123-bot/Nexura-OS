@@ -899,6 +899,7 @@ function FinalPortrait() {
                 <img
                   src="/founder-arpit-circle-white.jpg"
                   alt="Arpit Nayan — Founder & CEO, Nexura OS"
+                  loading="lazy"
                   className="h-full w-full object-cover rounded-full"
                   style={{ filter: "brightness(0.9)" }}
                 />

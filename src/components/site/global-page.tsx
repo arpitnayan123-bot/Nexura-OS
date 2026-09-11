@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  memo,
   useState,
   type FormEvent,
 } from "react";
@@ -1012,7 +1013,11 @@ function ProcedureGrid({
 /* ============================================================
    HOSPITAL DIRECTORY
    ============================================================ */
-function HospitalDirectory({
+// memo: every prop is stable across unrelated parent re-renders (t is a
+// module constant, hospitals comes from useMemo, setters are useCallback /
+// setState refs), so the largest grid on the page skips re-rendering when
+// only the inquiry modal or submit state changes.
+const HospitalDirectory = memo(function HospitalDirectory({
   t,
   hospitals,
   activeCategory,
@@ -1074,7 +1079,7 @@ function HospitalDirectory({
       </div>
     </section>
   );
-}
+});
 
 function HospitalCard({
   hospital,

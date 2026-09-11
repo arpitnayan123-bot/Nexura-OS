@@ -4,7 +4,7 @@ import "./globals.css";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/site/theme-provider";
 import { BookingProvider } from "@/components/site/booking-context";
-import { BookingModal } from "@/components/site/booking-modal";
+import { BookingModalLazy } from "@/components/site/booking-modal-lazy";
 import { PwaRegister } from "@/components/pwa-register";
 import { ErrorSentinel } from "@/components/nx/error-sentinel";
 
@@ -87,7 +87,7 @@ export default function RootLayout({
         >
           <BookingProvider>
             {children}
-            <BookingModal />
+            <BookingModalLazy />
           </BookingProvider>
           {/* Single sonner viewport for the entire app — mounting more than one
               renders every toast twice. top-center clears the OS system bar

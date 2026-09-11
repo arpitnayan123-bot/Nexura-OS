@@ -4,11 +4,14 @@ import { FeaturesShowcase } from "@/components/site/features-showcase";
 import { OsGlance } from "@/components/site/os-glance";
 import { FounderBadge } from "@/components/site/founder-badge";
 import { CleanFooter } from "@/components/site/clean-footer";
-import { HealthAssistant } from "@/components/widgets/health-assistant";
-import { BackToTop } from "@/components/site/back-to-top";
 import { SkipLink } from "@/components/site/skip-link";
-import { CursorGlow } from "@/components/site/cursor-glow";
-import { CookieConsent } from "@/components/site/cookie-consent";
+// Overlay widgets are client-only lazy chunks — see lazy-overlays.tsx.
+import {
+  LazyBackToTop,
+  LazyCookieConsent,
+  LazyCursorGlow,
+  LazyHealthAssistant,
+} from "@/components/site/lazy-overlays";
 
 export default function Home() {
   return (
@@ -20,7 +23,7 @@ export default function Home() {
       />
 
       <SkipLink />
-      <CursorGlow />
+      <LazyCursorGlow />
       <Navbar />
 
       <main id="main" className="flex-1">
@@ -32,9 +35,9 @@ export default function Home() {
 
       <CleanFooter />
 
-      <HealthAssistant />
-      <BackToTop />
-      <CookieConsent />
+      <LazyHealthAssistant />
+      <LazyBackToTop />
+      <LazyCookieConsent />
     </div>
   );
 }
