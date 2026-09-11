@@ -3140,3 +3140,24 @@ Work Log:
 Stage Summary:
 - Commits: 79ae748 (deploy pipeline). Server now runs production build on :3000; :81 mirrors it.
 - GOING-FORWARD PROTOCOL (prevents recurrence): after ANY source change run `bash scripts/deploy-preview.sh`, then verify the printed asset fingerprint changed + curl markers. Trade-off: no hot reload; rebuild (~40s) required per change.
+
+---
+Task ID: NXP-BILLION-DOLLAR
+Agent: Super Z (main)
+Task: User directive - make the Predictive Analysis page more interactive and beautiful, "worth a billion-dollar".
+
+Work Log:
+- globals.css (BILLION-DOLLAR INTERACTIVE PASS section, all nxf-scoped): .nxf-spot cursor-tracking spotlight (radial glow via --mx/--my), .nxf-cta sheen sweep on hover (ghost excluded), .nxf-hero-ring rotating conic aurora band behind the headline (masked ring, blur, 34s), .nxf-radar teal radar sweep for the running state, .nxf-orbit dotted satellite ring rotating behind the Health Halo (52s), .nxf-progress tri-tone scroll bar (scaleX via --p), .nxf-dot-active/.nxf-dot-done gold blooms for wizard dots; all new animations added to the prefers-reduced-motion kill list.
+- ui.tsx: CountUp rewritten as a real rAF tween (easeOutCubic 0->target, fromRef tracks previous value on updates, reduced-motion jumps via deferred frame callback per react-hooks rule); new spotHandlers() + Spotlight wrapper; GlassCard now carries nxf-spot and merges onMouseMove correctly (handler after {...rest} spread).
+- landing.tsx: hero ring + z-layering (ring z-0, content/cue/ornament z-10), stat strip numbers (12 / 60+) count up on view, reactive-vs-predictive cards converted to Spotlight surfaces (tint borders kept).
+- experience.tsx: rAF scroll listener writes --p directly to the progress bar ref (zero re-renders); nav pill is now a spring layoutId that slides between Overview/History/Settings; wizard steps transition directionally (stepDir 1/-1 drives x-offsets in AnimatePresence mode="wait"); step dots glow; running state upgraded to radar-sweep + pulsing ring + Activity glyph.
+- viz.tsx: decorative dotted orbit circle (rMax+13) rotating behind the halo polygon.
+- page.tsx + globals.css header: synced boot paint #0D1936 -> #0B1630 (latent inconsistency from the white-ink pass fixed).
+- Gates: tsc 0; eslint 0 (fixed one react-hooks/set-state-in-effect on CountUp reduced-motion path by deferring to rAF); vitest 13 files / 183 tests green.
+- Deployed via scripts/deploy-preview.sh: UP, /predictive 200; NEW content-hashed chunk fcb31d8afed7c2ec.css carries all six new markers (spot/ring/radar/orbit/progress/0b1630) — printed fingerprint 71d3ced7486a2a9a.css is the unchanged shared chunk, so marker grep ran across ALL served chunks (protocol note).
+- E2E agent-browser: desktop 1440 - 89/89 visible text nodes white, 13 spotlight cards, hero ring + progress bar present, wizard opens (10 dots, 1 active glow), age gate correctly blocks Continue until age>=30 filled, step advances 1/10 -> 2/10 with done+active dots, scroll progress scaleX 0.82 at mid-landing, nav pill active; mobile 390 - no horizontal overflow, 86/86 white. 0 console errors. Homepage / 200 untouched. Evidence: download/bd-desktop-hero.png, bd-desktop-landing.png, bd-mobile-hero.png.
+
+Stage Summary:
+- Commit 215e81f "feat(predictive): billion-dollar interactive pass" (6 files).
+- The page now has: cursor spotlight on every glass card, sheen-swept CTAs, orbiting hero aurora ring, radar engine loader, sliding nav pill, directional wizard slides, glowing step dots, tri-tone scroll progress, rotating halo orbit, real count-up numbers — all under the unbroken white-ink directive, rose still reserved for emergencies.
+- Protocol note: deploy-preview.sh prints only the FIRST css chunk; when that one is a shared chunk its hash may not change even on real CSS deploys - always grep markers across ALL served chunks.
