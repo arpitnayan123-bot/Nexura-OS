@@ -3020,3 +3020,28 @@ Work Log:
 
 Stage Summary:
 - Predictive 2.0 text visibility issue eliminated: every character now renders in high-contrast warm ink (gold accents, ivory body, dark-on-gold CTAs), premium Figma-style glyphs/ornaments/stat-strips/credit lines added throughout, build version 1.1.0 displayed in the preview footer, feature verified working end-to-end (wizard → engine → results → history → settings → Hindi → mobile).
+
+---
+
+Task ID: NXP-BRIGHT
+Agent: Super Z (main)
+Task: Increase the brightness of the predictive analysis page only (/predictive), per user directive.
+
+Work Log:
+- Audited the nxf-* design system in globals.css and all foresight components for dark anchors (grep for #070D1A/#0A1220/#0B1526/black overlays).
+- Brightness pass in globals.css (all scoped to .nxf-* — feature-only by construction):
+  * Canvas gradient #070D1A/#0A1220/#0B1526 -> #0E1B3A/#122347/#152A56 (~2.5x luminance, deep indigo).
+  * Radial teal/violet/emerald glows roughly doubled (0.14/0.10/0.10 -> 0.26/0.20/0.20).
+  * Aurora conic alphas up (~+60%), opacity 0.55 -> 0.8, keyframe floor raised; starfield 0.5 -> 0.75.
+  * Glass panels 0.055/0.02 -> 0.10/0.05 white tint, border 0.085 -> 0.14, ::before edge highlight raised; hover gold glow stronger.
+  * Pills, inputs, divider, scrollbar lightened; select option bg synced to #0E1B3A; placeholder lifted #A29C8B -> #B3AC9A.
+- Synced the anti-white-screen boot shell: page.tsx inline backgroundColor + html/body :has() paint -> #0D1936 (kept the CSS-independent guarantee intact).
+- experience.tsx sticky header bar bg-[#070D1A]/85 -> bg-[#0D1936]/85; results.tsx history chips bg-black/20 -> bg-white/[0.07]; extras.tsx summary pre bg-black/30 -> bg-white/[0.06].
+- E2E verified via agent-browser: desktop landing/mid/lower screenshots, walked EN switch -> 10-step intake -> "Run My Foresight Map" -> results (Health Halo, score 93 THRIVING, slope chart, clinician handoff), 0 console errors; mobile 390x844 screenshot; homepage screenshot confirms zero visual drift elsewhere.
+- Gates: pkill next-server -> tsc --noEmit 0 errors; eslint 0 errors; vitest 12 files / 160 tests green; dev server restarted (nohup node_modules/.bin/next dev) and /predictive polls 200.
+
+Stage Summary:
+- /predictive now renders on a luminous deep-indigo stage; all gold-standard text inks keep >=8:1 contrast on the brighter canvas.
+- Scope strictly limited to the predictive page; homepage and other routes untouched (verified by screenshot).
+- Commit: fe6ce04 "style(predictive): brightness pass — raise /predictive canvas luminosity ~2.5x, scoped to page only".
+- Evidence screenshots: download/phi-bright-1..10.png.
