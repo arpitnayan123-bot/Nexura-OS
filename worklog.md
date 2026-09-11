@@ -3311,3 +3311,19 @@ Work Log:
 
 Stage Summary:
 - 15/15 card descriptions now match their routes (inputs + outputs), 9 taglines softened, hero + footer + CTA honesty fixes, shared disclaimer confirmed on every tool surface, and one additive 3-step "How these tools work" strip landed under the grid. Remaining known-unverifiable strings left intentionally: womens-care result footer "Track your cycle regularly" (user advice, not a tool claim) and route-prompt-mirrored "evidence-based" style note. Next loop idea: same truth pass for the connect/chat surface (Dr. Aanya Kapoor is a static demo doctor in the symptoms CTA).
+
+---
+Task ID: 7-a
+Agent: general-purpose (implementation subagent)
+Task: Connect truth+depth pass — src/app/connect/page.tsx + patient/page.tsx + src/components/connect/*: reword residual "voice & video calling" claims to call coordination/logged lifecycle, verify /api/connect/calls + /queue logic, add ONE additive "Consultation status" chip-row. No API changes, no WebRTC claims.
+
+Work Log:
+- Read worklog tail (4-b, 6-a). Route audit: GET/POST/PATCH /api/connect/calls real (status initiated→answered→ended/missed/cancelled, answeredAt/endedAt/durationSec/prescriptionJson persisted); /api/connect/queue real (status waiting→picked_up; GET only returns waiting + needs doctorId). Schema confirmed (ConnectCall/ConnectQueue). NO WebRTC anywhere — calls are logged lifecycle only.
+- patient-view.tsx honesty: hero "Chat, voice, or video — your doctor is just a tap away" → "Message them anytime, or log a call request — the clinic calls you back at its slot"; privacy note "All conversations are end-to-end secured · ABDM & HIPAA-aligned" (no E2EE exists, unverifiable certs) → "Your chats and call logs stay private inside your Nexura record"; call overlay "Live" → "Simulated", "Connecting securely · end-to-end encrypted" → "Demo consultation slot · the call log is saved for your clinic"; drawer button titles "Voice/Video call" → "Request a voice/video call".
+- connect-app.tsx (doctor side): overlay status chip "Video/Voice call" → "Video/Voice consult · demo"; "Live" → "Simulated"; header call button titles → "Voice/Video consult (demo)". Rx panel "Creates a Sale invoice in pharmacy demo branch" was already honest — kept.
+- chat-widget.tsx: fake presence removed (pulsing green "Online" dot — no presence system) leaving specialty; "Your message will be delivered over WhatsApp & in-app" (no WhatsApp integration; whatsappSent is a DB flag only, no send) → "Your message lands in your doctor's Connect inbox".
+- ADDITIVE BLOCK (one): "Consultation status" 3-chip timeline (Requested → Seen by clinic → Completed) in patient ChatDrawer under header, driven by real GET /api/connect/calls?connectionId= (newest log: status ended→completed, answered→seen, else requested) + waiting queue entry via GET /api/connect/queue?doctorId= (filtered to conn.id) → stage 0. Refreshed on activeConn change, after startCall auto-answer, and after endCall PATCH. Hides entirely when connection has no calls and no queue entries — no invented states; missed/cancelled fall back to "Requested" (true).
+- Gates: tsc --noEmit exit 0; eslint clean on all 3 touched files. No servers/builds/commits. Known residual (out of scope, API file): connections POST buildWhatsAppMessage string still says "chat, voice call, or video call me directly" — patients CAN log call requests, so borderline; left untouched per no-API-changes rule.
+
+Stage Summary:
+- Connect surface no longer claims live voice/video, encryption, WhatsApp delivery, or presence. Call buttons now framed as logged call requests with clinic-side coordination; patient drawer gains a real-lifecycle status strip (hide-if-no-data). Suggested next: reword the API-generated intro message in connections POST (needs API-owner sign-off), and give patient cards a compact per-doctor status dot if the strip proves useful.
