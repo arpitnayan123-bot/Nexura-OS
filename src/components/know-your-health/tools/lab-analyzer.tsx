@@ -43,6 +43,36 @@ const COMMON_TESTS = [
 
 const statusColor: Record<string, string> = { LOW: "#9DB89E", HIGH: "#C98A7A", NORMAL: "#5A7A5B" };
 
+const QUICK_RANGES: { test: string; range: string }[] = [
+  { test: "HbA1c", range: "<5.7 normal · 5.7-6.5 prediabetes range · >6.5 diabetes range" },
+  { test: "Fasting sugar", range: "70-100 normal · 100-125 prediabetes · ≥126 diabetes range" },
+  { test: "BP", range: "<120/80 ideal · 130/85+ watch · ≥140/90 high" },
+  { test: "TSH", range: "0.4-5.5 broad screening band" },
+  { test: "Vitamin D", range: "<12 deficient · 12-20 insufficient" },
+  { test: "B12", range: "<150 pg/mL low" },
+  { test: "Haemoglobin", range: "<13 men / <12 women (ICMR)" },
+];
+
+function QuickReference() {
+  return (
+    <div className="rounded-2xl glass-soft p-3 shadow-depth">
+      <div className="mb-2 flex items-center gap-1.5">
+        <FlaskConical className="h-3.5 w-3.5 text-[#5A7A5B]" aria-hidden />
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#5C544D]">Quick reference — common Indian lab ranges</p>
+      </div>
+      <div className="space-y-1.5">
+        {QUICK_RANGES.map((r) => (
+          <div key={r.test} className="flex items-start gap-2 rounded-lg bg-[#FAF7F2]/60 p-2">
+            <span className="mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider" style={{ background: "#9DB89E15", color: "#5A7A5B" }}>{r.test}</span>
+            <p className="text-xs leading-relaxed text-[#5C544D]">{r.range}</p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-2 text-[0.65rem] italic text-[#9A8F84]">Ranges vary by lab and context — always compare with your report's own reference column.</p>
+    </div>
+  );
+}
+
 export function LabAnalyzer() {
   const tool = TOOLS_BY_ID["lab-analyzer"];
   const accent = tool.accent;
@@ -124,6 +154,7 @@ export function LabAnalyzer() {
             <RunButton onClick={run} loading={loading} disabled={mode === "photo" ? !image : !tests.some((t) => t.name && t.value)} accent={accent} label={mode === "photo" ? "Read report & interpret" : "Interpret against ICMR ranges"} />
             <span className="text-[0.65rem] text-[#9A8F84]">Powered by Gemini · Indian reference ranges</span>
           </div>
+          <QuickReference />
           <Disclaimer />
         </motion.div>
       )}
