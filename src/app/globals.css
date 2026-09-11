@@ -505,20 +505,23 @@
 
 /* ============================================================
    NEXURA PREDICTIVE 2.0 — HEALTH FORESIGHT DESIGN SYSTEM
-   Dark "observatory" canvas · aurora breath · true glass ·
+   Bright observatory canvas · aurora breath · true glass ·
    teal/emerald data inks, amber watch, rose reserved for
-   emergency. Never renders white: page.tsx also carries an
-   inline canvas paint independent of this stylesheet.
+   emergency. BRIGHTNESS PASS: base raised ~2.5× (deep indigo
+   instead of near-black) so the page reads luminous, while
+   every ink keeps ≥8:1 contrast. Never renders white: page.tsx
+   also carries an inline canvas paint independent of this
+   stylesheet (kept in sync at #0D1936).
    ============================================================ */
 .nxf-canvas {
   position: relative;
   min-height: 100dvh;
   background:
-    radial-gradient(1100px 700px at 12% -8%, rgba(20, 184, 166, 0.14), transparent 60%),
-    radial-gradient(900px 620px at 88% 12%, rgba(139, 92, 246, 0.10), transparent 62%),
-    radial-gradient(1000px 800px at 50% 118%, rgba(16, 185, 129, 0.10), transparent 58%),
-    linear-gradient(178deg, #070D1A 0%, #0A1220 46%, #0B1526 100%);
-  color: #E6EEF8;
+    radial-gradient(1100px 700px at 12% -8%, rgba(20, 184, 166, 0.26), transparent 60%),
+    radial-gradient(900px 620px at 88% 12%, rgba(139, 92, 246, 0.20), transparent 62%),
+    radial-gradient(1000px 800px at 50% 118%, rgba(16, 185, 129, 0.20), transparent 58%),
+    linear-gradient(178deg, #0E1B3A 0%, #122347 46%, #152A56 100%);
+  color: #EAF2FF;
   overflow-x: hidden;
 }
 .nxf-aurora {
@@ -526,18 +529,18 @@
   inset: -20% -30% auto -30%;
   height: 70%;
   background:
-    conic-gradient(from 210deg at 50% 50%, rgba(45, 212, 191, 0.16), rgba(139, 92, 246, 0.10), rgba(16, 185, 129, 0.12), rgba(45, 212, 191, 0.16));
+    conic-gradient(from 210deg at 50% 50%, rgba(45, 212, 191, 0.26), rgba(139, 92, 246, 0.18), rgba(16, 185, 129, 0.20), rgba(45, 212, 191, 0.26));
   filter: blur(90px);
-  opacity: 0.55;
+  opacity: 0.8;
   animation: nxf-aurora 26s ease-in-out infinite alternate;
   pointer-events: none;
 }
 @keyframes nxf-aurora {
-  0%   { transform: rotate(0deg) scale(1); opacity: 0.4; }
-  50%  { transform: rotate(6deg) scale(1.08); opacity: 0.6; }
-  100% { transform: rotate(-5deg) scale(1.04); opacity: 0.5; }
+  0%   { transform: rotate(0deg) scale(1); opacity: 0.62; }
+  50%  { transform: rotate(6deg) scale(1.08); opacity: 0.88; }
+  100% { transform: rotate(-5deg) scale(1.04); opacity: 0.72; }
 }
-.nxf-starfield { position: absolute; inset: 0; pointer-events: none; opacity: 0.5; }
+.nxf-starfield { position: absolute; inset: 0; pointer-events: none; opacity: 0.75; }
 .nxf-star { position: absolute; border-radius: 9999px; background: #B9EDE4; animation: nxf-twinkle 4s ease-in-out infinite; }
 @keyframes nxf-twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.85; } }
 
@@ -545,8 +548,8 @@
 .nxf-glass {
   position: relative;
   border-radius: 22px;
-  background: linear-gradient(160deg, rgba(255,255,255,0.055), rgba(255,255,255,0.02));
-  border: 1px solid rgba(255,255,255,0.085);
+  background: linear-gradient(160deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.14);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -556,18 +559,18 @@
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(140deg, rgba(255,255,255,0.18), rgba(255,255,255,0.02) 38%, rgba(45,212,191,0.14) 100%);
+  background: linear-gradient(140deg, rgba(255,255,255,0.28), rgba(255,255,255,0.04) 38%, rgba(45,212,191,0.22) 100%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
-  opacity: 0.65;
+  opacity: 0.85;
 }
 .nxf-glass-hover { transition: transform .35s cubic-bezier(.2,.7,.2,1), border-color .35s, box-shadow .35s; }
 .nxf-glass-hover:hover {
   transform: translateY(-3px);
-  border-color: rgba(252,211,77,0.30);
-  box-shadow: 0 18px 48px -22px rgba(252, 211, 77, 0.24);
+  border-color: rgba(252,211,77,0.38);
+  box-shadow: 0 18px 52px -20px rgba(252, 211, 77, 0.32);
 }
 
 /* type + data inks — GOLD STANDARD pass: every ink is a
@@ -634,8 +637,8 @@
 /* option pills (intake) — gold selection language */
 .nxf-pill {
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.17);
+  background: rgba(255,255,255,0.06);
   color: #F3EFE3;
   padding: 0.62rem 0.9rem;
   font-size: 0.83rem;
@@ -660,8 +663,8 @@
 /* inputs */
 .nxf-input {
   width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.17);
   border-radius: 13px;
   padding: 0.7rem 0.9rem;
   color: #F4F9FF;
@@ -671,8 +674,8 @@
   transition: border-color .2s, box-shadow .2s;
 }
 .nxf-input:focus { border-color: rgba(252,211,77,0.65); box-shadow: 0 0 0 3px rgba(252,211,77,0.14); }
-.nxf-input::placeholder { color: #A29C8B; }
-select.nxf-input option { background: #0A1220; color: #E6EEF8; }
+.nxf-input::placeholder { color: #B3AC9A; }
+select.nxf-input option { background: #0E1B3A; color: #EAF2FF; }
 input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
 
 /* CTA — molten gold, dark ink for maximum punch */
@@ -695,7 +698,7 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
 }
 .nxf-cta-ghost:hover { border-color: rgba(252,211,77,0.55); color: #FDE68A; }
 
-.nxf-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent); }
+.nxf-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.24), transparent); }
 
 /* emergency */
 .nxf-emergency {
@@ -708,7 +711,7 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
 
 /* scrollbars */
 .nxf-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-.nxf-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 3px; }
+.nxf-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.22); border-radius: 3px; }
 
 /* boot safety: these exist in page.tsx as inline <style> too, but
    keeping the classes defined here for normal operation */

@@ -186,7 +186,7 @@ export function SummarySheet({ text, onClose }: { text: string; onClose: () => v
           <h2 className="font-display text-lg font-semibold nxf-hi">Clinician handoff summary</h2>
           <button type="button" className="nxf-pill" onClick={onClose}>Close</button>
         </div>
-        <pre className="whitespace-pre-wrap rounded-xl border border-white/10 bg-black/30 p-4 text-[12px] leading-relaxed nxf-body">{text}</pre>
+        <pre className="whitespace-pre-wrap rounded-xl border border-white/10 bg-white/[0.06] p-4 text-[12px] leading-relaxed nxf-body">{text}</pre>
         <button type="button" className="nxf-cta mt-4" onClick={() => void copy()}>
           <Copy className="h-4 w-4" /> {copied ? "Copied!" : "Copy"}
         </button>

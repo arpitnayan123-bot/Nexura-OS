@@ -216,7 +216,7 @@ export function ForesightExperience() {
   return (
     <div ref={topRef} className="relative z-10 flex min-h-screen flex-col">
       {/* slim experience bar */}
-      <div className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#070D1A]/85 backdrop-blur-md">
+      <div className="sticky top-0 z-30 border-b border-white/[0.10] bg-[#0D1936]/85 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-2 sm:px-6">
           <p className="nxf-eyebrow text-[10.5px] font-bold uppercase nxf-gold">
             <span aria-hidden="true" className="nxf-glyph-glow mr-1">✦</span>
