@@ -27,8 +27,12 @@
 #                             3 consecutive failures or source drift
 #                             -> heal + rebuild cycle.
 #
-# Single-instance via pid-file (flock is NOT guaranteed in minimal
-# sandboxes). Logs to logs/guardian.log.
+# Single-instance via noclobber pid-file with TAKEOVER-WAIT: a second
+# invocation (e.g. the platform re-running `bun run dev` after a sandbox
+# restart) does NOT exit — it waits for the current owner to die and then
+# takes over. This guarantees the boot supervisor always has a live child
+# and two guardians never fight over :3000.
+# Logs to logs/guardian.log.
 # ============================================================
 
 set -u
@@ -39,23 +43,27 @@ PIDFILE="/tmp/.nx-guardian.pid"
 
 mkdir -p "$ROOT/logs"
 
-# --- single instance: pid-file + liveness check -----------------
-if [ -f "$PIDFILE" ]; then
-  OLD="$(cat "$PIDFILE" 2>/dev/null || true)"
-  if [ -n "$OLD" ] && kill -0 "$OLD" 2>/dev/null; then
-    echo "[$(date -u +%FT%TZ)] guardian: instance $OLD already running — exiting" >> "$LOG"
-    exit 0
-  fi
-  rm -f "$PIDFILE"
-fi
-echo $$ > "$PIDFILE"
-# orphaned subshells (health loops) of a dead instance share our cmdline;
-# sweep them so two guardians never fight over :3000
-for p in $(pgrep -f "bash scripts/nx-guardian.sh" 2>/dev/null); do
-  if [ "$p" != "$$" ] && [ "$p" != "$PPID" ]; then kill -9 "$p" 2>/dev/null || true; fi
-done
-
 log() { echo "[$(date -u +%FT%TZ)] $*" >> "$LOG"; }
+
+# --- single instance: noclobber pid-file + takeover-wait --------
+acquire_pidfile() {
+  while true; do
+    if ( set -o noclobber; echo $$ > "$PIDFILE" ) 2>/dev/null; then
+      return 0
+    fi
+    local old
+    old="$(cat "$PIDFILE" 2>/dev/null || true)"
+    if [ -n "$old" ] && [ "$old" != "$$" ] && kill -0 "$old" 2>/dev/null; then
+      log "guardian: instance $old owns :3000 — waiting to take over"
+      while kill -0 "$old" 2>/dev/null; do sleep 5; done
+      rm -f "$PIDFILE"
+    else
+      rm -f "$PIDFILE"
+      sleep 1
+    fi
+  done
+}
+acquire_pidfile
 
 heal_db() {
   # A sandbox reset can leave the SQLite file pristine (schema, no rows).
@@ -131,6 +139,12 @@ kill_stale_listeners() {
   # next-server renames its process title — match BOTH patterns.
   pkill -f "next-server" 2>/dev/null && log "watchdog: killed stale next-server listener"
   pkill -f "standalone/server\.js" 2>/dev/null && log "watchdog: killed stale standalone server"
+  # DEV IMPOSTORS: a raw `next dev` on :3000 serves dev-mode Turbopack
+  # assets under STABLE URLs, so browser/proxy caches keep stale CSS/JS
+  # and the preview looks frozen. This was the recurring "changes not
+  # visible" bug — the guardian never tolerates a dev server on :3000.
+  pkill -f "next dev" 2>/dev/null && log "watchdog: killed DEV IMPOSTOR (next dev)"
+  pkill -f "\.next/dev" 2>/dev/null && log "watchdog: killed dev worker (.next/dev)"
   # never let an old supervisor fight the guardian
   pkill -f "nx-supervisor\.sh" 2>/dev/null && log "watchdog: killed legacy supervisor"
   sleep 1
@@ -152,16 +166,33 @@ SERVER_PID=""
 health_failures=0
 
 # Full-surface probe: the API being up proves nothing about static
-# assets (this Next version snapshots .next/static at boot). A homepage
+# assets (this Next version snapshots .next/static at boot). A page
 # that returns 200 but whose CSS chunk 404s IS an outage (unstyled
-# preview), so the probe checks the API AND the first referenced CSS.
+# preview), so the probe checks the API AND every referenced CSS chunk
+# of /predictive (the flagship surface). It ALSO scans for dev-mode
+# fingerprints: if `root-of-the-server`, `hmr-client` or `next-devtools`
+# appear in the HTML, a `next dev` impostor owns :3000 and the preview
+# is stale — treated as a hard outage so the healer evicts it.
 probe_healthy() {
   curl -fs -o /dev/null "http://127.0.0.1:$PORT/api/nx/system-status" --max-time 8 || return 1
-  local css code
-  css="$(curl -fs --max-time 8 "http://127.0.0.1:$PORT/" 2>/dev/null | grep -oE '/_next/static/[^"]+\.css' | head -1)"
+  local html css code
+  html="$(curl -fs --max-time 8 "http://127.0.0.1:$PORT/predictive" 2>/dev/null)" || return 1
+  if printf '%s' "$html" | grep -qE 'root-of-the-server|hmr-client|next-devtools'; then
+    log "health: DEV-MODE fingerprint on :3000 — impostor detected"
+    return 1
+  fi
+  css="$(printf '%s' "$html" | grep -oE '/_next/static/[^"]+\.css' | head -1)"
   [ -n "$css" ] || return 1
-  code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 "http://127.0.0.1:$PORT$css")"
-  [ "$code" = "200" ]
+  while read -r chunk; do
+    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 "http://127.0.0.1:$PORT$chunk")"
+    if [ "$code" != "200" ]; then
+      log "health: CSS chunk $chunk -> $code"
+      return 1
+    fi
+  done <<EOF
+$(printf '%s' "$html" | grep -oE '/_next/static/[^"]+\.css' | sort -u)
+EOF
+  return 0
 }
 
 health_loop() {
@@ -178,7 +209,7 @@ health_loop() {
       health_failures=$((health_failures + 1))
       log "health: FAIL ($health_failures/3)"
       if [ "$health_failures" -ge 3 ]; then
-        log "health: 3 consecutive failures — restarting server (statics resync on boot)"
+        log "health: 3 consecutive failures — restarting server (statics resync + impostor eviction on boot)"
         kill -9 "$SERVER_PID" 2>/dev/null
         return
       fi
