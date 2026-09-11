@@ -271,7 +271,7 @@ export function ScenarioLab({
                 title={usable ? s.hint : "Already in a good place — no simulated change needed"}
                 className={cn(
                   "nxf-pill",
-                  on && "!border-amber-300/70 !bg-amber-300/[0.16] !text-amber-100",
+                  on && "!border-amber-300/70 !bg-amber-300/[0.16]",
                   !usable && "cursor-default opacity-45"
                 )}
               >

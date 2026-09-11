@@ -765,3 +765,32 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
   .nxf-draw { stroke-dashoffset: 0 !important; }
   .nxf-bar-fill { transform: scaleX(1) !important; }
 }
+
+/* ============================================================
+   WHITE INK OVERRIDE — user directive: every text on the
+   Predictive Analysis page renders pure white (#FFFFFF).
+   Scoped to .nxf-root only, so it cannot leak to any other
+   page. Covers HTML text, tinted/gold/teal/rose inks, gold
+   gradient headings, Tailwind text-* classes, SVG text on
+   currentColor, and input placeholders (white at 65% so empty
+   fields still read as hints). Single deliberate exception:
+   .nxf-cta keeps its dark ink — it sits on the molten-gold
+   gradient where white would be unreadable (~1.6:1).
+   NOTE: rules live inside @layer utilities so they outrank
+   Tailwind's own !important modifiers (e.g. !text-rose-300/90):
+   for !important declarations, cascade layers reverse priority,
+   and within the same layer the later source order wins.
+   ============================================================ */
+@layer utilities {
+  .nxf-root,
+  .nxf-root *,
+  .nxf-root *::before,
+  .nxf-root *::after {
+    color: #ffffff !important;
+  }
+  .nxf-root ::placeholder { color: #ffffff !important; opacity: 0.65; }
+  .nxf-root .nxf-cta,
+  .nxf-root .nxf-cta * {
+    color: #241a02 !important;
+  }
+}
