@@ -83,7 +83,7 @@ export function Landing({
       {/* ---------------- REACTIVE VS PREDICTIVE ---------------- */}
       <motion.section {...fadeUp} className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-rose-400/20 bg-rose-400/[0.04] p-6">
-          <Eyebrow className="!text-rose-300/90 mb-3">The world today — reactive</Eyebrow>
+          <Eyebrow className="mb-3">The world today — reactive</Eyebrow>
           <p className="font-display text-xl font-semibold nxf-hi">Wait for the disease. Then pay anything.</p>
           <ul className="mt-4 space-y-2.5 text-[13px] leading-relaxed nxf-dim">
             <li>· Diabetes is found at 8 mmol/L — a decade after the rotis started it</li>

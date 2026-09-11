@@ -72,7 +72,7 @@ export function EmergencyTakeover({ report, onAcknowledge }: { report: Foresight
             <AlertTriangle className="h-6 w-6 nxf-rose nxf-pulse-dot" aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <Eyebrow className="!text-rose-300">Safety first — this comes before everything</Eyebrow>
+            <Eyebrow className="">Safety first — this comes before everything</Eyebrow>
             <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight nxf-hi sm:text-3xl">{t.headline}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed nxf-body">{t.body}</p>
           </div>

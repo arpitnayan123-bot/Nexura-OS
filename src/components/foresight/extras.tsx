@@ -208,7 +208,7 @@ export function SettingsView({
         </button>
       </GlassCard>
       <GlassCard className="p-5" hover={false}>
-        <Eyebrow className="mb-3 !text-rose-300">Danger zone</Eyebrow>
+        <Eyebrow className="mb-3">Danger zone</Eyebrow>
         {deleted != null ? (
           <p className="flex items-center gap-2 text-sm nxf-dim"><Check className="h-4 w-4 text-emerald-300" /> Deleted {deleted} run{deleted === 1 ? "" : "s"}. This browser now starts fresh.</p>
         ) : confirming ? (
