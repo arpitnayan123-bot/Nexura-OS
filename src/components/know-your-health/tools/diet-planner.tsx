@@ -18,6 +18,15 @@ interface DietResult {
 
 const inputCls = "glass-input h-10 w-full rounded-lg px-3 text-xs outline-none";
 
+// Static Indian-kitchen therapeutic swaps — general reference, a dietitian personalises these.
+const SWAPS: { condition: string; swap: string; bg: string; text: string }[] = [
+  { condition: "Blood sugar", swap: "white rice → millets / whole-wheat roti — portion first", bg: "#E0B08015", text: "#B8893D" },
+  { condition: "Blood pressure", swap: "pickle + papad daily → twice a week; salt added at table only", bg: "#C98A7A15", text: "#9A6A5A" },
+  { condition: "Fatty liver", swap: "sugary chai / mithai daily → unsweetened chai, weekend mithai", bg: "#D98B6E15", text: "#9A6A5A" },
+  { condition: "Anaemia", swap: "chai with meals → chai an hour before / after; add vitamin-C foods with meals", bg: "#7A9A7B15", text: "#4A6A4B" },
+  { condition: "Cholesterol", swap: "fried snacks → roasted chana / makhana", bg: "#9DB89E15", text: "#5A7A5B" },
+];
+
 export function DietPlanner() {
   const tool = TOOLS_BY_ID["diet-planner"];
   const accent = tool.accent;
@@ -179,6 +188,8 @@ export function DietPlanner() {
               </ResultCard>
             )}
 
+            <TherapeuticSwaps />
+
             <div className="flex items-center gap-3">
               <ResetButton onClick={reset} />
               <span className="flex items-center gap-1 text-[0.65rem] text-[#9A8F84]"><UtensilsCrossed className="h-3 w-3" /> Personalised plan — adjust portions to your needs</span>
@@ -200,6 +211,27 @@ function StatCard({ icon, label, value, accent }: { icon: React.ReactNode; label
       </div>
       <p className="px-3 py-2.5 font-serif text-lg font-bold text-[#1F1B17]">{value}</p>
     </div>
+  );
+}
+
+function TherapeuticSwaps() {
+  return (
+    <ResultCard accent="#7A9A7B" title="Therapeutic swaps — Indian kitchens">
+      <p className="mb-2.5 text-[0.65rem] italic text-[#9A8F84]">General guidance — a dietitian personalises this for you.</p>
+      <div className="space-y-1.5">
+        {SWAPS.map((s) => {
+          const [from, to] = s.swap.split("→");
+          return (
+            <div key={s.condition} className="flex items-start gap-2 rounded-lg bg-[#FAF7F2]/60 p-2">
+              <span className="mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider" style={{ background: s.bg, color: s.text }}>{s.condition}</span>
+              <p className="text-xs leading-relaxed text-[#5C544D]">
+                {from?.trim()} <span className="font-semibold" style={{ color: s.text }}>→</span> <span className="font-medium text-[#1F1B17]">{to?.trim()}</span>
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </ResultCard>
   );
 }
 
