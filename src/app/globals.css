@@ -507,21 +507,22 @@
    NEXURA PREDICTIVE 2.0 — HEALTH FORESIGHT DESIGN SYSTEM
    Bright observatory canvas · aurora breath · true glass ·
    teal/emerald data inks, amber watch, rose reserved for
-   emergency. BRIGHTNESS PASS: base raised ~2.5× (deep indigo
-   instead of near-black) so the page reads luminous, while
-   every ink keeps ≥8:1 contrast. Never renders white: page.tsx
-   also carries an inline canvas paint independent of this
-   stylesheet (kept in sync at #0D1936).
+   emergency. WHITE INK PASS: every text on the page renders
+   pure white; depth and color now live in surfaces, borders
+   and glows instead of text inks. Canvas deepened slightly so
+   white type pops (page.tsx keeps an inline boot paint synced
+   at #0D1936).
    ============================================================ */
 .nxf-canvas {
   position: relative;
   min-height: 100dvh;
   background:
-    radial-gradient(1100px 700px at 12% -8%, rgba(20, 184, 166, 0.26), transparent 60%),
-    radial-gradient(900px 620px at 88% 12%, rgba(139, 92, 246, 0.20), transparent 62%),
-    radial-gradient(1000px 800px at 50% 118%, rgba(16, 185, 129, 0.20), transparent 58%),
-    linear-gradient(178deg, #0E1B3A 0%, #122347 46%, #152A56 100%);
-  color: #EAF2FF;
+    radial-gradient(1100px 700px at 12% -8%, rgba(20, 184, 166, 0.20), transparent 60%),
+    radial-gradient(900px 620px at 88% 12%, rgba(99, 102, 241, 0.14), transparent 62%),
+    radial-gradient(1000px 800px at 50% 118%, rgba(16, 185, 129, 0.15), transparent 58%),
+    radial-gradient(1400px 900px at 50% 40%, transparent 55%, rgba(4, 9, 22, 0.55) 100%),
+    linear-gradient(178deg, #0B1630 0%, #0E1D3D 46%, #112450 100%);
+  color: #FFFFFF;
   overflow-x: hidden;
 }
 .nxf-aurora {
@@ -531,14 +532,14 @@
   background:
     conic-gradient(from 210deg at 50% 50%, rgba(45, 212, 191, 0.26), rgba(139, 92, 246, 0.18), rgba(16, 185, 129, 0.20), rgba(45, 212, 191, 0.26));
   filter: blur(90px);
-  opacity: 0.8;
+  opacity: 0.55;
   animation: nxf-aurora 26s ease-in-out infinite alternate;
   pointer-events: none;
 }
 @keyframes nxf-aurora {
-  0%   { transform: rotate(0deg) scale(1); opacity: 0.62; }
-  50%  { transform: rotate(6deg) scale(1.08); opacity: 0.88; }
-  100% { transform: rotate(-5deg) scale(1.04); opacity: 0.72; }
+  0%   { transform: rotate(0deg) scale(1); opacity: 0.40; }
+  50%  { transform: rotate(6deg) scale(1.08); opacity: 0.58; }
+  100% { transform: rotate(-5deg) scale(1.04); opacity: 0.48; }
 }
 .nxf-starfield { position: absolute; inset: 0; pointer-events: none; opacity: 0.75; }
 .nxf-star { position: absolute; border-radius: 9999px; background: #B9EDE4; animation: nxf-twinkle 4s ease-in-out infinite; }
@@ -548,10 +549,13 @@
 .nxf-glass {
   position: relative;
   border-radius: 22px;
-  background: linear-gradient(160deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
-  border: 1px solid rgba(255,255,255,0.14);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: linear-gradient(165deg, rgba(255,255,255,0.085), rgba(255,255,255,0.03));
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    0 24px 48px -28px rgba(2, 8, 23, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 .nxf-glass::before {
   content: "";
@@ -569,8 +573,11 @@
 .nxf-glass-hover { transition: transform .35s cubic-bezier(.2,.7,.2,1), border-color .35s, box-shadow .35s; }
 .nxf-glass-hover:hover {
   transform: translateY(-3px);
-  border-color: rgba(252,211,77,0.38);
-  box-shadow: 0 18px 52px -20px rgba(252, 211, 77, 0.32);
+  border-color: rgba(255,255,255,0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.16),
+    0 30px 60px -26px rgba(2, 8, 23, 0.7),
+    0 0 0 1px rgba(45, 212, 191, 0.16);
 }
 
 /* type + data inks — GOLD STANDARD pass: every ink is a
@@ -720,25 +727,27 @@
 select.nxf-input option { background: #0E1B3A; color: #EAF2FF; }
 input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
 
-/* CTA — molten gold, dark ink for maximum punch */
+/* CTA — deep emerald, white ink for maximum punch */
 .nxf-cta {
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
   min-height: 50px; padding: 0 1.6rem; border-radius: 9999px;
   font-weight: 700; font-size: 0.95rem; letter-spacing: 0.01em;
-  background: linear-gradient(135deg, #FDE047 0%, #FCD34D 42%, #F59E0B 100%);
-  color: #241A02;
-  border: none; cursor: pointer;
-  box-shadow: 0 14px 38px -14px rgba(252, 211, 77, 0.55);
+  background: linear-gradient(135deg, #115E59 0%, #0F766E 45%, #047857 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255,255,255,0.16); cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 14px 38px -14px rgba(13, 148, 136, 0.55);
   transition: transform .2s, box-shadow .3s, filter .3s;
 }
-.nxf-cta:hover { transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 20px 46px -16px rgba(252, 211, 77, 0.7); }
+.nxf-cta:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 20px 46px -16px rgba(13, 148, 136, 0.7); }
 .nxf-cta:active { transform: translateY(0) scale(0.99); }
 .nxf-cta:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
 .nxf-cta-ghost {
-  background: transparent; border: 1px solid rgba(255,255,255,0.16); color: #F3EFE3;
+  background: transparent; border: 1px solid rgba(255,255,255,0.16); color: #FFFFFF;
   box-shadow: none;
 }
-.nxf-cta-ghost:hover { border-color: rgba(252,211,77,0.55); color: #FDE68A; }
+.nxf-cta-ghost:hover { border-color: rgba(255,255,255,0.45); color: #FFFFFF; background: rgba(255,255,255,0.06); }
 
 .nxf-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.24), transparent); }
 
@@ -770,16 +779,14 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
    WHITE INK OVERRIDE — user directive: every text on the
    Predictive Analysis page renders pure white (#FFFFFF).
    Scoped to .nxf-root only, so it cannot leak to any other
-   page. Covers HTML text, tinted/gold/teal/rose inks, gold
-   gradient headings, Tailwind text-* classes, SVG text on
-   currentColor, and input placeholders (white at 65% so empty
-   fields still read as hints). Single deliberate exception:
-   .nxf-cta keeps its dark ink — it sits on the molten-gold
-   gradient where white would be unreadable (~1.6:1).
+   page. Covers HTML text, Tailwind text-* utilities, SVG chart
+   text (via fill) and input placeholders (white at 65% so
+   empty fields still read as hints). Buttons carry deep
+   emerald or rose backgrounds so white ink stays readable.
    NOTE: rules live inside @layer utilities so they outrank
-   Tailwind's own !important modifiers (e.g. !text-rose-300/90):
-   for !important declarations, cascade layers reverse priority,
-   and within the same layer the later source order wins.
+   Tailwind's own !important modifiers: for !important
+   declarations, cascade layers reverse priority, and within
+   the same layer the later source order wins.
    ============================================================ */
 @layer utilities {
   .nxf-root,
@@ -788,9 +795,8 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
   .nxf-root *::after {
     color: #ffffff !important;
   }
-  .nxf-root ::placeholder { color: #ffffff !important; opacity: 0.65; }
-  .nxf-root .nxf-cta,
-  .nxf-root .nxf-cta * {
-    color: #241a02 !important;
+  .nxf-root text {
+    fill: #ffffff !important;
   }
+  .nxf-root ::placeholder { color: #ffffff !important; opacity: 0.65; }
 }

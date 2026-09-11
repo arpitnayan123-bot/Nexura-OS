@@ -214,7 +214,7 @@ export function SettingsView({
         ) : confirming ? (
           <div className="flex flex-wrap gap-2">
             <p className="w-full text-[13px] nxf-body">Delete every stored run for this browser? This cannot be undone.</p>
-            <button type="button" className="nxf-cta !from-rose-500 !to-rose-400 !text-white" onClick={() => void wipe()}>
+            <button type="button" className="nxf-cta !from-rose-600 !to-rose-500 !text-white" onClick={() => void wipe()}>
               <Trash2 className="h-4 w-4" /> Yes, delete everything
             </button>
             <button type="button" className="nxf-cta nxf-cta-ghost" onClick={() => setConfirming(false)}>Cancel</button>

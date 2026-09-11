@@ -89,7 +89,7 @@ export function EmergencyTakeover({ report, onAcknowledge }: { report: Foresight
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <a href="tel:108" className="nxf-cta !bg-gradient-to-r !from-rose-500 !to-rose-400 !text-white">
+          <a href="tel:108" className="nxf-cta !bg-gradient-to-r !from-rose-600 !to-rose-500 !text-white">
             <PhoneCall className="h-4 w-4" aria-hidden="true" /> Call 108 now
           </a>
           <a href="tel:14416" className="nxf-cta nxf-cta-ghost">
