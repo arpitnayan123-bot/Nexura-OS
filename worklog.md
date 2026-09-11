@@ -3124,3 +3124,19 @@ Stage Summary:
 - Commit 14fa096 "style(predictive): white ink on every text + premium surface polish" (4 files, +50/-44).
 - Verified: 87/87 visible text nodes #FFFFFF, SVG fill rule in place, desktop/mobile screenshots clean (download/white-design-*.png), no console errors.
 - Gates green: tsc 0, eslint 0, vitest 183/183 (13 files). Server UP, /predictive -> 200.
+
+---
+Task ID: NXP-PREVIEW-FIX
+Agent: Super Z (main)
+Task: User reported none of the changes visible in preview window; full deep check requested; prevent recurrence.
+
+Work Log:
+- Deep-checked serving layer: single Next server on :3000; :81 (FC_CUSTOM_LISTEN_PORT, preview proxy) serves byte-identical content; both were fresh. Server-side was never the problem.
+- ROOT CAUSE: next dev (Turbopack) reuses stable asset URLs across rebuilds (same [root-of-the-server]__91b26cea._.css name while content changed 4+ times) -> user browser/CDN cache kept serving the old stylesheet; changes looked invisible.
+- FIX: switched serving to production builds via scripts/deploy-preview.sh (stop -> next build -> next start :3000 -> health + fingerprint print). Production content-hashes assets, so every deploy has unique URLs that bust all caches.
+- Build initially failed: src/lib/env.ts requires JWT_SECRET >=16 chars in production (correct fail-fast). Generated 48-hex secret into .env (gitignored, never committed).
+- Verified production: /predictive 200; new fingerprint 71d3ced7486a2a9a.css on :3000 AND :81; markers (white ink, svg text fill rule, emerald CTA) present, old gold/dark inks absent; 87/87 text nodes white; intake flow renders; /api/nx/bio/[deviceId] 200; no console errors; desktop 1440 + mobile 390 clean (download/prod-*.png).
+
+Stage Summary:
+- Commits: 79ae748 (deploy pipeline). Server now runs production build on :3000; :81 mirrors it.
+- GOING-FORWARD PROTOCOL (prevents recurrence): after ANY source change run `bash scripts/deploy-preview.sh`, then verify the printed asset fingerprint changed + curl markers. Trade-off: no hot reload; rebuild (~40s) required per change.
