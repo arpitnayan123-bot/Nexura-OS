@@ -2984,3 +2984,20 @@ Work Log:
 
 Stage Summary:
 - White screen on /predictive eliminated with defense in depth: inline-styled canvas, :has() body paint, chunk-independent boot shells, complete Hindi landing/error strings, truthful entry-card copy. Committed as b335cc2.
+
+---
+Task ID: NXP2-REBUILD
+Agent: Super Z (main)
+Task: User directive — hollow the Predictive section again (keep homepage caption), then rebuild it fully from scratch as the best version of itself: "Healthcare is Reactive. But Nexura is Predictive." — disease-risk prediction from symptoms, diet, BMI, exercise, health issues, sleep + more, for Indian users, premium design. Then run everything, fix errors, bump version, verify preview, commit.
+
+Work Log:
+- PHASE A teardown: deleted src/components/phi, src/modules/phi, src/app/api/nx/phi (13 endpoints), 16 Phi* Prisma models, tests/unit/phi (7 suites/153 tests), seed-phi.ts, 14 smoke probes (70->56). Kept /predictive as hardened dark hollow shell + homepage/nav captions + untouched Hospital OS pi-engine surface. Gates green; commit 566fdf9.
+- PHASE B engine: src/modules/foresight (types, calibration, redflags, domains, engine, subject) — 12 domain scorers, South-Asian calibration (BMI 23/25/27.5, IDF waist 90/80, ICMR Hb, mg/dL), red-flag triage with EN/HI/Hinglish self-harm scan -> Tele-MANAS/KIRAN/108, lab-anchor burden floors, factor stacking multiplier, damped protective bonus, max-emphasised composite Foresight Score, 5y trajectory, cuisine-aware diet prescription, doctor summary. API: run/history/run[id]/data + ForesightRun table.
+- PHASE C/D UI: observatory design system (aurora, glass, starfield), animated Health Halo SVG, trajectory chart, 10-step autosaving wizard, cinematic running sequence, emergency takeover, history sparkline, settings with data wipe, EN/HI.
+- PHASE E integration: homepage card + hamburger now "Health Foresight Engine / AI 2.0" caption; package.json 0.2.1 -> 1.0.0; footer stamps foresight-2.0.0 · india-cal-2.0.0.
+- Errors found & fixed during bring-up: (1) fadeUp motion props spread on plain <section> -> React unknown-prop warning -> converted to motion.section; (2) waistRisk/confidence literal-type narrowing -> tsc fixes; (3) ForesightRun.subjectKey wrongly @unique -> second run per subject 500'd (P2002) -> made plain + indexed, db pushed; (4) SAME_DAY mental-health/pregnancy hits escalated to EMERGENCY by array-order -> strict level partition; (5) English "ending my life" regex miss -> pattern fixed; (6) domain burdens too flat for stacked profiles -> stacking multiplier + lab/BP/OSA/PCOS/mind anchor floors + bonus damping; engine tests then 41/41.
+- PHASE F quality: tsc 0, eslint 0, vitest 160/160 (119 old + 41 new), smoke 58/58. E2E agent-browser: landing/wizard/autosave/BMI live-calc -> run -> halo (59 BUILDING; metabolic+BP ELEVATED, sleep OSA cluster) -> domain cards -> trajectory (52 vs 64) -> South-Indian diet swaps -> doctor summary -> history row; chest-pain run -> full emergency takeover (Call 108, analysis withheld, pinned banner, score capped 35/ATTENTION); Hindi toggle; mobile 390px; homepage caption click-through to /predictive; chunk-blocked load renders dark branded boot screen (white-screen hardening intact). Screenshots download/nx2-1..15.
+- dev.log checked: only the pre-fix P2002 remains in history; no fresh errors.
+
+Stage Summary:
+- Nexura Predictive 2.0 (Health Foresight Engine) is live on /predictive: triage-first deterministic 12-domain disease-risk-signal engine calibrated for Indian users, premium observatory UI, EN/HI, versioned + explainable + honest about missing data. Committed as d6c280b (teardown 566fdf9). Version bumped to 1.0.0.
