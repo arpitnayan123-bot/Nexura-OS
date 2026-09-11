@@ -95,7 +95,7 @@ export function HistoryView({
           <div className="space-y-2.5">
             {runs.map((r) => (
               <button key={r.id} type="button" onClick={() => onOpen(r.id)}
-                className="flex w-full items-center justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 text-left transition hover:border-teal-300/40">
+                className="flex w-full items-center justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 text-left transition hover:border-amber-300/50">
                 <div>
                   <p className="text-[13.5px] font-semibold nxf-hi">
                     {new Date(r.createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}
@@ -108,7 +108,7 @@ export function HistoryView({
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="nxf-mono text-xl font-bold nxf-teal">{r.score}</p>
+                  <p className="nxf-mono text-xl font-bold nxf-gold">{r.score}</p>
                   <p className="text-[10px] uppercase tracking-wider nxf-mute">score</p>
                 </div>
               </button>
