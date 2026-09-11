@@ -237,6 +237,7 @@ function PatientsTab() {
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
+  const [watchKey, setWatchKey] = useState(0);
 
   useEffect(() => {
     const t = setTimeout(async () => {
@@ -275,7 +276,141 @@ function PatientsTab() {
           {!loading && patients.length === 0 && <p className="py-12 text-center text-sm text-[#9A8F84]">No patients found.</p>}
         </div>
       </div>
-      <AddPatientDialog open={showAdd} onClose={() => setShowAdd(false)} onAdded={() => { setShowAdd(false); setQ(""); }} />
+      <ChronicWatchlist refreshKey={watchKey} />
+      <AddPatientDialog open={showAdd} onClose={() => setShowAdd(false)} onAdded={() => { setShowAdd(false); setQ(""); setWatchKey((k) => k + 1); }} />
+    </div>
+  );
+}
+
+/* ============== CHRONIC CARE WATCHLIST ============== */
+/* Joins the patient roster to the ICMR plan library at /api/clinic/chronic-care.
+   Conditions come from the patient's chronic-conditions field plus the latest
+   recorded visit diagnosis (fuzzy-matched the same way the route matches).
+   Last-visit recency rides on the additive `visits` field of patients GET. */
+
+function cadenceDays(freq: string): number | null {
+  const f = (freq || "").toLowerCase();
+  if (f.includes("annual")) return 365;
+  if (f.includes("week")) return 7;
+  const m = f.match(/(\d+)\s*(day|week|month|year)/);
+  if (!m) return null;
+  const n = Number(m[1]);
+  return m[2] === "day" ? n : m[2] === "week" ? n * 7 : m[2] === "month" ? n * 30 : n * 365;
+}
+
+function matchPlanKey(dx: string, keys: string[]): string | null {
+  const l = (dx || "").trim().toLowerCase();
+  if (!l) return null;
+  return keys.find((k) => k.toLowerCase().includes(l) || l.includes(k.toLowerCase())) || null;
+}
+
+function daysSince(iso: string): number {
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+}
+
+function agoLabel(iso: string): string {
+  const d = daysSince(iso);
+  if (d <= 0) return "today";
+  if (d === 1) return "yesterday";
+  if (d < 30) return `${d}d ago`;
+  if (d < 365) return `${Math.floor(d / 30)}mo ago`;
+  return `${Math.floor(d / 365)}y ago`;
+}
+
+function ChronicWatchlist({ refreshKey }: { refreshKey: number }) {
+  const [rows, setRows] = useState<any[]>([]);
+  const [plans, setPlans] = useState<Record<string, any>>({});
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    setFailed(false);
+    (async () => {
+      try {
+        const [pres, crest] = await Promise.all([fetch("/api/clinic/patients"), fetch("/api/clinic/chronic-care").then((r) => r.json())]);
+        if (!pres.ok) throw new Error();
+        const pd = await pres.json();
+        const keys: string[] = crest.plans || [];
+        const planMap: Record<string, any> = {};
+        await Promise.all(keys.map(async (k) => {
+          const d = await fetch(`/api/clinic/chronic-care?diagnosis=${encodeURIComponent(k)}`).then((r) => r.json());
+          if (d.plan) planMap[k] = d.plan;
+        }));
+        if (!alive) return;
+        setPlans(planMap);
+        const planKeys = Object.keys(planMap);
+        const chronic = (pd.patients || []).filter((p: any) => {
+          if (p.chronicDx && p.chronicDx.trim()) return true;
+          const last = p.visits?.[0];
+          return !!(last?.diagnosis && matchPlanKey(last.diagnosis, planKeys));
+        });
+        setRows(chronic);
+      } catch {
+        if (alive) { setRows([]); setFailed(true); }
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [refreshKey]);
+
+  const planKeys = Object.keys(plans);
+
+  return (
+    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#EFE9E0]">
+      <div className="flex items-center justify-between border-b border-[#EFE9E0] px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#C98A7A]/10 text-[#C98A7A]"><HeartPulse className="h-3.5 w-3.5" aria-hidden="true" /></span>
+          <div>
+            <h3 className="font-serif text-sm font-semibold">Chronic care watchlist</h3>
+            <p className="text-[0.6rem] text-[#9A8F84]">Patients with chronic conditions · ICMR cadence vs last recorded visit</p>
+          </div>
+        </div>
+        {!loading && <span className="rounded-full bg-[#F3EEE6] px-2 py-0.5 text-[0.6rem] font-medium text-[#5C544D]">{rows.length} tracked</span>}
+      </div>
+      {loading ? (
+        <div className="flex items-center gap-2 px-4 py-4 text-xs text-[#9A8F84]"><Loader2 className="h-3.5 w-3.5 animate-spin" />Loading chronic-care roster…</div>
+      ) : failed ? (
+        <p className="px-4 py-5 text-center text-sm text-[#9A8F84]">Could not load the watchlist right now.</p>
+      ) : rows.length === 0 ? (
+        <p className="px-4 py-6 text-center text-sm text-[#9A8F84]">No chronic-care patients yet — diagnoses appear as visits are recorded.</p>
+      ) : (
+        rows.map((p) => {
+          const last = p.visits?.[0] || null;
+          const dxs = (p.chronicDx || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+          const visitDxKey = last?.diagnosis ? matchPlanKey(last.diagnosis, planKeys) : null;
+          if (visitDxKey && !dxs.some((d: string) => matchPlanKey(d, [visitDxKey]))) dxs.push(visitDxKey);
+          const gapKey = dxs.map((d: string) => matchPlanKey(d, planKeys)).find(Boolean) || null;
+          const topCheckup = gapKey ? plans[gapKey]?.checkups?.[0] : null;
+          const cadence = topCheckup ? cadenceDays(topCheckup.frequency) : null;
+          const overdue = !!(last?.createdAt && cadence && daysSince(last.createdAt) > cadence);
+          return (
+            <div key={p.id} className="flex flex-wrap items-center gap-3 border-b border-[#EFE9E0] px-4 py-3 last:border-0 transition-colors hover:bg-[#FAF7F2]">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#F3EEE6] to-[#E5DFD4] text-xs font-bold text-[#5C544D]">{p.name.split(" ").map((x: string) => x[0]).join("").slice(0, 2)}</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">{p.name}</p>
+                <p className="text-[0.65rem] text-[#9A8F84]">{p.mrn} · {p.age}{p.gender ? `/${p.gender[0]}` : ""}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {dxs.map((d: string) => <span key={d} className="rounded-full bg-[#9DB89E]/15 px-2 py-0.5 text-[0.6rem] font-medium text-[#5A7A5B]">{d}</span>)}
+                {topCheckup && (
+                  <span title={topCheckup.guideline} className={cn("rounded-full px-2 py-0.5 text-[0.6rem] font-medium", overdue ? "bg-[#E0B080]/15 text-[#B8893D]" : "bg-[#F3EEE6] text-[#5C544D]")}>
+                    {topCheckup.test} · {topCheckup.frequency}{overdue ? " · overdue" : ""}
+                  </span>
+                )}
+              </div>
+              <span className="flex items-center gap-1 text-[0.65rem] text-[#9A8F84]"><Clock className="h-3 w-3" aria-hidden="true" />{last?.createdAt ? `Last visit ${agoLabel(last.createdAt)}` : "No visits recorded"}</span>
+            </div>
+          );
+        })
+      )}
+      {!loading && !failed && rows.length > 0 && (
+        <p className="border-t border-[#EFE9E0] px-4 py-2.5 text-[0.6rem] leading-relaxed text-[#9A8F84]">
+          Conditions come from the patient record and the latest visit diagnosis, matched to the ICMR plan library — cadence hints are reference guidance, not scheduled appointments.
+        </p>
+      )}
     </div>
   );
 }
