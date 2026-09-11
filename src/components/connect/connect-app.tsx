@@ -544,7 +544,7 @@ export function ConnectApp() {
             {/* Input */}
             <div className="border-t border-[#E5DFD4] bg-white/80 px-5 py-3 backdrop-blur-md">
               <div className="flex items-end gap-2">
-                <button className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]" title="Attach (coming soon)">
+                <button className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]" title="Attach (coming soon)" aria-label="Attach file (coming soon)">
                   <Paperclip className="h-4 w-4" />
                 </button>
                 <textarea
@@ -564,6 +564,7 @@ export function ConnectApp() {
                   onClick={sendMessage}
                   disabled={!draft.trim()}
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#D98B6E] text-white shadow-depth transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label="Send message"
                 >
                   <Send className="h-4 w-4" />
                 </button>
@@ -887,7 +888,7 @@ function CallOverlay({
             >
               <div className="mb-2 flex items-center justify-between">
                 <p className="flex items-center gap-1.5 text-sm font-semibold">
-                  <Pill className="h-4 w-4 text-[#D98B6E]" /> Live Prescription
+                  <Pill className="h-4 w-4 text-[#D98B6E]" aria-hidden="true" /> Live Prescription
                 </p>
                 <button onClick={() => setShowRx(false)} className="grid h-6 w-6 place-items-center rounded-full text-white/50 hover:bg-white/10"><X className="h-3.5 w-3.5" /></button>
               </div>
@@ -950,7 +951,7 @@ function CallOverlay({
                 {syncing ? "Syncing…" : "Sync to Pharmacia"}
               </button>
               <p className="mt-1.5 flex items-center justify-center gap-1 text-[0.55rem] text-white/40">
-                <ShieldCheck className="h-2.5 w-2.5" /> Creates a Sale invoice in pharmacy demo branch
+                <ShieldCheck className="h-2.5 w-2.5" aria-hidden="true" /> Creates a Sale invoice in pharmacy demo branch
               </p>
             </motion.div>
           )}

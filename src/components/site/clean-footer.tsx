@@ -18,7 +18,7 @@ export function CleanFooter() {
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-2.5">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-coral via-honey to-sage anim-gradient">
-              <Activity className="h-4 w-4 text-white" strokeWidth={2.6} />
+              <Activity className="h-4 w-4 text-white" strokeWidth={2.6} aria-hidden="true" />
             </span>
             <div className="leading-none">
               <p className="font-display text-sm font-semibold">

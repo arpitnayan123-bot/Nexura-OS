@@ -701,6 +701,7 @@ export function PatientChatModule() {
           <button
             onClick={send}
             className="grid h-10 w-10 place-items-center rounded-xl bg-[#D98B6E] text-white shadow-md transition-colors hover:bg-[#C97A5D]"
+            aria-label="Send message"
           >
             <Send className="h-4 w-4" />
           </button>

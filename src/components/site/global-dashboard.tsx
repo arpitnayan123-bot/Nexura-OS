@@ -599,6 +599,7 @@ function DashboardShell({
             <button
               onClick={onLogout}
               title="Sign out"
+              aria-label="Sign out"
               className="grid h-9 w-9 place-items-center rounded-xl bg-white/5 text-white/60 transition-colors hover:bg-red-500/15 hover:text-red-400"
             >
               <LogOut className="h-4 w-4" />
@@ -1100,6 +1101,7 @@ function InquiryDetail({
           <button
             onClick={onClose}
             className="grid h-8 w-8 place-items-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="Close"
           >
             <X className="h-4 w-4" />
           </button>

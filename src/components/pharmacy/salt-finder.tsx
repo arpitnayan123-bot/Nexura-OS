@@ -87,6 +87,7 @@ export function SaltFinder({
               <button
                 onClick={onClose}
                 className="grid h-8 w-8 place-items-center rounded-full hover:bg-accent"
+                aria-label="Close salt finder"
               >
                 <X className="h-4 w-4" />
               </button>

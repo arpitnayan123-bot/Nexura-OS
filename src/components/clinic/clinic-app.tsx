@@ -66,7 +66,7 @@ export function ClinicApp() {
         <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-[#EFE9E0] bg-white/60 backdrop-blur-xl sm:flex">
           <div className="flex items-center gap-2.5 px-5 py-5">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#D98B6E] to-[#E0B080] anim-breathe">
-              <Stethoscope className="h-4.5 w-4.5 text-white" strokeWidth={2.2} />
+              <Stethoscope className="h-4.5 w-4.5 text-white" strokeWidth={2.2} aria-hidden="true" />
             </span>
             <div className="leading-none">
               <p className="font-serif text-[15px] font-semibold tracking-tight">Nexura Clinic</p>
@@ -321,7 +321,7 @@ function AddPatientDialog({ open, onClose, onAdded }: { open: boolean; onClose: 
           <motion.div initial={{ scale: 0.96, y: 12 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.96, y: 12 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#EFE9E0] px-5 py-4">
               <h3 className="font-serif text-base font-semibold">New patient</h3>
-              <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]"><X className="h-4 w-4" /></button>
+              <button onClick={onClose} aria-label="Close dialog" className="grid h-7 w-7 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]"><X className="h-4 w-4" /></button>
             </div>
             <div className="grid grid-cols-2 gap-3 p-5">
               {/* ABHA lookup */}
@@ -510,7 +510,7 @@ function ConsultModal({ data, onClose, onSaved }: { data: { appointmentId: strin
             <div className="sticky top-0 z-10 border-b border-[#EFE9E0] bg-white px-5 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#D98B6E]/10 text-[#D98B6E]"><HeartPulse className="h-4 w-4" /></span>
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#D98B6E]/10 text-[#D98B6E]"><HeartPulse className="h-4 w-4" aria-hidden="true" /></span>
                   <div>
                     <h3 className="font-serif text-base font-semibold">SOAP Consultation</h3>
                     <p className="text-[0.65rem] text-[#9A8F84]">{data.patient.name} · {data.patient.mrn} · {data.patient.age}{data.patient.gender ? `/${data.patient.gender[0]}` : ""} {data.patient.bloodGroup ? `· ${data.patient.bloodGroup}` : ""} · Dr. {data.doctor.name}</p>

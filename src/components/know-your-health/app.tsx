@@ -58,7 +58,7 @@ export function KnowYourHealthApp() {
           </div>
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden items-center gap-1.5 rounded-full glass-chip px-3 py-1.5 text-xs font-medium text-[#5A7A5B] sm:flex"><ShieldCheck className="h-3.5 w-3.5" /> Secure · server-side</span>
-            <span className="flex items-center gap-1.5 rounded-full glass-chip px-3 py-1.5 text-xs font-medium text-[#A55A4A]"><Sparkles className="h-3.5 w-3.5" /> {TOOLS.length} tools</span>
+            <span className="flex items-center gap-1.5 rounded-full glass-chip px-3 py-1.5 text-xs font-medium text-[#A55A4A]"><Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> {TOOLS.length} tools</span>
           </div>
         </div>
       </header>
