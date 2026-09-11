@@ -89,19 +89,22 @@ const DOMAINS: { name: string; role: string; raises: string; india: string }[] =
   },
 ];
 
-export function DomainGlossary() {
+export function DomainGlossary({ lang = "en" }: { lang?: "en" | "hi" }) {
+  const t = (en: string, hi: string) => (lang === "hi" ? hi : en);
   const [open, setOpen] = useState<number | null>(null);
 
   return (
     <motion.section {...fadeUp}>
       <div className="mb-6 text-center">
-        <Eyebrow className="mb-2">Before you run it</Eyebrow>
+        <Eyebrow className="mb-2">{t("Before you run it", "चलाने से पहले")}</Eyebrow>
         <h2 className="font-display text-2xl font-semibold tracking-tight nxf-hi sm:text-3xl">
-          The twelve domains, explained
+          {t("The twelve domains, explained", "बारह क्षेत्र, समझाए गए")}
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-[13px] leading-relaxed nxf-dim">
-          Every domain is a transparent rule-set, not a black box. Tap any card to see
-          exactly what raises its signal — the same factors the engine will weigh for you.
+          {t(
+            "Every domain is a transparent rule-set, not a black box. Tap any card to see exactly what raises its signal — the same factors the engine will weigh for you.",
+            "हर क्षेत्र एक पारदर्शी नियम-सेट है, कोई काला बक्सा नहीं। किसी भी कार्ड पर टैप करें और देखें कि सिग्नल क्या बढ़ाता है — वही कारक जो इंजन आपके लिए तौलेगा।"
+          )}
         </p>
       </div>
 

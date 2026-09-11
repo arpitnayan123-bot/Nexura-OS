@@ -286,6 +286,7 @@ export function ForesightExperience() {
           {view === "landing" && (
             <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
               <Landing
+                lang={lang}
                 onStart={() => { setView("wizard"); setStep(0); scrollToTop(); }}
                 onHistory={() => { setView("history"); scrollToTop(); }}
                 hasHistory={historyCount > 0}

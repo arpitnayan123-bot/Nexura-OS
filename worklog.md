@@ -3438,3 +3438,18 @@ Work Log:
 
 Stage Summary:
 - Homepage + root layout now defer 6 overlay widgets (booking dialog, AI chat, cursor glow, back-to-top, cookie banner) into post-hydration client chunks, and the two heaviest list-rendering components (/global hospital directory, pharmacy billing) skip all unrelated parent re-renders via memo. Flagged for future loops: portal-app.tsx (re-renders whole tab tree on 60s poll — candidates for the same memo treatment), connect-app.tsx consult panel (1s ticking timer re-renders rx/history lists), and dead files founder-teaser.tsx / faq.tsx / cta-footer.tsx still carry un-lazy <img>/imports if ever revived.
+
+---
+Task ID: 15-a
+Agent: general-purpose (implementation subagent)
+Task: Real Hindi support for the predictive landing hero + section headings + CTAs — wire the existing lang state (en/hi) from ForesightExperience into Landing; exact-string Hindi dictionary; tsc must exit 0.
+
+Work Log:
+- Read worklog tail (13-a, 14-a). Ground truth: FsLang already exported from foresight/ui.tsx ("en" | "hi") — no ui.tsx change needed; Landing was the only lang-blind child (HistoryView/SettingsView already took lang).
+- experience.tsx (1 line): <Landing lang={lang} …> — lang state + EN·हिंदी toggle already existed; now the landing view follows it (persists via nx_fs_lang).
+- landing.tsx: prop lang?: FsLang (default "en"); module-level flat HI dict (19 keys, exact approved strings, as-const); in-component helper t(en, hi). 17 live render sites: hero eyebrow, H1 both lines, hero sub, both CTAs (primary CTA string reused at bottom CTA), history CTA, trust line, 4 stat-strip labels ("EN · हिंदी" identical in both langs — left as-is; the two count-up stats keep CountUp digits, Hindi labels "जोखिम क्षेत्र"/"+ भारित कारक" render "12 जोखिम क्षेत्र"/"130+ भारित कारक"), signal eyebrow+heading, flow eyebrow+heading, safety heading. Card bodies/details, reactive-vs-predictive section, Ornament, emergency line deliberately stay English per mission.
+- SCOPE CONSTRAINT: glossary header strings (चलाने से पहले / बारह क्षेत्र, समझाए गए / sub) live inside DomainGlossary (glossary.tsx renders its own header, takes no props) — file out of 15-a scope, so the 3 strings are staged in the HI dict with a comment for a follow-up glossary.tsx pass; glossary header currently stays English in hi mode.
+- Gates: npx tsc --noEmit exit 0; eslint exit 0 on both touched files. No servers/builds/commits. ui.tsx untouched (type already exported).
+
+Stage Summary:
+- /predictive landing now fully mirrors the EN·हिंदी toggle for hero, headings and CTAs with the approved Hindi copy; wizard/results/history keep their existing tr() coverage. Next: extend DomainGlossary with optional header props (lang) to consume the 3 staged glossary strings, and consider Hindi for reactive-vs-predictive card bodies in a later pass.

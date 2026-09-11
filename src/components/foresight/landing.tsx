@@ -7,7 +7,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown, Footprints, HeartPulse, History, MoonStar, ShieldCheck, Sparkles, Wind, UtensilsCrossed, Dna, Activity } from "lucide-react";
-import { Eyebrow, CountUp, GlassCard, Ornament, Spotlight, fadeUp } from "./ui";
+import { Eyebrow, CountUp, GlassCard, Ornament, Spotlight, fadeUp, type FsLang } from "./ui";
 import { DomainGlossary } from "./glossary";
 
 const SIGNAL_SOURCES = [
@@ -21,13 +21,44 @@ const SIGNAL_SOURCES = [
   { icon: Wind, label: "Environment", sub: "your city's air quality load" },
 ];
 
+/* Hindi copy (Task 15-a) — only the hero, section headings and CTAs
+   switch; card bodies/details stay English. The three glossary* strings
+   are staged here for the follow-up glossary.tsx pass: DomainGlossary
+   renders its own header and is outside this task's file scope. */
+const HI = {
+  eyebrow: "नेक्सुरा प्रेडिक्टिव 2.0 · हेल्थ फ़ोरसाइट इंजन",
+  h1Line1: "स्वास्थ्य देखभाल प्रतिक्रियाशील है।",
+  h1Line2: "नेक्सुरा पूर्वानुमानी है।",
+  heroSub:
+    "अपने लक्षण, आहार, BMI, नींद और इतिहास साझा करें — नेक्सुरा बारह बीमारी-जोखिम क्षेत्रों का एक ईमानदार नक्शा बनाता है: आपका स्वास्थ्य किधर जा रहा है, और उसे बदलने के लिए ठीक क्या करना होगा। भारतीय शरीर के लिए बना।",
+  ctaPrimary: "मेरा हेल्थ फ्यूचर मैप करें",
+  ctaHistory: "मेरा इतिहास",
+  trust: "मुफ़्त · गुमनाम सेशन · कभी भी सब कुछ मिटाएँ · मेडिकल डिवाइस नहीं",
+  statDomains: "जोखिम क्षेत्र", // renders "12 जोखिम क्षेत्र" — digits come from CountUp
+  statFactors: "+ भारित कारक", // renders "130+ भारित कारक" — digits come from CountUp
+  statStudio: "लाइव what-if स्टूडियो",
+  statHorizon: "5 साल का दायरा",
+  signalEyebrow: "इंजन क्या पढ़ता है",
+  signalHeading: "आपकी आठ परतें, एक दिशा",
+  glossaryEyebrow: "चलाने से पहले",
+  glossaryHeading: "बारह क्षेत्र, समझाए गए",
+  glossarySub:
+    "हर क्षेत्र एक पारदर्शी नियम-सेट है, कोई काला बक्सा नहीं। किसी भी कार्ड पर टैप करें और देखें कि सिग्नल क्या बढ़ाता है — वही कारक जो इंजन आपके लिए तौलेगा।",
+  flowEyebrow: "प्रक्रिया",
+  flowHeading: "कुछ मिनट जो आपके अगले पाँच साल पढ़ लें",
+  safetyHeading: "यह कैसे सुरक्षित रहता है",
+} as const;
+
 export function Landing({
-  onStart, onHistory, hasHistory,
+  onStart, onHistory, hasHistory, lang = "en",
 }: {
   onStart: () => void;
   onHistory: () => void;
   hasHistory: boolean;
+  lang?: FsLang;
 }) {
+  const t = (en: string, hi: string) => (lang === "hi" ? hi : en);
+
   return (
     <div className="space-y-16 pb-6">
       {/* ---------------- HERO ---------------- */}
@@ -38,39 +69,40 @@ export function Landing({
           className="relative z-10"
           initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
         >
-          <Eyebrow className="mb-4">Nexura Predictive 2.0 · Health Foresight Engine</Eyebrow>
+          <Eyebrow className="mb-4">{t("Nexura Predictive 2.0 · Health Foresight Engine", HI.eyebrow)}</Eyebrow>
           <h1 className="mx-auto max-w-3xl font-display text-[2.5rem] font-semibold leading-[1.08] tracking-tight nxf-hi sm:text-6xl">
-            Healthcare is Reactive.
+            {t("Healthcare is Reactive.", HI.h1Line1)}
             <span className="nxf-goldgrad mt-1 block">
-              But Nexura is Predictive.
+              {t("But Nexura is Predictive.", HI.h1Line2)}
             </span>
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed nxf-dim sm:text-base">
-            Share your symptoms, diet, BMI, fitness, sleep and history — Nexura maps
-            twelve disease-risk domains into one honest picture of where your health
-            is heading, and exactly what would change its course. Built for Indian bodies.
+            {t(
+              "Share your symptoms, diet, BMI, fitness, sleep and history — Nexura maps twelve disease-risk domains into one honest picture of where your health is heading, and exactly what would change its course. Built for Indian bodies.",
+              HI.heroSub,
+            )}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <button type="button" className="nxf-cta" onClick={onStart}>
               <Sparkles className="h-4 w-4" aria-hidden="true" />
-              Map My Health Future
+              {t("Map My Health Future", HI.ctaPrimary)}
             </button>
             {hasHistory && (
               <button type="button" className="nxf-cta nxf-cta-ghost" onClick={onHistory}>
-                My history
+                {t("My history", HI.ctaHistory)}
               </button>
             )}
           </div>
           <p className="mt-4 text-[12px] nxf-mute">
-            Free · anonymous session · delete everything anytime · not a medical device
+            {t("Free · anonymous session · delete everything anytime · not a medical device", HI.trust)}
           </p>
           {/* figma-style stat strip — precision-design signature,
               key numbers count up on first view */}
           <p className="nxf-mono mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] font-semibold uppercase tracking-[0.22em] nxf-gold-soft">
-            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> <CountUp to={12} duration={1.2} /> risk domains
-            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> <CountUp to={130} duration={2.1} />+ weighted factors
-            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> live what-if studio
-            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 5-year horizon
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> <CountUp to={12} duration={1.2} /> {t("risk domains", HI.statDomains)}
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> <CountUp to={130} duration={2.1} />{t("+ weighted factors", HI.statFactors)}
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> {t("live what-if studio", HI.statStudio)}
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> {t("5-year horizon", HI.statHorizon)}
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> EN · हिंदी
           </p>
         </motion.div>
@@ -114,9 +146,9 @@ export function Landing({
       {/* ---------------- SIGNAL SOURCES ---------------- */}
       <motion.section {...fadeUp}>
         <div className="mb-6 text-center">
-          <Eyebrow className="mb-2">What the engine reads</Eyebrow>
+          <Eyebrow className="mb-2">{t("What the engine reads", HI.signalEyebrow)}</Eyebrow>
           <h2 className="font-display text-2xl font-semibold tracking-tight nxf-hi sm:text-3xl">
-            Eight layers of you, one trajectory
+            {t("Eight layers of you, one trajectory", HI.signalHeading)}
           </h2>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -131,13 +163,13 @@ export function Landing({
       </motion.section>
 
       {/* ---------------- TWELVE DOMAINS GLOSSARY ---------------- */}
-      <DomainGlossary />
+      <DomainGlossary lang={lang} />
 
       {/* ---------------- HOW IT WORKS ---------------- */}
       <motion.section {...fadeUp}>
         <div className="mb-6 text-center">
-          <Eyebrow className="mb-2">The flow</Eyebrow>
-          <h2 className="font-display text-2xl font-semibold tracking-tight nxf-hi sm:text-3xl">A few minutes that read your next five years</h2>
+          <Eyebrow className="mb-2">{t("The flow", HI.flowEyebrow)}</Eyebrow>
+          <h2 className="font-display text-2xl font-semibold tracking-tight nxf-hi sm:text-3xl">{t("A few minutes that read your next five years", HI.flowHeading)}</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-4">
           {[
@@ -163,7 +195,7 @@ export function Landing({
               <ShieldCheck className="h-6 w-6 nxf-teal" aria-hidden="true" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-semibold nxf-hi">How this stays safe</h2>
+              <h2 className="font-display text-xl font-semibold nxf-hi">{t("How this stays safe", HI.safetyHeading)}</h2>
               <div className="mt-3 grid gap-2.5 text-[13px] leading-relaxed nxf-dim sm:grid-cols-2">
                 <p>· Signal patterns, never diagnoses — and never disease probabilities dressed up as facts</p>
                 <p>· Emergency triage precedes every analysis; mental-health language routes to free 24×7 helplines</p>
@@ -180,7 +212,7 @@ export function Landing({
       {/* ---------------- BOTTOM CTA ---------------- */}
       <motion.section {...fadeUp} className="pb-4 text-center">
         <button type="button" className="nxf-cta" onClick={onStart}>
-          Map My Health Future <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          {t("Map My Health Future", HI.ctaPrimary)} <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
         <p className="mt-3 text-[11.5px] nxf-mute">
           In an emergency call 108 · Mental health: Tele-MANAS 14416 (free, 24×7)
