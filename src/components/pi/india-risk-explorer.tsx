@@ -83,7 +83,7 @@ export function IndiaRiskExplorer() {
             India-calibrated
           </span>
         </div>
-        <p className="mt-1 text-xs leading-relaxed text-slate-400">
+        <p className="mt-1 text-xs leading-relaxed text-slate-300">
           Shape a routine — meals, movement, sleep, metro air — and the India-calibrated model recomputes five-year onset
           risk in-browser. Nothing leaves the device.
         </p>
@@ -165,8 +165,8 @@ export function IndiaRiskExplorer() {
         <div className="space-y-3">
           <div className="flex items-center justify-between rounded-2xl border border-sky-400/15 bg-sky-400/[0.04] p-4">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Early-warning index</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-slate-400">{result.topDriverText}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">Early-warning index</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-slate-300">{result.topDriverText}</p>
             </div>
             <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-sm font-bold tabular-nums ${BAND_STYLE[scoreBand]}`}>
               <span className={`h-2 w-2 rounded-full ${scoreBand === "high" ? "nxp-heartbeat bg-red-400" : scoreBand === "moderate" ? "bg-amber-400" : "bg-cyan-400"}`} aria-hidden="true" />
@@ -183,13 +183,13 @@ export function IndiaRiskExplorer() {
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <p className="text-xs font-bold text-slate-100">{d.label}</p>
-                    <p className="mt-0.5 text-[11px] text-slate-400">{d.hint}</p>
+                    <p className="mt-0.5 text-[11px] text-slate-300">{d.hint}</p>
                   </div>
                   <div className="text-right">
                     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[11px] font-bold tabular-nums ${BAND_STYLE[band]}`}>
                       {BAND_LABEL[band]} · {pct}%
                     </span>
-                    <p className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-slate-400">5-year onset</p>
+                    <p className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-slate-300">5-year onset</p>
                   </div>
                 </div>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
@@ -205,7 +205,7 @@ export function IndiaRiskExplorer() {
                 <p className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300">
                   <TrendingDown className="h-3.5 w-3.5" /> Single-change scenario
                 </p>
-                <p className="mt-0.5 text-[11px] text-slate-400">{nudge.label} — early-warning index, recomputed live</p>
+                <p className="mt-0.5 text-[11px] text-slate-300">{nudge.label} — early-warning index, recomputed live</p>
               </div>
               <span className="shrink-0 rounded-full bg-emerald-500/20 px-2.5 py-1 font-mono text-[11px] font-bold text-emerald-300 tabular-nums">
                 {nudge.from} → {nudge.to}
@@ -214,7 +214,7 @@ export function IndiaRiskExplorer() {
           )}
 
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Driver attribution</p>
+            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">Driver attribution</p>
             <div className="space-y-1.5">
               {result.drivers.map((d, i) => (
                 <div key={i} className="flex items-center gap-2">
@@ -222,7 +222,7 @@ export function IndiaRiskExplorer() {
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.07]">
                     <div className={`h-full rounded-full ${d.modifiable ? "bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.6)]" : "bg-slate-500"}`} style={{ width: `${Math.round(d.share * 100)}%` }} />
                   </div>
-                  <span className={`w-24 shrink-0 text-right text-[10px] font-semibold uppercase tracking-[0.1em] ${d.modifiable ? "text-violet-300" : "text-slate-400"}`}>
+                  <span className={`w-24 shrink-0 text-right text-[10px] font-semibold uppercase tracking-[0.1em] ${d.modifiable ? "text-violet-300" : "text-slate-300"}`}>
                     {d.modifiable ? "Modifiable" : "Fixed factor"}
                   </span>
                 </div>
@@ -232,7 +232,7 @@ export function IndiaRiskExplorer() {
         </div>
       </div>
 
-      <p className="border-t border-sky-400/10 px-5 py-3 text-[11px] leading-relaxed text-slate-400">
+      <p className="border-t border-sky-400/10 px-5 py-3 text-[11px] leading-relaxed text-slate-300">
         Calibrated on published Indian epidemiology (ICMR-INDIAB, NFHS-5 pattern studies) — population-level modelling,
         never personal data. Demonstrates Nexura&apos;s reasoning; not a medical diagnosis.
       </p>
