@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Search, X, ShieldCheck, Sparkles, HeartPulse, Ch
 import { cn } from "@/lib/utils";
 import { TOOLS, TOOLS_BY_ID, CATEGORY_LABEL, type ToolCategory } from "./tools";
 import { LazyTool } from "./lazy-tools";
+import { PreventionSchedule } from "./prevention-schedule";
 
 export function KnowYourHealthApp() {
   const [activeToolId, setActiveToolId] = useState<string | null>(null);
@@ -144,6 +145,8 @@ export function KnowYourHealthApp() {
                   </div>
                 </div>
               </div>
+
+              <PreventionSchedule />
 
               <div className="glass-soft rounded-2xl p-4 text-center">
                 <p className="text-[0.65rem] text-[#9A8F84]">🔒 All AI calls are processed securely on our server using Google Gemini. Your image/text data is not stored by this app — it is sent only to the Gemini API to generate your result. Every tool here is educational: outputs are informational estimates and signals, not medical advice, diagnosis, or treatment. Always consult a qualified doctor.</p>
