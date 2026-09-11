@@ -35,7 +35,7 @@ export function Navbar() {
           className={cn(
             "relative flex items-center justify-between rounded-2xl px-4 transition-all duration-500 sm:px-5",
             scrolled
-              ? "glass-premium h-14 shadow-[0_8px_30px_-12px_oklch(0.4_0.05_45/0.18)]"
+              ? "nx-glass h-14 shadow-[0_8px_30px_-18px_rgba(46,42,38,0.25)]"
               : "h-16 bg-transparent"
           )}
         >
@@ -75,7 +75,7 @@ export function Navbar() {
             </Link>
             <Button
               onClick={() => openBooking()}
-              className="group rounded-full bg-primary text-primary-foreground shadow-[0_8px_24px_-8px_oklch(0.70_0.145_45/0.7)] transition-all hover:shadow-[0_10px_30px_-8px_oklch(0.70_0.145_45/0.85)]"
+              className="group rounded-full bg-[#AC5335] text-[#FFF8F3] shadow-none transition-colors hover:bg-[#9A4830]"
             >
               <span className="flex items-center gap-1.5">
                 <span className="sm:hidden">Book</span>
