@@ -282,6 +282,7 @@ function PatientsTab() {
 
 function AddPatientDialog({ open, onClose, onAdded }: { open: boolean; onClose: () => void; onAdded: () => void }) {
   const [form, setForm] = useState({ name: "", age: "", gender: "male", bloodGroup: "", phone: "", allergy: "", chronicDx: "", abhaId: "" });
+  const [abhaProfile, setAbhaProfile] = useState<any>(null);
   const [abhaLoading, setAbhaLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -293,6 +294,7 @@ function AddPatientDialog({ open, onClose, onAdded }: { open: boolean; onClose: 
       if (!res.ok) throw new Error();
       const d = await res.json();
       const p = d.profile;
+      setAbhaProfile(p);
       setForm({ ...form, name: p.name, age: String(p.age), gender: p.gender, bloodGroup: p.bloodGroup, phone: p.phone, allergy: "" });
       toast.success("ABHA demo profile generated (simulated — ABDM link is on the roadmap)");
     } catch { toast.error("Could not fetch ABHA profile"); } finally { setAbhaLoading(false); }
@@ -302,11 +304,12 @@ function AddPatientDialog({ open, onClose, onAdded }: { open: boolean; onClose: 
     if (!form.name.trim()) { toast.error("Name required"); return; }
     setSaving(true);
     try {
-      const res = await fetch("/api/clinic/patients", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, age: form.age ? Number(form.age) : null }) });
+      const res = await fetch("/api/clinic/patients", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, age: form.age ? Number(form.age) : null, abhaProfile }) });
       if (!res.ok) throw new Error();
       const d = await res.json();
       toast.success(`Registered ${d.patient.mrn}`);
       setForm({ name: "", age: "", gender: "male", bloodGroup: "", phone: "", allergy: "", chronicDx: "", abhaId: "" });
+      setAbhaProfile(null);
       onAdded();
     } catch { toast.error("Could not register"); } finally { setSaving(false); }
   };
@@ -323,7 +326,7 @@ function AddPatientDialog({ open, onClose, onAdded }: { open: boolean; onClose: 
             <div className="grid grid-cols-2 gap-3 p-5">
               {/* ABHA lookup */}
               <div className="col-span-2">
-                <label className="text-xs text-[#9A8F84]">ABHA ID (ABDM) — auto-fills profile</label>
+                <label className="text-xs text-[#9A8F84]">ABHA ID (ABDM) — demo lookup, auto-fills profile</label>
                 <div className="mt-1.5 flex gap-2">
                   <input value={form.abhaId} onChange={(e) => setForm({ ...form, abhaId: e.target.value })} placeholder="e.g. 91-1234-5678-9012" className="h-10 flex-1 rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" />
                   <button onClick={lookupAbha} disabled={abhaLoading} className="flex items-center gap-1.5 rounded-lg bg-[#9DB89E]/15 px-3 text-xs font-medium text-[#5A7A5B] hover:bg-[#9DB89E]/25 disabled:opacity-50">{abhaLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Shield className="h-3.5 w-3.5" />}Fetch</button>

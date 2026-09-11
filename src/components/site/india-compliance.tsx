@@ -6,7 +6,7 @@ import { ShieldCheck, Pill, HeartPulse, Building2, Stethoscope, CheckCircle2, Sc
 const COMPLIANCE = [
   { icon: ScanLine, title: "Schedule H2 QR Authentication", desc: "Barcode/QR verification on vaccines, antimicrobials, anticancer & NDPS drugs per Drugs (Seventh Amendment) Rules 2026", products: ["Pharmacy"] },
   { icon: ShieldCheck, title: "Schedule H/H1/NDPS Drug Register", desc: "Mandatory prescription drug register with patient + doctor details per Drugs & Cosmetics Rules 1945, Rule 65", products: ["Pharmacy"] },
-  { icon: HeartPulse, title: "ABDM-Linked Health Records", desc: "ABHA ID integration, FHIR-compliant health record sync via ABDM Health Information Exchange", products: ["Clinic", "Hospital"] },
+  { icon: HeartPulse, title: "ABDM-Ready Health Records (alignment in progress)", desc: "ABHA IDs captured on file, FHIR-based records — Health Information Exchange sync via ABDM is in progress", products: ["Clinic", "Hospital"] },
   { icon: Video, title: "NMC Telemedicine Guidelines", desc: "Video/audio/text consults with mandatory doctor MCI/NMC registration + patient consent per NMC 2020", products: ["Clinic"] },
   { icon: FileText, title: "ICD-10 Diagnosis Coding", desc: "WHO-standard ICD-10 codes on all diagnoses for insurance + government reporting", products: ["Clinic", "Hospital"] },
   { icon: ShieldCheck, title: "IRDAI TPA Cashless Workflow", desc: "Pre-authorization → approval → cashless discharge per IRDAI insurance guidelines", products: ["Hospital"] },

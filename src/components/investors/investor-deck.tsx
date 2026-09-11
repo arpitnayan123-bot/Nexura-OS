@@ -186,7 +186,7 @@ function Solution() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
           { icon: Building2, title: "Hospital OS", desc: "18-module HMS with AI clinical intelligence, NEWS2, NABH compliance", color: "#C98A7A" },
-          { icon: Stethoscope, title: "Clinic OS", desc: "HealthPlix-style EMR with SOAP, drug autocomplete, ABHA registry", color: "#D98B6E" },
+          { icon: Stethoscope, title: "Clinic OS", desc: "HealthPlix-style EMR with SOAP, drug autocomplete, ABHA lookup (simulated)", color: "#D98B6E" },
           { icon: Pill, title: "Pharmacia", desc: "AI pharmacy POS with voice billing, Rx OCR, GST e-invoice, Schedule H", color: "#F59E0B" },
           { icon: HeartPulse, title: "Patient Portal", desc: "Unified health record + blood test at home with AI interpretation", color: "#0EA5E9" },
           { icon: MessageCircle, title: "Connect", desc: "Doctor-patient chat, voice, video across all products", color: "#10B981" },
@@ -375,8 +375,8 @@ function Products() {
       <SectionTitle>Eight products. One platform. Built Indian, for India.</SectionTitle>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
-          { icon: Building2, name: "Hospital OS", href: "/hospital", desc: "18 modules — OPD, IPD, OT, EHR, Nursing, Lab, Radiology, Blood Bank, Billing, Insurance, AI Assistant. ABDM + NABH.", badge: "Flagship", color: "#C98A7A" },
-          { icon: Stethoscope, name: "Clinic OS", href: "/clinic", desc: "SOAP consultation, drug autocomplete (54 Indian medicines), ABHA registry, public booking page.", badge: "New", color: "#D98B6E" },
+          { icon: Building2, name: "Hospital OS", href: "/hospital", desc: "18 modules — OPD, IPD, OT, EHR, Nursing, Lab, Radiology, Blood Bank, Billing, Insurance, AI Assistant. ABDM-ready · NABH-aligned.", badge: "Flagship", color: "#C98A7A" },
+          { icon: Stethoscope, name: "Clinic OS", href: "/clinic", desc: "SOAP consultation, drug autocomplete (54 Indian medicines), ABHA lookup (simulated), public booking page.", badge: "New", color: "#D98B6E" },
           { icon: Pill, name: "Pharmacia", href: "/pharmacy", desc: "Voice billing, prescription OCR, GST e-invoice, Schedule H register, predictive analytics.", badge: "New", color: "#F59E0B" },
           { icon: HeartPulse, name: "Patient Portal", href: "/portal", desc: "Unified health record. Blood test at home with phlebotomist visit + AI report interpretation.", badge: "New", color: "#0EA5E9" },
           { icon: MessageCircle, name: "Connect", href: "/connect", desc: "Doctor-patient chat, voice, video. Auto-connects when consultations complete or triage flags urgency.", color: "#10B981" },
@@ -442,7 +442,7 @@ function CompetitiveLandscape() {
               { cap: "AI lab report interpretation", nexura: true, insta: false, apollo: false, practo: false, tata: false },
               { cap: "Doctor-patient chat/voice/video", nexura: true, insta: false, apollo: true, practo: true, tata: false },
               { cap: "15 AI health tools", nexura: true, insta: false, apollo: false, practo: false, tata: false },
-              { cap: "ABDM native", nexura: true, insta: false, apollo: true, practo: false, tata: false },
+              { cap: "ABDM-ready (in progress)", nexura: true, insta: false, apollo: true, practo: false, tata: false },
               { cap: "Schedule H + NABH compliance", nexura: true, insta: true, apollo: false, practo: false, tata: false },
               { cap: "Unified patient identity", nexura: true, insta: false, apollo: false, practo: false, tata: false },
             ].map((row, i) => (
