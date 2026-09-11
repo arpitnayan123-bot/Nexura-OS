@@ -156,7 +156,7 @@ export function HealthHalo({
               textAnchor="middle"
               dominantBaseline="middle"
               fontSize={size * 0.028}
-              fill={d.level === "LOW" ? "#7E93B4" : LEVEL_COLOR[d.level]}
+              fill={d.level === "LOW" ? "#D8D2C0" : LEVEL_COLOR[d.level]}
               style={{ fontWeight: 600, letterSpacing: "0.04em" }}
             >
               {DOMAIN_META[d.id]?.label ?? d.id}
@@ -170,7 +170,7 @@ export function HealthHalo({
           textAnchor="middle"
           fontSize={size * 0.13}
           fontWeight="700"
-          fill="#F4F9FF"
+          fill="#FFFEFA"
           style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
         >
           {score}
@@ -179,7 +179,7 @@ export function HealthHalo({
           x={cx} y={cy + 18}
           textAnchor="middle"
           fontSize={size * 0.026}
-          fill="#7E93B4"
+          fill="#FDE68A"
           style={{ letterSpacing: "0.22em", textTransform: "uppercase" }}
         >
           {band}
@@ -241,11 +241,11 @@ export function TrajectoryChart({
       {[25, 50, 75, 100].map((v) => (
         <g key={v}>
           <line x1={padX} y1={y(v)} x2={w - padX} y2={y(v)} stroke="rgba(255,255,255,0.05)" />
-          <text x={padX - 8} y={y(v) + 4} textAnchor="end" fontSize="10" fill="#5C718F">{v}</text>
+          <text x={padX - 8} y={y(v) + 4} textAnchor="end" fontSize="10" fill="#C0BAA9">{v}</text>
         </g>
       ))}
       {years.map((yr) => (
-        <text key={yr} x={x(yr)} y={h - 6} textAnchor="middle" fontSize="10" fill="#5C718F">
+        <text key={yr} x={x(yr)} y={h - 6} textAnchor="middle" fontSize="10" fill="#C0BAA9">
           {yr === 0 ? "today" : `+${yr}y`}
         </text>
       ))}

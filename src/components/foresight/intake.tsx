@@ -196,7 +196,7 @@ export function StepProfile({ form, set }: { form: FsForm; set: (p: Partial<FsFo
       {bmi != null && (
         <div className="nxf-glass px-4 py-3 text-sm">
           <span className="nxf-mute">BMI </span>
-          <span className="nxf-mono font-semibold nxf-teal">{bmi}</span>
+          <span className="nxf-mono font-semibold nxf-gold">{bmi}</span>
           <span className="nxf-dim"> — {band}. India's risk bands start at 23, lower than Western charts.</span>
         </div>
       )}
@@ -258,7 +258,7 @@ export function StepSymptoms({
 
       {form.symptoms.length > 0 && (
         <div className="nxf-glass space-y-4 p-4">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] nxf-teal">Details for what you selected</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] nxf-gold">Details for what you selected</p>
           {form.symptoms.map((s) => {
             const def = ALL_SYMPTOMS.find((a) => a.id === s.id);
             return (
@@ -266,7 +266,7 @@ export function StepSymptoms({
                 <p className="mb-2.5 text-[13px] font-medium nxf-hi">{def?.label ?? s.id}</p>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <label className="block text-[11px] nxf-mute">
-                    Severity: <span className="nxf-mono nxf-teal">{s.severity}/10</span>
+                    Severity: <span className="nxf-mono nxf-gold">{s.severity}/10</span>
                     <input type="range" min={1} max={10} value={s.severity} className="nxf-range mt-1"
                       onChange={(e) => set({ symptoms: form.symptoms.map((x) => x.id === s.id ? { ...x, severity: Number(e.target.value) } : x) })} />
                   </label>
@@ -392,7 +392,7 @@ export function StepActivity({ form, set }: { form: FsForm; set: (p: Partial<FsF
         <input type="range" min={0} max={600} step={10} value={a.minutesPerWeek} className="nxf-range"
           onChange={(e) => set({ activity: { ...a, minutesPerWeek: Number(e.target.value) } })} />
         <p className="mt-1.5 text-[12px] nxf-dim">
-          <span className="nxf-mono nxf-teal">{a.minutesPerWeek} min</span>
+          <span className="nxf-mono nxf-gold">{a.minutesPerWeek} min</span>
           {a.minutesPerWeek >= 150 ? " — target met. This is genuinely protective." : ` — ${150 - a.minutesPerWeek} min short of the 150-min target.`}
         </p>
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.07]">
@@ -436,7 +436,7 @@ export function StepSleep({ form, set }: { form: FsForm; set: (p: Partial<FsForm
         <input type="range" min={3} max={12} step={0.5} value={s.hoursPerNight || 7} className="nxf-range"
           onChange={(e) => set({ sleep: { ...s, hoursPerNight: Number(e.target.value) } })} />
         <p className="mt-1.5 text-[12px] nxf-dim">
-          <span className="nxf-mono nxf-teal">{s.hoursPerNight || 0} h</span>
+          <span className="nxf-mono nxf-gold">{s.hoursPerNight || 0} h</span>
           {(s.hoursPerNight || 0) >= 7 && (s.hoursPerNight || 0) <= 9 ? " — inside the healthy band" : (s.hoursPerNight || 0) < 7 ? " — under-sleeping" : " — above the usual band"}
         </p>
       </Field>

@@ -36,7 +36,7 @@ html:has(.nxf-root) { color-scheme: dark; }
 @media (prefers-reduced-motion: reduce) {
   .nxf-spin, .nxf-pulse-dot { animation: none; }
 }
-.nxf-root ::selection { background: rgba(45, 212, 191, 0.32); }
+.nxf-root ::selection { background: rgba(252, 211, 77, 0.35); }
 `;
 
 export default function PredictivePage() {
@@ -57,7 +57,7 @@ export default function PredictivePage() {
             justifyContent: "center",
             padding: "1.5rem",
             textAlign: "center",
-            color: "#D8E3F2",
+            color: "#F3EFE3",
             fontFamily: "system-ui, sans-serif",
           }}
         >

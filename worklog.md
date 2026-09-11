@@ -3001,3 +3001,22 @@ Work Log:
 
 Stage Summary:
 - Nexura Predictive 2.0 (Health Foresight Engine) is live on /predictive: triage-first deterministic 12-domain disease-risk-signal engine calibrated for Indian users, premium observatory UI, EN/HI, versioned + explainable + honest about missing data. Committed as d6c280b (teardown 566fdf9). Version bumped to 1.0.0.
+
+---
+Task ID: NXP2-GOLD
+Agent: Super Z (main)
+Task: User reported text across the predictive analysis tool was only partially visible; asked for all words to be yellow/gold or dark (clearly visible), premium Figma-style design characters/words, full verification that the feature still works, and a commit.
+
+Work Log:
+- Audited every ink in the foresight surface; identified the low-contrast culprits: .nxf-mute #7E93B4 and .nxf-dim #A9BCD8 on small text, SVG labels #7E93B4/#5C718F, text-slate-400/500 nav+footer stamps, dim placeholders, teal-on-glass data inks
+- globals.css "Gold Standard" pass: all inks moved to a high-contrast warm family (hi #FFFEFA, body #F3EFE3, dim #DED9CA, mute #C0BAA9 — mute is now ≈9:1 on the canvas); added .nxf-gold/.nxf-gold-soft inks, .nxf-goldgrad gradient text, .nxf-ornament hairline+glyph rule, .nxf-glyph-glow; CTA rebuilt as molten-gold gradient with dark #241A02 ink; pill selection, input focus ring, range sliders, glass hover, scroll cue all moved to the gold language; rose kept exclusively for emergencies, teal kept for positive/action accents
+- ui.tsx: Eyebrow now gold with glowing ✦ glyph; new Ornament component (gold hairlines + label); FsLoader/FsError restyled gold with warm readable text
+- landing.tsx: hero second line now .nxf-goldgrad ("But Nexura is Predictive."), new mono gold stat strip "✦ 12 risk domains ✦ 60+ factors ✦ 5-year horizon ✦ EN·हिंदी", ornament "PRECISION · CLARITY · CALM", gold step numerals 01–04, closing credit line "NEXURA HEALTH OBSERVATORY — DESIGNED FOR CLARITY, ENGINEERED FOR INDIA ✦"
+- experience.tsx: nav active state gold, inactive warm-readable; gold step counter + gold progress segments; gold running spinner; footer stamp now "✦ NEXURA BUILD 1.1.0 · foresight-2.0.0 · india-cal-2.0.0"; Return link gold
+- results.tsx: domain glyphs gold+glow, gold completeness %, ornament "HONEST DATA · VERSIONED ENGINE", bright engine/rules/calibration stamps; intake.tsx data inks (BMI, severity /10, minutes, hours, section header) gold; extras.tsx history scores gold + amber row hover; viz.tsx SVG contrast fixed (halo LOW labels #D8D2C0, band caption #FDE68A, trajectory axis text #C0BAA9)
+- page.tsx: gold ::selection, warm noscript ink; package.json 1.0.0 → 1.1.0 (build version now displayed in the /predictive footer)
+- Gates: tsc 0, eslint 0, vitest 160/160, smoke 58/58. Dev server now launched with setsid -f (plain nohup was being killed between tool sessions)
+- E2E agent-browser: landing hero/stat strip/ornament (nx2gold-1..4), wizard step 1 with gold BMI 27 high-risk stamp + focus ring (5,6), gold pill selection + severity sliders (7,8), review all-gold progress (9), run → halo 93 with gold THRIVING caption + amber Metabolic WATCH label (10,11), domain cards with gold glyphs + HbA1c screening + Indian diet actions (12), trajectory + screening plan + kitchen swaps (13), clinician handoff + ornament + honest-data stamps (14), history gold 93 score (15), mobile 390px landing (16), settings + Hindi toggle gold Devanagari (18,19); zero console/page errors; engine inputs verified consumed end-to-end
+
+Stage Summary:
+- Predictive 2.0 text visibility issue eliminated: every character now renders in high-contrast warm ink (gold accents, ivory body, dark-on-gold CTAs), premium Figma-style glyphs/ornaments/stat-strips/credit lines added throughout, build version 1.1.0 displayed in the preview footer, feature verified working end-to-end (wizard → engine → results → history → settings → Hindi → mobile).

@@ -180,7 +180,7 @@ export function ForesightExperience() {
       aria-current={active ? "page" : undefined}
       className={cn(
         "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition",
-        active ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+        active ? "bg-amber-300/10 text-[#FDE68A]" : "text-[#C0BAA9] hover:bg-white/5 hover:text-[#FFFEFA]"
       )}
     >
       <Icon aria-hidden="true" className="h-4 w-4" />
@@ -218,7 +218,8 @@ export function ForesightExperience() {
       {/* slim experience bar */}
       <div className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#070D1A]/85 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-2 sm:px-6">
-          <p className="nxf-eyebrow text-[10.5px] font-bold uppercase nxf-teal">
+          <p className="nxf-eyebrow text-[10.5px] font-bold uppercase nxf-gold">
+            <span aria-hidden="true" className="nxf-glyph-glow mr-1">✦</span>
             {tr(lang, "app.tag")}
           </p>
           <div className="flex items-center gap-1">
@@ -228,7 +229,7 @@ export function ForesightExperience() {
             <button
               type="button"
               onClick={() => setLang(lang === "en" ? "hi" : "en")}
-              className="ml-1 inline-flex min-h-[44px] items-center rounded-full border border-white/10 bg-white/[0.04] px-3 text-[13px] font-semibold text-slate-200 transition hover:border-teal-300/40"
+              className="ml-1 inline-flex min-h-[44px] items-center rounded-full border border-white/10 bg-white/[0.04] px-3 text-[13px] font-semibold text-[#F3EFE3] transition hover:border-amber-300/50 hover:text-[#FDE68A]"
               aria-label="Switch language"
             >
               {tr(lang, "app.lang")}
@@ -254,7 +255,7 @@ export function ForesightExperience() {
               {/* progress */}
               <div className="mb-7" role="group" aria-label={`${STEPS[step].label}: step ${step + 1} of ${STEPS.length}`}>
                 <div className="flex items-center justify-between">
-                  <p className="text-[12px] font-semibold uppercase tracking-[0.16em] nxf-teal">
+                  <p className="text-[12px] font-semibold uppercase tracking-[0.16em] nxf-gold">
                     {step + 1}/{STEPS.length} · {STEPS[step].label}
                   </p>
                   <p className="text-[11.5px] nxf-mute">Everything optional · autosaved</p>
@@ -264,7 +265,7 @@ export function ForesightExperience() {
                     <button key={s.id} type="button" aria-label={`Step ${i + 1}: ${s.label}`}
                       onClick={() => { setStep(i); }}
                       className={cn("h-1.5 flex-1 rounded-full transition-all",
-                        i < step ? "bg-teal-400/70" : i === step ? "bg-teal-300" : "bg-white/10")} />
+                        i < step ? "bg-amber-400/70" : i === step ? "bg-amber-300" : "bg-white/10")} />
                   ))}
                 </div>
               </div>
@@ -310,11 +311,11 @@ export function ForesightExperience() {
               className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
               <div className="relative">
                 <motion.div
-                  className="h-20 w-20 rounded-full border border-teal-300/30"
+                  className="h-20 w-20 rounded-full border border-amber-300/35"
                   animate={{ scale: [1, 1.12, 1], opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 />
-                <div className="absolute inset-3 rounded-full border-2 border-teal-300/60 border-t-transparent nxf-spin" />
+                <div className="absolute inset-3 rounded-full border-2 border-amber-300/70 border-t-transparent nxf-spin" />
               </div>
               <AnimatePresence mode="wait">
                 <motion.p key={runningLine} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }}
@@ -357,8 +358,11 @@ export function ForesightExperience() {
             In an emergency call 108. Mental health: Tele-MANAS 14416 (free, 24×7).
           </p>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <a href="/" className="text-[13px] font-medium nxf-teal transition hover:text-teal-200">Return to Hospital OS</a>
-            <p className="nxf-mono text-[10px] tracking-wider text-slate-500">foresight-2.0.0 · india-cal-2.0.0</p>
+            <a href="/" className="text-[13px] font-medium nxf-gold transition hover:text-[#FDE68A]">Return to Hospital OS</a>
+            <p className="nxf-mono text-[10px] tracking-wider text-[#C0BAA9]">
+              <span aria-hidden="true" className="nxf-glyph-glow nxf-gold">✦ </span>
+              NEXURA BUILD 1.1.0 · foresight-2.0.0 · india-cal-2.0.0
+            </p>
           </div>
         </div>
       </footer>

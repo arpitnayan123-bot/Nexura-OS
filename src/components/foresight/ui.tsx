@@ -70,7 +70,7 @@ export function FsLoader({ label }: { label: string }) {
         gap: "1rem",
         padding: "1.5rem",
         textAlign: "center",
-        color: "#A9BCD8",
+        color: "#DED9CA",
       }}
     >
       <span
@@ -78,7 +78,7 @@ export function FsLoader({ label }: { label: string }) {
         className="nxf-spin"
         style={{
           width: 26, height: 26, borderRadius: "50%",
-          border: "3px solid rgba(45,212,191,0.22)", borderTopColor: "#2DD4BF",
+          border: "3px solid rgba(252,211,77,0.25)", borderTopColor: "#FCD34D",
           display: "inline-block",
         }}
       />
@@ -102,18 +102,18 @@ export function FsError({
         style={{
           maxWidth: "26rem", textAlign: "center", padding: "1.75rem 1.5rem",
           borderRadius: "1.25rem", border: "1px solid rgba(255,255,255,0.10)",
-          background: "rgba(255,255,255,0.04)", color: "#F4F9FF",
+          background: "rgba(255,255,255,0.04)", color: "#FFFEFA",
         }}
       >
         <h2 style={{ marginTop: 0, fontSize: "1.15rem", fontWeight: 650 }}>{title}</h2>
-        <p style={{ marginTop: "0.5rem", fontSize: "0.9rem", lineHeight: 1.6, color: "#A9BCD8" }}>{body}</p>
+        <p style={{ marginTop: "0.5rem", fontSize: "0.9rem", lineHeight: 1.6, color: "#DED9CA" }}>{body}</p>
         <button
           type="button"
           onClick={onRetry}
           style={{
             marginTop: "1.25rem", display: "inline-flex", alignItems: "center",
             minHeight: "44px", padding: "0 1.4rem", borderRadius: 9999,
-            background: "#2DD4BF", color: "#06251F", fontWeight: 650,
+            background: "linear-gradient(135deg, #FDE047, #FCD34D 42%, #F59E0B)", color: "#241A02", fontWeight: 700,
             fontSize: "0.9rem", border: "none", cursor: "pointer",
           }}
         >
@@ -141,9 +141,25 @@ export function GlassCard({
 
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <p className={cn("nxf-eyebrow text-[10.5px] font-semibold uppercase nxf-teal", className)}>
+    <p className={cn("nxf-eyebrow text-[10.5px] font-semibold uppercase nxf-gold", className)}>
+      <span aria-hidden="true" className="nxf-glyph-glow mr-1">✦</span>
       {children}
     </p>
+  );
+}
+
+/* figma-style ornament: glowing glyph between gold hairlines */
+export function Ornament({ label, className }: { label?: string; className?: string }) {
+  return (
+    <div className={cn("nxf-ornament", className)} aria-hidden="true">
+      <span className="nxf-gold nxf-glyph-glow text-[13px]">✦</span>
+      {label ? (
+        <span className="nxf-mono text-[9.5px] font-semibold uppercase tracking-[0.32em] nxf-gold-soft">
+          {label}
+        </span>
+      ) : null}
+      <span className="nxf-gold nxf-glyph-glow text-[13px]">✦</span>
+    </div>
   );
 }
 
@@ -169,7 +185,7 @@ export function Bar({ pct, tone = "teal" }: { pct: number; tone?: "teal" | "ambe
     rose: "from-rose-400 to-rose-300",
   };
   return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.07]">
+    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.09]">
       <div
         className={cn("nxf-bar-fill h-full rounded-full bg-gradient-to-r", tones[tone])}
         style={{ width: `${Math.max(2, Math.min(100, pct))}%` }}

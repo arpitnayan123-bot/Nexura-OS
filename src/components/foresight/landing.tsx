@@ -7,7 +7,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown, HeartPulse, MoonStar, ShieldCheck, Sparkles, Wind, UtensilsCrossed, Dna, Activity } from "lucide-react";
-import { Eyebrow, GlassCard, fadeUp } from "./ui";
+import { Eyebrow, GlassCard, Ornament, fadeUp } from "./ui";
 
 const SIGNAL_SOURCES = [
   { icon: Activity, label: "Symptoms", sub: "40+ patterns, severity-weighted" },
@@ -35,7 +35,7 @@ export function Landing({
           <Eyebrow className="mb-4">Nexura Predictive 2.0 · Health Foresight Engine</Eyebrow>
           <h1 className="mx-auto max-w-3xl font-display text-[2.5rem] font-semibold leading-[1.08] tracking-tight nxf-hi sm:text-6xl">
             Healthcare is Reactive.
-            <span className="mt-1 block bg-gradient-to-r from-teal-300 via-emerald-300 to-violet-300 bg-clip-text text-transparent">
+            <span className="nxf-goldgrad mt-1 block">
               But Nexura is Predictive.
             </span>
           </h1>
@@ -58,6 +58,13 @@ export function Landing({
           <p className="mt-4 text-[12px] nxf-mute">
             Free · anonymous session · delete everything anytime · not a medical device
           </p>
+          {/* figma-style stat strip — precision-design signature */}
+          <p className="nxf-mono mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] font-semibold uppercase tracking-[0.22em] nxf-gold-soft">
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 12 risk domains
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 60+ factors
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 5-year horizon
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> EN · हिंदी
+          </p>
         </motion.div>
 
         {/* animated scroll cue */}
@@ -67,8 +74,9 @@ export function Landing({
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
           aria-hidden="true"
         >
-          <ChevronDown className="h-5 w-5 text-teal-300/70" />
+          <ChevronDown className="h-5 w-5 text-amber-300/80" />
         </motion.div>
+        <Ornament label="Precision · Clarity · Calm" className="mt-8" />
       </section>
 
       {/* ---------------- REACTIVE VS PREDICTIVE ---------------- */}
@@ -128,7 +136,7 @@ export function Landing({
             { n: "04", t: "The bend", d: "Factor-by-factor explanation, an illustrative 5-year slope, screening to discuss, food to swap — and a doctor summary." },
           ].map((s, i) => (
             <GlassCard key={s.n} className="p-5" transition={{ duration: 0.5, delay: i * 0.07 }}>
-              <p className="nxf-mono text-[11px] font-bold tracking-[0.2em] nxf-teal">{s.n}</p>
+              <p className="nxf-mono text-[11px] font-bold tracking-[0.2em] nxf-gold nxf-glyph-glow">{s.n}</p>
               <p className="mt-2 font-display text-lg font-semibold nxf-hi">{s.t}</p>
               <p className="mt-1.5 text-[12.5px] leading-relaxed nxf-dim">{s.d}</p>
             </GlassCard>
@@ -165,6 +173,11 @@ export function Landing({
         </button>
         <p className="mt-3 text-[11.5px] nxf-mute">
           In an emergency call 108 · Mental health: Tele-MANAS 14416 (free, 24×7)
+        </p>
+        <p className="nxf-mono mt-6 text-[9.5px] uppercase tracking-[0.34em] nxf-gold-soft/80">
+          <span aria-hidden="true" className="nxf-glyph-glow">✦ </span>
+          Nexura Health Observatory — designed for clarity, engineered for India
+          <span aria-hidden="true" className="nxf-glyph-glow"> ✦</span>
         </p>
       </motion.section>
     </div>

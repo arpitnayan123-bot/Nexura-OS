@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import type { ForesightReport } from "@/modules/foresight/types";
 import { DOMAIN_META, HealthHalo, TrajectoryChart } from "./viz";
-import { Bar, Eyebrow, GlassCard, LevelChip, SectionHead, fadeUp } from "./ui";
+import { Bar, Eyebrow, GlassCard, LevelChip, Ornament, SectionHead, fadeUp } from "./ui";
 import { cn } from "@/lib/utils";
 
 const BAND_COPY: Record<string, { headline: string; sub: string }> = {
@@ -173,7 +173,7 @@ export function ResultsView({
             <GlassCard key={d.id} className="flex flex-col p-5" {...fadeUp} transition={{ duration: 0.6, delay: i * 0.08 }}>
               <div className="mb-3 flex items-center justify-between gap-2">
                 <p className="flex items-center gap-2 text-[15px] font-semibold nxf-hi">
-                  <span aria-hidden="true" className="nxf-teal">{DOMAIN_META[d.id]?.glyph}</span>
+                  <span aria-hidden="true" className="nxf-gold nxf-glyph-glow">{DOMAIN_META[d.id]?.glyph}</span>
                   {DOMAIN_META[d.id]?.label ?? d.id}
                 </p>
                 <LevelChip level={d.level} />
@@ -334,9 +334,10 @@ export function ResultsView({
 
       {/* completeness + footer stamps */}
       <div className="flex flex-col gap-3 pb-4 text-center">
+        <Ornament label="Honest data · versioned engine" className="mb-1" />
         <div className="mx-auto flex flex-wrap items-center justify-center gap-2">
           <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] nxf-mute">
-            information shared: <span className="nxf-mono nxf-teal">{report.completeness.pct}%</span>
+            information shared: <span className="nxf-mono nxf-gold">{report.completeness.pct}%</span>
           </span>
           {report.completeness.missing.length > 0 && (
             <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] nxf-mute">
@@ -345,7 +346,8 @@ export function ResultsView({
           )}
         </div>
         <p className="mx-auto max-w-2xl text-[11.5px] leading-relaxed nxf-mute">{report.disclaimer}</p>
-        <p className="nxf-mono text-[10px] tracking-wider text-slate-500">
+        <p className="nxf-mono text-[10px] tracking-wider text-[#C0BAA9]">
+          <span aria-hidden="true" className="nxf-glyph-glow nxf-gold">✦ </span>
           engine {report.engineVersion} · rules {report.rulesetVersion} · calibration {report.calibrationVersion}
         </p>
         <div className="pt-1">
