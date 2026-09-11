@@ -345,7 +345,7 @@ export function PatientView() {
                       <p className="mt-3 font-serif text-base font-semibold leading-tight">{c.doctorName}</p>
                       <p className="text-xs text-[#9A8F84]">{c.doctorSpecialty || "Doctor"}</p>
                       <div className="mt-2 flex items-center gap-1.5 text-[0.65rem] text-[#9A8F84]">
-                        <Clock className="h-3 w-3" />
+                        <Clock className="h-3 w-3" aria-hidden="true" />
                         Last consult: <span className="font-medium text-[#5C544D]">{relativeTime(c.lastConsultDate)}</span>
                       </div>
                     </div>
@@ -391,7 +391,7 @@ export function PatientView() {
 
             {/* Privacy note */}
             <div className="mt-8 flex items-center justify-center gap-2 text-center text-[0.7rem] text-[#9A8F84]">
-              <ShieldCheck className="h-3.5 w-3.5 text-[#9DB89E]" />
+              <ShieldCheck className="h-3.5 w-3.5 text-[#9DB89E]" aria-hidden="true" />
               <span>Your chats and call logs stay private inside your Nexura record</span>
             </div>
           </>
@@ -476,8 +476,8 @@ function ChatDrawer({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <button onClick={() => onStartCall("voice")} className="grid h-8 w-8 place-items-center rounded-full text-[#9DB89E] ring-1 ring-[#E5DFD4] hover:bg-[#9DB89E]/10" title="Request a voice call"><Phone className="h-3.5 w-3.5" /></button>
-            <button onClick={() => onStartCall("video")} className="grid h-8 w-8 place-items-center rounded-full text-[#D98B6E] ring-1 ring-[#E5DFD4] hover:bg-[#D98B6E]/10" title="Request a video call"><Video className="h-3.5 w-3.5" /></button>
+            <button onClick={() => onStartCall("voice")} className="grid h-8 w-8 place-items-center rounded-full text-[#9DB89E] ring-1 ring-[#E5DFD4] hover:bg-[#9DB89E]/10" title="Request a voice call" aria-label="Request a voice call"><Phone className="h-3.5 w-3.5" /></button>
+            <button onClick={() => onStartCall("video")} className="grid h-8 w-8 place-items-center rounded-full text-[#D98B6E] ring-1 ring-[#E5DFD4] hover:bg-[#D98B6E]/10" title="Request a video call" aria-label="Request a video call"><Video className="h-3.5 w-3.5" /></button>
             <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]"><X className="h-4 w-4" /></button>
           </div>
         </header>
@@ -538,6 +538,7 @@ function ChatDrawer({
               onClick={sendMessage}
               disabled={!draft.trim()}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#D98B6E] text-white shadow-depth transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Send message"
             >
               <Send className="h-4 w-4" />
             </button>

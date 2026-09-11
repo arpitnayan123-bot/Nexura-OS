@@ -95,7 +95,7 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
       {data.aiInsights && data.aiInsights.length > 0 && (
         <section>
           <h2 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
-            <Sparkles className="h-3.5 w-3.5 text-[#9DB89E]" />
+            <Sparkles className="h-3.5 w-3.5 text-[#9DB89E]" aria-hidden="true" />
             Health Insights
             <span className="rounded-full bg-[#9DB89E]/15 px-1.5 py-0.5 text-[0.6rem] font-medium text-[#5E8A60]">
               {data.aiInsights.length}

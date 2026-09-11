@@ -97,7 +97,7 @@ export function MentalWellness() {
         <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="space-y-4">
           <div className="rounded-2xl glass-soft p-4 shadow-depth">
             <div className="mb-3 flex items-center justify-between">
-              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#5C544D]"><Heart className="h-3.5 w-3.5" /> PHQ-9 · Depression screen</p>
+              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#5C544D]"><Heart className="h-3.5 w-3.5" aria-hidden="true" /> PHQ-9 · Depression screen</p>
               <span className="rounded-full glass-chip px-2.5 py-0.5 text-[0.65rem] font-medium text-[#5A7A5B]">Score: {phq9Total}/27</span>
             </div>
             <div className="space-y-3">
