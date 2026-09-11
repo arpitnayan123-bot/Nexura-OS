@@ -3637,3 +3637,18 @@ Work Log:
 
 Stage Summary:
 - Server restored to production health; all sign-in surfaces verified working after the crash; every loop-era dataset reseeded. Guardian now heals HOLLOW-BUT-NOT-EMPTY databases (the class of failure this restart exposed), not just fully-empty ones — partial snapshot restores can no longer leave features hollow.
+
+---
+Task ID: NXP-DESIGN-SPEC (21st.dev research -> finalized "Nexura Linen" spec, chat-only, NOT implemented)
+Agent: Super Z (main)
+Task: User asked (chat-only, no implementation): can all 21st.dev findings be done warm-only for the homepage; finalize ONE premium design for next-prompt implementation.
+
+Stage Summary — FINALIZED SPEC "NEXURA LINEN" (approved direction for homepage):
+- Rationale: 21st.dev's own warm themes (Zen Linen #F4EFE4+#F26A4B terracotta+General Sans; Sage Garden #f8f7f4+#7c9082 sage) independently validate Nexura's #FAF7F2+terracotta+sage as premium-warm healthcare language.
+- Palette: canvas #FAF7F2; surface-2 #F4EFE4; ink #2E2A26 (warm charcoal); muted #5E5A52; micro-label #8A8479; hairline #EFE9E0 + #E3DAD0; terracotta family D98B6E (accent) / B85C3E (primary CTA, AA on #FFF8F3 text) / A54F35 (hover); sage family 7A9A7B/9DB89E/5A7A5B; crisis red C73E3A; warm-dark band 1F1B17 (only for AI strip); globe dots D9C7AE sand.
+- Type: General Sans (Fontshare, display=swap) headings 500/600 tracking -0.02em (64/48/32), body 400/415 15-18px, micro-labels uppercase 11-12px +0.08em. Fallback: system-ui stack.
+- Buttons: (1) primary pill deep terracotta B85C3E, #FFF8F3 text, weight 500, h-40, full-round, no shadow; (2) glass pill — rgba(255,255,255,.55) bg + inset 0 2px 2px rgba(46,42,38,.06) + inset 0 -2px 2px rgba(255,255,255,.6), border #EFE9E0, optional blur(8px); (3) ghost — 1px #E3DAD0, hover bg #F4EFE4. AI-in-progress: 3s conic-gradient spin masked to border ring (terracotta->amber). Focus ring D98B6E 3px.
+- Homepage map: nav glass pills -> hero (tight display + dual warm radial glows D98B6E@6% / 9DB89E@5%, 2% linen noise max) -> proof band w/ stats anatomy (label->big number->sage delta pill->hairline->baseline) -> product cards inset-glass w/ existing chip grammar -> warm-dark AI strip (thinking orb + terracotta border beam, THE one dark moment) -> warm Cobe globe card (sand dots, terracotta pulses) -> audit-log rail+outline chips for trust/DPDP -> 108 band C73E3A cream text -> minimal footer.
+- Motion: 150ms hover / 250ms panels / 400ms soft entrance; shimmer once; beam+spin only during AI ops; prefers-reduced-motion static fallbacks (loop-13 a11y preserved).
+- Forbidden: neon saturation, extra dark sections beyond AI strip, SVG liquid-glass refraction, marquees, pure #000/#FFF, cool grays.
+- Implementation scope next prompt: homepage surface only (src/components/site/*, globals.css tokens+font), zero API/DB changes, /predictive + connect dark canvases untouched, gates tsc/eslint, deploy-preview.sh.
