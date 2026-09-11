@@ -13,8 +13,8 @@ const TIERS = [
     color: "#C98A7A",
     href: "/hospital",
     plans: [
-      { name: "Starter", price: "₹50,000", period: "/month", desc: "Up to 50 beds", features: ["Dashboard + OPD + IPD", "EHR + Nursing", "Basic billing", "Email support", "1 hospital location"], cta: "Start free trial" },
-      { name: "Professional", price: "₹1,50,000", period: "/month", desc: "Up to 200 beds", features: ["All 18 modules", "AI clinical assistant", "Insurance + TPA claims", "Blood Bank + Radiology", "ABDM-ready (alignment in progress)", "Priority support", "1 hospital location"], cta: "Start free trial", popular: true },
+      { name: "Starter", price: "₹50,000", period: "/month", desc: "Up to 50 beds", features: ["Dashboard + OPD + IPD", "EHR + Nursing", "Basic billing", "Email support", "1 hospital location"], cta: "Start onboarding" },
+      { name: "Professional", price: "₹1,50,000", period: "/month", desc: "Up to 200 beds", features: ["All 18 modules", "AI clinical assistant", "Insurance + TPA claims", "Blood Bank + Radiology", "ABDM-ready (alignment in progress)", "Priority support", "1 hospital location"], cta: "Start onboarding", popular: true },
       { name: "Enterprise", price: "₹5,00,000", period: "/month", desc: "200+ beds / multi-location", features: ["Everything in Professional", "Multi-hospital chain", "Custom AI training", "Dedicated CSM", "99.9% SLA", "On-premise option", "API access"], cta: "Contact sales" },
     ],
   },
@@ -24,8 +24,8 @@ const TIERS = [
     color: "#D98B6E",
     href: "/clinic",
     plans: [
-      { name: "Solo", price: "₹2,000", period: "/month", desc: "1 doctor", features: ["SOAP consultation", "Drug autocomplete (54 meds)", "Patient register", "Basic billing", "Public booking page"], cta: "Start free trial" },
-      { name: "Practice", price: "₹8,000", period: "/month", desc: "Up to 5 doctors", features: ["Everything in Solo", "ABHA lookup (simulated)", "AI symptom triage", "Telemedicine", "Follow-up reminders (call-based)", "Revenue analytics"], cta: "Start free trial", popular: true },
+      { name: "Solo", price: "₹2,000", period: "/month", desc: "1 doctor", features: ["SOAP consultation", "Drug autocomplete (54 meds)", "Patient register", "Basic billing", "Public booking page"], cta: "Start onboarding" },
+      { name: "Practice", price: "₹8,000", period: "/month", desc: "Up to 5 doctors", features: ["Everything in Solo", "ABHA lookup (simulated)", "AI symptom triage", "Telemedicine", "Follow-up reminders (call-based)", "Revenue analytics"], cta: "Start onboarding", popular: true },
       { name: "Chain", price: "₹15,000", period: "/month", desc: "Unlimited doctors", features: ["Everything in Practice", "Multi-clinic management", "Centralized patient DB", "Custom branding", "API access", "Priority support"], cta: "Contact sales" },
     ],
   },
@@ -35,8 +35,8 @@ const TIERS = [
     color: "#F59E0B",
     href: "/pharmacy",
     plans: [
-      { name: "Single Store", price: "₹1,500", period: "/month", desc: "1 pharmacy", features: ["Billing POS", "Inventory + batches", "GST e-invoice", "Schedule H register", "1 pharmacy location"], cta: "Start free trial" },
-      { name: "Pro", price: "₹4,000", period: "/month", desc: "Up to 3 stores", features: ["Everything in Single Store", "AI prescription OCR", "Voice billing", "Predictive analytics", "Supplier + customer ledger", "Multi-store sync"], cta: "Start free trial", popular: true },
+      { name: "Single Store", price: "₹1,500", period: "/month", desc: "1 pharmacy", features: ["Billing POS", "Inventory + batches", "GST e-invoice", "Schedule H register", "1 pharmacy location"], cta: "Start onboarding" },
+      { name: "Pro", price: "₹4,000", period: "/month", desc: "Up to 3 stores", features: ["Everything in Single Store", "AI prescription OCR", "Voice billing", "Predictive analytics", "Supplier + customer ledger", "Multi-store sync"], cta: "Start onboarding", popular: true },
       { name: "Chain", price: "₹8,000", period: "/month", desc: "Unlimited stores", features: ["Everything in Pro", "Chain-wide analytics", "Central procurement", "Schedule H audit export", "API access", "Priority support"], cta: "Contact sales" },
     ],
   },
@@ -173,12 +173,12 @@ export function PricingPage() {
           <h2 className="font-display text-2xl font-semibold text-center text-[#0F172A] mb-8">Frequently asked questions</h2>
           <div className="space-y-4">
             {[
-              { q: "Is there a free trial?", a: "Yes. All paid plans come with a 14-day free trial. No credit card required. You can explore all features with demo data before committing." },
+              { q: "Is there a free trial?", a: "New deployments start with an onboarding offer — contact us and we'll set up a guided walkthrough with demo data. Trial length and terms are finalised during onboarding." },
               { q: "Can I switch plans later?", a: "Absolutely. You can upgrade or downgrade at any time. Changes take effect immediately and we prorate the difference." },
               { q: "Do you offer discounts for NGOs or government hospitals?", a: "Yes. We offer up to 50% discount for government hospitals, NGO-run clinics, and charitable trusts. Contact sales for details." },
-              { q: "Is my data secure?", a: "All data is encrypted at rest (AES-256) and in transit (TLS 1.3). We're DPDP 2023 compliant and ABDM-ready (alignment in progress, not yet integrated). Patient data never leaves India." },
+              { q: "Is my data secure?", a: "All data is encrypted in transit (TLS 1.3); at-rest encryption is on the roadmap — see the Compliance page for current status. We're DPDP 2023 compliant and ABDM-ready (alignment in progress, not yet integrated). Hosting in India is planned; processing may route through AI providers today — see the Compliance page." },
               { q: "Do you provide training?", a: "Yes. Every plan includes free onboarding training. Professional and Enterprise plans include dedicated training sessions for your team." },
-              { q: "What payment modes do you accept?", a: "We accept UPI, credit/debit cards, net banking, and bank transfers. Annual billing gets 2 months free." },
+              { q: "What payment modes do you accept?", a: "Payment modes are finalised during onboarding so they match how your organisation already pays — talk to us about the options, including annual-billing arrangements." },
             ].map((faq, i) => (
               <div key={i} className="rounded-2xl border border-[#E7E5E4] bg-white p-5">
                 <p className="font-medium text-[#0F172A]">{faq.q}</p>
@@ -193,7 +193,7 @@ export function PricingPage() {
       <section className="px-4 sm:px-6 lg:px-8 pb-20">
         <div className="mx-auto max-w-4xl rounded-3xl bg-gradient-to-br from-[#D98B6E] to-[#E0B080] p-8 lg:p-12 text-center text-white">
           <h2 className="font-display text-2xl sm:text-3xl font-semibold">Ready to digitize your healthcare?</h2>
-          <p className="mt-2 text-white/80">Join the ABDM revolution. Start your free trial today.</p>
+          <p className="mt-2 text-white/80">Join the ABDM revolution. Start your onboarding today.</p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link href="/hospital" className="rounded-full bg-white text-[#D98B6E] px-5 py-2.5 text-sm font-semibold hover:bg-white/90">
               Explore Hospital OS
