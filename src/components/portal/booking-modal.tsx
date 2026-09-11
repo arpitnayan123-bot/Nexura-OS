@@ -204,7 +204,7 @@ export function BookingModal({
                   </div>
                 </div>
                 <p className="mt-3 text-[0.7rem] text-stone-500">
-                  A confirmation SMS with phlebotomist details will arrive shortly.
+                  Your phlebotomist&apos;s name and contact number appear on the booking card in the Blood Checkup tab.
                 </p>
               </motion.div>
             ) : (
@@ -338,7 +338,7 @@ export function BookingModal({
                         Home collection included free
                       </div>
                       <p className="mt-1 leading-snug text-stone-500">
-                        A certified phlebotomist will arrive within the chosen slot. Same-day reports for CBC; 12-24 hrs for full panels.
+                        A phlebotomist will arrive within the chosen slot. Same-day reports for CBC; 12-24 hrs for the larger panels.
                       </p>
                     </div>
                   </div>
@@ -351,7 +351,7 @@ export function BookingModal({
                     </Label>
                     <div className="mt-2 grid grid-cols-2 gap-2">
                       {([
-                        { key: "upi", label: "UPI / Wallet", icon: Smartphone, sub: "Pay via GPay/PhonePe" },
+                        { key: "upi", label: "UPI / Wallet", icon: Smartphone, sub: "Marked paid with your booking" },
                         { key: "cash", label: "Cash on Visit", icon: Wallet, sub: "Pay phlebotomist" },
                       ] as const).map((p) => {
                         const sel = paymentMode === p.key;
@@ -400,7 +400,7 @@ export function BookingModal({
                     </div>
                     <p className="mt-2 flex items-center gap-1.5 text-[0.7rem] text-stone-500">
                       <ShieldCheck className="h-3 w-3 text-[#9DB89E]" />
-                      Secure payment · ABDM &amp; DPDP 2023 compliant
+                      Payment mode is recorded with your booking · Data handled per DPDP 2023 principles
                     </p>
                   </div>
                 )}

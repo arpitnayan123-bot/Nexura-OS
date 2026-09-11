@@ -107,9 +107,9 @@ export function FamilyTab({ data, onChanged }: Props) {
       >
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#5E8A60]" />
         <p className="text-xs leading-relaxed text-stone-600">
-          <span className="font-semibold text-stone-700">Why add family members?</span> Linked members can receive
-          phlebotomist visits, view shared insurance, and access their own portal with the same phone-first login.
-          Your records are always kept private — only you can grant access.
+          <span className="font-semibold text-stone-700">Why add family members?</span> Linked members get their
+          own phone-first login and appear in your family list. Each person sees only their own records after they
+          sign in — book at-home blood tests from their account once they&apos;re set up.
         </p>
       </motion.div>
 

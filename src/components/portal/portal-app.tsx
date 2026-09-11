@@ -274,7 +274,7 @@ export function PortalApp() {
                 <span className="rounded-full bg-[#D98B6E]/10 px-2 py-0.5 font-semibold text-[#D98B6E]">
                   {user.bloodGroup ?? "?"}
                 </span>
-                <span className="rounded-full bg-[#9DB89E]/15 px-2 py-0.5 font-semibold text-[#5E8A60]">ABDM linked</span>
+                <span className="rounded-full bg-[#9DB89E]/15 px-2 py-0.5 font-semibold text-[#5E8A60]">ABHA on file</span>
               </div>
             </div>
           )}

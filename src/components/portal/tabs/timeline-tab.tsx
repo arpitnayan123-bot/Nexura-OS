@@ -62,12 +62,12 @@ export function TimelineTab({ data }: { data: DashboardData }) {
       >
         <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
           <Sparkles className="h-3.5 w-3.5 text-[#9DB89E]" />
-          Nexa AI Timeline Summary
+          Timeline Summary
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-stone-700">{aiSummary}</p>
         <p className="mt-2 flex items-center gap-1 text-[0.7rem] text-stone-400">
           <AlertCircle className="h-3 w-3" />
-          AI-generated summary · Not a diagnosis · Always consult your physician
+          Auto-generated summary · Not a diagnosis · Always consult your physician
         </p>
       </motion.div>
 

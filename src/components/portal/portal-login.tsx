@@ -11,16 +11,15 @@ const DEMO_PHONE = "+919820099880";
 const DEMO_OTP = "1234";
 
 const TRUST_BADGES = [
-  { label: "ABDM Certified", icon: ShieldCheck },
-  { label: "NABH Standards", icon: ShieldCheck },
-  { label: "DPDP 2023", icon: ShieldCheck },
-  { label: "IRDAI Listed", icon: ShieldCheck },
+  { label: "ABDM-aligned", icon: ShieldCheck },
+  { label: "DPDP 2023 principles", icon: ShieldCheck },
+  { label: "Phone-first login", icon: Phone },
 ];
 
 const FEATURES = [
   { icon: Building2, title: "Unified Records", desc: "Hospital, clinic, lab & pharmacy in one calm place." },
-  { icon: FlaskConical, title: "Blood at Home", desc: "Phlebotomist at your door in 60 minutes, reports in 12 hours." },
-  { icon: Brain, title: "AI Insights", desc: "Plain-English explanations of every lab result, with next steps." },
+  { icon: FlaskConical, title: "Blood at Home", desc: "Pick a home-visit slot from tomorrow — reports in 6–24 hours by panel." },
+  { icon: Brain, title: "AI Report Reading", desc: "Optional AI-assisted reading of your blood-test reports, in plain English." },
 ];
 
 type Stage = "phone" | "otp";
