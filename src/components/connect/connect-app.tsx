@@ -483,14 +483,14 @@ export function ConnectApp() {
                 <button
                   onClick={() => startCall("voice")}
                   className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#9DB89E] shadow-sm ring-1 ring-[#E5DFD4] transition-all hover:scale-105 hover:bg-[#9DB89E] hover:text-white"
-                  title="Voice call"
+                  title="Voice consult (demo)"
                 >
                   <Phone className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => startCall("video")}
                   className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#D98B6E] shadow-sm ring-1 ring-[#E5DFD4] transition-all hover:scale-105 hover:bg-[#D98B6E] hover:text-white"
-                  title="Video call"
+                  title="Video consult (demo)"
                 >
                   <Video className="h-4 w-4" />
                 </button>
@@ -833,7 +833,7 @@ function CallOverlay({
             <p className="text-xs text-white/60">{call.connection.patientAge ? `${call.connection.patientAge}y` : ""} {call.connection.patientGender ? `· ${call.connection.patientGender}` : ""}</p>
             <div className="mt-3 flex items-center justify-center gap-2">
               <span className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#9DB89E] anim-breathe" /> Live
+                <span className="h-1.5 w-1.5 rounded-full bg-[#9DB89E] anim-breathe" /> Simulated
               </span>
               <span className="font-mono text-xs tabular-nums text-white/80">{timer}</span>
             </div>
@@ -861,7 +861,7 @@ function CallOverlay({
         <div className="absolute left-4 top-4 flex items-center gap-2">
           <span className="flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 text-xs font-medium backdrop-blur-sm">
             {call.type === "video" ? <Video className="h-3.5 w-3.5 text-[#D98B6E]" /> : <Phone className="h-3.5 w-3.5 text-[#9DB89E]" />}
-            {call.type === "video" ? "Video call" : "Voice call"}
+            {call.type === "video" ? "Video consult · demo" : "Voice consult · demo"}
           </span>
           <span className="rounded-full bg-black/40 px-2 py-1 text-[0.6rem] text-white/60 backdrop-blur-sm">with {call.connection.patientName}</span>
         </div>

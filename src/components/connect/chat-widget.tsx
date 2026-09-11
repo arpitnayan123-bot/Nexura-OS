@@ -176,9 +176,8 @@ export function PatientChatWidget({
           <p className="truncate font-serif text-sm font-semibold text-[#1F1B17]">
             {doctorName}
           </p>
-          <p className="flex items-center gap-1 text-[0.65rem] text-[#9A8F84]">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#22C55E]" />
-            Online · {doctorSpecialty || "General Physician"}
+          <p className="text-[0.65rem] text-[#9A8F84]">
+            {doctorSpecialty || "General Physician"}
           </p>
         </div>
         {onClose && (
@@ -215,7 +214,7 @@ export function PatientChatWidget({
                 <MessageCircle className="mb-2 h-8 w-8 text-[#9A8F84]/40" />
                 <p className="text-sm text-[#9A8F84]">Say hello to {doctorName}</p>
                 <p className="mt-1 text-[0.65rem] text-[#B5A99E]">
-                  Your message will be delivered over WhatsApp & in-app
+                  Your message lands in your doctor's Connect inbox
                 </p>
               </div>
             ) : (

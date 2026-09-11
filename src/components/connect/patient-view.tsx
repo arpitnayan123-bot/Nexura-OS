@@ -39,6 +39,17 @@ type Message = {
   createdAt: string;
 };
 
+// Mirrors the ConnectCall fields returned by GET /api/connect/calls (newest first)
+type CallLog = {
+  id: string;
+  type: string;
+  status: string;
+  initiatedBy: string;
+  startedAt: string;
+  answeredAt: string | null;
+  endedAt: string | null;
+};
+
 const avatarInitials = (name: string) =>
   name.replace(/^Dr\.?\s*/i, "").split(" ").map((x) => x[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
 
@@ -74,6 +85,7 @@ export function PatientView() {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [draft, setDraft] = useState("");
   const [activeCall, setActiveCall] = useState<{ callId: string; type: "voice" | "video"; doctor: Connection } | null>(null);
+  const [consultStatus, setConsultStatus] = useState<{ call: CallLog | null; waiting: boolean }>({ call: null, waiting: false });
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // Discover demo patient from hospital EHR API
@@ -117,6 +129,34 @@ export function PatientView() {
     const id = setInterval(loadConnections, 10000);
     return () => clearInterval(id);
   }, [patientId, loadConnections]);
+
+  // Load the real call/queue lifecycle for the active conversation
+  const loadConsultStatus = useCallback(async (conn: Connection) => {
+    let call: CallLog | null = null;
+    let waiting = false;
+    try {
+      const res = await fetch(`/api/connect/calls?connectionId=${encodeURIComponent(conn.id)}`);
+      if (res.ok) {
+        const d = await res.json();
+        const logs: CallLog[] = d.calls || [];
+        call = logs.length > 0 ? logs[0] : null; // API returns newest first
+      }
+    } catch {}
+    try {
+      const res = await fetch(`/api/connect/queue?doctorId=${encodeURIComponent(conn.doctorId)}`);
+      if (res.ok) {
+        const d = await res.json();
+        const q = d.queue || { chat: [], voice: [], video: [] };
+        waiting = [...q.chat, ...q.voice, ...q.video].some((e: { connectionId: string }) => e.connectionId === conn.id);
+      }
+    } catch {}
+    setConsultStatus({ call, waiting });
+  }, []);
+
+  useEffect(() => {
+    if (!activeConn) return;
+    loadConsultStatus(activeConn);
+  }, [activeConn, loadConsultStatus]);
 
   // Load messages for active conversation
   useEffect(() => {
@@ -196,6 +236,7 @@ export function PatientView() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ callId: d.call.id, status: "answered" }),
       });
+      loadConsultStatus(conn);
     } catch {
       toast.error("Could not start call");
     }
@@ -209,6 +250,7 @@ export function PatientView() {
         body: JSON.stringify({ callId, status: "ended", durationSec }),
       });
       toast.success("Call ended");
+      if (activeConn) loadConsultStatus(activeConn);
     } catch {}
   };
 
@@ -266,7 +308,7 @@ export function PatientView() {
             Your Doctors, <span className="text-gradient-warm">One Tap Away</span>
           </h1>
           <p className="mt-2 text-sm text-[#9A8F84] sm:max-w-xl sm:mx-auto">
-            Hi {patientName?.split(" ")[0]} — your care team is here for follow-up. Chat, voice, or video — your doctor is just a tap away.
+            Hi {patientName?.split(" ")[0]} — your care team is here for follow-up. Message them anytime, or log a call request — the clinic calls you back at its slot.
           </p>
         </motion.div>
 
@@ -350,7 +392,7 @@ export function PatientView() {
             {/* Privacy note */}
             <div className="mt-8 flex items-center justify-center gap-2 text-center text-[0.7rem] text-[#9A8F84]">
               <ShieldCheck className="h-3.5 w-3.5 text-[#9DB89E]" />
-              <span>All conversations are end-to-end secured · ABDM &amp; HIPAA-aligned</span>
+              <span>Your chats and call logs stay private inside your Nexura record</span>
             </div>
           </>
         )}
@@ -369,6 +411,7 @@ export function PatientView() {
             sendMessage={sendMessage}
             onClose={() => setActiveConn(null)}
             messagesEndRef={messagesEndRef}
+            consultStatus={consultStatus}
             onStartCall={(t) => { startCall(activeConn, t); }}
           />
         )}
@@ -391,7 +434,7 @@ export function PatientView() {
 /* ── Chat drawer (slides up from bottom on mobile, side on desktop) ── */
 
 function ChatDrawer({
-  conn, patientName, messages, messagesLoading, draft, setDraft, sendMessage, onClose, messagesEndRef, onStartCall,
+  conn, patientName, messages, messagesLoading, draft, setDraft, sendMessage, onClose, messagesEndRef, consultStatus, onStartCall,
 }: {
   conn: Connection;
   patientName: string;
@@ -402,6 +445,7 @@ function ChatDrawer({
   sendMessage: () => void;
   onClose: () => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  consultStatus: { call: CallLog | null; waiting: boolean };
   onStartCall: (t: "voice" | "video") => void;
 }) {
   return (
@@ -432,11 +476,13 @@ function ChatDrawer({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <button onClick={() => onStartCall("voice")} className="grid h-8 w-8 place-items-center rounded-full text-[#9DB89E] ring-1 ring-[#E5DFD4] hover:bg-[#9DB89E]/10" title="Voice call"><Phone className="h-3.5 w-3.5" /></button>
-            <button onClick={() => onStartCall("video")} className="grid h-8 w-8 place-items-center rounded-full text-[#D98B6E] ring-1 ring-[#E5DFD4] hover:bg-[#D98B6E]/10" title="Video call"><Video className="h-3.5 w-3.5" /></button>
+            <button onClick={() => onStartCall("voice")} className="grid h-8 w-8 place-items-center rounded-full text-[#9DB89E] ring-1 ring-[#E5DFD4] hover:bg-[#9DB89E]/10" title="Request a voice call"><Phone className="h-3.5 w-3.5" /></button>
+            <button onClick={() => onStartCall("video")} className="grid h-8 w-8 place-items-center rounded-full text-[#D98B6E] ring-1 ring-[#E5DFD4] hover:bg-[#D98B6E]/10" title="Request a video call"><Video className="h-3.5 w-3.5" /></button>
             <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]"><X className="h-4 w-4" /></button>
           </div>
         </header>
+
+        <ConsultationStatus call={consultStatus.call} waiting={consultStatus.waiting} />
 
         {/* messages */}
         <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
@@ -542,11 +588,11 @@ function PatientCallOverlay({
           <p className="text-xs text-white/60">{call.doctor.doctorSpecialty || "Doctor"}</p>
           <div className="mt-3 flex items-center justify-center gap-2">
             <span className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#9DB89E] anim-breathe" /> Live
+              <span className="h-1.5 w-1.5 rounded-full bg-[#9DB89E] anim-breathe" /> Simulated
             </span>
             <span className="font-mono text-xs tabular-nums text-white/80">{timer}</span>
           </div>
-          <p className="mt-3 text-[0.65rem] text-white/40">Connecting securely · end-to-end encrypted</p>
+          <p className="mt-3 text-[0.65rem] text-white/40">Demo consultation slot · the call log is saved for your clinic</p>
         </div>
 
         <button
@@ -557,5 +603,36 @@ function PatientCallOverlay({
         </button>
       </div>
     </motion.div>
+  );
+}
+
+/* ── Consultation status chips (driven by the real call/queue lifecycle) ──
+   Rendered only when this connection actually has a logged call or a waiting
+   queue entry — never invents states. */
+
+function ConsultationStatus({ call, waiting }: { call: CallLog | null; waiting: boolean }) {
+  if (!call && !waiting) return null;
+  const stage = call ? (call.status === "ended" ? 2 : call.status === "answered" ? 1 : 0) : 0;
+  const steps = ["Requested", "Seen by clinic", "Completed"];
+  return (
+    <div className="flex items-center gap-1.5 border-b border-[#E5DFD4] bg-white/60 px-4 py-2">
+      <span className="mr-0.5 shrink-0 text-[0.55rem] font-semibold uppercase tracking-wider text-[#9A8F84]">Consultation</span>
+      {steps.map((label, i) => (
+        <span
+          key={label}
+          className={cn(
+            "flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.55rem] font-medium",
+            i < stage ? "bg-[#9DB89E]/15 text-[#5A7A5B]" : i === stage ? "bg-[#D98B6E]/15 text-[#D98B6E]" : "bg-[#F3EEE6] text-[#B5A99E]"
+          )}
+        >
+          {i < stage ? (
+            <Check className="h-2.5 w-2.5" />
+          ) : i === stage ? (
+            <span className="h-1.5 w-1.5 rounded-full bg-[#D98B6E] anim-breathe" />
+          ) : null}
+          {label}
+        </span>
+      ))}
+    </div>
   );
 }
