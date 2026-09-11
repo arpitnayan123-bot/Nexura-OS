@@ -62,6 +62,7 @@ export function Landing({
           <p className="nxf-mono mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] font-semibold uppercase tracking-[0.22em] nxf-gold-soft">
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 12 risk domains
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 60+ factors
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> live what-if studio
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 5-year horizon
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> EN · हिंदी
           </p>
@@ -133,7 +134,7 @@ export function Landing({
             { n: "01", t: "Share", d: "A guided 10-step check-in. Skip anything — the map shows what's missing instead of guessing." },
             { n: "02", t: "Safety gate", d: "Emergency rules fire first. Chest pain never waits behind lifestyle charts — and never gets analysed away." },
             { n: "03", t: "The map", d: "A Health Halo over twelve domains: metabolic, heart, BP, haemoglobin, Vit-D, B12, thyroid, PCOS, sleep, lungs, liver, mind." },
-            { n: "04", t: "The bend", d: "Factor-by-factor explanation, an illustrative 5-year slope, screening to discuss, food to swap — and a doctor summary." },
+            { n: "04", t: "The bend", d: "Tap any halo axis for its full story, flip what-if levers to bend the curve live, screening to discuss, food to swap — and a doctor summary." },
           ].map((s, i) => (
             <GlassCard key={s.n} className="p-5" transition={{ duration: 0.5, delay: i * 0.07 }}>
               <p className="nxf-mono text-[11px] font-bold tracking-[0.2em] nxf-gold nxf-glyph-glow">{s.n}</p>

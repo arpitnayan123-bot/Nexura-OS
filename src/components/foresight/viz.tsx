@@ -58,21 +58,28 @@ function useTweenedArray(target: number[], duration = 800): number[] {
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (prefersReducedMotion()) {
+    let cancelled = false;
+    /* every setState is deferred into a frame callback — never
+       synchronous inside the effect body (react-hooks rule) */
+    const jump = () => {
       fromRef.current = target;
-      setDisplay(target);
-      return;
-    }
+      rafRef.current = requestAnimationFrame(() => {
+        if (!cancelled) setDisplay(target);
+      });
+    };
     const from = fromRef.current;
-    if (from.length !== target.length) {
-      fromRef.current = target;
-      setDisplay(target);
-      return;
+    if (from.length !== target.length || prefersReducedMotion()) {
+      jump();
+      return () => {
+        cancelled = true;
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      };
     }
     if (from.every((v, i) => v === target[i])) return;
 
     const start = typeof performance !== "undefined" ? performance.now() : Date.now();
     const tick = (now: number) => {
+      if (cancelled) return;
       const t = Math.min(1, (now - start) / duration);
       const e = 1 - Math.pow(1 - t, 3);
       const next = target.map((v, i) => from[i] + (v - from[i]) * e);
@@ -87,6 +94,7 @@ function useTweenedArray(target: number[], duration = 800): number[] {
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => {
+      cancelled = true;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [target, duration]);
@@ -211,6 +219,12 @@ export function HealthHalo({
               onClick={interactive ? () => onSelectDomain?.(d.id) : undefined}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered((h) => (h === i ? null : h))}
+              role={interactive ? "button" : undefined}
+              tabIndex={interactive ? 0 : undefined}
+              aria-label={interactive ? `${DOMAIN_META[d.id]?.label ?? d.id}: ${d.level.toLowerCase()} signal, burden ${d.burden} of 100 — open details` : undefined}
+              onKeyDown={interactive ? (e) => {
+                if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelectDomain?.(d.id); }
+              } : undefined}
               style={{ cursor: interactive ? "pointer" : "default" }}
             >
               {/* generous hit area */}
