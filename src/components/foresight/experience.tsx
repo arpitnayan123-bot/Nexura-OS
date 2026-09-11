@@ -12,7 +12,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Activity, History as HistoryIcon, Settings as SettingsIcon } from "lucide-react";
-import type { ForesightReport } from "@/modules/foresight/types";
+import type { ForesightInput, ForesightReport } from "@/modules/foresight/types";
 import { Landing } from "./landing";
 import { ResultsView } from "./results";
 import { HistoryView, SettingsView, SummarySheet, type HistoryRun } from "./extras";
@@ -81,6 +81,7 @@ export function ForesightExperience() {
   const [bootState, setBootState] = useState<"loading" | "ready">("loading");
   const [runError, setRunError] = useState<string | null>(null);
   const [report, setReport] = useState<ForesightReport | null>(null);
+  const [input, setInput] = useState<ForesightInput | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
   const [historyCount, setHistoryCount] = useState(0);
   const [summaryText, setSummaryText] = useState<string | null>(null);
@@ -149,6 +150,7 @@ export function ForesightExperience() {
         return;
       }
       setReport(j.data.report as ForesightReport);
+      setInput((j.data.input as ForesightInput | undefined) ?? null);
       setRunId(j.data.id as string);
       setHistoryCount((n) => n + 1);
       setView("results");
@@ -164,6 +166,7 @@ export function ForesightExperience() {
       const j = await fetch(`/api/nx/foresight/run/${id}`).then((r) => r.json());
       if (j?.ok) {
         setReport(j.data.report as ForesightReport);
+        setInput((j.data.input as ForesightInput | undefined) ?? null);
         setRunId(j.data.id as string);
         setView("results");
         scrollToTop();
@@ -331,6 +334,7 @@ export function ForesightExperience() {
             <motion.div key={`results-${runId ?? "x"}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
               <ResultsView
                 report={report}
+                input={input}
                 onRerun={() => { setView("wizard"); setStep(0); scrollToTop(); }}
                 onSummary={(text) => setSummaryText(text || report.doctorSummary || "")}
               />

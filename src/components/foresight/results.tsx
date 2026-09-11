@@ -6,15 +6,18 @@
  * explainable domain cards, trajectory, plan, diet, questions.
  * ============================================================ */
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Activity, AlertTriangle, ArrowRight, BadgeCheck, CheckCircle2,
   Copy, HeartPulse, Leaf, PhoneCall, ShieldCheck, Sparkles, Stethoscope, TrendingUp,
 } from "lucide-react";
-import type { ForesightReport } from "@/modules/foresight/types";
+import type { DomainId, ForesightInput, ForesightReport } from "@/modules/foresight/types";
 import { DOMAIN_META, HealthHalo, TrajectoryChart } from "./viz";
 import { Bar, Eyebrow, GlassCard, LevelChip, Ornament, SectionHead, fadeUp } from "./ui";
+import { WhatIfStudio, applyScenarios } from "./whatif";
+import { DomainModal } from "./domain-modal";
+import { runForesight } from "@/modules/foresight/engine";
 import { cn } from "@/lib/utils";
 
 const BAND_COPY: Record<string, { headline: string; sub: string }> = {
@@ -94,18 +97,37 @@ function SameDayBanner({ report }: { report: ForesightReport }) {
 /* ---------------- results view ---------------- */
 
 export function ResultsView({
-  report, onRerun, onSummary,
+  report, input, onRerun, onSummary,
 }: {
   report: ForesightReport;
+  /** normalized input behind this run — powers the What-if studio */
+  input?: ForesightInput | null;
   onRerun: () => void;
   onSummary: (text: string) => void;
 }) {
   const [emergencyAck, setEmergencyAck] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [simIds, setSimIds] = useState<string[]>([]);
+  const [openDomain, setOpenDomain] = useState<DomainId | null>(null);
   const band = BAND_COPY[report.scoreBand] ?? BAND_COPY.BUILDING;
   const topDomains = report.topDomainIds
     .map((id) => report.domains.find((d) => d.id === id))
     .filter((d): d is NonNullable<typeof d> => !!d);
+
+  /* What-if replay: the SAME pure engine re-run on a modified copy
+     of this run's normalized input. Instant, deterministic, honest. */
+  const simActive = simIds.length > 0 && !!input && !report.analysisWithheld;
+  const simReport = useMemo(
+    () => (simActive && input ? runForesight(applyScenarios(input, simIds)) : null),
+    [simActive, input, simIds]
+  );
+  const display = simReport ?? report;
+  const simDelta = simReport ? simReport.foresightScore - report.foresightScore : 0;
+
+  const atlasSorted = useMemo(
+    () => [...report.domains].sort((a, b) => b.burden - a.burden),
+    [report.domains]
+  );
 
   const copyDoctorSummary = async (text: string) => {
     try {
@@ -131,7 +153,7 @@ export function ResultsView({
       )}
       {report.triage.level === "SAME_DAY" && <SameDayBanner report={report} />}
 
-      {/* HERO — halo */}
+      {/* HERO — halo (morphs live while a simulation is active) */}
       <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center">
         <Eyebrow className="mb-3">Your foresight map · engine {report.engineVersion}</Eyebrow>
         <h1 className="mx-auto max-w-2xl font-display text-3xl font-semibold tracking-tight nxf-hi sm:text-[2.6rem] sm:leading-[1.12]">
@@ -140,11 +162,36 @@ export function ResultsView({
         {!report.analysisWithheld && (
           <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed nxf-dim">{band.sub}</p>
         )}
+        {simActive && (
+          <div className="mx-auto mt-5 flex w-fit flex-wrap items-center justify-center gap-2 rounded-full border border-amber-300/50 bg-amber-300/[0.12] px-4 py-2">
+            <span className="relative flex h-2 w-2" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-300" />
+            </span>
+            <p className="text-[12.5px] font-semibold nxf-gold">
+              LIVE SIMULATION — {simDelta >= 0 ? `+${simDelta}` : simDelta} vs your saved run
+            </p>
+            <button type="button" onClick={() => setSimIds([])}
+              className="rounded-full border border-amber-300/40 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider nxf-gold transition hover:bg-amber-300/20">
+              back to my run
+            </button>
+          </div>
+        )}
         <div className="mt-8">
-          <HealthHalo domains={report.domains} score={report.foresightScore} band={report.scoreBand} size={430} />
+          <HealthHalo
+            domains={display.domains}
+            score={display.foresightScore}
+            band={display.scoreBand}
+            size={430}
+            live={simActive}
+            onSelectDomain={report.analysisWithheld ? undefined : (id) => setOpenDomain(id)}
+            activeId={openDomain}
+          />
         </div>
         <p className="mx-auto mt-4 max-w-2xl text-[12px] leading-relaxed nxf-mute">
-          The halo expands toward domains carrying more risk-burden. It reads signal patterns — never a diagnosis, never a probability.
+          {report.analysisWithheld
+            ? "The halo expands toward domains carrying more risk-burden. It reads signal patterns — never a diagnosis, never a probability."
+            : "Tap any halo axis to open its full story — every factor, test and action. The halo expands toward more risk-burden; it reads patterns, never diagnoses."}
         </p>
       </motion.section>
 
@@ -159,6 +206,11 @@ export function ResultsView({
             </div>
           </div>
         </GlassCard>
+      )}
+
+      {/* WHAT-IF STUDIO — interactive engine replay */}
+      {input && !report.analysisWithheld && (
+        <WhatIfStudio baseInput={input} baseReport={report} active={simIds} onChange={setSimIds} />
       )}
 
       {/* DOMAIN CARDS */}
@@ -224,6 +276,42 @@ export function ResultsView({
           ))}
         </div>
       </motion.section>
+
+      {/* FULL ATLAS — all twelve domains, nothing hidden */}
+      {!report.analysisWithheld && (
+        <motion.section {...fadeUp}>
+          <SectionHead
+            eyebrow="The full atlas"
+            title="All twelve domains, ranked"
+            sub="Not just the loud three — every domain the engine scored, in burden order. Tap any card for its complete story."
+          />
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+            {atlasSorted.map((d, i) => (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() => setOpenDomain(d.id)}
+                aria-haspopup="dialog"
+                className={cn(
+                  "group flex flex-col items-start gap-2 rounded-2xl border p-3.5 text-left transition",
+                  "border-white/[0.08] bg-white/[0.03] hover:-translate-y-0.5 hover:border-amber-300/40 hover:bg-white/[0.05]",
+                  openDomain === d.id && "border-amber-300/50 bg-amber-300/[0.06]"
+                )}
+              >
+                <div className="flex w-full items-center justify-between gap-2">
+                  <span aria-hidden="true" className="nxf-gold nxf-glyph-glow text-[15px]">{DOMAIN_META[d.id]?.glyph}</span>
+                  <span className="nxf-mono text-[10px] nxf-mute">#{i + 1}</span>
+                </div>
+                <p className="text-[13px] font-semibold leading-tight nxf-hi">{DOMAIN_META[d.id]?.label ?? d.id}</p>
+                <div className="flex w-full items-center justify-between gap-2">
+                  <LevelChip level={d.level} />
+                  <span className="nxf-mono text-[11px] nxf-dim">{d.burden}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </motion.section>
+      )}
 
       {/* TRAJECTORY */}
       {!report.analysisWithheld && (
@@ -356,6 +444,12 @@ export function ResultsView({
           </button>
         </div>
       </div>
+
+      {/* domain drill-down — from halo axes + atlas cards */}
+      <DomainModal
+        domain={report.domains.find((d) => d.id === openDomain) ?? null}
+        onClose={() => setOpenDomain(null)}
+      />
     </div>
   );
 }
