@@ -195,6 +195,19 @@ export function HealthHalo({
           return <line key={i} x1={xg} y1={yg} x2={x} y2={y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />;
         })}
 
+        {/* observatory orbit — faint dotted satellite ring, slowly
+            rotating behind the polygon for depth */}
+        <circle
+          className="nxf-orbit"
+          cx={cx} cy={cy}
+          r={rMax + 13}
+          fill="none"
+          stroke="rgba(255,255,255,0.13)"
+          strokeWidth="1"
+          strokeDasharray="2 9"
+          strokeLinecap="round"
+        />
+
         {/* the polygon — the story (morphs with the studio) */}
         <motion.polygon
           points={polyStr}

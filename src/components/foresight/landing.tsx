@@ -7,7 +7,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown, HeartPulse, MoonStar, ShieldCheck, Sparkles, Wind, UtensilsCrossed, Dna, Activity } from "lucide-react";
-import { Eyebrow, GlassCard, Ornament, fadeUp } from "./ui";
+import { Eyebrow, CountUp, GlassCard, Ornament, Spotlight, fadeUp } from "./ui";
 
 const SIGNAL_SOURCES = [
   { icon: Activity, label: "Symptoms", sub: "40+ patterns, severity-weighted" },
@@ -29,7 +29,10 @@ export function Landing({
     <div className="space-y-16 pb-6">
       {/* ---------------- HERO ---------------- */}
       <section className="relative pt-10 text-center sm:pt-16">
+        {/* soft conic aurora band orbiting the headline */}
+        <div className="nxf-hero-ring" aria-hidden="true" />
         <motion.div
+          className="relative z-10"
           initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
         >
           <Eyebrow className="mb-4">Nexura Predictive 2.0 · Health Foresight Engine</Eyebrow>
@@ -58,10 +61,11 @@ export function Landing({
           <p className="mt-4 text-[12px] nxf-mute">
             Free · anonymous session · delete everything anytime · not a medical device
           </p>
-          {/* figma-style stat strip — precision-design signature */}
+          {/* figma-style stat strip — precision-design signature,
+              key numbers count up on first view */}
           <p className="nxf-mono mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] font-semibold uppercase tracking-[0.22em] nxf-gold-soft">
-            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 12 risk domains
-            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 60+ factors
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> <CountUp to={12} duration={1.2} /> risk domains
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> <CountUp to={60} duration={1.9} />+ factors
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> live what-if studio
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 5-year horizon
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> EN · हिंदी
@@ -70,19 +74,19 @@ export function Landing({
 
         {/* animated scroll cue */}
         <motion.div
-          className="mt-12 flex justify-center"
+          className="relative z-10 mt-12 flex justify-center"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
           aria-hidden="true"
         >
           <ChevronDown className="h-5 w-5 text-amber-300/80" />
         </motion.div>
-        <Ornament label="Precision · Clarity · Calm" className="mt-8" />
+        <Ornament label="Precision · Clarity · Calm" className="relative z-10 mt-8" />
       </section>
 
       {/* ---------------- REACTIVE VS PREDICTIVE ---------------- */}
       <motion.section {...fadeUp} className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-rose-400/20 bg-rose-400/[0.04] p-6">
+        <Spotlight className="overflow-hidden rounded-2xl border border-rose-400/20 bg-rose-400/[0.04] p-6">
           <Eyebrow className="mb-3">The world today — reactive</Eyebrow>
           <p className="font-display text-xl font-semibold nxf-hi">Wait for the disease. Then pay anything.</p>
           <ul className="mt-4 space-y-2.5 text-[13px] leading-relaxed nxf-dim">
@@ -91,8 +95,8 @@ export function Landing({
             <li>· Fatty liver is "discovered" on an ultrasound booked for something else</li>
             <li>· India: ~101 million people with diabetes, 315 million with hypertension — most found late</li>
           </ul>
-        </div>
-        <div className="rounded-2xl border border-teal-400/25 bg-teal-400/[0.05] p-6">
+        </Spotlight>
+        <Spotlight className="overflow-hidden rounded-2xl border border-teal-400/25 bg-teal-400/[0.05] p-6">
           <Eyebrow className="mb-3">The Nexura way — predictive</Eyebrow>
           <p className="font-display text-xl font-semibold nxf-hi">Read the pattern years before the diagnosis.</p>
           <ul className="mt-4 space-y-2.5 text-[13px] leading-relaxed nxf-dim">
@@ -101,7 +105,7 @@ export function Landing({
             <li>· A five-year slope you can bend — with a plan in Indian kitchens and katoris</li>
             <li>· One tap: a doctor-ready summary of signals, tests and questions</li>
           </ul>
-        </div>
+        </Spotlight>
       </motion.section>
 
       {/* ---------------- SIGNAL SOURCES ---------------- */}

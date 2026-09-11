@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 const NXP_SHELL_CSS = `
 html:has(.nxf-root),
 body:has(.nxf-root) {
-  background: #0D1936 !important;
+  background: #0B1630 !important;
 }
 html:has(.nxf-root) { color-scheme: dark; }
 @keyframes nxfSpin { to { transform: rotate(360deg); } }
@@ -43,7 +43,7 @@ export default function PredictivePage() {
   return (
     <div
       className="nxf-root nxf-canvas"
-      style={{ backgroundColor: "#0D1936", minHeight: "100dvh", colorScheme: "dark" }}
+      style={{ backgroundColor: "#0B1630", minHeight: "100dvh", colorScheme: "dark" }}
     >
       <style dangerouslySetInnerHTML={{ __html: NXP_SHELL_CSS }} />
       {/* aurora + starfield live behind the experience */}
