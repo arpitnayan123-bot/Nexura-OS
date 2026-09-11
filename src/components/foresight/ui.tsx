@@ -113,7 +113,7 @@ export function FsError({
           style={{
             marginTop: "1.25rem", display: "inline-flex", alignItems: "center",
             minHeight: "44px", padding: "0 1.4rem", borderRadius: 9999,
-            background: "linear-gradient(135deg, #FDE047, #FCD34D 42%, #F59E0B)", color: "#241A02", fontWeight: 700,
+            background: "linear-gradient(135deg, #115E59, #0F766E 45%, #047857)", color: "#FFFFFF", fontWeight: 700,
             fontSize: "0.9rem", border: "none", cursor: "pointer",
           }}
         >
