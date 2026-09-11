@@ -10,9 +10,10 @@ export function ReportsModule() {
   const runQuery = async () => {
     if (!query.trim()) return; setAiLoading(true); setAnswer(null);
     try {
-      
-      
-      
+      const res = await fetch("/api/pharmacy/ai-query", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query }) });
+      if (!res.ok) throw new Error();
+      const d = await res.json();
+      setAnswer({ query: d.query ?? query, text: d.text ?? "No data found" });
       toast.success("AI query answered");
     } catch { toast.error("Could not process query"); } finally { setAiLoading(false); }
   };

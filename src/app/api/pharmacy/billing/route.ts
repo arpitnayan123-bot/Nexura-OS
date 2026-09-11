@@ -152,6 +152,49 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    /* Schedule H / H1 register — the UI collects prescriber and
+       patient details for every controlled dispense; persist them
+       here so the Drug-Inspector register actually populates. */
+    const hReq = new Map<string, Record<string, unknown>>();
+    for (const it of items as Array<Record<string, unknown>>) {
+      if (it && typeof it === "object" && it.scheduleH && it.productId && it.batchId) {
+        hReq.set(`${String(it.productId)}:${String(it.batchId)}`, it.scheduleH as Record<string, unknown>);
+      }
+    }
+    const hSaleItems = sale.items.filter(
+      (si: (typeof sale.items)[number]) =>
+        (si.product as { schedule?: string }).schedule === "H" ||
+        (si.product as { schedule?: string }).schedule === "H1"
+    );
+    if (hSaleItems.length > 0) {
+      let serial = await db.scheduleHEntry.count({ where: { branchId: ctx.branch.id } });
+      await db.scheduleHEntry.createMany({
+        data: hSaleItems.map((si: (typeof sale.items)[number]) => {
+          const h = hReq.get(`${si.productId}:${si.batchId}`) ?? {};
+          const prod = si.product as { name?: string; schedule?: string };
+          serial += 1;
+          return {
+            branchId: ctx.branch.id,
+            serialNo: serial,
+            saleId: sale.id,
+            saleItemId: si.id,
+            saleDate: new Date(),
+            patientName: String(h.patientName ?? "Walk-in"),
+            patientAddress: (h.patientAddress as string) ?? null,
+            patientPhone: (h.patientPhone as string) ?? null,
+            doctorName: String(h.doctorName ?? "Unknown"),
+            doctorRegNo: String(h.doctorRegNo ?? "—"),
+            prescriptionDate: String(h.prescriptionDate ?? new Date().toISOString().slice(0, 10)),
+            medicineName: prod.name ?? "Unknown medicine",
+            batchNo: (si.batch as { batchNo?: string } | null)?.batchNo ?? null,
+            qtyStrips: si.qtyStrips,
+            qtyLoose: si.qtyLoose,
+            schedule: (prod.schedule ?? "H") as string,
+          };
+        }),
+      });
+    }
+
     return NextResponse.json({ ok: true, sale });
   } catch (err) {
     const message = err instanceof Error ? err.message : "unknown";
