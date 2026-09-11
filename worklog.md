@@ -3704,3 +3704,20 @@ Work Log:
 
 Stage Summary:
 - Nexura Intelligence is now a 110px daylight strip: dawn sky, sun, gulls, sage sea with a bobbing sailboat, flowering sand, butterfly and petals — slim, warm, reduced-motion-safe, honest copy intact. Screenshots: download/morning-strip-desktop.png, morning-strip-mobile.png.
+
+---
+Task ID: NXP-GLOBE-DAWN (globe card -> warm daylight matched pair)
+Agent: Super Z (main)
+Task: User: make the globe card warm by matching the Nexura Intelligence (morning strip) design; free rein, premium, commit everything.
+
+Work Log:
+- Redesign v2 "The World at First Light": card flipped from warm-dark #1F1B17 to the AI strip's exact dawn canvas (linear #FFFCF6->#FBF0DE 58%->#F6E7CF, border #EFE9E0, shadow, radius family rounded-[2rem]) — strip + globe now read as one matched pair; section spacing tightened py-14/20 -> py-8/10 so the pair hugs.
+- COBE LIGHT-MODE DECODED (from dist source, uniform4f(n, v,b,x,y) = mapBrightness,diffuse,dark,opacity): KEY FINDING — opacity is an OVERALL dimmer (shader: l += m*(1+opacity)*0.5), NOT the ocean-dot floor; the ocean grid floor is mapBaseBrightness (p = max(tex, mapBaseBrightness)). First attempts (opacity 0.35) washed the sphere out; corrected config: dark:0, diffuse 1.35, mapBrightness 6 (land dots saturate to espresso), mapBaseBrightness 0.18 (whisper ocean grid), opacity 1, baseColor [0.95,0.87,0.75] warm sand sphere, glowColor [0.93,0.8,0.62] deep-warm to ground the rim on a light card.
+- NEW: cobe v2 arcs — 6 terracotta flight corridors converge on Mumbai from Dubai/London/Singapore/New York/Nairobi/Dhaka (the desk's real regions); markerColor deepened #D98B6E -> #AC5335 for the light sphere; markerElevation 0.02.
+- SCENE (aria-hidden, reuses strip grammar/classes): amber sun halo behind the sphere (globe rises like a morning sun), 3 gliding gulls (2 mobile), 2 cream clouds, sage horizon SVG (quieter opacities than the strip) with a bobbing sailboat (sm+), 2 drifting petals (sm+). All classes already on the reduced-motion kill list; globe rotation still rAF-gated by prefers-reduced-motion; 600px@DPR1 30fps cap preserved.
+- COPY to daylight: nx-micro label default, heading/body ink #2E2A26/#5E5A52, list icons #AC5335, caption #5E5A52, CTA swapped to nx-btn-primary (now identical to the strip's CTA), same honest facts (calculator / coordinator desk / partners).
+- Gates: tsc 0, eslint 0, vitest 13 files / 183 tests green. Deploys x4 via deploy-preview.sh (iteration loop), final DEPLOY VERIFIED.
+- Browser E2E (prod): desktop card renders dotted-Africa globe w/ arcs + halo (screenshots v1->v4 show the tuning progression); mobile 390px docW=390 zero real overflow (flagged nodes are clipped decoratives inside overflow-hidden); CTA click -> /global verified; zero console errors, zero page errors; pair screenshot confirms strip+globe read as one morning.
+
+Stage Summary:
+- The globe card now wears the same morning as Nexura Intelligence: dawn canvas, cream espresso-dotted earth with terracotta corridors converging on Mumbai, sun halo, gulls and a sailboat on the sage horizon — premium, warm, reduced-motion-safe, facts unchanged. Screenshots: download/dawn-globe-card-v4.png, dawn-pair-final.png, dawn-globe-mobile.png. Committed as 1dc0434.
