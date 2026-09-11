@@ -7,8 +7,13 @@
  * each axis is a condition domain. A glowing polygon expands
  * toward domains carrying more risk-burden — the shape IS the
  * diagnosis-free story. Center: the Foresight Score.
+ *
+ * INTERACTIVE: vertices and labels are clickable (domain
+ * drill-down), the polygon morphs smoothly when the What-if
+ * studio replays the engine, and the score counts up.
  * ============================================================ */
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import type { DomainId, DomainResult } from "@/modules/foresight/types";
 
@@ -34,19 +39,88 @@ const LEVEL_COLOR: Record<string, string> = {
   HIGH: "#FB7185",
 };
 
+/* ---------------- motion helpers ---------------- */
+
+function prefersReducedMotion(): boolean {
+  try {
+    return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
+}
+
+/** Tweens an array of numbers toward `target` with rAF + easeOutCubic.
+    First render counts up from zeros; later changes morph from the
+    currently displayed values (the halo "breathes" between states). */
+function useTweenedArray(target: number[], duration = 800): number[] {
+  const [display, setDisplay] = useState<number[]>(() => target.map(() => 0));
+  const fromRef = useRef<number[]>(target.map(() => 0));
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) {
+      fromRef.current = target;
+      setDisplay(target);
+      return;
+    }
+    const from = fromRef.current;
+    if (from.length !== target.length) {
+      fromRef.current = target;
+      setDisplay(target);
+      return;
+    }
+    if (from.every((v, i) => v === target[i])) return;
+
+    const start = typeof performance !== "undefined" ? performance.now() : Date.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const e = 1 - Math.pow(1 - t, 3);
+      const next = target.map((v, i) => from[i] + (v - from[i]) * e);
+      fromRef.current = next;
+      setDisplay(next);
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        fromRef.current = target;
+        setDisplay(target);
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [target, duration]);
+
+  return display;
+}
+
+/* ---------------- Health Halo ---------------- */
+
 export function HealthHalo({
-  domains, score, band, size = 460,
+  domains, score, band, size = 460, onSelectDomain, activeId, live = false,
 }: {
   domains: DomainResult[];
   score: number;
   band: string;
   size?: number;
+  /** present => vertices/labels clickable for drill-down */
+  onSelectDomain?: (id: DomainId) => void;
+  activeId?: DomainId | null;
+  /** true while a What-if simulation drives this halo */
+  live?: boolean;
 }) {
   const n = domains.length || 12;
   const cx = size / 2;
   const cy = size / 2;
   const rMax = size * 0.36;
   const rMin = size * 0.13;
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  const burdens = useMemo(() => domains.map((d) => d.burden), [domains]);
+  const tweened = useTweenedArray(burdens);
+  const scoreTarget = useMemo(() => [score], [score]);
+  const scoreTween = useTweenedArray(scoreTarget);
+  const displayScore = Math.round(scoreTween[0] ?? score);
 
   // Axis order: keep stable engine order for recognisability.
   const pt = (i: number, radius: number) => {
@@ -54,14 +128,19 @@ export function HealthHalo({
     return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)] as const;
   };
 
-  const polyPoints = domains.map((d, i) => {
-    const radius = rMin + (rMax - rMin) * Math.min(1, d.burden / 78);
+  const polyPoints = domains.map((_, i) => {
+    const burden = tweened[i] ?? 0;
+    const radius = rMin + (rMax - rMin) * Math.min(1, burden / 78);
     return pt(i, radius);
   });
   const polyStr = polyPoints.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
 
   const rings = [0.25, 0.5, 0.75, 1];
   const bandInk = LEVEL_COLOR[domains.some((d) => d.level === "HIGH") ? "HIGH" : "LOW"];
+  const interactive = typeof onSelectDomain === "function";
+
+  const tooltip = hovered != null ? domains[hovered] : null;
+  const [tx, ty] = hovered != null ? pt(hovered, rMax + 2) : [0, 0];
 
   return (
     <div className="relative mx-auto" style={{ width: size, maxWidth: "100%" }}>
@@ -71,7 +150,7 @@ export function HealthHalo({
         height={size}
         className="mx-auto block max-w-full"
         role="img"
-        aria-label={`Health Halo: foresight score ${score} of 100, band ${band}`}
+        aria-label={`Health Halo: foresight score ${score} of 100, band ${band}${live ? ", showing a live simulation" : ""}`}
       >
         <defs>
           <radialGradient id="haloFill" cx="50%" cy="50%" r="66%">
@@ -94,30 +173,19 @@ export function HealthHalo({
 
         {/* rings */}
         {rings.map((k, ri) => {
-          const [x0, y0] = pt(0, rMin + (rMax - rMin) * k);
           const r = rMin + (rMax - rMin) * k;
           return (
-            <circle
-              key={ri}
-              cx={cx} cy={cy} r={r}
-              fill="none"
-              stroke="rgba(255,255,255,0.07)"
-              strokeWidth="1"
-            />
+            <circle key={ri} cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
           );
         })}
         {/* axes */}
         {domains.map((_, i) => {
           const [x, y] = pt(i, rMax + 8);
           const [xg, yg] = pt(i, rMin - 6);
-          return (
-            <g key={i}>
-              <line x1={xg} y1={yg} x2={x} y2={y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-            </g>
-          );
+          return <line key={i} x1={xg} y1={yg} x2={x} y2={y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />;
         })}
 
-        {/* the polygon — the story */}
+        {/* the polygon — the story (morphs with the studio) */}
         <motion.polygon
           points={polyStr}
           fill="url(#haloFill)"
@@ -126,29 +194,45 @@ export function HealthHalo({
           className="nxf-halo-poly"
           filter="url(#haloGlow)"
           initial={{ opacity: 0, scale: 0.86 }}
-          animate={{ opacity: 1, scale: 1 }}
+          animate={{ opacity: 1, scale: 1, stroke: live ? "#FCD34D" : undefined }}
           transition={{ duration: 1.5, ease: [0.2, 0.7, 0.2, 1], delay: 0.25 }}
           style={{ transformOrigin: `${cx}px ${cy}px` }}
         />
 
-        {/* vertex dots colored by level */}
-        {polyPoints.map(([x, y], i) => (
-          <motion.circle
-            key={i}
-            cx={x} cy={y}
-            r={domains[i]?.level === "LOW" ? 3.4 : 5}
-            fill={LEVEL_COLOR[domains[i]?.level ?? "LOW"]}
-            stroke="rgba(7,13,26,0.9)"
-            strokeWidth="1.5"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.7 + i * 0.05, duration: 0.4 }}
-          />
-        ))}
+        {/* vertex dots — clickable, morph with the tween */}
+        {polyPoints.map(([x, y], i) => {
+          const d = domains[i];
+          if (!d) return null;
+          const isActive = activeId === d.id;
+          const isHover = hovered === i;
+          return (
+            <g
+              key={d.id}
+              onClick={interactive ? () => onSelectDomain?.(d.id) : undefined}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered((h) => (h === i ? null : h))}
+              style={{ cursor: interactive ? "pointer" : "default" }}
+            >
+              {/* generous hit area */}
+              <circle cx={x} cy={y} r="16" fill="transparent" />
+              <motion.circle
+                cx={x} cy={y}
+                r={d.level === "LOW" ? 3.4 : 5}
+                fill={LEVEL_COLOR[d.level]}
+                stroke={isActive ? "#FCD34D" : "rgba(7,13,26,0.9)"}
+                strokeWidth={isActive ? 2.5 : 1.5}
+                animate={{ scale: isHover || isActive ? 1.6 : 1 }}
+                transition={{ duration: 0.18 }}
+                style={{ transformOrigin: `${x}px ${y}px` }}
+              />
+            </g>
+          );
+        })}
 
-        {/* axis labels */}
+        {/* axis labels — clickable too */}
         {domains.map((d, i) => {
           const [x, y] = pt(i, rMax + 30);
+          const isActive = activeId === d.id;
           return (
             <text
               key={i}
@@ -156,30 +240,63 @@ export function HealthHalo({
               textAnchor="middle"
               dominantBaseline="middle"
               fontSize={size * 0.028}
-              fill={d.level === "LOW" ? "#D8D2C0" : LEVEL_COLOR[d.level]}
-              style={{ fontWeight: 600, letterSpacing: "0.04em" }}
+              fill={isActive ? "#FCD34D" : d.level === "LOW" ? "#D8D2C0" : LEVEL_COLOR[d.level]}
+              onClick={interactive ? () => onSelectDomain?.(d.id) : undefined}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered((h) => (h === i ? null : h))}
+              style={{
+                fontWeight: 600,
+                letterSpacing: "0.04em",
+                cursor: interactive ? "pointer" : "default",
+                textDecoration: isActive ? "underline" : "none",
+                textUnderlineOffset: 3,
+              }}
             >
               {DOMAIN_META[d.id]?.label ?? d.id}
             </text>
           );
         })}
 
-        {/* center score */}
+        {/* hover tooltip */}
+        {tooltip && (
+          <g pointerEvents="none">
+            {(() => {
+              const label = DOMAIN_META[tooltip.id]?.label ?? tooltip.id;
+              const tw = Math.max(label.length, 16) * 7.2 + 34;
+              const fx = Math.min(Math.max(tx - tw / 2, 6), size - tw - 6);
+              const fy = ty > cy ? ty - 58 : ty + 22;
+              return (
+                <>
+                  <rect x={fx} y={fy} rx="9" width={tw} height={36}
+                    fill="rgba(7,13,26,0.92)" stroke="rgba(252,211,77,0.5)" strokeWidth="1" />
+                  <text x={fx + 12} y={fy + 15} fontSize="11.5" fontWeight="700" fill="#FFFEFA">
+                    {label}
+                  </text>
+                  <text x={fx + 12} y={fy + 28} fontSize="10" fill="#DED9CA">
+                    {tooltip.level.toLowerCase()} · burden {Math.round(tweened[hovered ?? 0] ?? tooltip.burden)}/100
+                  </text>
+                </>
+              );
+            })()}
+          </g>
+        )}
+
+        {/* center score — counts up, drifts with the simulation */}
         <text
           x={cx} y={cy - 8}
           textAnchor="middle"
           fontSize={size * 0.13}
           fontWeight="700"
-          fill="#FFFEFA"
+          fill={live ? "#FDE68A" : "#FFFEFA"}
           style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
         >
-          {score}
+          {displayScore}
         </text>
         <text
           x={cx} y={cy + 18}
           textAnchor="middle"
           fontSize={size * 0.026}
-          fill="#FDE68A"
+          fill={live ? "#FDE68A" : "#FDE68A"}
           style={{ letterSpacing: "0.22em", textTransform: "uppercase" }}
         >
           {band}
