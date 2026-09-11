@@ -3091,3 +3091,19 @@ Work Log:
 Stage Summary:
 - /predictive results are now a genuine Predictive Analysis workspace: executive strip, six key metrics with real-history sparklines, a premium observed-vs-forecast chart with keyboard-accessible exact-value inspection, grounded insights, ranked drivers, risk register, three-scenario engine replay, tracked recommended actions, calendarizable timeline, and a full model/data transparency drawer — every number traceable to the versioned deterministic engine, every control functional, every state designed.
 - Commit: c8c771c. All work in English; homepage and other routes untouched.
+
+---
+Task ID: NXP-WHITE-INK
+Agent: Super Z (main)
+Task: User directive - turn ALL text on the Predictive Analysis page white, change nothing else.
+
+Work Log:
+- Added WHITE INK OVERRIDE block at end of nxf section in src/app/globals.css, scoped to .nxf-root (feature-local, cannot leak to other pages).
+- Discovered Tailwind layered !important utilities (!text-rose-300, !text-amber-100) outrank an unlayered !important cascade rule (layer priority reverses for !important); removed the 4 offending text-color important modifiers in foresight/landing.tsx, results.tsx, extras.tsx, whatif.tsx (border/background modifiers untouched).
+- Single deliberate exception: .nxf-cta keeps dark ink #241A02 on molten-gold gradient (white ~1.6:1 unreadable). Emergency rose CTAs already carry !text-white.
+- Turbopack served a stale compiled CSS chunk after restart; fixed by rm -rf .next + full rebuild.
+- Verified via DOM text audit (88/88 visible nodes white except CTA ink), agent-browser screenshots at 1440 and 390 (download/white-text-*.png), console clean.
+
+Stage Summary:
+- Commit 9457122 "style(predictive): render all page text in pure white" (5 files, +33/-4).
+- Gates green: tsc 0 errors, eslint 0, vitest 183/183 passed (13 files). Dev server UP, /predictive -> 200.
