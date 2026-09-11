@@ -47,7 +47,7 @@ export function Hero() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                 </span>
-                Now in private beta · 40+ hospitals
+                Now in private beta · 22 apps · one Hospital OS
               </span>
             </Reveal>
 
