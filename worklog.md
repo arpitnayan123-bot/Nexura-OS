@@ -3107,3 +3107,20 @@ Work Log:
 Stage Summary:
 - Commit 9457122 "style(predictive): render all page text in pure white" (5 files, +33/-4).
 - Gates green: tsc 0 errors, eslint 0, vitest 183/183 passed (13 files). Dev server UP, /predictive -> 200.
+
+---
+Task ID: NXP-WHITE-INK-2
+Agent: Super Z (main)
+Task: User directive - EVERY text on the predictive page white (including CTA) + beautiful design, change nothing else.
+
+Work Log:
+- Removed the .nxf-cta dark-ink exception; restyled CTA to deep emerald gradient (#115E59/#0F766E/#047857) with white ink (~5:1). Aligned ui.tsx FsError retry button inline style to same emerald.
+- Extended .nxf-root override with 'text { fill: #fff !important }' for SVG chart labels.
+- Deepened emergency rose CTAs (results.tsx, extras.tsx) rose-600->rose-500 for readable white.
+- Beauty pass (globals.css, nxf-scoped): canvas deepened (#0B1630->#112450 + vignette), aurora calmed (~0.55), glass cards refined (inset highlight, deep soft shadow, teal ring hover), ghost CTA white hover.
+- Turbopack served stale CSS chunk again; fixed via rm -rf .next rebuild (recurring dev-cache quirk, noted).
+
+Stage Summary:
+- Commit 14fa096 "style(predictive): white ink on every text + premium surface polish" (4 files, +50/-44).
+- Verified: 87/87 visible text nodes #FFFFFF, SVG fill rule in place, desktop/mobile screenshots clean (download/white-design-*.png), no console errors.
+- Gates green: tsc 0, eslint 0, vitest 183/183 (13 files). Server UP, /predictive -> 200.
