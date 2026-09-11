@@ -152,7 +152,12 @@ export function SettingsView({
   const [exported, setExported] = useState(false);
   const wipe = async () => {
     const r = await fetch("/api/nx/foresight/data", { method: "DELETE" }).then((x) => x.json()).catch(() => null);
-    if (r?.ok) setDeleted(r.data.deleted);
+    if (r?.ok) {
+      setDeleted(r.data.deleted);
+      /* "delete everything" must be literally true — the local
+         draft check-in lives in localStorage, so it goes too */
+      try { window.localStorage.removeItem("nx_fs_form"); } catch { /* private mode */ }
+    }
     setConfirming(false);
   };
   const exportData = async () => {

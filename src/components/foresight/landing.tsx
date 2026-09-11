@@ -6,15 +6,17 @@
  * ============================================================ */
 
 import { motion } from "framer-motion";
-import { ArrowRight, ChevronDown, HeartPulse, MoonStar, ShieldCheck, Sparkles, Wind, UtensilsCrossed, Dna, Activity } from "lucide-react";
+import { ArrowRight, ChevronDown, Footprints, HeartPulse, History, MoonStar, ShieldCheck, Sparkles, Wind, UtensilsCrossed, Dna, Activity } from "lucide-react";
 import { Eyebrow, CountUp, GlassCard, Ornament, Spotlight, fadeUp } from "./ui";
 
 const SIGNAL_SOURCES = [
-  { icon: Activity, label: "Symptoms", sub: "40+ patterns, severity-weighted" },
+  { icon: Activity, label: "Symptoms", sub: "40 patterns, severity-weighted" },
   { icon: UtensilsCrossed, label: "Diet", sub: "mithai · fried · rice/roti · salt" },
   { icon: Dna, label: "Body & BMI", sub: "South-Asian bands start at 23" },
   { icon: HeartPulse, label: "Vitals & labs", sub: "BP · sugar · HbA1c · thyroid…" },
   { icon: MoonStar, label: "Sleep", sub: "hours · snoring · daytime dozes" },
+  { icon: Footprints, label: "Movement", sub: "weekly workouts · intensity · sitting" },
+  { icon: History, label: "History", sub: "personal & family conditions" },
   { icon: Wind, label: "Environment", sub: "your city's air quality load" },
 ];
 
@@ -65,7 +67,7 @@ export function Landing({
               key numbers count up on first view */}
           <p className="nxf-mono mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] font-semibold uppercase tracking-[0.22em] nxf-gold-soft">
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> <CountUp to={12} duration={1.2} /> risk domains
-            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> <CountUp to={60} duration={1.9} />+ factors
+            <span aria-hidden="true" className="nxf-glyph-glow">✦</span> <CountUp to={130} duration={2.1} />+ weighted factors
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> live what-if studio
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> 5-year horizon
             <span aria-hidden="true" className="nxf-glyph-glow">✦</span> EN · हिंदी
@@ -113,10 +115,10 @@ export function Landing({
         <div className="mb-6 text-center">
           <Eyebrow className="mb-2">What the engine reads</Eyebrow>
           <h2 className="font-display text-2xl font-semibold tracking-tight nxf-hi sm:text-3xl">
-            Seven layers of you, one trajectory
+            Eight layers of you, one trajectory
           </h2>
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {SIGNAL_SOURCES.map((s, i) => (
             <GlassCard key={s.label} className="p-4 text-center" transition={{ duration: 0.5, delay: i * 0.06 }}>
               <s.icon className="mx-auto h-5 w-5 nxf-teal" aria-hidden="true" />
@@ -131,7 +133,7 @@ export function Landing({
       <motion.section {...fadeUp}>
         <div className="mb-6 text-center">
           <Eyebrow className="mb-2">The flow</Eyebrow>
-          <h2 className="font-display text-2xl font-semibold tracking-tight nxf-hi sm:text-3xl">Four minutes that read your next five years</h2>
+          <h2 className="font-display text-2xl font-semibold tracking-tight nxf-hi sm:text-3xl">A few minutes that read your next five years</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-4">
           {[

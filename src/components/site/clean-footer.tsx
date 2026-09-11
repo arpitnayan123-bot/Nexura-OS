@@ -53,7 +53,7 @@ export function CleanFooter() {
           className="flex flex-col items-center gap-2"
         >
           <p className="max-w-md text-center text-[0.65rem] leading-relaxed text-muted-foreground/60">
-            Compliant with ABDM (Ayushman Bharat Digital Mission), Drugs &amp;
+            Built for ABDM (Ayushman Bharat Digital Mission) alignment, Drugs &amp;
             Cosmetics Rules 1945, ICD-10, IRDAI TPA guidelines &amp; Indian GST
             e-invoice structure.
           </p>
