@@ -257,7 +257,7 @@ function PatientsTab() {
       </div>
       <div className="relative">
         <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9A8F84]" />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, MRN, phone, or ABHA ID…" className="h-11 w-full rounded-xl bg-white pl-10 pr-4 text-sm shadow-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, MRN, or phone…" className="h-11 w-full rounded-xl bg-white pl-10 pr-4 text-sm shadow-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" />
       </div>
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#EFE9E0]">
         <div className="max-h-[60vh] overflow-auto">
@@ -294,7 +294,7 @@ function AddPatientDialog({ open, onClose, onAdded }: { open: boolean; onClose: 
       const d = await res.json();
       const p = d.profile;
       setForm({ ...form, name: p.name, age: String(p.age), gender: p.gender, bloodGroup: p.bloodGroup, phone: p.phone, allergy: "" });
-      toast.success("ABHA profile fetched from ABDM registry");
+      toast.success("ABHA demo profile generated (simulated — ABDM link is on the roadmap)");
     } catch { toast.error("Could not fetch ABHA profile"); } finally { setAbhaLoading(false); }
   };
 
@@ -362,7 +362,7 @@ function PrescriptionsTab() {
   const [visits, setVisits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => { fetch("/api/clinic/billing").then((r) => r.json()).then(() => {}).catch(() => {}).finally(() => setLoading(false)); }, []);
-  return <div className="space-y-4"><h1 className="font-serif text-2xl font-semibold">Prescriptions</h1><p className="text-sm text-[#9A8F84]">All prescriptions written — printable on letterhead</p><div className="grid place-items-center rounded-2xl border border-dashed border-[#EFE9E0] py-16 text-sm text-[#9A8F84]">Prescription history loads here</div></div>;
+  return <div className="space-y-4"><h1 className="font-serif text-2xl font-semibold">Prescriptions</h1><p className="text-sm text-[#9A8F84]">Recent prescriptions are recorded with each visit — open a patient to review or print them</p><div className="grid place-items-center rounded-2xl border border-dashed border-[#EFE9E0] py-16 text-sm text-[#9A8F84]">Prescription history loads with saved visits</div></div>;
 }
 
 function BillingTab() {
@@ -422,8 +422,21 @@ function ConsultModal({ data, onClose, onSaved }: { data: { appointmentId: strin
   const [drugQuery, setDrugQuery] = useState("");
   const [drugResults, setDrugResults] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
 
-  useEffect(() => { if (data) { setSoap({ chiefComplaint: "", vitalsBP: "", vitalsPulse: "", vitalsTemp: "", vitalsSpo2: "", vitalsRBS: "", weight: "", diagnosis: "", advice: "", followUp: "" }); setRx([]); } }, [data]);
+  /* reset + pull the patient's real visit history for review
+     before writing today's note (EMR-grade, not a blind form) */
+  useEffect(() => {
+    if (!data) return;
+    setSoap({ chiefComplaint: "", vitalsBP: "", vitalsPulse: "", vitalsTemp: "", vitalsSpo2: "", vitalsRBS: "", weight: "", diagnosis: "", advice: "", followUp: "" });
+    setRx([]);
+    setHistory([]);
+    let alive = true;
+    fetch(`/api/clinic/visit?patientId=${data.patient.id}`).then((r) => r.json()).then((d) => {
+      if (alive) setHistory(d.visits || []);
+    }).catch(() => { /* offline — form still usable */ });
+    return () => { alive = false; };
+  }, [data]);
 
   // drug autocomplete
   useEffect(() => {
@@ -501,14 +514,33 @@ function ConsultModal({ data, onClose, onSaved }: { data: { appointmentId: strin
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => toast.info("Prescription sent via WhatsApp")} className="grid h-7 w-7 place-items-center rounded-full bg-[#9DB89E]/15 text-[#5A7A5B] hover:bg-[#9DB89E]/25" title="Send via WhatsApp"><MessageCircle className="h-3.5 w-3.5" /></button>
-                  <button onClick={() => toast.info("Printing prescription…")} className="grid h-7 w-7 place-items-center rounded-full bg-[#D98B6E]/10 text-[#D98B6E] hover:bg-[#D98B6E]/20" title="Print"><Download className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => toast.info("Rx saved to the patient record — share it from the consultation sheet")} className="grid h-7 w-7 place-items-center rounded-full bg-[#9DB89E]/15 text-[#5A7A5B] hover:bg-[#9DB89E]/25" title="Saved to patient record"><MessageCircle className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => window.print()} className="grid h-7 w-7 place-items-center rounded-full bg-[#D98B6E]/10 text-[#D98B6E] hover:bg-[#D98B6E]/20" title="Print this page"><Download className="h-3.5 w-3.5" /></button>
                   <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]"><X className="h-4 w-4" /></button>
                 </div>
               </div>
             </div>
 
             <div className="space-y-4 p-5">
+              {/* past-visit history strip — real EMR review before the note */}
+              {history.length > 0 && (
+                <div className="rounded-xl border border-[#EFE9E0] bg-[#FAF7F2]/60 p-3.5">
+                  <p className="text-xs font-semibold text-[#5C544D]">Past visits ({history.length})</p>
+                  <div className="nxf-scroll mt-2 max-h-40 space-y-2 overflow-y-auto">
+                    {history.slice(0, 6).map((v) => (
+                      <div key={v.id} className="rounded-lg bg-white px-3 py-2 text-[11.5px] ring-1 ring-[#EFE9E0]">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-medium text-[#5C544D]">{new Date(v.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                          <span className="text-[#9A8F84]">{[v.vitalsBP && `BP ${v.vitalsBP}`, v.vitalsPulse && `P ${v.vitalsPulse}`, v.vitalsSpo2 && `SpO₂ ${v.vitalsSpo2}`].filter(Boolean).join(" · ")}</span>
+                        </div>
+                        {v.diagnosis ? <p className="mt-0.5 text-[#5C544D]">{v.diagnosis}</p> : null}
+                        {v.meds?.length ? <p className="mt-0.5 text-[#9A8F84]">Rx: {v.meds.map((m: { medicine: string }) => m.medicine).slice(0, 3).join(", ")}{v.meds.length > 3 ? ` +${v.meds.length - 3} more` : ""}</p> : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* S — Subjective */}
               <Section title="Subjective" color="#D98B6E">
                 <In label="Chief complaint & duration" value={soap.chiefComplaint} onChange={(v) => setSoap({ ...soap, chiefComplaint: v })} />
@@ -579,14 +611,14 @@ function ConsultModal({ data, onClose, onSaved }: { data: { appointmentId: strin
               {/* advice + follow-up */}
               <Section title="Advice & Follow-up" color="#5A7A5B">
                 <In label="Advice" value={soap.advice} onChange={(v) => setSoap({ ...soap, advice: v })} />
-                <div><label className="text-xs text-[#9A8F84]">Follow-up date (3 days before → WhatsApp reminder sent)</label><input type="date" value={soap.followUp} onChange={(e) => setSoap({ ...soap, followUp: e.target.value })} className="mt-1.5 h-10 w-full rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" /></div>
+                <div><label className="text-xs text-[#9A8F84]">Follow-up date (recorded on the visit — the clinic calls to remind)</label><input type="date" value={soap.followUp} onChange={(e) => setSoap({ ...soap, followUp: e.target.value })} className="mt-1.5 h-10 w-full rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" /></div>
               </Section>
             </div>
 
             {/* footer */}
             <div className="sticky bottom-0 flex items-center gap-2 border-t border-[#EFE9E0] bg-white p-4">
               <button onClick={onClose} className="flex-1 rounded-xl py-2.5 text-sm font-medium text-[#9A8F84] hover:bg-[#F3EEE6]">Cancel</button>
-              <button onClick={() => toast.info("Printing on clinic letterhead…")} className="flex items-center gap-1.5 rounded-xl border border-[#EFE9E0] px-4 py-2.5 text-sm font-medium text-[#5C544D] hover:bg-[#F3EEE6]"><Download className="h-4 w-4" />Print Rx</button>
+              <button onClick={() => window.print()} className="flex items-center gap-1.5 rounded-xl border border-[#EFE9E0] px-4 py-2.5 text-sm font-medium text-[#5C544D] hover:bg-[#F3EEE6]"><Download className="h-4 w-4" />Print Rx</button>
               <button onClick={submit} disabled={saving} className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-[#2A2622] py-2.5 text-sm font-semibold text-white disabled:opacity-50">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}Save &amp; bill ₹{data.doctorFee}</button>
             </div>
           </motion.div>

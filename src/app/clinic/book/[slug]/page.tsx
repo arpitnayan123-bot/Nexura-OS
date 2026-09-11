@@ -49,10 +49,11 @@ export default function BookingPage({ params }: { params: Promise<{ slug: string
     const slot = new Date(day.date);
     slot.setHours(+h, +m, 0, 0);
     try {
-      await fetch("/api/clinic/booking", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clinicId: data.clinic.id, doctorId: selectedDoctor || undefined, patientName: name, phone, slot: slot.toISOString() }) });
+      const res = await fetch("/api/clinic/booking", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clinicId: data.clinic.id, doctorId: selectedDoctor || undefined, patientName: name, phone, slot: slot.toISOString() }) });
+      if (!res.ok) throw new Error();
       setDone(true);
-      toast.success("Booking confirmed!");
-    } catch { toast.error("Booking failed"); } finally { setBooking(false); }
+      toast.success("Booking request received!");
+    } catch { toast.error("Booking failed — please try again or call the clinic"); } finally { setBooking(false); }
   };
 
   if (loading) return <div className="grid min-h-screen place-items-center bg-[#FAF7F2]"><Loader2 className="h-6 w-6 animate-spin text-[#D98B6E]" /></div>;
@@ -77,9 +78,9 @@ export default function BookingPage({ params }: { params: Promise<{ slug: string
         {done ? (
           <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="grid place-items-center rounded-2xl bg-white p-10 text-center shadow-sm ring-1 ring-[#EFE9E0]">
             <CheckCircle2 className="h-12 w-12 text-[#9DB89E]" />
-            <h2 className="mt-3 font-serif text-xl font-semibold">Booking confirmed!</h2>
-            <p className="mt-1 text-sm text-[#9A8F84]">{name}, your appointment at {data.clinic.name} is confirmed for {days[selectedDay].label}, {days[selectedDay].day} {days[selectedDay].month} at {selectedSlot}.</p>
-            <p className="mt-2 text-xs text-[#9A8F84]">You'll receive a confirmation on {phone}. The clinic will see you in their queue with an &quot;Online&quot; badge.</p>
+            <h2 className="mt-3 font-serif text-xl font-semibold">Booking request received!</h2>
+            <p className="mt-1 text-sm text-[#9A8F84]">{name}, your appointment request at {data.clinic.name} is in for {days[selectedDay].label}, {days[selectedDay].day} {days[selectedDay].month} at {selectedSlot}.</p>
+            <p className="mt-2 text-xs text-[#9A8F84]">The clinic confirms bookings by phone — please answer a call from the clinic's number on {phone}.</p>
             <button onClick={() => { setDone(false); setName(""); setPhone(""); setSelectedSlot(""); }} className="mt-5 rounded-full bg-[#2A2622] px-5 py-2 text-xs font-semibold text-white">Book another</button>
           </motion.div>
         ) : (
