@@ -3207,3 +3207,18 @@ Work Log:
 
 Stage Summary:
 - No files edited (research-only). Findings: foresight landing is the most accurate block in the app (all 14 concrete claims verified); worst offenders are /global (fabricated trust stats + demo data shown as "verified"), homepage hero (fake 98.2% precision, "certified"), investor-deck traction (stale counts, fabricated pilots), /compliance + /pricing FAQ (AES-256/at-rest + AWS Mumbai + free-trial promises with no infra), 18-module and 54-med counts stale, Connect voice/video overstated. Full verdict table + top-10 fix list delivered in report. Next: owner picks copy fixes; suggest 1-b implementation task.
+
+---
+Task ID: L1 (NXP-LOOP-1)
+Agent: Super Z (main) + subagents 1-a/1-b
+Task: Full OS data collection + How-it-works accuracy audit & fix.
+
+Work Log:
+- Subagent 1-a (Explore): audited feature copy on all 18 routes; found fabricated stats (98.2% precision, 4.9/2.4k reviews, 184,320 cared for, 5L+ patients), wrong counts (18 vs 22 modules, 7 vs 8 products, 62 vs 145 models), cert overclaims (HIPAA/GDPR certified; footer "Compliant with ABDM" vs compliance page "In Progress"), stale features (voice/video with no WebRTC, Teleconsult ₹299, 54-medicine DB that has 0 rows), broken #dashboard anchor, /global calculator bug (non-US countries reuse USA prices).
+- Subagent 1-b (general-purpose): verified every predictive landing claim vs engine: 10 steps OK, 12 domains exact, 132 weighted factors (claim said 60+), 40 symptoms (claim said 40+), 6 cards under "Seven layers" heading (engine consumes 8 collected layers), Hindi = 13 chrome strings only, triage-first OK, determinism OK, BMI-23/IDF OK, delete-gap: nx_fs_form not wiped.
+- FIXED (loop 1): hero.tsx — #dashboard -> /hospital, "4.9 · 2.4k reviews" -> "DPDP-aligned · privacy-first", "HIPAA & GDPR certified" -> "Built on HIPAA & GDPR principles", AnimatedNumber 184320 -> 22 "apps · one OS", "AI diagnosis 98.2% precision" -> "AI risk signals · 12 domains mapped", "40+ hospitals" -> "22 apps, one Hospital OS" (beta line). features-showcase — 18->22 modules + ABDM-ready wording, 54-medicines -> interaction guard, connect voice/video -> chat/call coordination/Rx sync. clean-footer — "Compliant with ABDM" -> "Built for ABDM alignment". landing.tsx — "60+ factors"->"130+ weighted factors" (CountUp 130), "40+ patterns"->"40 patterns", "Seven layers"->"Eight layers" + Movement/History cards added (8 total, grid sm:4), "Four minutes"->"A few minutes". extras.tsx — wipe() also removes nx_fs_form draft.
+- NOT yet fixed (assigned to later loops): /global fabricated stats + calculator bug (L9), /pricing FAQ/billing claims (L9/L23), /investors traction numbers (L9), /compliance architecture cards (L10), connect WebRTC wording in page bodies (L7), pharmacy/clinic "ln" corrupted strings (L4/L5), Hindi depth (L15).
+- Gates: tsc 0, eslint 0, vitest 183/183. Deployed: UP home 200 / predictive 200; browser-verified live: "Eight layers", Movement/History cards, "A few minutes", "130+ weighted factors" in served DOM; homepage serving corrected hero.
+
+Stage Summary:
+- Commit "fix(loop-1): truth-pass on feature copy...". OS inventory: 18 routes, 172 API routes, 145 Prisma models, 25 nx apps (22 user-facing), 15 KYH tools, foresight 12 domains/40 symptoms/132 factors/10 steps.
