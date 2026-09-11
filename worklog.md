@@ -3557,3 +3557,18 @@ Work Log:
 
 Stage Summary:
 - A crash inside any of the 7 key feature segments now renders a calm, tone-matched recovery panel (retry / go home) instead of white-screening up to the generic root boundary; /predictive stays on its dark nxf canvas. Flagged for a future pass: remaining segments (compliance, founder, hospital, investors, pricing) still fall through to the root error.tsx; the shared component could be reused there with one-line wrappers if desired.
+
+---
+Task ID: 23-a
+Agent: general-purpose (implementation subagent)
+Task: Final consistency pass — pricing FAQ honesty + compliance timeline rewording + link integrity sweep; tsc must exit 0.
+
+Work Log:
+- Read worklog tail (21-a, 22-a). /pricing (src/components/investors/pricing-page.tsx) FAQ honesty fixes: "14-day free trial, no credit card" → "New deployments start with an onboarding offer — contact us… trial length and terms finalised during onboarding"; "encrypted at rest (AES-256)" → "encrypted in transit (TLS 1.3); at-rest encryption is on the roadmap — see the Compliance page" (aligns with compliance-page Architecture principle); "Patient data never leaves India" → "Hosting in India is planned; processing may route through AI providers today — see the Compliance page" (aligns with Hosting & residency principle); "We accept UPI… annual billing gets 2 months free" → "Payment modes are finalised during onboarding so they match how your organisation already pays". NGO/government discount FAQ kept verbatim (policy promise, acceptable).
+- CTAs: 6× tier card "Start free trial" → "Start onboarding" (Hospital Starter/Professional, Clinic Solo/Practice, Pharmacia Single Store/Pro — replace_all, data-driven single string); bottom CTA banner "Start your free trial today." → "Start your onboarding today." Contact sales / Sign up free / Book a test / View in portal untouched.
+- /compliance (src/components/investors/compliance-page.tsx): 4× self-asserted timeline rows "Compliant since launch" → "Alignment tracked since launch" (DPDP 2023, CDSCO, IRDAI, GST e-Invoice; replace_all). No such rows on /pricing. Compliance page body, statuses, and roadmap wording untouched.
+- LINK SWEEP: rg all href="/…" in src/components/site/* → 12 unique internal paths (/hospital, /global, /founder, /predictive, /know-your-health, /investors, /connect, /pharmacy, /clinic, /, plus duplicates); each confirmed to resolve to a page.tsx under src/app — ZERO dead links, nothing to fix (prior sweeps held). Also verified /pricing and /compliance route files map to the edited components.
+- Gates: npx tsc --noEmit exit 0. No servers/builds/commits. English-only copy edits; grep confirms no residual "Start free trial" / "14-day free trial" / "AES-256" / "never leaves India" / "Compliant since launch" in src.
+
+Stage Summary:
+- /pricing now sells no billing or security fiction: trials are onboarding offers, payment modes are onboarding decisions, encryption/residency claims mirror the Compliance page word-for-word, and /compliance timeline rows say "alignment tracked" instead of self-certifying "compliant since launch". Internal site-component links all verified live. Flagged for a future pass: settings-app.tsx still shows "On-prem, encrypted at rest" (internal product copy, out of scope here); investors/clinic promo pages may deserve the same trial-claim sweep.

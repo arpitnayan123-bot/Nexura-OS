@@ -34,7 +34,7 @@ const REGULATIONS = [
       "Breach-response playbook; automated detection planned",
       "Data-retention engine with configurable purge profiles",
     ],
-    timeline: "Compliant since launch",
+    timeline: "Alignment tracked since launch",
   },
   {
     name: "NABH",
@@ -66,7 +66,7 @@ const REGULATIONS = [
       "Batch + expiry tracking (FEFO)",
       "CDSCO audit export (CSV)",
     ],
-    timeline: "Compliant since launch",
+    timeline: "Alignment tracked since launch",
   },
   {
     name: "IRDAI",
@@ -82,7 +82,7 @@ const REGULATIONS = [
       "Discharge summary generation",
       "IRDAI-compliant claim format",
     ],
-    timeline: "Compliant since launch",
+    timeline: "Alignment tracked since launch",
   },
   {
     name: "GST e-Invoice",
@@ -98,7 +98,7 @@ const REGULATIONS = [
       "State code mapping (all 28 states)",
       "GST return export",
     ],
-    timeline: "Compliant since launch",
+    timeline: "Alignment tracked since launch",
   },
 ];
 
