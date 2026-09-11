@@ -7,10 +7,11 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Copy, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Check, Copy, Download, Trash2 } from "lucide-react";
 import type { ForesightReport } from "@/modules/foresight/types";
 import { DOMAIN_META } from "./viz";
 import { Eyebrow, GlassCard, SectionHead, tr, type FsLang } from "./ui";
+import { cn } from "@/lib/utils";
 
 export interface HistoryRun {
   id: string;
@@ -93,26 +94,43 @@ export function HistoryView({
             <GlassCard className="p-5" hover={false}><Sparkline series={series} /></GlassCard>
           )}
           <div className="space-y-2.5">
-            {runs.map((r) => (
-              <button key={r.id} type="button" onClick={() => onOpen(r.id)}
-                className="flex w-full items-center justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 text-left transition hover:border-amber-300/50">
-                <div>
-                  <p className="text-[13.5px] font-semibold nxf-hi">
-                    {new Date(r.createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}
-                    {r.triageLevel !== "STANDARD" && (
-                      <span className="ml-2 rounded-full border border-rose-400/40 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider nxf-rose">{r.triageLevel}</span>
+            {runs.map((r, i) => {
+              const prev = runs[i + 1]; // list is newest-first
+              const delta = prev ? r.score - prev.score : null;
+              return (
+                <button key={r.id} type="button" onClick={() => onOpen(r.id)}
+                  className="flex w-full items-center justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 text-left transition hover:border-amber-300/50">
+                  <div className="min-w-0">
+                    <p className="text-[13.5px] font-semibold nxf-hi">
+                      {new Date(r.createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}
+                      {r.triageLevel !== "STANDARD" && (
+                        <span className="ml-2 rounded-full border border-rose-400/40 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider nxf-rose">{r.triageLevel}</span>
+                      )}
+                    </p>
+                    <p className="mt-0.5 text-[12px] nxf-mute">
+                      top domain: {DOMAIN_META[r.topDomainId as keyof typeof DOMAIN_META]?.label ?? r.topDomainId} · {r.band.toLowerCase()}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    {delta != null && delta !== 0 && (
+                      <span className={cn(
+                        "flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-bold",
+                        delta > 0
+                          ? "border-emerald-300/35 bg-emerald-300/[0.08] text-emerald-200"
+                          : "border-rose-300/30 bg-rose-300/[0.06] text-rose-200"
+                      )}>
+                        {delta > 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                        {delta > 0 ? `+${delta}` : delta}
+                      </span>
                     )}
-                  </p>
-                  <p className="mt-0.5 text-[12px] nxf-mute">
-                    top domain: {DOMAIN_META[r.topDomainId as keyof typeof DOMAIN_META]?.label ?? r.topDomainId} · {r.band.toLowerCase()}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="nxf-mono text-xl font-bold nxf-gold">{r.score}</p>
-                  <p className="text-[10px] uppercase tracking-wider nxf-mute">score</p>
-                </div>
-              </button>
-            ))}
+                    <div className="text-right">
+                      <p className="nxf-mono text-xl font-bold nxf-gold">{r.score}</p>
+                      <p className="text-[10px] uppercase tracking-wider nxf-mute">score</p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -131,10 +149,38 @@ export function SettingsView({
 }) {
   const [deleted, setDeleted] = useState<number | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [exported, setExported] = useState(false);
   const wipe = async () => {
     const r = await fetch("/api/nx/foresight/data", { method: "DELETE" }).then((x) => x.json()).catch(() => null);
     if (r?.ok) setDeleted(r.data.deleted);
     setConfirming(false);
+  };
+  const exportData = async () => {
+    try {
+      const runs = await fetch("/api/nx/foresight/history").then((x) => x.json()).catch(() => null);
+      let form: unknown = null;
+      try { form = JSON.parse(window.localStorage.getItem("nx_fs_form") ?? "null"); } catch { /* private mode */ }
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        product: "Nexura Predictive 2.0 — Health Foresight",
+        engine: "foresight-2.0.0 · india-cal-2.0.0",
+        note: "Signal levels within screening scope — not diagnoses. Exported by and from the user's own browser session.",
+        checkInAnswers: form,
+        runs: runs?.ok ? runs.data.runs : [],
+        scoreSeries: runs?.ok ? runs.data.scoreSeries : [],
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `nexura-foresight-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setExported(true);
+      setTimeout(() => setExported(false), 2400);
+    } catch { /* blocked — silent */ }
   };
   return (
     <div className="space-y-6">
@@ -145,6 +191,21 @@ export function SettingsView({
           <button type="button" className="nxf-pill" aria-pressed={lang === "en"} onClick={() => onLang("en")}>English</button>
           <button type="button" className="nxf-pill" aria-pressed={lang === "hi"} onClick={() => onLang("hi")}>हिंदी</button>
         </div>
+      </GlassCard>
+      <GlassCard className="p-5" hover={false}>
+        <Eyebrow className="mb-3">Your data, portable</Eyebrow>
+        <p className="mb-3 text-[13px] leading-relaxed nxf-dim">
+          Download everything this browser has shared with the engine — your check-in answers and
+          every run summary — as one JSON file you can keep, print or carry to a doctor.
+        </p>
+        <button
+          type="button"
+          className="nxf-cta nxf-cta-ghost"
+          onClick={() => void exportData()}
+        >
+          {exported ? <Check className="h-4 w-4 text-emerald-300" aria-hidden="true" /> : <Download className="h-4 w-4" aria-hidden="true" />}
+          {exported ? "Downloaded — check your files" : "Download my data (JSON)"}
+        </button>
       </GlassCard>
       <GlassCard className="p-5" hover={false}>
         <Eyebrow className="mb-3 !text-rose-300">Danger zone</Eyebrow>

@@ -649,6 +649,10 @@
 }
 .nxf-pill:hover { border-color: rgba(252,211,77,0.45); }
 .nxf-pill:active { transform: scale(0.985); }
+/* emergency-weight pills carry a faint rose edge even unselected —
+   the safety weighting should be visible before any tap */
+.nxf-pill-rose { border-color: rgba(244,63,94,0.30); }
+.nxf-pill-rose:hover { border-color: rgba(244,63,94,0.60); }
 .nxf-pill[aria-pressed="true"], .nxf-pill[data-on="true"] {
   background: rgba(252,211,77,0.13);
   border-color: rgba(252,211,77,0.6);
