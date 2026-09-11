@@ -267,10 +267,10 @@ export function PortalLogin() {
                       <input
                         type="text"
                         inputMode="numeric"
-                        maxLength={4}
+                        maxLength={6}
                         value={otp}
                         onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                        placeholder="• • • •"
+                        placeholder="• • • • • •"
                         className="flex-1 bg-transparent text-sm font-semibold tracking-[0.4em] text-stone-800 placeholder:text-stone-300 focus:outline-none"
                       />
                     </div>
