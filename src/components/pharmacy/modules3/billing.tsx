@@ -36,6 +36,9 @@ export function BillingModule() {
   const [payMode, setPayMode] = useState<"cash" | "upi" | "card" | "credit">("cash");
   const [loading, setLoading] = useState(true);
   const [billing, setBilling] = useState(false);
+  const [lastSale, setLastSale] = useState<{ id: string; invoiceNo: string } | null>(null);
+  const [eInvoice, setEInvoice] = useState<string | null>(null);
+  const [einvLoading, setEinvLoading] = useState(false);
   const [pendingScheduleH, setPendingScheduleH] = useState<{ item: InventoryItem; batchId: string } | null>(null);
   const [batchPanel, setBatchPanel] = useState<InventoryItem | null>(null);
   const [showRx, setShowRx] = useState(false);
@@ -63,7 +66,7 @@ export function BillingModule() {
 
   const stockBadge = (p: InventoryItem) => {
     if (p.stockStrips === 0) return { label: "Out of stock", color: "text-red-400 bg-red-500/10" };
-    if (p.stockStrips <= p.batches[0]?.mrp ? 5 : 10) return { label: "Low stock", color: "text-yellow-400 bg-yellow-500/10" };
+    if (p.stockStrips <= 5) return { label: "Low stock", color: "text-yellow-400 bg-yellow-500/10" };
     return { label: "In stock", color: "text-green-400 bg-green-500/10" };
   };
 
@@ -141,15 +144,29 @@ export function BillingModule() {
     if (missing) { toast.error(`${missing.name} needs Schedule H details`); return; }
     setBilling(true);
     try {
-      const res = await fetch("/api/pharmacy/billing", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: cart.map(c => ({ productId: c.productId, batchId: c.batchId, qtyStrips: c.qtyStrips, qtyLoose: c.qtyLoose })), discountPct: 0, payMode }) });
+      const res = await fetch("/api/pharmacy/billing", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: cart.map(c => ({ productId: c.productId, batchId: c.batchId, qtyStrips: c.qtyStrips, qtyLoose: c.qtyLoose, scheduleH: c.scheduleH })), discountPct: 0, payMode }) });
       if (!res.ok) throw new Error();
       const data = await res.json();
+      setLastSale({ id: data.sale.id, invoiceNo: data.sale.invoiceNo });
+      setEInvoice(null);
       toast.success(`Invoice ${data.sale.invoiceNo} — ₹${data.sale.total}`);
-      // simulate WhatsApp send
-      setTimeout(() => toast.success("Bill sent to WhatsApp"), 800);
       setCart([]);
       load();
     } catch { toast.error("Billing failed"); } finally { setBilling(false); }
+  };
+
+  /* GSTN-schema e-Invoice for the last billed sale — real endpoint,
+     IRN/ack honestly null until NIC integration goes live */
+  const fetchEinvoice = async () => {
+    if (!lastSale) return;
+    setEinvLoading(true);
+    try {
+      const r = await fetch("/api/pharmacy/e-invoice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ saleId: lastSale.id }) });
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      setEInvoice(JSON.stringify({ invoiceNo: d.invoiceNo, total: d.total, eInvoice: d.eInvoice, ewayBill: d.ewayBill, eligibleEwayBill: d.eligibleEwayBill }, null, 2));
+      toast.success("e-Invoice JSON generated (IRN pending NIC registration)");
+    } catch { toast.error("e-Invoice generation failed"); } finally { setEinvLoading(false); }
   };
 
   return (
@@ -321,6 +338,17 @@ export function BillingModule() {
             <dl className="space-y-1.5 text-sm">
               <div className="flex justify-between"><dt className="text-[#6B7280]">Subtotal</dt><dd className="tabular-nums text-white">₹{totals.subtotal.toFixed(2)}</dd></div>
               <div className="flex justify-between"><dt className="text-[#6B7280]">Discount</dt><dd className="tabular-nums text-red-400">-₹{totals.discount.toFixed(2)}</dd></div>
+              {lastSale && (
+                <div className="pt-2">
+                  <button onClick={fetchEinvoice} disabled={einvLoading} className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#F59E0B]/30 px-3 py-2 text-xs font-semibold text-[#F59E0B] transition hover:bg-[#F59E0B]/10 disabled:opacity-50">
+                    {einvLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                    Generate e-Invoice JSON — {lastSale.invoiceNo}
+                  </button>
+                  {eInvoice && (
+                    <pre className="nxf-scroll mt-2 max-h-48 overflow-auto rounded-lg bg-[#0D0F12] p-2.5 text-[10px] leading-relaxed text-[#9CA3AF]">{eInvoice}</pre>
+                  )}
+                </div>
+              )}
               <div className="my-1 h-px bg-[#1E2228]" />
               <div className="flex justify-between"><dt className="text-[#6B7280]">CGST</dt><dd className="tabular-nums text-white">₹{totals.totalCgst.toFixed(2)}</dd></div>
               <div className="flex justify-between"><dt className="text-[#6B7280]">SGST</dt><dd className="tabular-nums text-white">₹{totals.totalSgst.toFixed(2)}</dd></div>
