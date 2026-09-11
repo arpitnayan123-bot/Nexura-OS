@@ -16,8 +16,6 @@ import { Button } from "@/components/ui/button";
 import { useBooking } from "./booking-context";
 import { Magnetic } from "./magnetic";
 import {
-  AuroraBackground,
-  FloatingParticles,
   BreathingOrb,
   EcgLine,
   Reveal,
@@ -32,10 +30,8 @@ export function Hero() {
       id="top"
       className="relative overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24 lg:pt-44 lg:pb-28"
     >
-      {/* Background layers */}
-      <AuroraBackground variant="default" />
-      <FloatingParticles count={22} />
-      <GrainOverlay />
+      {/* Background layers — Linen spec: calm canvas, ≤2% grain */}
+      <GrainOverlay className="opacity-[0.02]" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
@@ -91,7 +87,7 @@ export function Hero() {
                   <Button
                     onClick={() => openBooking()}
                     size="lg"
-                    className="group h-12 rounded-full bg-primary px-6 text-primary-foreground shadow-[0_14px_40px_-10px_oklch(0.70_0.145_45/0.7)] transition-all hover:shadow-[0_18px_50px_-10px_oklch(0.70_0.145_45/0.9)]"
+                    className="group h-11 rounded-full bg-[#AC5335] px-6 text-[0.95rem] font-medium text-[#FFF8F3] shadow-none transition-colors hover:bg-[#9A4830]"
                   >
                     <span className="flex items-center gap-2">
                       Start your health scan
@@ -99,17 +95,13 @@ export function Hero() {
                     </span>
                   </Button>
                 </Magnetic>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="h-12 rounded-full border-border bg-background/60 px-5 backdrop-blur"
+                <Link
+                  href="/hospital"
+                  className="nx-glass nx-btn-glass text-[0.95rem]"
                 >
-                  <Link href="/hospital" className="flex items-center gap-2">
-                    <PlayCircle className="h-4.5 w-4.5 text-primary" />
-                    Watch the demo
-                  </Link>
-                </Button>
+                  <PlayCircle className="h-4.5 w-4.5 text-[#AC5335]" />
+                  Watch the demo
+                </Link>
               </div>
             </Reveal>
 

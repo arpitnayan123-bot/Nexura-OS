@@ -60,7 +60,7 @@ export function FeaturesShowcase() {
   };
 
   return (
-    <section className="relative py-20 lg:py-28">
+    <section id="products" className="relative scroll-mt-24 py-20 lg:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -70,7 +70,7 @@ export function FeaturesShowcase() {
           transition={{ duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
           className="mx-auto max-w-2xl text-center mb-12"
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary/70 mb-3">
+          <p className="nx-micro mb-3">
             Everything Nexura OS
           </p>
           <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.75rem]">
@@ -193,7 +193,7 @@ function FeatureCard({ feature, index, compact, onClick }: { feature: Feature; i
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.05, duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-      className="group relative overflow-hidden rounded-[1.5rem] glass-premium p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_oklch(0.4_0.05_45/0.2)]"
+      className="group relative overflow-hidden rounded-[1.5rem] nx-inset-glass p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(46,42,38,0.3)]"
     >
       {content}
     </motion.div>

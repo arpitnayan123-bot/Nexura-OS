@@ -2,18 +2,55 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Activity } from "lucide-react";
+import { Activity, HeartHandshake, PhoneCall } from "lucide-react";
 
 export function CleanFooter() {
   return (
-    <footer className="relative mt-auto overflow-hidden border-t border-border bg-card/40">
-      {/* ambient glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-[radial-gradient(50%_100%_at_50%_100%,oklch(0.85_0.10_55/0.15),transparent_70%)]"
-      />
-
+    <footer className="relative mt-auto overflow-hidden border-t border-[#EFE9E0] bg-[#F4EFE4]/40">
       <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+        {/* 108 emergency band — Linen crisis red, cream ink (8.1:1) */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="nx-crisis mb-10 flex flex-col gap-5 rounded-[1.75rem] px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8"
+          aria-label="Emergency helplines"
+        >
+          <div className="flex items-start gap-3.5">
+            <span
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/15"
+              aria-hidden="true"
+            >
+              <PhoneCall className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-[1.05rem] font-semibold leading-snug">
+                In an emergency, every second counts.
+              </p>
+              <p className="mt-1 text-sm text-[#FFF4EC]/85">
+                <strong className="font-semibold">108</strong> — free, 24×7,
+                across India · Mental health: Tele-MANAS{" "}
+                <strong className="font-semibold">14416</strong>
+              </p>
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2.5">
+            <a href="tel:108" className="nx-crisis-cta text-sm">
+              <PhoneCall className="h-4 w-4" aria-hidden="true" />
+              Call 108 now
+            </a>
+            <a
+              href="tel:14416"
+              className="nx-crisis-ghost text-sm"
+              aria-label="Call Tele-MANAS 14416 mental health helpline"
+            >
+              <HeartHandshake className="h-4 w-4" aria-hidden="true" />
+              14416
+            </a>
+          </div>
+        </motion.div>
+
         {/* top — links */}
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-2.5">
