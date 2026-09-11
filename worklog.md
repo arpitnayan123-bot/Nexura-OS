@@ -3526,3 +3526,19 @@ Work Log:
 
 Stage Summary:
 - The diet-planner result view now closes with a compact, dietitian-personalised-by-default reference of 5 Indian-kitchen therapeutic swaps (blood sugar, BP, fatty liver, anaemia, cholesterol) rendered in the established glass aesthetic. Flagged for a future pass: swaps card only appears after a plan is generated — could be surfaced on the form view too; other KYH tools (e.g. heart-risk, diabetes modules if added later) could reuse the same SWAPS-row pattern.
+
+---
+Task ID: 21-a
+Agent: general-purpose (implementation subagent)
+Task: Lab reference depth — additive "Quick reference — common Indian lab ranges" card in the lab-analyzer tool view (7 rows + footer line), one additive block, no API changes; tsc must exit 0.
+
+Work Log:
+- Read worklog tail (19-a, 20-a). Read lab-analyzer.tsx structure: form view (mode toggle → photo uploader / manual grid → RunButton row → Disclaimer) vs result view (ResultCards + per-test cards that ALREADY render AI-generated referenceRange per test).
+- PLACEMENT DECISION (form side): result side would be redundant with the per-test "Reference:" lines; form side shows ranges while entering/uploading and renders in BOTH photo and manual modes. Mounted after the RunButton row, before Disclaimer — keeps input→action flow intact, reads as reference material.
+- ONE ADDITIVE BLOCK: module-level QUICK_RANGES (7 rows, exact mission copy: HbA1c <5.7 / 5.7-6.5 / >6.5; Fasting sugar 70-100 / 100-125 / ≥126; BP <120/80 / 130/85+ / ≥140/90; TSH 0.4-5.5; Vitamin D <12 / 12-20; B12 <150 pg/mL; Haemoglobin <13 men / <12 women (ICMR)) + module-local QuickReference component (static, no state/fetch).
+- STYLING matches the tool's own manual-entry panel anatomy (rounded-2xl glass-soft p-3 shadow-depth, uppercase micro-header) + sibling row pattern from diet-planner TherapeuticSwaps (bg-[#FAF7F2]/60 rounded-lg rows, test-name chip = sage pill #9DB89E15/#5A7A5B, range text xs). Header icon reuses already-imported FlaskConical (aria-hidden) — ZERO new imports/deps. Footer italic line verbatim: "Ranges vary by lab and context — always compare with your report's own reference column." (raw apostrophe matches codebase precedent, eslint-clean).
+- Result view, form logic, COMMON_TESTS, Disclaimer all byte-identical; card only visible pre-analysis.
+- Gates: npx tsc --noEmit exit 0; eslint exit 0 on the touched file. No servers/builds/commits. English-only copy.
+
+Stage Summary:
+- The lab-analyzer form view now carries a compact 7-row Indian reference card (HbA1c, fasting sugar, BP, TSH, Vitamin D, B12, haemoglobin) visible in both photo and manual modes before any analysis. Flagged for a future pass: could add an "Interpret these ranges" anchor jump or surface the same card under results for photo-mode users who never scroll the form; other KYH tools could reuse the QUICK_RANGES row pattern.
