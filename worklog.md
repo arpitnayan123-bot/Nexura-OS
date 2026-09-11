@@ -3687,3 +3687,20 @@ Work Log:
 
 Stage Summary:
 - Nexura Intelligence now lives in a compact dusk-garden band directly above the warm globe — same canvas, same sand/terracotta signals, half the size, fully reduced-motion-safe. Screenshots: download/garden-ai-strip.png, garden-pair-globe.png, garden-final-desktop.png, garden-mobile.png.
+
+---
+Task ID: NXP-AI-MORNING (AI strip -> slim daylight "morning garden by the sea")
+Agent: Super Z (main)
+Task: User: make Nexura Intelligence even slimmer; extend the garden accents to daylight with sea, birds, and creative additions.
+
+Work Log:
+- Redesign v3 "Morning Garden by the Sea": strip flipped from the dark night-garden band to a warm dawn-sky daylight card (gradient #FFFCF6->#FBF0DE->#F6E7CF, hairline border) — text switched to warm ink for the light canvas; heading tightened to "Ask, and it thinks — quietly." (single line on desktop).
+- HEIGHT: 255px -> 110px desktop (from ~470px originally). Layout now: grid-cols-[auto_auto_minmax(0,1fr)_auto] one row on desktop = orb-xs 56px | label+heading+facts | 280px glass prompt pill | CTA+note. Mobile: 2-col head row, prompt spans full, CTA centered; 270px, facts tucked under.
+- SCENE (all aria-hidden): amber sun glow, 2 drifting cream clouds, 3 gliding gulls (warm-ink arcs), sage eucalyptus sea (never cool blue) with 2 cream wave lines + warm sand strip, bobbing sailboat (cream sails, terracotta hull) placed in the clear water pocket under the facts line, swaying daylight stems with terracotta blooms + grass tufts, a butterfly visiting the blooms, 3 petals drifting down-wind. All colors stay in the Linen warm family so the scene still rhymes with the globe card below (globe is now the page's single dark moment, per original Linen spec).
+- CSS: nx-orb-xs (56px scaled insets), nx-boat/nx-bob, nx-bird/nx-glide, nx-cloud/nx-cloud, nx-petal/nx-petal, nx-butterfly; all added to the reduced-motion kill list (petals rest at 0.35 opacity so the scene still reads).
+- FIXES during E2E: facts line + beta note re-colored #8A8479 -> #5E5A52 and sea top edge lowered 8px (both sat on the sage sea with weak contrast); sailboat repositioned out from behind the CTA note into the clear pocket (left 21%, bottom 2px, 18px).
+- Gates: tsc 0 x3, eslint 0. Deploys x3 via deploy-preview.sh — DEPLOY VERIFIED each time (0 dev fingerprints, chunks 200, markers, cache headers).
+- Browser E2E (agent-browser, prod): desktop cardH=110, heading single line (27px), zero overflowing nodes; mobile 390px docW=390, cardH=270, zero overflow; prompt cycling live; CTA click -> /know-your-health; zero page errors, clean console.
+
+Stage Summary:
+- Nexura Intelligence is now a 110px daylight strip: dawn sky, sun, gulls, sage sea with a bobbing sailboat, flowering sand, butterfly and petals — slim, warm, reduced-motion-safe, honest copy intact. Screenshots: download/morning-strip-desktop.png, morning-strip-mobile.png.
