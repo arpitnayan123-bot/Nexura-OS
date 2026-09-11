@@ -3572,3 +3572,17 @@ Work Log:
 
 Stage Summary:
 - /pricing now sells no billing or security fiction: trials are onboarding offers, payment modes are onboarding decisions, encryption/residency claims mirror the Compliance page word-for-word, and /compliance timeline rows say "alignment tracked" instead of self-certifying "compliant since launch". Internal site-component links all verified live. Flagged for a future pass: settings-app.tsx still shows "On-prem, encrypted at rest" (internal product copy, out of scope here); investors/clinic promo pages may deserve the same trial-claim sweep.
+
+---
+Task ID: L24 (NXP-LOOP-24 CLOSEOUT)
+Agent: Super Z (main)
+Task: Final full regression + all-routes E2E + 24-loop program closeout.
+
+Work Log:
+- Gates: tsc 0, eslint (whole src) 0, vitest 13 files / 183 tests green.
+- Deployed via deploy-preview.sh; ALL 16 route probes 200 (home, clinic, compliance, connect, connect/patient, founder, global, global/dashboard, hospital, investors, know-your-health, pharmacy, portal, predictive, pricing, clinic/book/rao-clinic).
+- Browser E2E: /predictive 125/125 visible text nodes pure white (white-ink directive intact across all loops), Hindi toggle renders, spotlight cards live, 0 console errors; homepage glance band + honest claims + 108 emergency line live.
+- Loops 1-24 complete, each: audit/implementation subagent(s) -> gates -> deploy -> verify -> commit. Zero features deleted; every loop additive or truth-correcting.
+
+Stage Summary (24 loops):
+L1 OS audit + truth-pass (fabricated stats/certs removed, predictive landing corrected, 8 signal layers, wipe bug) · L2 homepage proof band (real inventory: 22/172/145/15) + copy twins · L3 Twelve-Domains engine-accurate glossary · L4 clinic truth + EMR history strip + 54-drug seed made real + booking res.ok bug · L5 pharmacy Schedule-H persistence + live e-Invoice + AI-query restore + badge bug · L6 KYH 15-tool truth pass · L7 connect honest call-coordination + status timeline · L8 portal truth + report tips · L9 global/investor truth (calculator country factors, pipeline relabeled) · L10 compliance truth (real Merkle chain) + DPDP rights · L11 emergency 108/112/14416 consistency · L12 ABHA persistence bug + ABDM wording normalized · L13 a11y (20 fixes) · L14 perf (5 lazy overlays, 2 memos) · L15 Hindi landing coverage · L16 immunization + adult screening schedules · L17 chronic-care watchlist with ICMR cadence · L18 mental-health what-helps-next + helplines · L19 pregnancy ANC schedule · L20 therapeutic Indian swaps · L21 lab reference ranges · L22 segment error boundaries x7 · L23 pricing FAQ honesty + link sweep (0 dead) · L24 this closeout.
