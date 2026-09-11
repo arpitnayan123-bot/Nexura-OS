@@ -19,7 +19,7 @@ export function ConsoleBar() {
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-sky-400/40 hover:text-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-400/40 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
             aria-label="Return to Nexura Hospital OS"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
@@ -27,7 +27,7 @@ export function ConsoleBar() {
             <span className="sm:hidden">OS</span>
           </Link>
           <span className="hidden h-4 w-px bg-white/10 sm:block" aria-hidden="true" />
-          <p className="hidden font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400 sm:block">
+          <p className="hidden font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-300/90 sm:block">
             Predictive Intelligence Engine
           </p>
         </div>

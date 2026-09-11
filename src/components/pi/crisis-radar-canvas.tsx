@@ -166,11 +166,26 @@ export function CrisisRadarCanvas({ nodes, className }: { nodes: RadarNode[]; cl
         const a = sim[i], b = sim[j];
         const ax = a.x * w, ay = a.y * h, bx = b.x * w, by = b.y * h;
         const col = a.real ? a.band : b.real ? b.band : "green";
-        const alpha = 0.05 + 0.1 * Math.max(a.flare, b.flare) + (a.real && b.real ? 0.1 : 0);
+        const alpha = 0.08 + 0.16 * Math.max(a.flare, b.flare) + (a.real && b.real ? 0.14 : 0);
         c.strokeStyle = `rgba(${BAND_COLOR[col]}, ${alpha.toFixed(3)})`;
         c.lineWidth = 1;
         c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke();
       }
+
+      // instrument rings + crosshair — reads as a radar instrument,
+      // not just a particle field
+      const icx = w * 0.5, icy = h * 0.5;
+      const iR = Math.min(w, h) * 0.46;
+      c.strokeStyle = "rgba(125, 211, 252, 0.09)";
+      c.lineWidth = 1;
+      for (const f of [0.35, 0.62, 0.88]) {
+        c.beginPath(); c.arc(icx, icy, iR * f, 0, Math.PI * 2); c.stroke();
+      }
+      c.strokeStyle = "rgba(125, 211, 252, 0.055)";
+      c.beginPath(); c.moveTo(icx - iR, icy); c.lineTo(icx + iR, icy); c.stroke();
+      c.beginPath(); c.moveTo(icx, icy - iR); c.lineTo(icx, icy + iR); c.stroke();
+      c.fillStyle = "rgba(125, 211, 252, 0.30)";
+      c.beginPath(); c.arc(icx, icy, 1.6, 0, Math.PI * 2); c.fill();
 
       // radar sweep beam (conic wedge fading behind the line)
       const scx = w * 0.5, scy = h * 0.5;
@@ -178,13 +193,13 @@ export function CrisisRadarCanvas({ nodes, className }: { nodes: RadarNode[]; cl
       const grad = c.createConicGradient ? c.createConicGradient(sweep, scx, scy) : null;
       if (grad) {
         grad.addColorStop(0, "rgba(56,189,248,0)");
-        grad.addColorStop(0.985, "rgba(56,189,248,0.03)");
-        grad.addColorStop(1, "rgba(56,189,248,0.09)");
+        grad.addColorStop(0.985, "rgba(56,189,248,0.05)");
+        grad.addColorStop(1, "rgba(56,189,248,0.13)");
         c.fillStyle = grad;
         c.beginPath(); c.moveTo(scx, scy); c.arc(scx, scy, beamLen, sweep - 0.0, sweep + Math.PI * 2); c.fill();
       }
       // leading edge line
-      c.strokeStyle = "rgba(125,211,252,0.20)";
+      c.strokeStyle = "rgba(125,211,252,0.32)";
       c.lineWidth = 1;
       c.beginPath(); c.moveTo(scx, scy);
       c.lineTo(scx + Math.cos(sweep) * beamLen, scy + Math.sin(sweep) * beamLen);
@@ -197,14 +212,14 @@ export function CrisisRadarCanvas({ nodes, className }: { nodes: RadarNode[]; cl
         const pulse = 1 + spec.amp * (0.5 + 0.5 * Math.sin(t * Math.PI * 2 * spec.freq + n.phase));
         const radius = (n.real ? spec.base + n.score / 34 : 1.6) * pulse + n.flare * 2.4;
         const rgb = BAND_COLOR[n.band] ?? BAND_COLOR.green;
-        const baseAlpha = n.real ? 0.85 : 0.3;
+        const baseAlpha = n.real ? 0.95 : 0.42;
 
         // halo
-        const halo = c.createRadialGradient(x, y, 0, x, y, radius * 5);
-        halo.addColorStop(0, `rgba(${rgb},${(0.22 + n.flare * 0.3).toFixed(3)})`);
+        const halo = c.createRadialGradient(x, y, 0, x, y, radius * 5.5);
+        halo.addColorStop(0, `rgba(${rgb},${(0.30 + n.flare * 0.35).toFixed(3)})`);
         halo.addColorStop(1, `rgba(${rgb},0)`);
         c.fillStyle = halo;
-        c.beginPath(); c.arc(x, y, radius * 5, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(x, y, radius * 5.5, 0, Math.PI * 2); c.fill();
 
         // core
         c.fillStyle = `rgba(${rgb},${Math.min(1, baseAlpha + n.flare * 0.15).toFixed(3)})`;
@@ -212,8 +227,12 @@ export function CrisisRadarCanvas({ nodes, className }: { nodes: RadarNode[]; cl
 
         // crisp center for real twins
         if (n.real) {
-          c.fillStyle = "rgba(224,242,254,0.9)";
+          c.fillStyle = "rgba(224,242,254,0.95)";
           c.beginPath(); c.arc(x, y, 1.2, 0, Math.PI * 2); c.fill();
+          // tracked-target ring — brightens as the sweep passes
+          c.strokeStyle = `rgba(125,211,252,${(0.28 + n.flare * 0.55).toFixed(3)})`;
+          c.lineWidth = 1;
+          c.beginPath(); c.arc(x, y, radius + 3.5 + n.flare * 2, 0, Math.PI * 2); c.stroke();
         }
       }
     }

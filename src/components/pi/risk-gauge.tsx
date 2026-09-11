@@ -104,7 +104,7 @@ export function RiskGauge({
           {showBand && (
             <p className={`font-mono text-[10px] font-semibold tracking-[0.18em] ${color.text}`}>{BAND_LABEL[band]}</p>
           )}
-          {label && <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400">{label}</p>}
+          {label && <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-slate-300">{label}</p>}
         </div>
       )}
     </div>

@@ -503,47 +503,121 @@
 .font-display { font-family: var(--font-fraunces), Georgia, serif; }
 
 /* ============================================================
-   NEXURA PREDICTIVE — "Glassmorphic Futurism" command center
-   Deep-space navy canvas · frosted glass tiles · neon data inks
+   NEXURA PREDICTIVE v2 — "Aurora Glass" command center
+   Deep aurora navy canvas · true frosted glass tiles · neon inks
    Palette: cyan #06b6d4 (vitals) · violet #8b5cf6 (AI insight)
             amber #f59e0b (caution) · crimson #ef4444 (critical)
+
+   Readability contract (WCAG 2.2 AA on every glass layer):
+     --nxp-hi    #F8FAFC  headings (~16.9:1)
+     --nxp-body  #D7E2F2  body copy  (~12.4:1)
+     --nxp-dim   #A9BBD6  secondary  (~7.9:1)
+     --nxp-mute  #8CA2C4  metadata   (~5.8:1)
    ============================================================ */
 
 .nxp-shell {
+  --nxp-hi: #F8FAFC;
+  --nxp-body: #D7E2F2;
+  --nxp-dim: #A9BBD6;
+  --nxp-mute: #8CA2C4;
+  color: var(--nxp-body);
   background:
-    radial-gradient(1200px 620px at 12% -8%, rgba(6, 182, 212, 0.10), transparent 60%),
-    radial-gradient(900px 540px at 88% 12%, rgba(20, 184, 166, 0.08), transparent 60%),
-    radial-gradient(1100px 700px at 50% 118%, rgba(139, 92, 246, 0.10), transparent 62%),
-    linear-gradient(180deg, #0f172a 0%, #16213a 46%, #1e293b 100%);
+    radial-gradient(1300px 680px at 10% -10%, rgba(8, 145, 178, 0.20), transparent 58%),
+    radial-gradient(1000px 560px at 92% 6%, rgba(20, 184, 166, 0.14), transparent 55%),
+    radial-gradient(1150px 760px at 48% 116%, rgba(139, 92, 246, 0.18), transparent 60%),
+    linear-gradient(180deg, #0c1424 0%, #111d36 46%, #182643 100%);
 }
 
-/* Frosted glass tile — the single card language of the console */
-.nxp-glass {
-  background: linear-gradient(160deg, rgba(30, 41, 59, 0.72), rgba(15, 23, 42, 0.55));
-  border: 1px solid rgba(56, 189, 248, 0.16);
-  box-shadow:
-    0 24px 60px -28px rgba(2, 6, 23, 0.85),
-    inset 0 1px 0 rgba(148, 197, 255, 0.07);
-  backdrop-filter: blur(18px) saturate(1.25);
-  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+/* The console is theme-independent — never let the light body
+   background leak under it (fixes the white slab below the shell). */
+body:has(.nxp-shell) {
+  background: #0c1424;
 }
+.nxp-shell ::selection {
+  background: rgba(6, 182, 212, 0.38);
+  color: #f8fafc;
+}
+
+/* ---------- True frosted glass tile ----------
+   Bright glass fill + specular top edge + gradient hairline
+   border (via masked ::before) + sheen sweep on hover. */
+.nxp-glass {
+  position: relative;
+  background: linear-gradient(155deg, rgba(165, 203, 255, 0.10), rgba(30, 41, 59, 0.38) 42%, rgba(15, 23, 42, 0.52));
+  border: 1px solid rgba(148, 197, 255, 0.16);
+  box-shadow:
+    0 30px 70px -30px rgba(2, 6, 23, 0.92),
+    inset 0 1px 0 rgba(224, 242, 254, 0.16),
+    inset 0 -1px 0 rgba(2, 6, 23, 0.35);
+  backdrop-filter: blur(26px) saturate(1.45);
+  -webkit-backdrop-filter: blur(26px) saturate(1.45);
+}
+
+/* gradient hairline border — the expensive edge */
+.nxp-glass::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    150deg,
+    rgba(125, 211, 252, 0.50),
+    rgba(167, 139, 250, 0.22) 38%,
+    rgba(56, 189, 248, 0.05) 62%,
+    rgba(125, 211, 252, 0.32)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* sheen sweep — a slow light band crossing the tile on hover */
+.nxp-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(186, 230, 253, 0.06) 48%,
+    rgba(186, 230, 253, 0.11) 50%,
+    rgba(186, 230, 253, 0.06) 52%,
+    transparent 58%
+  );
+  transform: translateX(-130%);
+  transition: transform 1.15s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.nxp-glass:hover::after {
+  transform: translateX(130%);
+}
+
 .nxp-glass-hover {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s, box-shadow 0.35s;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s,
+    background 0.35s,
+    box-shadow 0.35s;
 }
 .nxp-glass-hover:hover {
   transform: translateY(-4px);
-  border-color: rgba(56, 189, 248, 0.42);
+  border-color: rgba(125, 211, 252, 0.45);
+  background: rgba(148, 197, 255, 0.055);
   box-shadow:
-    0 30px 70px -26px rgba(2, 6, 23, 0.9),
-    0 0 42px -10px rgba(56, 189, 248, 0.35),
-    inset 0 1px 0 rgba(148, 197, 255, 0.10);
+    0 26px 60px -24px rgba(2, 6, 23, 0.9),
+    0 0 40px -8px rgba(56, 189, 248, 0.40),
+    inset 0 1px 0 rgba(224, 242, 254, 0.12);
 }
 
 /* Fine hairline grid texture over the deep canvas */
 .nxp-grid {
   background-image:
-    linear-gradient(rgba(148, 197, 255, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 197, 255, 0.045) 1px, transparent 1px);
+    linear-gradient(rgba(148, 197, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 197, 255, 0.05) 1px, transparent 1px);
   background-size: 56px 56px;
   mask-image: radial-gradient(90% 70% at 50% 0%, black 30%, transparent 100%);
   -webkit-mask-image: radial-gradient(90% 70% at 50% 0%, black 30%, transparent 100%);
@@ -646,4 +720,6 @@
 @media (prefers-reduced-motion: reduce) {
   .nxp-heartbeat, .nxp-live, .nxp-drift, .nxp-holo, .nxp-glitch { animation: none !important; }
   .nxp-glass-hover, .nxp-glass-hover:hover { transition: none; transform: none; }
+  .nxp-glass::after { transition: none; }
+  .nxp-glass:hover::after { transform: translateX(-130%); }
 }

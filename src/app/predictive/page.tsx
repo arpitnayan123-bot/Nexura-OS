@@ -83,8 +83,9 @@ export default async function PredictivePage() {
 
   return (
     <div className="nxp-shell relative min-h-screen overflow-x-clip text-slate-200 antialiased">
-      {/* ambient moving mesh — data-flow aurora */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+      {/* ambient moving mesh — data-flow aurora (clipped so the
+          blobs never extend the document scroll area) */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <div className="nxp-drift absolute -top-32 left-[8%] h-[30rem] w-[30rem] rounded-full bg-cyan-500/[0.13] blur-[130px]" />
         <div className="nxp-drift absolute top-[38%] -right-40 h-[28rem] w-[28rem] rounded-full bg-teal-400/[0.10] blur-[120px]" style={{ animationDelay: "-6s" }} />
         <div className="nxp-drift absolute bottom-[-6rem] left-[30%] h-[32rem] w-[32rem] rounded-full bg-violet-600/[0.12] blur-[140px]" style={{ animationDelay: "-11s" }} />
@@ -113,7 +114,7 @@ export default async function PredictivePage() {
                 </span>
               </h1>
 
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300">
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-200">
                 One continuous intelligence layer across the institution. Six signal streams resolve into a Living Twin
                 per patient, scored on the <span className="font-semibold text-sky-300">Time-to-Decay index</span> and
                 re-ranked every ninety seconds — years-scale lifestyle risk and hours-scale hospital crisis in a single
@@ -144,7 +145,7 @@ export default async function PredictivePage() {
                   { k: "Critical", v: counts.red, tone: "text-red-400" },
                 ].map((s) => (
                   <div key={s.k} className="rounded-2xl nxp-glass px-4 py-3.5">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{s.k}</dt>
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">{s.k}</dt>
                     <dd className={`mt-1 font-mono text-2xl font-bold tabular-nums ${s.tone}`}>{String(s.v).padStart(2, "0")}</dd>
                   </div>
                 ))}
@@ -165,7 +166,7 @@ export default async function PredictivePage() {
                 {/* HUD overlays */}
                 <div className="pointer-events-none absolute left-6 top-5">
                   <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-300/90">Crisis Radar</p>
-                  <p className="mt-0.5 font-mono text-[10px] tracking-[0.14em] text-slate-400">
+                  <p className="mt-0.5 font-mono text-[10px] tracking-[0.14em] text-slate-300">
                     SECTOR VIEW · {hospital?.name?.toUpperCase() ?? "DEMO HOSPITAL"} · WARDS A–F
                   </p>
                 </div>
@@ -177,8 +178,8 @@ export default async function PredictivePage() {
                   ].map((b) => (
                     <span key={b.l} className="flex items-center gap-1.5">
                       <span className={`h-1.5 w-1.5 rounded-full ${b.c} ${b.l === "Critical" ? "nxp-heartbeat" : ""}`} aria-hidden="true" />
-                      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-300">
-                        {b.l} <span className="text-slate-500">{b.n}</span>
+                      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-200">
+                        {b.l} <span className="text-slate-400">{b.n}</span>
                       </span>
                     </span>
                   ))}
@@ -188,8 +189,8 @@ export default async function PredictivePage() {
               {/* cohort mean gauge */}
               <div className="mt-4 flex items-center justify-between rounded-2xl nxp-glass px-5 py-4">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Cohort mean · Time-to-Decay</p>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">Cohort mean · Time-to-Decay</p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-300">
                     Mean of every active twin in the current sweep — the index the radar is ranked by.
                   </p>
                 </div>
@@ -208,7 +209,7 @@ export default async function PredictivePage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 id="priority-title" className="text-lg font-bold tracking-tight text-white">Priority Queue</h2>
-                <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-300">
                   Top critical alerts · Time-to-Decay desc
                 </p>
               </div>
@@ -233,14 +234,14 @@ export default async function PredictivePage() {
                         <span className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-0.5 font-mono text-[10px] tracking-wider text-slate-300">
                           {r.ward ?? WARD_FALLBACK}
                         </span>
-                        <span className="font-mono text-[10px] tracking-wider text-slate-400">{r.uhid}</span>
+                        <span className="font-mono text-[10px] tracking-wider text-slate-300">{r.uhid}</span>
                         {r.uncertain && (
                           <span className="rounded-md border border-amber-400/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">
                             Manual review
                           </span>
                         )}
                       </div>
-                      {r.topDriver && <p className="mt-1 truncate text-xs text-slate-400">{r.topDriver}</p>}
+                      {r.topDriver && <p className="mt-1 truncate text-xs text-slate-300">{r.topDriver}</p>}
                       <div className="mt-1.5 flex flex-wrap items-center gap-2">
                         {r.openProtocolId ? (
                           <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/35 bg-violet-500/12 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-300">
@@ -248,11 +249,11 @@ export default async function PredictivePage() {
                             Pre-Emptive Protocol drafted
                           </span>
                         ) : (
-                          <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                          <span className="rounded-full border border-white/15 bg-white/[0.06] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-200">
                             Surveillance
                           </span>
                         )}
-                        <span className="font-mono text-[10px] tracking-wider text-slate-400">
+                        <span className="font-mono text-[10px] tracking-wider text-slate-300">
                           CONF {r.confidence.toFixed(2)}
                         </span>
                       </div>
@@ -264,7 +265,7 @@ export default async function PredictivePage() {
 
             {rows.length === 0 && (
               <div className="mt-5 flex items-center justify-center rounded-2xl border border-dashed border-white/10 px-4 py-10">
-                <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-400">Cohort sweep returned zero rows — engine idle</p>
+                <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-300">Cohort sweep returned zero rows — engine idle</p>
               </div>
             )}
           </div>
@@ -273,7 +274,7 @@ export default async function PredictivePage() {
           <div id="twin" className="scroll-mt-24 rounded-3xl nxp-glass p-5 sm:p-6 lg:col-span-5">
             <div className="mb-5">
               <h2 className="text-lg font-bold tracking-tight text-white">Patient Twin Simulator</h2>
-              <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+              <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-300">
                 Individual living twin · What-if horizon
               </p>
             </div>
@@ -287,7 +288,7 @@ export default async function PredictivePage() {
         <section aria-labelledby="signals-title" className="mt-6 grid gap-6 lg:grid-cols-12">
           <div className="rounded-3xl nxp-glass p-5 sm:p-6 lg:col-span-5">
             <h2 id="signals-title" className="text-lg font-bold tracking-tight text-white">Signal Fabric</h2>
-            <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+            <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-300">
               Six streaming signal classes
             </p>
             <ul className="mt-5 space-y-2.5">
@@ -303,7 +304,7 @@ export default async function PredictivePage() {
                   </span>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-slate-100">{s.name}</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-slate-400">{s.desc}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-slate-300">{s.desc}</p>
                   </div>
                 </li>
               ))}
@@ -322,11 +323,11 @@ export default async function PredictivePage() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 id="pipeline-title" className="text-lg font-bold tracking-tight text-white">Protocol Pipeline</h2>
-              <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+              <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-300">
                 Ingest → Graph → Twin → Radar → Protocol → Governance
               </p>
             </div>
-            <span className="font-mono text-[10px] tracking-[0.16em] text-slate-400">RESCORED EVERY 90 s</span>
+            <span className="font-mono text-[10px] tracking-[0.16em] text-slate-300">RESCORED EVERY 90 s</span>
           </div>
 
           <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
@@ -335,14 +336,14 @@ export default async function PredictivePage() {
                 key={p.name}
                 className="nxp-glass-hover relative rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 hover:border-cyan-400/35"
               >
-                <span aria-hidden className="absolute right-3.5 top-3 font-mono text-[10px] font-semibold tracking-[0.18em] text-slate-600">
+                <span aria-hidden className="absolute right-3.5 top-3 font-mono text-[10px] font-semibold tracking-[0.18em] text-slate-400">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-400/25 bg-cyan-500/10 text-cyan-300">
                   <p.icon className="h-4 w-4" />
                 </span>
                 <p className="mt-3 text-sm font-bold text-slate-100">{p.name}</p>
-                <p className="mt-1 text-xs leading-relaxed text-slate-400">{p.desc}</p>
+                <p className="mt-1 text-xs leading-relaxed text-slate-300">{p.desc}</p>
               </li>
             ))}
           </ol>
@@ -359,7 +360,7 @@ export default async function PredictivePage() {
               </span>
               <div>
                 <p className="text-sm font-bold text-slate-100">{t.k}</p>
-                <p className="mt-0.5 font-mono text-[11px] tracking-wide text-slate-400">{t.v}</p>
+                <p className="mt-0.5 font-mono text-[11px] tracking-wide text-slate-300">{t.v}</p>
               </div>
             </div>
           ))}
@@ -379,7 +380,7 @@ export default async function PredictivePage() {
               <h2 id="deploy-title" className="mt-3 max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
                 Deploy the Predictive Intelligence Engine in your hospital.
               </h2>
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300">
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-200">
                 A deployment briefing walks your clinical leadership through the live radar, the twin simulator and the
                 governance model — mapped onto your wards, your EMR and your population.
               </p>
@@ -390,10 +391,10 @@ export default async function PredictivePage() {
 
         {/* footer line */}
         <footer className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] pt-6">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400">
             Nexura · Predictive Intelligence Engine · Demo sweep — anonymized
           </p>
-          <Link href="/" className="text-xs font-semibold text-slate-400 transition hover:text-sky-300">
+          <Link href="/" className="text-xs font-semibold text-slate-300 transition hover:text-sky-300">
             Return to Hospital OS →
           </Link>
         </footer>

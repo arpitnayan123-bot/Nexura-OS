@@ -123,12 +123,12 @@ function Vitals() {
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {items.map((it) => (
         <div key={it.k} className="rounded-xl border border-sky-400/10 bg-sky-400/[0.04] px-3 py-2">
-          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-300">
             <it.icon className={`h-3 w-3 ${it.beat ? "nxp-heartbeat text-rose-400" : ""}`} />
             {it.k}
           </p>
           <p className="mt-0.5 font-mono text-base font-semibold leading-none tabular-nums text-slate-100">
-            {it.v} <span className="text-[10px] font-normal text-slate-400">{it.u}</span>
+            {it.v} <span className="text-[10px] font-normal text-slate-300">{it.u}</span>
           </p>
         </div>
       ))}
@@ -211,20 +211,20 @@ export function TwinWhatIf() {
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
           </span>
           <p className="font-mono text-xs font-semibold tracking-wider text-slate-200">
-            TWIN-4471 <span className="text-slate-500">·</span> Suresh K.
+            TWIN-4471 <span className="text-slate-400">·</span> Suresh K.
           </p>
           <span className="rounded-full border border-violet-400/30 bg-violet-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-violet-300">
             Live sync
           </span>
         </div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">Watchlist · T2D trajectory</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-300">Watchlist · T2D trajectory</p>
       </div>
 
       <Vitals />
 
       {/* intervention catalog */}
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Intervention catalog</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">Intervention catalog</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {CATALOG.map((c) => {
             const on = selected.includes(c.id);
@@ -263,14 +263,14 @@ export function TwinWhatIf() {
           aria-live="polite"
         >
           <p className="font-mono text-sm font-bold leading-none text-sky-300">
-            T+{day}<span className="text-[10px] text-slate-400">d</span>
+            T+{day}<span className="text-[10px] text-slate-300">d</span>
           </p>
           <p className={`mt-1 font-mono text-xs font-semibold tabular-nums ${BAND_TEXT[scrubBand]}`}>
-            {(planAt ?? baselineAt).toFixed(1)}<span className="text-slate-500">/100</span>{" "}
+            {(planAt ?? baselineAt).toFixed(1)}<span className="text-slate-400">/100</span>{" "}
             <span className="text-[10px] uppercase tracking-[0.14em]">{scrubBand}</span>
           </p>
           {planAt !== null && (
-            <p className="mt-0.5 font-mono text-[10px] text-slate-400 tabular-nums">
+            <p className="mt-0.5 font-mono text-[10px] text-slate-300 tabular-nums">
               Δ {(planAt - baselineAt).toFixed(1)} vs reactive path
             </p>
           )}
@@ -343,10 +343,10 @@ export function TwinWhatIf() {
         {/* Time-to-Decay scrubber */}
         <div className="mt-3">
           <div className="flex items-center justify-between">
-            <label htmlFor="nxp-decay" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+            <label htmlFor="nxp-decay" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">
               Time-to-Decay horizon
             </label>
-            <span className="font-mono text-[10px] tracking-wider text-slate-400">DAY 0 — 90</span>
+            <span className="font-mono text-[10px] tracking-wider text-slate-300">DAY 0 — 90</span>
           </div>
           <input
             id="nxp-decay"
@@ -371,7 +371,7 @@ export function TwinWhatIf() {
               {committed.flatMap((c) =>
                 c.outcomes.slice(0, 2).map((l, i) => (
                   <div key={`${c.id}-${i}`} className="flex items-center justify-between gap-3 text-xs">
-                    <span className="text-slate-400">{l.label}</span>
+                    <span className="text-slate-300">{l.label}</span>
                     <span className={`font-mono font-semibold tabular-nums ${l.direction === "better" ? "text-emerald-300" : l.direction === "worse" ? "text-red-400" : "text-slate-300"}`}>
                       {l.delta}
                     </span>
@@ -384,14 +384,14 @@ export function TwinWhatIf() {
               {delta > 0 ? "+" : ""}{delta} pts
             </span>
           </div>
-          <p className="mt-3 border-t border-dashed border-white/10 pt-2.5 text-[11px] leading-relaxed text-slate-400">
+          <p className="mt-3 border-t border-dashed border-white/10 pt-2.5 text-[11px] leading-relaxed text-slate-300">
             {committed[0]?.caveat}
           </p>
         </div>
       )}
 
       {!committed && !computing && (
-        <p className="flex items-center gap-1.5 text-[11px] text-slate-400">
+        <p className="flex items-center gap-1.5 text-[11px] text-slate-300">
           <Utensils className="h-3 w-3 text-violet-300" />
           Select interventions and run the projection — the reactive path (dashed) shows the untreated trajectory.
         </p>
