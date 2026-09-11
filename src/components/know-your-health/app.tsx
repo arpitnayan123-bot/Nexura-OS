@@ -79,7 +79,7 @@ export function KnowYourHealthApp() {
                 <div className="relative max-w-2xl">
                   <span className="inline-flex items-center gap-1.5 rounded-full glass-chip px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-white"><Sparkles className="h-3 w-3 text-[#9DB89E]" /> Powered by Google Gemini</span>
                   <h1 className="mt-3 font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">Know your health,<br /><span className="bg-gradient-to-r from-[#9DB89E] to-[#D98B6E] bg-clip-text text-transparent">before it knows you.</span></h1>
-                  <p className="mt-3 max-w-lg text-sm text-white/80 sm:text-base">{TOOLS.length} AI health tools built for India — analyse your lab report, scan a skin concern, predict your 10-year disease risk, plan an Indian diet, and more. All processed securely on the server.</p>
+                  <p className="mt-3 max-w-lg text-sm text-white/80 sm:text-base">{TOOLS.length} AI health tools built for India — analyse your lab report, scan a skin concern, estimate your 10-year disease risk, plan an Indian diet, and more. All processed securely on the server. Educational tools: they offer information and signals, never a medical diagnosis.</p>
                   <div className="mt-5 flex flex-wrap gap-2">
                     <button onClick={() => go("symptoms-checker")} className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#1F1B17] shadow-depth transition-transform hover:scale-105">Try Symptom Checker <ArrowRight className="h-3.5 w-3.5" /></button>
                     <button onClick={() => go("lab-analyzer")} className="flex items-center gap-1.5 rounded-full glass-dark px-4 py-2 text-sm font-medium text-white transition-all hover:scale-105"><Sparkles className="h-3.5 w-3.5" /> Analyze a lab report</button>
@@ -124,8 +124,29 @@ export function KnowYourHealthApp() {
                 {filtered.length===0 && <div className="col-span-full rounded-2xl glass-soft py-12 text-center"><Search className="mx-auto mb-2 h-8 w-8 text-[#9A8F84]/30" /><p className="text-sm text-[#9A8F84]">No tools match "{query}".</p></div>}
               </div>
 
+              <div className="glass-soft rounded-2xl p-5 sm:p-6">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#5C544D]">How these tools work</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-xl bg-[#FAF7F2]/60 p-3">
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[#9DB89E]/20 text-[0.65rem] font-bold text-[#5A7A5B]">1</span>
+                    <p className="mt-2 text-xs font-semibold text-[#1F1B17]">Share your input</p>
+                    <p className="mt-1 text-[0.7rem] leading-relaxed text-[#5C544D]">Type your details, fill a short form, or upload a photo — whichever the tool asks for.</p>
+                  </div>
+                  <div className="rounded-xl bg-[#FAF7F2]/60 p-3">
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[#E0B080]/20 text-[0.65rem] font-bold text-[#B8893D]">2</span>
+                    <p className="mt-2 text-xs font-semibold text-[#1F1B17]">AI analyses it server-side</p>
+                    <p className="mt-1 text-[0.7rem] leading-relaxed text-[#5C544D]">Gemini reviews your input against Indian clinical reference ranges (ICMR, ICMR-INDIAB, ACC/AHA) in an Indian care context.</p>
+                  </div>
+                  <div className="rounded-xl bg-[#FAF7F2]/60 p-3">
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[#C98A7A]/20 text-[0.65rem] font-bold text-[#9A6A5A]">3</span>
+                    <p className="mt-2 text-xs font-semibold text-[#1F1B17]">Get educational guidance</p>
+                    <p className="mt-1 text-[0.7rem] leading-relaxed text-[#5C544D]">Plain-English results with practical steps — and a clear flag when it's time to see a doctor.</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="glass-soft rounded-2xl p-4 text-center">
-                <p className="text-[0.65rem] text-[#9A8F84]">🔒 All AI calls are processed securely on our server using Google Gemini. Your image/text data is never stored, never used to train models, and never shared with third parties. These tools are informational only and not a substitute for professional medical advice.</p>
+                <p className="text-[0.65rem] text-[#9A8F84]">🔒 All AI calls are processed securely on our server using Google Gemini. Your image/text data is not stored by this app — it is sent only to the Gemini API to generate your result. Every tool here is educational: outputs are informational estimates and signals, not medical advice, diagnosis, or treatment. Always consult a qualified doctor.</p>
               </div>
             </motion.div>
           )}
