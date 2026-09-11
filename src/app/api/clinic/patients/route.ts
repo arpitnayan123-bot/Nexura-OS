@@ -13,7 +13,9 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim().toLowerCase();
     const where = q ? { clinicId: ctx.clinic.id, OR: [{ name: { contains: q } }, { mrn: { contains: q } }, { phone: { contains: q } }] } : { clinicId: ctx.clinic.id };
-    const patients = await db.clinicPatient.findMany({ where, orderBy: { createdAt: "desc" }, take: 50, select: { id: true, mrn: true, name: true, gender: true, age: true, bloodGroup: true, phone: true, allergy: true, chronicDx: true, abhaId: true, createdAt: true, _count: { select: { visits: true, appointments: true } } } });
+    // `visits` (latest only) is additive — powers last-visit recency in the clinic
+    // chronic-care watchlist. No Prisma schema change.
+    const patients = await db.clinicPatient.findMany({ where, orderBy: { createdAt: "desc" }, take: 50, select: { id: true, mrn: true, name: true, gender: true, age: true, bloodGroup: true, phone: true, allergy: true, chronicDx: true, abhaId: true, createdAt: true, _count: { select: { visits: true, appointments: true } }, visits: { take: 1, orderBy: { createdAt: "desc" }, select: { createdAt: true, diagnosis: true } } } });
     return NextResponse.json({ patients });
   } catch (err) {
     const message = err instanceof Error ? err.message : "unknown";
