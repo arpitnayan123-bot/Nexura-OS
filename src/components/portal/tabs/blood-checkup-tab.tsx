@@ -78,7 +78,7 @@ export function BloodCheckupTab({ data, onBookTest, onViewReport }: Props) {
           </span>
           <div>
             <h1 className="font-display text-2xl font-semibold leading-none">Blood Checkup at Home</h1>
-            <p className="mt-1 text-sm text-white/85">Certified phlebotomist visits your home · Reports in 12-24 hours</p>
+            <p className="mt-1 text-sm text-white/85">A phlebotomist visits your home · Reports in 6–24 hours by panel</p>
           </div>
         </div>
         <button

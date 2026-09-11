@@ -33,7 +33,7 @@ type Props = {
 export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Props) {
   const stats = data.stats ?? {};
   const upcoming = data.appointments.filter((a) => new Date(a.date) >= new Date() && a.status === "scheduled").slice(0, 3);
-  const activeBlood = data.bloodBookings.filter((b) => b.status === "booked" || b.status === "assigned" || b.status === "sample_collected" || b.status === "in_lab");
+  const activeBlood = data.bloodBookings.filter((b) => b.status === "booked" || b.status === "assigned" || b.status === "en_route" || b.status === "sample_collected" || b.status === "in_lab");
   const recentTimeline = data.timeline.slice(0, 5);
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
@@ -68,7 +68,7 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
             {data.user.fullName?.split(" ")[0] ?? "Patient"} 🙏
           </h1>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-white/90">
-            Your unified health view — hospital visits, blood tests at home, and AI insights, all in one calm place.
+            Your unified health view — hospital visits, blood tests at home, and health insights, all in one calm place.
           </p>
 
           {/* Stats */}
@@ -96,7 +96,7 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
         <section>
           <h2 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
             <Sparkles className="h-3.5 w-3.5 text-[#9DB89E]" />
-            AI Insights
+            Health Insights
             <span className="rounded-full bg-[#9DB89E]/15 px-1.5 py-0.5 text-[0.6rem] font-medium text-[#5E8A60]">
               {data.aiInsights.length}
             </span>

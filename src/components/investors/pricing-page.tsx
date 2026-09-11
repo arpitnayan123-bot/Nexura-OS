@@ -47,8 +47,8 @@ const TIERS = [
     href: "/portal",
     plans: [
       { name: "Patient", price: "Free", period: "forever", desc: "For patients", features: ["Unified health record", "Appointment history", "Prescriptions + bills", "Family member management", "Basic AI insights"], cta: "Sign up free" },
-      { name: "Blood Test at Home", price: "₹199", period: "per test", desc: "Pay per use", features: ["Phlebotomist home visit", "Sample collection", "Digital report in 24h", "AI report interpretation", "8 test panels available"], cta: "Book a test", popular: true },
-      { name: "Teleconsult", price: "₹299", period: "per consult", desc: "Pay per use", features: ["Chat with doctor", "Voice call", "Video consult", "Digital prescription", "Follow-up reminders"], cta: "Book consult" },
+      { name: "Blood Test at Home", price: "₹199+", period: "per test", desc: "Pay per use", features: ["Phlebotomist home visit", "Sample collection", "Digital report in 6–24h by panel", "AI-assisted report reading", "8 test panels available"], cta: "Book a test", popular: true },
+      { name: "AI Report Reading", price: "Free", period: "with report", desc: "In the Patient Portal", features: ["AI-assisted reading of blood reports", "Plain-English value explanations", "Rule-based fallback summary", "Not a diagnosis — share with your doctor"], cta: "View in portal" },
     ],
   },
 ];

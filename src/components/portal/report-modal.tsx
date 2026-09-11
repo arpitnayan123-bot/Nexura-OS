@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Download, Sparkles, Loader2, AlertTriangle, CheckCircle2, XCircle,
-  Activity, FileText, Calendar, MapPin, User, Phone, Droplet,
+  Activity, FileText, Calendar, MapPin, User, Phone, Droplet, Info,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
@@ -192,6 +192,32 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Understanding your report — static reading tips */}
+          <div className="mt-6 rounded-2xl border border-[#E7E5E4] bg-white p-4">
+            <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
+              <Info className="h-3.5 w-3.5 text-[#D98B6E]" />
+              Understanding your report
+            </h3>
+            <ul className="mt-2.5 space-y-2 text-xs leading-snug text-stone-600">
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#D98B6E]" />
+                Read each value against its printed reference range — normal ranges vary slightly between labs.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#E0B080]" />
+                Note whether the test was fasting or non-fasting — sugar and lipid values shift after food.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#9DB89E]" />
+                One abnormal reading isn&apos;t a verdict — doctors usually repeat the test before drawing conclusions.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#0EA5E9]" />
+                Share the full report with your doctor — this screen helps you read it, not diagnose it.
+              </li>
+            </ul>
           </div>
 
           {/* AI Interpretation */}
