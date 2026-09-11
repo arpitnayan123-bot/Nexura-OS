@@ -3497,3 +3497,17 @@ Work Log:
 
 Stage Summary:
 - The KYH Mental Wellness result view now ends every reflection with grounded, compact next steps — three evidence-informed self-care starters and a hard-miss "When to reach out now" strip that surfaces Tele-MANAS 14416 (alt 1-800-891-4416) and 108 without requiring users to scroll to the crisis card. Foresight mind-domain copy verified consistent; zero engine changes. Residual for a future pass: other KYH tools' result views have no equivalent "what helps next" pattern (intentional scope — this mission covered mental-wellness only).
+
+---
+Task ID: 19-a
+Agent: general-purpose (implementation subagent)
+Task: Maternal & child health depth — extend prevention-schedule.tsx with a THIRD compact block "Pregnancy care (ANC) highlights" (standard India/WHO guidance, 5 rows). One additive block, no other changes; tsc must exit 0.
+
+Work Log:
+- Read worklog tail (17-a, 18-a). Re-read prevention-schedule.tsx (16-a component): section.glass-soft with top disclaimer already covering guidance framing — untouched; two sibling cards in lg:grid-cols-2, rows via shared RowList (age chip pill + what/note).
+- ONE ADDITIVE BLOCK: new module-level PREGNANCY_ROWS: ScheduleRow[] (5 rows, reusing the existing row shape) + one sibling card div in the same grid: rounded-xl bg-[#FAF7F2]/60 p-3.5 sm:p-4, uppercase micro-header, HeartHandshake icon (verified exported by lucide-react; terracotta #C98A7A — established palette color from mental-wellness warm strip), sub-line "Standard India / WHO guidance for every pregnancy", RowList rows={PREGNANCY_ROWS}. Rows: "First 12 weeks" → First ANC visit (within 12 weeks of missing a period — register at the nearest PHC/CHC); "4+ contacts" → Minimum 4 ANC contacts (more as advised); "2nd trimester" → Iron-Folic Acid daily (per ANM/doctor guidance); "Td" → Td (tetanus) doses (per schedule); "After birth" → Postnatal checks (day 1, day 3, day 7 and a 6-week visit for mother + newborn).
+- GRID/STYLING: existing grid classes untouched — third card wraps to the second row's left column on lg (compact, identical card anatomy); existing two cards byte-identical. Import line gained only HeartHandshake (zero new deps). Third card sits inside the same grid under the existing top disclaimer — no new disclaimer needed.
+- Gates: npx tsc --noEmit exit 0; eslint exit 0 on the touched file. No servers/builds/commits. English-only copy; aria-hidden on the decorative icon.
+
+Stage Summary:
+- KYH "Prevention, on schedule" now covers the full maternal arc — pregnancy (ANC visits, IFA, Td, postnatal checks) alongside child immunization and adult screening — as a style-identical third card. Flagged for a future pass: on lg the third card wraps to a lone second-row cell (acceptable compact layout; a 3-col or masonry tweak would change existing cards and was out of scope).

@@ -1,5 +1,5 @@
 "use client";
-import { Baby, CalendarCheck, Info, Stethoscope } from "lucide-react";
+import { Baby, CalendarCheck, HeartHandshake, Info, Stethoscope } from "lucide-react";
 
 type ScheduleRow = { when: string; what: string; note?: string };
 
@@ -19,6 +19,14 @@ const ADULT_ROWS: ScheduleRow[] = [
   { when: "40+", what: "Mammography / breast exam", note: "discuss with your doctor" },
   { when: "30+", what: "Pap smear", note: "discuss with your doctor, per ICMR guidance" },
   { when: "60+", what: "Dental & eye check", note: "once a year" },
+];
+
+const PREGNANCY_ROWS: ScheduleRow[] = [
+  { when: "First 12 weeks", what: "First ANC visit", note: "within 12 weeks of missing a period — register at the nearest PHC/CHC" },
+  { when: "4+ contacts", what: "Minimum 4 ANC contacts", note: "more as advised" },
+  { when: "2nd trimester", what: "Iron-Folic Acid daily", note: "per ANM/doctor guidance" },
+  { when: "Td", what: "Td (tetanus) doses", note: "per schedule" },
+  { when: "After birth", what: "Postnatal checks", note: "day 1, day 3, day 7 and a 6-week visit for mother + newborn" },
 ];
 
 function RowList({ rows }: { rows: ScheduleRow[] }) {
@@ -61,6 +69,13 @@ export function PreventionSchedule() {
           </p>
           <p className="mt-0.5 text-[0.6rem] text-[#B5A99E]">Common check-up rhythm for adults in India</p>
           <RowList rows={ADULT_ROWS} />
+        </div>
+        <div className="rounded-xl bg-[#FAF7F2]/60 p-3.5 sm:p-4">
+          <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#5C544D]">
+            <HeartHandshake className="h-3.5 w-3.5 text-[#C98A7A]" aria-hidden="true" /> Pregnancy care (ANC) highlights
+          </p>
+          <p className="mt-0.5 text-[0.6rem] text-[#B5A99E]">Standard India / WHO guidance for every pregnancy</p>
+          <RowList rows={PREGNANCY_ROWS} />
         </div>
       </div>
     </section>
