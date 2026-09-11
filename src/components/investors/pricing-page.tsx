@@ -25,8 +25,8 @@ const TIERS = [
     href: "/clinic",
     plans: [
       { name: "Solo", price: "₹2,000", period: "/month", desc: "1 doctor", features: ["SOAP consultation", "Drug autocomplete (54 meds)", "Patient register", "Basic billing", "Public booking page"], cta: "Start free trial" },
-      { name: "Practice", price: "₹8,000", period: "/month", desc: "Up to 5 doctors", features: ["Everything in Solo", "ABHA registry", "AI symptom triage", "Telemedicine", "WhatsApp reminders", "Revenue analytics"], cta: "Start free trial", popular: true },
-      { name: "Chain", price: "₹15,000", period: "/month", desc: "Unlimited doctors", features: ["Everything in Practice", "Multi-clic management", "Centralized patient DB", "Custom branding", "API access", "Priority support"], cta: "Contact sales" },
+      { name: "Practice", price: "₹8,000", period: "/month", desc: "Up to 5 doctors", features: ["Everything in Solo", "ABHA registry", "AI symptom triage", "Telemedicine", "Follow-up reminders (call-based)", "Revenue analytics"], cta: "Start free trial", popular: true },
+      { name: "Chain", price: "₹15,000", period: "/month", desc: "Unlimited doctors", features: ["Everything in Practice", "Multi-clinic management", "Centralized patient DB", "Custom branding", "API access", "Priority support"], cta: "Contact sales" },
     ],
   },
   {
