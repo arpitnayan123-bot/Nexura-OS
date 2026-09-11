@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Shield, CheckCircle2, Clock, ArrowRight, HeartPulse, FileCheck, Lock, Building2 } from "lucide-react";
+import { Shield, CheckCircle2, Clock, ArrowRight, HeartPulse, FileCheck, Lock, Building2, Download, PencilLine, Trash2, LifeBuoy } from "lucide-react";
 
 const REGULATIONS = [
   {
@@ -28,11 +28,11 @@ const REGULATIONS = [
     desc: "India's data privacy law. Requires patient consent, data localization, breach notification, and right to erasure.",
     features: [
       "Explicit patient consent flow",
-      "Data localization (India-only servers)",
-      "Right to erasure (GDPR-style)",
-      "Audit trail for all data access",
-      "Breach notification within 72 hours",
-      "Data processing impact assessments",
+      "Single-region deployment; India-region hosting planned",
+      "Right to erasure (self-serve in Foresight; clinic-desk assisted)",
+      "Hash-chained, tamper-evident audit trail",
+      "Breach-response playbook; automated detection planned",
+      "Data-retention engine with configurable purge profiles",
     ],
     timeline: "Compliant since launch",
   },
@@ -196,12 +196,12 @@ export function CompliancePage() {
           <h2 className="font-display text-3xl font-semibold tracking-tight mb-8">Architecture principles</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { icon: Lock, title: "Encryption everywhere", desc: "AES-256 at rest, TLS 1.3 in transit. No plaintext PII ever stored or transmitted." },
-              { icon: FileCheck, title: "Audit trail", desc: "Every data access, modification, and deletion is logged with timestamp, user, and IP. Immutable." },
-              { icon: Building2, title: "Data localization", desc: "All patient data stays in India. AWS Mumbai region. No cross-border data transfer." },
-              { icon: Shield, title: "Role-based access", desc: "Granular RBAC. Doctors see clinical data, admins see financials, patients see their own records only." },
-              { icon: CheckCircle2, title: "Consent-first", desc: "DPDP-compliant consent flow. Patients can grant, revoke, or limit data sharing at any time." },
-              { icon: Clock, title: "Breach notification", desc: "Automated breach detection. 72-hour notification to authorities + patients per DPDP 2023." },
+              { icon: Lock, title: "Encryption in transit", desc: "TLS/HTTPS for all traffic today. At-rest encryption is on the roadmap and not yet enabled on the current database." },
+              { icon: FileCheck, title: "Tamper-evident audit trail", desc: "Every API action is logged with timestamp, user, and role into a SHA-256 hash chain — retroactive edits break the chain, and Merkle block roots can be shared with auditors for independent verification." },
+              { icon: Building2, title: "Hosting & residency", desc: "Single-region deployment today; Mumbai-region India hosting planned. No cross-border replication is built into the architecture." },
+              { icon: Shield, title: "Role-based access", desc: "Session-based auth with role + attribute permission checks enforced on every /api route — doctors see clinical data, admins see financials, patients see their own records." },
+              { icon: CheckCircle2, title: "Consent-first", desc: "Consent is captured as granted/denied per purpose (treatment, data share, research, telemedicine) and every capture is audit-logged. Withdrawal requests are handled via the clinic desk." },
+              { icon: Clock, title: "Breach response", desc: "Breach-response playbook defined; automated detection planned. Incidents are reviewed manually today through the incident module." },
             ].map((p, i) => (
               <motion.div
                 key={i}
@@ -212,6 +212,37 @@ export function CompliancePage() {
                 className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
               >
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#D98B6E]/10 text-[#D98B6E] mb-3">
+                  <p.icon className="h-4 w-4" />
+                </span>
+                <p className="font-medium text-white text-sm">{p.title}</p>
+                <p className="text-xs text-white/50 mt-1 leading-relaxed">{p.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Your DPDP rights */}
+      <section className="px-4 sm:px-6 lg:px-8 pb-20 border-t border-white/5">
+        <div className="mx-auto max-w-5xl pt-16">
+          <h2 className="font-display text-3xl font-semibold tracking-tight">Your DPDP rights</h2>
+          <p className="text-sm text-white/50 mt-2 mb-8">How to exercise them today — self-serve where the product supports it, clinic-desk assisted where it is manual.</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: Download, title: "Access & export your data", desc: "Foresight Settings → “Download my data (JSON)” exports everything the engine stores about you. For hospital records, ask at the clinic desk." },
+              { icon: PencilLine, title: "Correct inaccurate data", desc: "Raise corrections with your doctor or the clinic desk. Fixes are made on the source record, and every change lands in the audit trail." },
+              { icon: Trash2, title: "Withdraw consent & delete", desc: "Settings → “Delete all my runs” wipes your Foresight data instantly. Hospital consents (treatment, data share, research) are withdrawn via the clinic desk — and audit-logged." },
+              { icon: LifeBuoy, title: "Grievance redressal", desc: "Start at the clinic desk, or email compliance@nexuraai.in. Every request is logged and tracked to closure." },
+            ].map((p, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+              >
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#9DB89E]/10 text-[#9DB89E] mb-3">
                   <p.icon className="h-4 w-4" />
                 </span>
                 <p className="font-medium text-white text-sm">{p.title}</p>
