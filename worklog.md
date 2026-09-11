@@ -3620,3 +3620,20 @@ Work Log:
 
 Stage Summary:
 - 2 real sign-in bugs fixed (portal 6-digit OTP untypeable; global desk accepting any credentials). All other flows verified working end-to-end in a real browser against the production build: accept/reject/session/persistence/sign-out/lock for hospital, portal, and global desk.
+
+---
+Task ID: NXP-RESTART-HEAL (server died + hollow DB restored)
+Agent: Super Z (main)
+Task: "Server died again" — restore the preview after sandbox restart; verify all sign-ins and feature data survived.
+
+Work Log:
+- Sandbox restart killed :3000. Boot chain worked as designed (bun run dev -> nx-guardian, no dev impostor); guardian found no BUILD_ID and rebuilt (new BUILD_ID iMCTxXqMhE9lwB4wPwxfG), then served prod on :3000.
+- Serve-side verify: 0 real dev fingerprints (note: /_next/static/chunks/turbopack-*.js is a legit PROD artifact — do not treat the word "turbopack" in static chunk names as a dev fingerprint), HTML no-store, static immutable, all 16 routes 200.
+- DB AUDIT: DB was HOLLOW-BUT-NOT-EMPTY — hospital core survived (1 hospital, 21 staff, hospitalMeds) but ALL loop-era data was gone (indianDrug 0, pharmacy 0, clinic 0, connect 0, tourism 0, pieBioSignal 0, portalUser 0, merkle 0). Old guardian heal only triggered on hospital.count()==0, so this state slipped through.
+- RESTORED via full ordered seed chain: seed:all + seed-nx-v5 + seed-hospital-bootstrap + legacy/seed-pharmacy + seed-pharmacy-compliance + seed-clinic-drugs + legacy/seed-clinic + seed-connect + seed-portal + seed-tourism + seed-chronic + seed-pie. (seed-pharmacy-compliance requires legacy/seed-pharmacy first — "no branch" guard; order captured in guardian patch.)
+- Verified counts: indianDrug 54, product 8, scheduleH 5, clinicPatient 8, clinicAppt 7, clinicRx 6, connectConn 5, connectMsg 22, tourismInquiry 8, portalUser 3, bloodBooking 4, pieBioSignal 6375, labResult 30, hospitalPatient 52. merkle 0 is BY DESIGN (blocks are sealed at runtime via POST /api/nx/audit/blocks with audit.view permission); onlineBooking 0 is fresh state (user-created). Portal self-heals via find-or-create on OTP verify.
+- GUARDIAN PATCH (scripts/nx-guardian.sh heal_db): completeness probe of 10 marker tables (hospital, nxStaffUser, indianDrug, pharmaBranch, scheduleHEntry, clinicPatient, connectConnection, phlebotomist, tourismProcedure, pieBioSignal); if ANY is empty -> full 12-step seed chain with a 10-min cooldown flag (.guardian-seed-cooldown) to prevent seed storms. bash -n clean; probe returns OK on the live DB. Active DB is db/custom.db (prisma/db/custom.db is a stale leftover); heal_env fallback path already correct.
+- Browser E2E (agent-browser): /hospital PIN login CMD.ANITA/2468 -> full OS shell; /portal OTP flow -> 6-digit demo OTP 669790 typed in full -> verify -> /portal dashboard as Suresh; /global/dashboard coordinator sign-in -> desk nav; /pharmacy renders with Schedule H tab. Zero console errors across the session.
+
+Stage Summary:
+- Server restored to production health; all sign-in surfaces verified working after the crash; every loop-era dataset reseeded. Guardian now heals HOLLOW-BUT-NOT-EMPTY databases (the class of failure this restart exposed), not just fully-empty ones — partial snapshot restores can no longer leave features hollow.
