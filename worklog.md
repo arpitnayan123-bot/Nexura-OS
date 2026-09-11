@@ -3511,3 +3511,18 @@ Work Log:
 
 Stage Summary:
 - KYH "Prevention, on schedule" now covers the full maternal arc — pregnancy (ANC visits, IFA, Td, postnatal checks) alongside child immunization and adult screening — as a style-identical third card. Flagged for a future pass: on lg the third card wraps to a lone second-row cell (acceptable compact layout; a 3-col or masonry tweak would change existing cards and was out of scope).
+
+---
+Task ID: 20-a
+Agent: general-purpose (implementation subagent)
+Task: Nutrition depth — additive "Therapeutic swaps — Indian kitchens" static card in the KYH diet-planner tool view, shown below results. One additive block, no API changes; tsc must exit 0.
+
+Work Log:
+- Read worklog tail (18-a, 19-a). Read /api/know-your-health/diet-planner route (terminology alignment: Indian dishes — roti/dal/sabzi/chai context, medicalConditions honoured, calorie-first framing) + diet-planner.tsx (result view structure, ResultCard/StatCard/MealRow anatomy, glass-soft + bg-[#FAF7F2]/60 + pill-chip styling).
+- ONE ADDITIVE BLOCK: module-level SWAPS const (5 rows, exact mission copy: Blood sugar white rice → millets/whole-wheat roti portion first; Blood pressure pickle+papad daily → twice a week, salt at table only; Fatty liver sugary chai/mithai daily → unsweetened chai, weekend mithai; Anaemia chai with meals → chai an hour before/after + vitamin-C foods with meals; Cholesterol fried snacks → roasted chana/makhana) + new TherapeuticSwaps component rendered in the result view between the Tips card and the ResetButton row (details-free static card, always identical output).
+- Row anatomy: condition chip (rounded-full pill, uppercase micro-label, bg/text pairs all pre-existing in codebase: amber #E0B08015/#B8893D, terracotta #C98A7A15+#D98B6E15 over #9A6A5A, info #7A9A7B15/#4A6A4B, sage #9DB89E15/#5A7A5B) + swap text split at "→" (from normal, arrow in condition colour, to in font-medium dark). Card = ResultCard accent #7A9A7B (hydration/tips sibling tone) titled "Therapeutic swaps — Indian kitchens" with the educational sub-line "General guidance — a dietitian personalises this for you." Educational tone, no diagnostic/curative claims.
+- Zero new imports/deps (ResultCard already imported; no icons added — header uses ResultCard's built-in Sparkles); form view and all existing result cards byte-identical; Disclaimer still closes the result view.
+- Gates: npx tsc --noEmit exit 0; eslint exit 0 on the touched file. No servers/builds/commits. English-only copy.
+
+Stage Summary:
+- The diet-planner result view now closes with a compact, dietitian-personalised-by-default reference of 5 Indian-kitchen therapeutic swaps (blood sugar, BP, fatty liver, anaemia, cholesterol) rendered in the established glass aesthetic. Flagged for a future pass: swaps card only appears after a plan is generated — could be surfaced on the form view too; other KYH tools (e.g. heart-risk, diabetes modules if added later) could reuse the same SWAPS-row pattern.
