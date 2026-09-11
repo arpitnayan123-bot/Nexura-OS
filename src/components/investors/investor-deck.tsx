@@ -178,7 +178,7 @@ function Solution() {
   return (
     <Section id="solution" className="border-t border-white/5">
       <SectionLabel>The Solution</SectionLabel>
-      <SectionTitle>One ecosystem. Seven products. Zero friction.</SectionTitle>
+      <SectionTitle>One ecosystem. Eight products. Zero friction.</SectionTitle>
       <p className="text-white/60 text-lg leading-relaxed mb-12 max-w-3xl">
         Nexura OS unifies every stakeholder — hospitals, clinics, pharmacies, patients, doctors —
         into a single AI-native platform. One login. One health record. One warm experience.
@@ -263,9 +263,9 @@ function Traction() {
       <SectionTitle>Live product. Real modules. Built for scale.</SectionTitle>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { stat: "7", label: "Products shipped", sub: "All live with real data" },
-          { stat: "62", label: "Prisma models", sub: "Production-grade schema" },
-          { stat: "50+", label: "API routes", sub: "REST + real-time polling" },
+          { stat: "8", label: "Products shipped", sub: "All live with real data" },
+          { stat: "145", label: "Data models", sub: "Production-grade Prisma schema" },
+          { stat: "172", label: "API endpoints", sub: "REST + real-time polling" },
           { stat: "15+", label: "AI features", sub: "LLM + VLM + ASR powered" },
         ].map((s, i) => (
           <motion.div
@@ -283,19 +283,19 @@ function Traction() {
         ))}
       </div>
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <h3 className="font-medium text-white mb-4 text-sm">Pilot pipeline (in discussion)</h3>
+        <h3 className="font-medium text-white mb-4 text-sm">Target pipeline (discussion stage — no pilots signed yet)</h3>
         <div className="space-y-3">
           {[
-            { name: "Aarogya Multi-Specialty Hospital", city: "Mumbai", beds: 220, stage: "Pilot signed" },
+            { name: "Aarogya Multi-Specialty Hospital", city: "Mumbai", beds: 220, stage: "Discussion stage" },
             { name: "Sunrise Pharma Chain", city: "Pune", stores: 12, stage: "Demo scheduled" },
-            { name: "Dr. Rao Family Clinic", city: "Mumbai", doctors: 3, stage: "Live (pilot)" },
+            { name: "Dr. Rao Family Clinic", city: "Mumbai", doctors: 3, stage: "Discussion stage" },
           ].map((p, i) => (
             <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
               <div>
                 <p className="text-sm text-white">{p.name}</p>
                 <p className="text-xs text-white/40">{p.city} · {p.beds ? `${p.beds} beds` : p.stores ? `${p.stores} stores` : `${p.doctors} doctors`}</p>
               </div>
-              <span className={`text-xs font-medium px-2 py-1 rounded-full ${p.stage.includes("Live") ? "bg-[#22C55E]/10 text-[#22C55E]" : p.stage.includes("signed") ? "bg-[#D98B6E]/10 text-[#D98B6E]" : "bg-white/5 text-white/40"}`}>
+              <span className={`text-xs font-medium px-2 py-1 rounded-full ${p.stage.includes("Demo") ? "bg-[#D98B6E]/10 text-[#D98B6E]" : "bg-white/5 text-white/40"}`}>
                 {p.stage}
               </span>
             </div>
@@ -372,7 +372,7 @@ function Products() {
   return (
     <Section id="products" className="border-t border-white/5">
       <SectionLabel>Product Suite</SectionLabel>
-      <SectionTitle>Seven products. One platform. Built Indian, for India.</SectionTitle>
+      <SectionTitle>Eight products. One platform. Built Indian, for India.</SectionTitle>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
           { icon: Building2, name: "Hospital OS", href: "/hospital", desc: "18 modules — OPD, IPD, OT, EHR, Nursing, Lab, Radiology, Blood Bank, Billing, Insurance, AI Assistant. ABDM + NABH.", badge: "Flagship", color: "#C98A7A" },
@@ -521,7 +521,7 @@ function Roadmap() {
       <SectionTitle>18 months to market leadership.</SectionTitle>
       <div className="space-y-4">
         {[
-          { phase: "Q1 2026", title: "Seed + Pilot Validation", items: ["3 hospital pilots live", "10 clinic pilots signed", "Pharmacy POS beta with 5 stores", "ABDM integration certified"], status: "current" },
+          { phase: "Q1 2026", title: "Seed + Pilot Validation", items: ["3 hospital pilots in discussion", "10 clinic conversations in pipeline", "Pharmacy POS beta with 5 stores", "ABDM integration in progress"], status: "current" },
           { phase: "Q2 2026", title: "Product Depth + AI", items: ["HL7/FHIR integration", "Voice-to-SOAP for doctors", "AI drug interaction checker", "Patient Portal v2 with wearable sync"], status: "next" },
           { phase: "Q3 2026", title: "Scale + Series A", items: ["50 hospitals onboarded", "200 clinics live", "Telemedicine marketplace launch", "Series A: $25M raise"], status: "planned" },
           { phase: "Q4 2026", title: "Multi-city + Insurance", items: ["Mumbai + Delhi + Bangalore + Chennai", "Insurance claims automation (IRDAI)", "Phlebotomist network (500+ cities)", "NABH accreditation for partners"], status: "planned" },
@@ -570,7 +570,7 @@ function Team() {
       <SectionTitle>Built by builders who understand Indian healthcare.</SectionTitle>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
-          { name: "Arpit Nayan", role: "Founder & CEO", desc: "Full-stack architect. Built Nexura OS from zero — 7 products, 62 data models, 50+ APIs.", initials: "AN", color: "#D98B6E" },
+          { name: "Arpit Nayan", role: "Founder & CEO", desc: "Full-stack architect. Built Nexura OS from zero — 8 products, 145 data models, 172 API endpoints.", initials: "AN", color: "#D98B6E" },
           { role: "CTO (hiring)", desc: "Will lead engineering scale-up. Targeting ex-Practo/Innovaccer/Cerner.", initials: "CT", color: "#9DB89E", hiring: true },
           { role: "Head of Compliance (hiring)", desc: "Will own ABDM + NABH + DPDP certification. Targeting ex-NHA/IRDAI.", initials: "HC", color: "#E0B080", hiring: true },
           { role: "VP Sales (hiring)", desc: "Will lead hospital + clinic GTM. Targeting ex-Insta/Apollo/Practo.", initials: "VS", color: "#C98A7A", hiring: true },

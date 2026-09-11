@@ -4,7 +4,7 @@ import { GlobalPage } from "@/components/site/global-page";
 export const metadata: Metadata = {
   title: "Nexura OS Global — India's Most Trusted Medical Tourism Destination",
   description:
-    "Discover India's NABH & JCI accredited hospitals. Transparent USD pricing for cardiac surgery, orthopaedics, oncology, IVF, transplants and more. Save up to 90% vs USA / UK / UAE. Free cost estimate in 24 hours.",
+    "Discover India's NABH & JCI accredited hospital network. Transparent USD pricing for cardiac surgery, orthopaedics, oncology, IVF, transplants and more — typically a fraction of US prices. Free cost estimate on inquiry.",
   keywords: [
     "medical tourism India",
     "NABH accredited hospitals",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Nexura OS Global — Medical Tourism, India",
     description:
-      "India's most trusted hospitals. Transparent pricing. Expert care. Save up to 90% on world-class treatment.",
+      "India's accredited hospital network. Transparent pricing. Expert care. Treatment costs typically a fraction of US prices.",
     siteName: "Nexura OS",
     type: "website",
   },

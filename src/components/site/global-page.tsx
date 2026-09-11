@@ -5,11 +5,10 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type FormEvent,
 } from "react";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Activity,
   ArrowRight,
@@ -245,7 +244,7 @@ const FALLBACK_TESTIMONIALS: Testimonial[] = [
     rating: 5,
     testimonial:
       "The entire journey from inquiry to discharge was seamless. The cost estimate was transparent and the surgery was successful. Dr. Rajesh and his team saved my life.",
-    treatmentDate: "Jun 2026",
+    treatmentDate: null,
     verified: true,
   },
   {
@@ -256,7 +255,7 @@ const FALLBACK_TESTIMONIALS: Testimonial[] = [
     rating: 5,
     testimonial:
       "I saved 70% compared to UK private hospitals and got better care. The international desk arranged everything — visa, airport pickup, translator, accommodation.",
-    treatmentDate: "May 2026",
+    treatmentDate: null,
     verified: true,
   },
   {
@@ -267,7 +266,7 @@ const FALLBACK_TESTIMONIALS: Testimonial[] = [
     rating: 4,
     testimonial:
       "Excellent medical care. Arabic-speaking coordinator made me feel comfortable. The follow-up via video consultation after I returned home was very helpful.",
-    treatmentDate: "Apr 2026",
+    treatmentDate: null,
     verified: true,
   },
   {
@@ -278,7 +277,7 @@ const FALLBACK_TESTIMONIALS: Testimonial[] = [
     rating: 5,
     testimonial:
       "I was told the surgery wasn't possible in my country. Aarogya Hospital gave me a second chance at life. Forever grateful.",
-    treatmentDate: "Mar 2026",
+    treatmentDate: null,
     verified: true,
   },
 ];
@@ -307,23 +306,23 @@ const I18N = {
     navStories: "Patient Stories",
     navContact: "Contact",
     navCta: "Get Free Estimate",
-    heroBadge: "Trusted by 5L+ international patients",
+    heroBadge: "International patient desk — partner hospitals being onboarded",
     heroTitle1: "India's Most Trusted Hospitals.",
     heroTitle2: "Transparent Pricing. Expert Care.",
     heroSub:
-      "Plan your medical journey to India with confidence — NABH & JCI accredited hospitals, transparent USD pricing, dedicated Arabic-speaking coordinators, and a 24-hour cost estimate guarantee.",
+      "Plan your medical journey to India with confidence — a JCI & NABH-accredited partner network being onboarded, transparent USD pricing, and a dedicated desk for international patients.",
     searchPlaceholder: "Search procedure or condition (e.g. CABG, IVF, knee replacement)",
     countryLabel: "Your country",
     countryPlaceholder: "Select country",
     searchBtn: "Find Hospitals",
-    stat1: "International Patients (2025)",
-    stat2: "Cost Savings vs US / UK",
-    stat3: "NABH Accredited Hospitals",
+    stat1: "NABH & JCI partner network — being onboarded",
+    stat2: "Treatment costs typically a fraction of US prices",
+    stat3: "A dedicated care desk for international patients",
     catTitle: "Explore by Procedure Category",
     catSub: "Tap a specialty to filter the hospital directory below.",
     catExplore: "Explore",
     hospTitle: "Verified Hospital Directory",
-    hospSub: "Every hospital on Nexura OS Global is NABH-accredited and ready to receive international patients.",
+    hospSub: "Hospitals are being onboarded to Nexura OS Global from India's NABH & JCI-accredited network.",
     nabhBadge: "NABH",
     jciBadge: "JCI",
     from: "from",
@@ -342,18 +341,18 @@ const I18N = {
     step1Title: "Submit Your Inquiry",
     step1Desc: "Free, no-obligation. Share your condition, medical records, and procedure interest.",
     step2Title: "Receive Cost Estimate",
-    step2Desc: "Within 24 hours, our coordinators send a transparent USD estimate with hospital options.",
+    step2Desc: "Our coordinators prepare a transparent USD estimate with hospital options — targeted within 24 hours of your inquiry.",
     step3Title: "Pre-Travel Video Consultation",
-    step3Desc: "Meet your treating doctor over video before you travel. Ask every question.",
+    step3Desc: "Our coordinator helps arrange a video consultation with your treating doctor before you travel, so you can ask every question. (Service being onboarded.)",
     step4Title: "Arrive for Treatment",
-    step4Desc: "Visa, airport pickup, accommodation, translator — everything arranged. You focus on healing.",
+    step4Desc: "Our coordinator helps arrange medical visa support, airport pickup, accommodation, and translators with partner services as they come onboard.",
     step1Badge: "Free",
-    step2Badge: "24h",
-    step3Badge: "Video",
-    step4Badge: "All arranged",
-    storiesTitle: "Verified Patient Stories",
-    storiesSub: "Real outcomes from real international patients who chose India via Nexura OS Global.",
-    verified: "Verified patient",
+    step2Badge: "Coordinator",
+    step3Badge: "Being onboarded",
+    step4Badge: "Coordinator help",
+    storiesTitle: "Patient Stories",
+    storiesSub: "Representative stories illustrating the international patient journey via Nexura OS Global — illustrative, not verified testimonials.",
+    verified: "Representative patient story (illustrative)",
     footerAbout: "Nexura OS Global is the international patient desk for India's NABH & JCI accredited hospital network.",
     footerQuick: "Quick Links",
     footerContact: "International Desk",
@@ -362,48 +361,7 @@ const I18N = {
   },
 };
 
-/* ============================================================
-   ANIMATED COUNTER
-   ============================================================ */
-function CountUp({
-  value,
-  prefix = "",
-  suffix = "",
-  duration = 1.8,
-}: {
-  value: number;
-  prefix?: string;
-  suffix?: string;
-  duration?: number;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
-  const [display, setDisplay] = useState(0);
 
-  useEffect(() => {
-    if (!inView) return;
-    let raf = 0;
-    let start = 0;
-    const animate = (t: number) => {
-      if (!start) start = t;
-      const elapsed = (t - start) / 1000;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setDisplay(value * eased);
-      if (progress < 1) raf = requestAnimationFrame(animate);
-    };
-    raf = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(raf);
-  }, [inView, value, duration]);
-
-  return (
-    <span ref={ref} className="tabular-nums">
-      {prefix}
-      {Math.round(display).toLocaleString("en-US")}
-      {suffix}
-    </span>
-  );
-}
 
 /* ============================================================
    STAR RATING
@@ -436,6 +394,8 @@ export function GlobalPage() {
 
   // data state — initialise with fallback so SSR renders content immediately
   const [hospitals, setHospitals] = useState<Hospital[]>(FALLBACK_HOSPITALS);
+  // true until the API confirms live hospital rows (fallback cards are demo data)
+  const [isDemoDirectory, setIsDemoDirectory] = useState(true);
   const [costRows, setCostRows] = useState<CostRow[]>(FALLBACK_COST_ROWS);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(FALLBACK_TESTIMONIALS);
 
@@ -456,6 +416,9 @@ export function GlobalPage() {
         if (cancelled) return;
         if (Array.isArray(data.hospitals) && data.hospitals.length > 0) {
           setHospitals(data.hospitals);
+          setIsDemoDirectory(false);
+        } else {
+          setIsDemoDirectory(true);
         }
       })
       .catch(() => {});
@@ -621,6 +584,7 @@ export function GlobalPage() {
         activeCategory={activeCategory}
         setActiveCategory={setActiveCategory}
         onGetEstimate={openInquiry}
+        isDemoDirectory={isDemoDirectory}
       />
 
       {/* ============== COST COMPARISON ============== */}
@@ -949,9 +913,9 @@ function Hero({
           transition={{ duration: 0.7, delay: 0.32 }}
           className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-3"
         >
-          <HeroStat value={500000} prefix="" suffix="+" label={t.stat1} />
-          <HeroStat value={60} prefix="" suffix="%" label={t.stat2} />
-          <HeroStat value={40} prefix="" suffix="+" label={t.stat3} />
+          <HeroStat value="Accredited" label={t.stat1} />
+          <HeroStat value="Transparent" label={t.stat2} />
+          <HeroStat value="Dedicated" label={t.stat3} />
         </motion.div>
       </div>
 
@@ -961,22 +925,10 @@ function Hero({
   );
 }
 
-function HeroStat({
-  value,
-  prefix,
-  suffix,
-  label,
-}: {
-  value: number;
-  prefix: string;
-  suffix: string;
-  label: string;
-}) {
+function HeroStat({ value, label }: { value: string; label: string }) {
   return (
     <div className="glass-soft rounded-2xl border border-white/10 p-5 text-center">
-      <p className="font-display text-3xl font-bold text-white sm:text-4xl">
-        <CountUp value={value} prefix={prefix} suffix={suffix} />
-      </p>
+      <p className="font-display text-3xl font-bold text-white sm:text-4xl">{value}</p>
       <p className="mt-1 text-xs uppercase tracking-wider text-slate-300">{label}</p>
     </div>
   );
@@ -1066,17 +1018,29 @@ function HospitalDirectory({
   activeCategory,
   setActiveCategory,
   onGetEstimate,
+  isDemoDirectory,
 }: {
   t: typeof I18N["en"];
   hospitals: Hospital[];
   activeCategory: string;
   setActiveCategory: (c: string) => void;
   onGetEstimate: (h: Hospital, p?: string) => void;
+  isDemoDirectory: boolean;
 }) {
   return (
     <section id="hospitals" className="relative bg-slate-50 py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading eyebrow="Directory" title={t.hospTitle} sub={t.hospSub} dark />
+
+        {/* demo-data note — shown until live hospital rows arrive from the API */}
+        {isDemoDirectory && (
+          <div className="mt-6 flex justify-center">
+            <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-[#F59E0B]/30 bg-[#FFFBEB] px-4 py-1.5 text-xs font-medium text-[#92400E]">
+              <Sparkles className="h-3.5 w-3.5 shrink-0" />
+              Demo directory — live hospitals appear here as partners are onboarded
+            </p>
+          </div>
+        )}
 
         {/* active filter chip */}
         {activeCategory !== "all" && (
@@ -1460,7 +1424,7 @@ function Testimonials({
 
         {testimonials.length === 0 ? (
           <div className="mt-12 rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
-            <p className="text-slate-500">No verified patient stories yet. Be the first.</p>
+            <p className="text-slate-500">Representative patient stories will appear here.</p>
           </div>
         ) : (
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -2061,12 +2025,25 @@ const SAVINGS_DATA: { procedure: string; india: number; usa: number; uk: number;
   { procedure: "Breast Cancer Surgery", india: 3800, usa: 20000, uk: 10000, uae: 8000 },
 ];
 
+// Illustrative private-treatment price ratios vs USA for countries without a
+// dedicated comparison column (public, rough estimates — not quotations).
+const COUNTRY_COST_FACTOR: Record<string, number> = {
+  Canada: 0.6,
+  Australia: 0.55,
+  Germany: 0.65,
+  France: 0.5,
+};
+
 function CostSavingsCalculator() {
   const [country, setCountry] = useState("USA");
   const [procedure, setProcedure] = useState(SAVINGS_DATA[0].procedure);
   // Calculate on render (derived state, no effect needed)
   const data = SAVINGS_DATA.find(d => d.procedure === procedure);
-  const foreignCost = country === "USA" ? (data?.usa || 0) : country === "UK" ? (data?.uk || 0) : country === "UAE" ? (data?.uae || 0) : (data?.usa || 0);
+  const foreignCost =
+    country === "USA" ? (data?.usa || 0)
+    : country === "UK" ? (data?.uk || 0)
+    : country === "UAE" ? (data?.uae || 0)
+    : Math.round((data?.usa || 0) * (COUNTRY_COST_FACTOR[country] ?? 1));
   const indiaCost = data?.india || 0;
   const savings = foreignCost - indiaCost;
   const pct = foreignCost > 0 ? Math.round((savings / foreignCost) * 100) : 0;
@@ -2077,7 +2054,7 @@ function CostSavingsCalculator() {
   return (
     <section className="relative bg-white py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="Calculator" title="Calculate Your Savings" sub="See how much you save by choosing India for your treatment" />
+        <SectionHeading eyebrow="Calculator" title="Calculate Your Savings" sub="See how much you save by choosing India for your treatment — illustrative estimates, not quotations" />
         <div className="mt-12 mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -2115,6 +2092,11 @@ function CostSavingsCalculator() {
               </div>
             </motion.div>
           )}
+
+          <p className="mt-4 text-center text-xs text-slate-400">
+            * Illustrative estimate. Countries without a dedicated comparison column use a rough
+            price ratio vs US private treatment. Final USD estimate is shared after your inquiry.
+          </p>
         </div>
       </div>
     </section>
