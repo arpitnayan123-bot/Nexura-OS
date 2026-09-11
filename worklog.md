@@ -3453,3 +3453,17 @@ Work Log:
 
 Stage Summary:
 - /predictive landing now fully mirrors the EN·हिंदी toggle for hero, headings and CTAs with the approved Hindi copy; wizard/results/history keep their existing tr() coverage. Next: extend DomainGlossary with optional header props (lang) to consume the 3 staged glossary strings, and consider Hindi for reactive-vs-predictive card bodies in a later pass.
+
+---
+Task ID: 16-a
+Agent: general-purpose (implementation subagent)
+Task: Additive "Prevention, on schedule" educational section on Know Your Health — India preventive-care reference (child NIS highlights + adult screening cadence), one new self-contained component + one mount point, no API changes.
+
+Work Log:
+- Read worklog tail (14-a, 15-a). Read know-your-health/app.tsx, ui.tsx, tool sibling headers (all "use client" + glass-soft/glass-chip/glass-premium/shadow-depth aesthetic on #FAF7F2 mesh).
+- NEW src/components/know-your-health/prevention-schedule.tsx ("use client" to match siblings, fully static — no state/effects/fetch): section.glass-soft rounded-2xl p-5 sm:p-6 with h2 "Prevention, on schedule" (CalendarCheck icon, aria-hidden) + top disclaimer line "General reference from India's public-health guidelines — your doctor personalises this for you." (Info icon). Two side-by-side cards (lg:grid-cols-2, sibling bg-[#FAF7F2]/60 rounded-xl styling): (a) "Child immunization highlights" — exactly 5 rows: At birth BCG/OPV-0/Hep-B; 6 weeks DTP-1/OPV-1/Rotavirus-1/PCV-1/Hep-B-2; 9–12 months Measles/MMR-1 + Typhoid conjugate; 16–24 months DTP booster-1 + Measles-2; 5–6 years DTP booster-2 (labelled India's Universal Immunization Programme). (b) "Adult screening cadence" — 7 rows: BP 18+ yearly; HbA1c/fasting sugar yearly from 35 with risk factors/overweight (Indian BMI threshold 23); lipids yearly 40+, earlier with risk; Hb yearly for women of reproductive age (anaemia common); mammography/breast exam discuss with doctor 40+; Pap smear discuss with doctor 30+ per ICMR guidance; dental & eye yearly 60+. Rows = age chip (sage #9DB89E/15 pill, uppercase micro-label) + what/note text; content is standard public knowledge, no invented guidelines.
+- MOUNT (one): app.tsx imports PreventionSchedule and renders it on the tools landing between the "How these tools work" strip and the 🔒 security footer (inside the landing motion.div; tool-detail view unaffected).
+- Gates: npx tsc --noEmit exit 0; eslint exit 0 on both touched files. No servers/builds/commits. No API/engine changes.
+
+Stage Summary:
+- KYH tools landing now carries a doctor-personalised-by-default preventive-care reference (5 NIS child rows + 7 adult screening rows) styled to the glass-soft aesthetic and labelled "General reference — your doctor personalises this for you". Zero behavior change elsewhere.
