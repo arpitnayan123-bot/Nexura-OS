@@ -227,7 +227,7 @@ export function HealthAssistant() {
               </form>
               <p className="mt-2 flex items-center gap-1 text-[0.6rem] text-muted-foreground">
                 <AlertCircle className="h-3 w-3" />
-                Not for emergencies. Always dial your local emergency number.
+                Not for emergencies. In a crisis call 108 (ambulance) or 112 (India emergency).
               </p>
             </div>
           </motion.div>
