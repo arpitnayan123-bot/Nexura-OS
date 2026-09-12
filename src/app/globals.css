@@ -1,7 +1,7 @@
+@import url("https://api.fontshare.com/v2/css?f%5B%5D=general-sans@400,500,600&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./nx-os.css";
-@import url("https://api.fontshare.com/v2/css?f%5B%5D=general-sans@400,500,600&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
