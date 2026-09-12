@@ -3793,3 +3793,21 @@ Work Log:
 
 Stage Summary:
 - The doctor portrait never went anywhere — the app, image, and build were healthy throughout; what the user saw was a hydration-dead page (sandbox restart class). The site now guarantees content visibility even when hydration never happens (inline watchdog + force-reveal CSS), the hero portrait has eager+priority loading with a branded fallback, General Sans actually loads for the first time, and the served-output health gate is back. Committed e936d99 (+ auto-checkpoints c0dcc19, 6dc9ef6 captured the code changes earlier).
+
+---
+Task ID: NXP-PROD-GRADE (hospital demo readiness — full ecosystem audit + hardening)
+Agent: Super Z (main)
+Task: User: final check everything committed + rollback can never happen again + make the whole Nexura OS production-grade and premium for a hospital demo tomorrow; check all sign-ins; don't delete anything.
+
+Work Log:
+- COMMIT/ROLLBACK AUDIT: git clean, 39ba94d latest; dual bundles present (backups/repo.bundle + /home/z/backups/repo.bundle); nx-autocommit.sh wired into guardian loop (line 301); atomic statics swap still in place (static.tmp x4 in nx-guardian.sh); server 200. Rollback insurance stack verified end-to-end.
+- ROUTE SWEEP: all 16 public routes HTTP 200 (/ , /clinic, /compliance, /connect, /connect/patient, /diy, /founder, /global, /global/dashboard, /hospital, /investors, /know-your-health, /pharmacy, /portal, /portal/login, /predictive, /pricing).
+- SIGN-IN E2E (real browser): (1) Hospital OS /hospital — staff-code tab pre-filled CMD.ANITA, sign-in -> Command Center as Anita Desai with live census data, zero errors; (2) Patient Portal /portal/login — demo credentials button -> OTP (demo 1234 path) -> dashboard "Suresh" with Health Insights/Timeline/Upcoming visits; (3) /diy guest boot — "Tell it like it is." + TELL+TUNE+PLAN rail; (4) /connect — doctor inbox with patient thread loads. Auth stack confirmed: /api/portal/auth (signed JWT sessions, hashed OTP, 5-min TTL, 3-attempt budget), /api/nx/auth v2 (staffCode+PIN fast path + email/password, MFA step-up, progressive lockout, revocable device sessions), /api/auth, /api/nx/auth/* (mfa, sessions, stepup, password, verify-email, break-glass, logout).
+- PRODUCTION SWEEP (new scripts/demo-sweep.sh): 14 key demo pages x (page errors, console errors, horizontal overflow) = ALL ZERO. Re-ran after every change.
+- SECURITY HEADERS: found src/proxy.ts (Next 16 middleware) already sets full CSP + permissions-policy; added complements in next.config.ts (X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, same-origin-scoped Permissions-Policy, CSP frame-ancestors 'self' + *.space-z.ai + *.z.ai so the preview window keeps working). Verified live on responses.
+- FONT TRUTH (premium blocker found + fixed): document.fonts showed General Sans NEVER loaded — the build pipeline strips external url() @imports entirely (both served CSS chunks contained zero fontshare references; earlier fix was insufficient). Self-hosted the font: downloaded General Sans 400/500/600 woff2 (ITF Free Font License) to public/fonts/, replaced the dead @import with 3 same-origin @font-face rules. Verified: document.fonts = ["General Sans"], computed h1 font General Sans, homepage letterforms visibly changed (tighter, "operating system" one line). Firewall-proof for hospital wifi; no third-party dependency.
+- HEALTH/OPS: /api/health (liveness) + /api/ready (readiness: DB ping 4ms, seed check, env validation, realtime count) both exist and return ready; favicon/manifest/robots 200; 404 page styled; HTML no-store + statics immutable re-verified. DB backup: db/backups/custom-20260912174607.db.gz (496KB, 3 retained).
+- FINAL STATE: deploy-preview.sh DEPLOY VERIFIED (BUILD_ID E0rSZVYmFsD8FKg5zfYV7); demo-sweep 14/14 zero/zero/zero; check-preview-health.sh HEALTH: OK 21/21; mobile 390px homepage overflow 0. Screenshots: download/final-home-general-sans.png, final-home-mobile.png, final-diy-check.png.
+
+Stage Summary:
+- Nexura OS is demo-ready: every sign-in verified working (Hospital OS staff, patient portal OTP, DIY guest, Connect), 14 surfaces error-free with zero overflow, security headers live, brand font self-hosted and actually rendering, readiness/liveness probes green, DB backed up, dual git bundles fresh, everything committed.
