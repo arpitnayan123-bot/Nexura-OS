@@ -80,3 +80,5 @@ upload/
 .vercel/
 .nx-watchdog.lock
 download/
+backups/
+.autocommit-last

@@ -159,10 +159,30 @@ sync_statics() {
   cd "$ROOT" || return 1
   [ -d .next/standalone ] || return 1
   mkdir -p .next/standalone/.next
-  rm -rf .next/standalone/.next/static
-  cp -r .next/static .next/standalone/.next/static 2>>"$LOG" || true
-  rm -rf .next/standalone/public
-  cp -r public .next/standalone/public 2>>"$LOG" || true
+  # ATOMIC SWAP: copy to a .tmp dir on the SAME filesystem, then mv.
+  # A same-fs mv is instantaneous, so a browser racing a boot can never
+  # request a chunk from a HALF-COPIED static tree (the old rm -rf + cp
+  # left a multi-second 404 window on every boot — the recurring
+  # "preview refreshing / contents not loading" symptom).
+  # If the copy fails we keep the previous tree intact.
+  rm -rf .next/standalone/.next/static.tmp .next/standalone/.next/static.old
+  if cp -r .next/static .next/standalone/.next/static.tmp 2>>"$LOG"; then
+    mv .next/standalone/.next/static .next/standalone/.next/static.old 2>/dev/null || true
+    mv .next/standalone/.next/static.tmp .next/standalone/.next/static
+    rm -rf .next/standalone/.next/static.old
+  else
+    rm -rf .next/standalone/.next/static.tmp
+    log "static sync: copy failed — keeping previous tree"
+  fi
+  rm -rf .next/standalone/public.tmp .next/standalone/public.old
+  if cp -r public .next/standalone/public.tmp 2>>"$LOG"; then
+    mv .next/standalone/public .next/standalone/public.old 2>/dev/null || true
+    mv .next/standalone/public.tmp .next/standalone/public
+    rm -rf .next/standalone/public.old
+  else
+    rm -rf .next/standalone/public.tmp
+    log "static sync: public copy failed — keeping previous tree"
+  fi
 }
 
 kill_stale_listeners() {
@@ -274,6 +294,11 @@ log "guardian: boot (pid $$)"
 while true; do
   heal_env || { log "env heal failed; retry in 5s"; sleep 5; continue; }
   heal_db
+
+  # ROLLBACK INSURANCE: checkpoint uncommitted work + refresh git
+  # bundle backups (throttled inside the script; backgrounded so it
+  # can never delay serving). Commit-only — it cannot destroy work.
+  "$ROOT/scripts/nx-autocommit.sh" &
 
   if build_stale; then
     kill_stale_listeners
