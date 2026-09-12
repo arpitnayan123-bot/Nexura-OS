@@ -1,4 +1,28 @@
-@import url("https://api.fontshare.com/v2/css?f%5B%5D=general-sans@400,500,600&display=swap");
+/* General Sans — SELF-HOSTED (fontshare ITF Free Font License).
+   The build pipeline strips external url() @imports and the CSP forbids
+   third-party font hosts, so the files ship from /fonts (same-origin,
+   firewall-proof for hospital demos, no third-party dependency). */
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./nx-os.css";
