@@ -7,6 +7,7 @@ import { BookingProvider } from "@/components/site/booking-context";
 import { BookingModalLazy } from "@/components/site/booking-modal-lazy";
 import { PwaRegister } from "@/components/pwa-register";
 import { ErrorSentinel } from "@/components/nx/error-sentinel";
+import { HydrationWatchdog } from "@/components/site/hydration-watchdog";
 
 // Preview freshness guarantee: without this, fully static pages emit
 // "Cache-Control: s-maxage=31536000" and any proxy/CDN between the
@@ -79,6 +80,20 @@ export default function RootLayout({
       <body
         className={`${jakarta.variable} ${fraunces.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground`}
       >
+        {/* Hydration-failure watchdog: if React never hydrates (a preview
+            sandbox restart can kill a JS chunk mid-flight), framer-motion's
+            inline `opacity: 0` entrance states would keep entire sections —
+            e.g. the homepage hero — permanently invisible. This inline
+            script runs even when NO hydration bundles load: after 4s it
+            force-reveals everything unless HydrationWatchdog has flagged a
+            successful hydration. Inline on purpose — never a lazy chunk. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{setTimeout(function(){if(!window.__nxHydrated){document.documentElement.classList.add('nx-force-visible');}},4000);}catch(e){}",
+          }}
+        />
+        <HydrationWatchdog />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -95,6 +110,7 @@ export default function RootLayout({
           <SonnerToaster position="top-center" offset={56} richColors closeButton visibleToasts={3} />
           <PwaRegister />
           <ErrorSentinel />
+          <HydrationWatchdog />
         </ThemeProvider>
       </body>
     </html>

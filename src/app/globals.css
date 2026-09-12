@@ -1618,3 +1618,22 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
     animation: none !important;
   }
 }
+
+/* =============================================================
+   Hydration-failure fallback (nx-force-visible)
+   ----------------------------------------------------------
+   If React never hydrates — a preview sandbox restart can kill
+   a JS chunk mid-flight — framer-motion's inline `opacity: 0`
+   entrance states would keep whole sections (homepage hero,
+   strips) permanently invisible. The inline watchdog in the
+   root layout adds nx-force-visible to <html> after 4s unless
+   hydration succeeded; this rule then overrides the inline
+   hidden states so content ALWAYS shows, animation or not.
+   On healthy sessions the class is never added, so entrance
+   animations are untouched.
+   ============================================================= */
+html.nx-force-visible [style*="opacity: 0"],
+html.nx-force-visible [style*="opacity:0"] {
+  opacity: 1 !important;
+  transform: none !important;
+}
