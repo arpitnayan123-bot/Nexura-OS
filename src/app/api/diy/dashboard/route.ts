@@ -73,6 +73,9 @@ export async function GET(req: NextRequest) {
 
   const doneTaskIds = new Set(completions.map((c) => c.taskId));
 
+  const dailyTaskIds = new Set(plans.flatMap((p) => p.tasks.filter((t) => t.cadence === "DAILY").map((t) => t.id)));
+  const weeklyTaskIds = new Set(plans.flatMap((p) => p.tasks.filter((t) => t.cadence === "WEEKLY").map((t) => t.id)));
+
   const todayTasks = plans.flatMap((p) =>
     p.tasks
       .filter((t) => t.cadence === "DAILY")
@@ -90,6 +93,9 @@ export async function GET(req: NextRequest) {
 
   const weekly = plans.flatMap((p) => p.tasks.filter((t) => t.cadence === "WEEKLY").map((t) => ({ id: t.id, title: t.title, detail: t.detail, category: t.category, goalText: p.goal.rawGoalText, status: doneTaskIds.has(t.id) ? (completions.find((c) => c.taskId === t.id)?.status ?? "PENDING") : "PENDING" })));
 
+  /* done/skipped count DAILY tasks only — the rhythm bar's denominator is
+     todayTasks.length, and weekly completions leaking in produced
+     "9 of 8 done (113%)". Weekly completions surface as weeklyDone. */
   return NextResponse.json({
     date: day,
     streak,
@@ -114,8 +120,9 @@ export async function GET(req: NextRequest) {
     }),
     todayTasks,
     weekly,
-    doneCount: completions.filter((c) => c.status === "DONE").length,
-    skippedCount: completions.filter((c) => c.status !== "DONE").length,
+    doneCount: completions.filter((c) => c.status === "DONE" && dailyTaskIds.has(c.taskId)).length,
+    skippedCount: completions.filter((c) => c.status !== "DONE" && dailyTaskIds.has(c.taskId)).length,
+    weeklyDone: completions.filter((c) => c.status === "DONE" && weeklyTaskIds.has(c.taskId)).length,
     conflicts: conflicts.map((c) => ({ id: c.id, rule: c.rule, explanation: c.explanation, resolution: c.resolution })),
     progressToday: progress,
   });

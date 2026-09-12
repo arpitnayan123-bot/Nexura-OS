@@ -308,7 +308,12 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
         {/* weekly rhythm */}
         {data.weekly.length > 0 && (
           <section aria-label="Weekly rhythm" className="nx-glass-deep rounded-3xl p-5">
-            <p className="text-sm font-semibold text-[#2E2A26]">Weekly rhythm</p>
+            <div className="flex items-baseline justify-between gap-2">
+              <p className="text-sm font-semibold text-[#2E2A26]">Weekly rhythm</p>
+              {(data.weeklyDone ?? 0) > 0 && (
+                <span className="text-[11px] font-medium text-[#4E6845]">{data.weeklyDone} of {data.weekly.length} done</span>
+              )}
+            </div>
             <p className="mt-0.5 text-xs text-[#6B5D4E]">Once-a-week anchors — slower signals, honest numbers.</p>
             <ul className="mt-3 space-y-2">
               {data.weekly.map((w) => {
