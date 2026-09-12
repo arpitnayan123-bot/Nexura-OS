@@ -83,6 +83,7 @@ export interface DashboardData {
   weekly: DashboardWeekly[];
   doneCount: number;
   skippedCount: number;
+  weeklyDone?: number;
   conflicts: { id: string; rule: string; explanation: string; resolution: string }[];
   progressToday: { mood?: number | null; energy?: number | null; sleep?: number | null } | null;
 }
