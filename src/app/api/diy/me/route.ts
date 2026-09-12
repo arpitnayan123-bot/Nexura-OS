@@ -48,13 +48,10 @@ export async function DELETE(req: NextRequest) {
   const g = await guard(req, { consent: "DELETE" });
   if (g instanceof NextResponse) return g;
 
-  let confirm = "";
-  try {
-    const b = (await req.json()) as { confirm?: string };
-    confirm = b.confirm ?? "";
-  } catch {
-    /* empty body */
-  }
+  /* the shared guard has ALREADY consumed the request body (every
+     non-GET/HEAD goes through it) — re-reading req.json() here always
+     threw, making the wipe permanently 400. Read the parsed body. */
+  const confirm = (g.body as { confirm?: string } | undefined)?.confirm ?? "";
   if (confirm !== "DELETE") {
     return NextResponse.json({ error: { code: "DIY_005", message: 'Send { "confirm": "DELETE" } to wipe DIY data.' } }, { status: 400 });
   }

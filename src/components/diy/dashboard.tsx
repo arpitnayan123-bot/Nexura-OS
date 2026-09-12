@@ -22,6 +22,7 @@ import {
   Sprout,
 } from "lucide-react";
 import { Scenery } from "./scenery";
+import { ConsentSheet, type ConsentSheetSpec } from "./consent-sheet";
 import { diyFetch, type DashboardData, type DashboardTask, type DashboardWeekly } from "./client-types";
 
 function greeting(): string {
@@ -49,6 +50,7 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
   const [checkinOpen, setCheckinOpen] = useState(false);
   const [checkin, setCheckin] = useState({ mood: 3, energy: 3, sleep: 3 });
   const [checkinSaved, setCheckinSaved] = useState(false);
+  const [sheet, setSheet] = useState<ConsentSheetSpec | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -62,6 +64,41 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
 
   useEffect(() => {
     load();
+  }, [load]);
+
+  /* CONSENT-AWARE ACTIONS: a fresh guest who lands on Today may not
+     have granted PROGRESS_TRACKING yet — the first done/skip/check-in
+     would 403 silently. Instead, catch the consent wall, show the
+     granular sheet, grant, and run the intended action. */
+  const withConsent = useCallback(async (run: () => Promise<unknown>, spec: Omit<ConsentSheetSpec, "onAllow">) => {
+    try {
+      await run();
+    } catch (e) {
+      const err = e as { code?: string; payload?: { error?: { missingScopes?: string[] } } };
+      if (err?.code !== "DIY_010") {
+        load();
+        return;
+      }
+      const missing = err.payload?.error?.missingScopes ?? ["PROGRESS_TRACKING"];
+      setSheet({
+        title: spec.title,
+        body: spec.body,
+        scope: missing[0] ?? spec.scope,
+        onAllow: async () => {
+          try {
+            await diyFetch("/api/diy/consent", { method: "POST", body: JSON.stringify({ scopes: missing, policyVersion: "2026-09-diy-1", source: "today" }) });
+          } catch {
+            /* grant failed — the retried action will surface the wall again */
+          }
+          try {
+            await run();
+          } catch {
+            /* retried action failed — refetch shows server truth */
+          }
+          load();
+        },
+      });
+    }
   }, [load]);
 
   /* ---- task actions (optimistic, then a silent server-truth refetch) ---- */
@@ -91,29 +128,33 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
   const act = async (task: DashboardTask | DashboardWeekly, action: "done" | "skipped" | "not_feasible", note?: string) => {
     setBusyTask(task.id);
     patchTask(task.id, statusFor(action), note ?? null);
-    try {
-      await diyFetch(`/api/diy/tasks/${task.id}`, { method: "POST", body: JSON.stringify({ action, note }) });
-    } catch {
-      /* silent refetch below restores server truth */
-    } finally {
-      setBusyTask(null);
-      setNoteFor(null);
-      setNoteText("");
-      load();
-    }
+    await withConsent(
+      () => diyFetch(`/api/diy/tasks/${task.id}`, { method: "POST", body: JSON.stringify({ action, note }) }),
+      {
+        title: "Allow & record my progress",
+        body: "What you complete, skip, or note gets recorded for the day — that's how streaks, milestones, and honest reviews work. Never sold, withdrawal anytime.",
+        scope: "PROGRESS_TRACKING",
+      }
+    );
+    setBusyTask(null);
+    setNoteFor(null);
+    setNoteText("");
+    load();
   };
 
   const undo = async (task: DashboardTask | DashboardWeekly) => {
     setBusyTask(task.id);
     patchTask(task.id, "PENDING", null);
-    try {
-      await diyFetch(`/api/diy/tasks/${task.id}`, { method: "DELETE" });
-    } catch {
-      /* silent refetch below restores server truth */
-    } finally {
-      setBusyTask(null);
-      load();
-    }
+    await withConsent(
+      () => diyFetch(`/api/diy/tasks/${task.id}`, { method: "DELETE" }),
+      {
+        title: "Allow & record my progress",
+        body: "Undoing an entry also edits today's record. Withdrawal of this scope anytime stops recording.",
+        scope: "PROGRESS_TRACKING",
+      }
+    );
+    setBusyTask(null);
+    load();
   };
 
   /* adding a note keeps the task's current state (skipped stays skipped) */
@@ -123,7 +164,14 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
   };
 
   const saveCheckin = async () => {
-    await diyFetch("/api/diy/checkin", { method: "POST", body: JSON.stringify({ ...checkin }) });
+    await withConsent(
+      () => diyFetch("/api/diy/checkin", { method: "POST", body: JSON.stringify({ ...checkin }) }),
+      {
+        title: "Allow & record my check-in",
+        body: "Mood, energy, and sleep reflections land in your private progress log — the raw material for honest weekly trends.",
+        scope: "PROGRESS_TRACKING",
+      }
+    );
     setCheckinSaved(true);
     setCheckinOpen(false);
     load();
@@ -157,6 +205,7 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
 
   return (
     <div className="pb-28">
+      <ConsentSheet sheet={sheet} onClose={() => setSheet(null)} />
       {/* slim scenic band with greeting + rhythm */}
       <section className="relative h-44 overflow-hidden sm:h-52">
         <Scenery className="absolute inset-0 h-full w-full" />
