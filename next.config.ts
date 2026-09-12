@@ -15,6 +15,21 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           { key: "Cache-Control", value: "no-store, must-revalidate" },
+          /* Production-grade security headers (healthcare platform).
+             frame-ancestors allows same-origin + the preview gateway
+             (*.space-z.ai / *.z.ai) so the preview window keeps working
+             while blocking arbitrary third-party embedding. */
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(self), microphone=(self), geolocation=(self)",
+          },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self' https://*.space-z.ai http://*.space-z.ai https://*.z.ai",
+          },
         ],
       },
       {
