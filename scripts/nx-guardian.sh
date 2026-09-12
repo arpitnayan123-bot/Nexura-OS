@@ -182,6 +182,20 @@ kill_stale_listeners() {
 
 do_build() {
   cd "$ROOT" || return 1
+  # A build that dies mid-run (sandbox hiccup, OOM, restart) leaves
+  # .next/lock behind; every rebuild then fails with "Unable to acquire
+  # lock" and a ~100s outage stretches into many minutes (seen live
+  # 2026-09-11). If no real `next build` process exists, the lock is
+  # STALE -> clear it and proceed. If one IS running (deploy in flight),
+  # don't fight it — wait for the next cycle.
+  if pgrep -f "next build" >/dev/null 2>&1; then
+    log "build: skipped — a next build is already running; will retry next cycle"
+    return 1
+  fi
+  if [ -e .next/lock ]; then
+    rm -f .next/lock
+    log "build: cleared STALE lock (no build process alive)"
+  fi
   log "build: starting (stale or missing bundle)"
   if npx next build >> "$LOG" 2>&1; then
     sync_statics
