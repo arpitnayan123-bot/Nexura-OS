@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu, X, ArrowUpRight, Building2, Stethoscope, Pill, HeartPulse,
   MessageCircle, Sparkles, Globe, BrainCircuit, Clock, TrendingUp,
-  Shield, type LucideIcon,
+  Shield, Sprout, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBooking } from "./booking-context";
@@ -38,6 +38,7 @@ const PRODUCTS: NavEntry[] = [
   { id: "connect", name: "Nexura Connect", sub: "Communication", desc: "Doctor-patient chat, call coordination & Rx sync across all products.", icon: MessageCircle, accent: "#10B981", href: "/connect", group: "products" },
   { id: "kyh", name: "Know Your Health", sub: "AI Tools", desc: "15 AI tools — symptom checker, derma scan, X-ray reader, diet planner, lab analyzer & more.", icon: Sparkles, accent: "#9DB89E", href: "/know-your-health", group: "products" },
   { id: "global", name: "Nexura Global", sub: "Medical Tourism", desc: "World-class Indian healthcare for global patients. Discovery portal, cost calculator, coordinator dashboard.", icon: Globe, accent: "#1E40AF", href: "/global", group: "products" },
+  { id: "diy", name: "Nexura DIY", sub: "Free · No sign-in", desc: "Tell it like it is — one chat builds a safe, realistic wellness roadmap with safety screen and honest timeframes.", icon: Sprout, accent: "#D98B6E", href: "/diy", badge: "New", group: "products" },
   { id: "founder", name: "The Founder", sub: "Arpit Nayan", desc: "The story behind Nexura OS — from Bihar to building an operating system for health.", icon: HeartPulse, accent: "#C8A55B", href: "/founder", badge: "Story", group: "products" },
 ];
 

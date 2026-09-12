@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/site/navbar";
 import { Hero } from "@/components/site/hero";
 import { FeaturesShowcase } from "@/components/site/features-showcase";
+import { DiyStrip } from "@/components/site/diy-strip";
 import { OsGlance } from "@/components/site/os-glance";
 import { AiStrip } from "@/components/site/ai-strip";
 import { GlobeCard } from "@/components/site/globe-card";
@@ -36,6 +37,7 @@ export default function Home() {
         <Hero />
         <OsGlance />
         <FeaturesShowcase />
+        <DiyStrip />
         <AiStrip />
         <GlobeCard />
         <TrustRail />

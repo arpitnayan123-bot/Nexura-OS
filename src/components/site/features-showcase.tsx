@@ -5,7 +5,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import {
   Building2, Stethoscope, Pill, HeartPulse, MessageCircle,
-  Sparkles, Globe, Clock, TrendingUp, Shield, BrainCircuit,
+  Sparkles, Globe, Clock, TrendingUp, Shield, BrainCircuit, Sprout,
   ArrowUpRight, type LucideIcon,
 } from "lucide-react";
 import { useBooking } from "./booking-context";
@@ -37,6 +37,7 @@ const PRODUCTS: Feature[] = [
   { id: "connect", name: "Nexura Connect", sub: "Communication", desc: "Doctor-patient chat, call coordination & Rx sync across all products.", icon: MessageCircle, accent: "#10B981", href: "/connect" },
   { id: "kyh", name: "Know Your Health", sub: "AI Tools", desc: "15 AI tools — symptom checker, derma scan, X-ray reader, diet planner, lab analyzer & more.", icon: Sparkles, accent: "#9DB89E", href: "/know-your-health" },
   { id: "global", name: "Nexura Global", sub: "Medical Tourism", desc: "World-class Indian healthcare for global patients. Discovery portal, cost calculator, coordinator dashboard.", icon: Globe, accent: "#1E40AF", href: "/global" },
+  { id: "diy", name: "Nexura DIY", sub: "Your Wellness Roadmap", desc: "Tell it like it is — one chat builds a safe, realistic wellness roadmap. Safety screen, honest timeframes, no sign-in needed.", icon: Sprout, accent: "#D98B6E", href: "/diy", badge: "Free · No sign-in" },
 ];
 
 const ACTIONS: Feature[] = [
@@ -78,7 +79,7 @@ export function FeaturesShowcase() {
             <span className="text-gradient-warm">Every feature.</span>
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            8 products + 6 quick actions. Built for Indian healthcare — hospitals, clinics, pharmacies, patients, and beyond.
+            9 products + 6 quick actions. Built for Indian healthcare — hospitals, clinics, pharmacies, patients, and beyond.
           </p>
         </motion.div>
 
@@ -115,7 +116,7 @@ export function FeaturesShowcase() {
           className="mt-12 flex flex-wrap items-center justify-center gap-6 text-center"
         >
           {[
-            { stat: "8", label: "Products" },
+            { stat: "9", label: "Products" },
             { stat: "6", label: "Quick Actions" },
             { stat: "15", label: "AI Tools" },
             { stat: "1.4B", label: "People we build for" },

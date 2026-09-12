@@ -272,85 +272,85 @@ model PurchaseItem {
  */
 
 model Hospital {
-  id                  String                       @id @default(cuid())
-  name                String
-  nabhAccredited      Boolean                      @default(false)
-  gstin               String?
-  address             String?
-  district            String?
-  state               String?
-  pincode             String?
-  contact             String?
-  subscriptionTier    String                       @default("standard") // basic | standard | premium
-  createdAt           DateTime                     @default(now())
-  doctors             HospitalDoctor[]
-  staff               HospitalStaff[]
-  wards               HospitalWard[]
-  beds                HospitalBed[]
-  patients            HospitalPatient[]
-  appointments        HospitalAppointment[]
-  admissions          HospitalAdmission[]
-  bloodBank           BloodBankUnit[]
-  otSurgeries         OTSurgery[]
-  insuranceClaims     InsuranceClaim[]
-  bills               HospitalBill[]
-  tourismInquiries    TourismInquiry[]
-  tourismProcedures   TourismProcedure[]
-  tourismSetting      TourismSetting?
-  tourismCoordinators TourismCoordinator[]
-  tourismTestimonials TourismTestimonial[]
-  nxStaffUsers        NxStaffUser[]
-  nxTasks             NxTask[]
-  nxIncidents         NxIncident[]
-  nxAuditEvents       NxAuditEvent[]
-  nxOrderEvents       NxOrderEvent[]
-  nxEquipment         NxEquipment[]
-  nxSupplies          NxSupplyItem[]
-  nxMessages          NxMessage[]
-  nxRules             NxAutomationRule[]
-  nxRuns              NxWorkflowRun[]
-  nxAIInteractions    NxAIInteraction[]
-  organization        NxOrganization?              @relation(fields: [organizationId], references: [id])
-  organizationId      String?
-  nxDepartments       NxDepartment[]
-  nxNotifications     NxNotification[]
-  nxConsents          NxConsent[]
-  nxChannels          NxChannel[]
-  nxMedAdmins         NxMedicationAdministration[]
-  nxImagingReports    NxImagingReport[]
-  nxCharges           NxCharge[]
-  nxPayments          NxPayment[]
-  nxVendors           NxVendor[]
-  nxPurchaseOrders    NxPurchaseOrder[]
-  nxStockTxns         NxStockTxn[]
-  nxShiftAssignments  NxShiftAssignment[]
-  nxWaitlist          NxAppointmentWaitlist[]
-  nxAppointmentEvents NxAppointmentEvent[]
-  nxWebhooks          NxWebhookDelivery[]
-  nxWebhookEndpoints  NxWebhookEndpoint[]
-  nxIntegrationEvents NxIntegrationEvent[]
-  nxFiles             NxFileObject[]
-  nxBreakGlassEvents  NxBreakGlassEvent[]
+  id                      String                       @id @default(cuid())
+  name                    String
+  nabhAccredited          Boolean                      @default(false)
+  gstin                   String?
+  address                 String?
+  district                String?
+  state                   String?
+  pincode                 String?
+  contact                 String?
+  subscriptionTier        String                       @default("standard") // basic | standard | premium
+  createdAt               DateTime                     @default(now())
+  doctors                 HospitalDoctor[]
+  staff                   HospitalStaff[]
+  wards                   HospitalWard[]
+  beds                    HospitalBed[]
+  patients                HospitalPatient[]
+  appointments            HospitalAppointment[]
+  admissions              HospitalAdmission[]
+  bloodBank               BloodBankUnit[]
+  otSurgeries             OTSurgery[]
+  insuranceClaims         InsuranceClaim[]
+  bills                   HospitalBill[]
+  tourismInquiries        TourismInquiry[]
+  tourismProcedures       TourismProcedure[]
+  tourismSetting          TourismSetting?
+  tourismCoordinators     TourismCoordinator[]
+  tourismTestimonials     TourismTestimonial[]
+  nxStaffUsers            NxStaffUser[]
+  nxTasks                 NxTask[]
+  nxIncidents             NxIncident[]
+  nxAuditEvents           NxAuditEvent[]
+  nxOrderEvents           NxOrderEvent[]
+  nxEquipment             NxEquipment[]
+  nxSupplies              NxSupplyItem[]
+  nxMessages              NxMessage[]
+  nxRules                 NxAutomationRule[]
+  nxRuns                  NxWorkflowRun[]
+  nxAIInteractions        NxAIInteraction[]
+  organization            NxOrganization?              @relation(fields: [organizationId], references: [id])
+  organizationId          String?
+  nxDepartments           NxDepartment[]
+  nxNotifications         NxNotification[]
+  nxConsents              NxConsent[]
+  nxChannels              NxChannel[]
+  nxMedAdmins             NxMedicationAdministration[]
+  nxImagingReports        NxImagingReport[]
+  nxCharges               NxCharge[]
+  nxPayments              NxPayment[]
+  nxVendors               NxVendor[]
+  nxPurchaseOrders        NxPurchaseOrder[]
+  nxStockTxns             NxStockTxn[]
+  nxShiftAssignments      NxShiftAssignment[]
+  nxWaitlist              NxAppointmentWaitlist[]
+  nxAppointmentEvents     NxAppointmentEvent[]
+  nxWebhooks              NxWebhookDelivery[]
+  nxWebhookEndpoints      NxWebhookEndpoint[]
+  nxIntegrationEvents     NxIntegrationEvent[]
+  nxFiles                 NxFileObject[]
+  nxBreakGlassEvents      NxBreakGlassEvent[]
   // v5 — Chief Future Architect layer (tenancy + governance + flagship)
-  tenant                    NxTenant?                 @relation(fields: [tenantId], references: [id])
-  tenantId                  String?
-  nxAbacPolicies            NxAbacPolicy[]
-  nxEscalationPolicies      NxEscalationPolicy[]
-  nxEscalationEvents        NxEscalationEvent[]
-  nxPathwayDefs             NxPathwayDef[]
-  nxPathwayRuns             NxPathwayRun[]
-  nxTimestampBlocks         NxTimestampBlock[]
-  nxVerifiableCredentials   NxVerifiableCredential[]
-  nxInsuranceContracts      NxInsuranceContract[]
-  nxWearableDevices         NxWearableDevice[]
-  nxGenomicProfiles         NxGenomicProfile[]
-  nxTeleConsults            NxTeleConsult[]
-  nxAiThresholds            NxAiThreshold[]
-  nxAiFeedbacks             NxAiFeedback[]
-  nxDicomStudies            NxDicomStudy[]
-  nxDocVersions             NxDocVersion[]
-  nxJourneyAnnotations      NxJourneyAnnotation[]
-  nxEventLogs               NxEventLog[]
+  tenant                  NxTenant?                    @relation(fields: [tenantId], references: [id])
+  tenantId                String?
+  nxAbacPolicies          NxAbacPolicy[]
+  nxEscalationPolicies    NxEscalationPolicy[]
+  nxEscalationEvents      NxEscalationEvent[]
+  nxPathwayDefs           NxPathwayDef[]
+  nxPathwayRuns           NxPathwayRun[]
+  nxTimestampBlocks       NxTimestampBlock[]
+  nxVerifiableCredentials NxVerifiableCredential[]
+  nxInsuranceContracts    NxInsuranceContract[]
+  nxWearableDevices       NxWearableDevice[]
+  nxGenomicProfiles       NxGenomicProfile[]
+  nxTeleConsults          NxTeleConsult[]
+  nxAiThresholds          NxAiThreshold[]
+  nxAiFeedbacks           NxAiFeedback[]
+  nxDicomStudies          NxDicomStudy[]
+  nxDocVersions           NxDocVersion[]
+  nxJourneyAnnotations    NxJourneyAnnotation[]
+  nxEventLogs             NxEventLog[]
 
   @@index([tenantId])
 }
@@ -1419,6 +1419,19 @@ model PortalUser {
   createdAt           DateTime  @default(now())
   lastLoginAt         DateTime?
 
+  /**
+   * Nexura DIY back-relations
+   */
+  diyGoals           DiyGoal[]
+  diyPlans           DiyPlan[]
+  diyTaskCompletions DiyTaskCompletion[]
+  diyProgressLogs    DiyProgressLog[]
+  diyConflicts       DiyGoalConflict[]
+  diyConsents        DiyConsent[]
+  diySafetyEvents    DiySafetyEvent[]
+  diyAiAudits        DiyAiAudit[]
+  diyGenerations     DiyGeneration[]
+
   familyHead    PortalUser?    @relation("FamilyRelation", fields: [familyHeadId], references: [id])
   familyMembers PortalUser[]   @relation("FamilyRelation")
   bloodBookings BloodBooking[]
@@ -1725,21 +1738,21 @@ model NxWorkflowRun {
 }
 
 model NxAIInteraction {
-  id         String   @id @default(cuid())
-  hospitalId String
-  userName   String
-  userRole   String
-  feature    String // patient_summary|handover|discharge_draft|queue_explain|ops_recommend|documentation
-  prompt     String?
-  response   String? // AI output snapshot (redacted per retention policy)
-  confidence Float? // 0..1 self-reported or heuristic confidence
-  consentFlag Boolean? // patient AI consent verified at call time
-  promptVersion String? // e.g. patient_summary@3
-  modelVersion  String? // e.g. glm-4.6-air / openrouter:model@hash
+  id              String   @id @default(cuid())
+  hospitalId      String
+  userName        String
+  userRole        String
+  feature         String // patient_summary|handover|discharge_draft|queue_explain|ops_recommend|documentation
+  prompt          String?
+  response        String? // AI output snapshot (redacted per retention policy)
+  confidence      Float? // 0..1 self-reported or heuristic confidence
+  consentFlag     Boolean? // patient AI consent verified at call time
+  promptVersion   String? // e.g. patient_summary@3
+  modelVersion    String? // e.g. glm-4.6-air / openrouter:model@hash
   thresholdAction String? // allowed|human_fallback|blocked
-  status     String   @default("completed") // completed|failed|review_required
-  createdAt  DateTime @default(now())
-  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  status          String   @default("completed") // completed|failed|review_required
+  createdAt       DateTime @default(now())
+  hospital        Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([hospitalId, createdAt])
 }
@@ -2344,17 +2357,17 @@ model NxIdempotency {
 // ============================================================
 
 model NxTenant {
-  id           String   @id @default(cuid())
-  code         String   @unique // slug e.g. "apollo-group"
+  id           String     @id @default(cuid())
+  code         String     @unique // slug e.g. "apollo-group"
   name         String
-  plan         String   @default("standard") // basic|standard|premium|ngo
-  status       String   @default("active") // active|suspended|offboarding
+  plan         String     @default("standard") // basic|standard|premium|ngo
+  status       String     @default("active") // active|suspended|offboarding
   brandingJson String? // JSON {primary,logoText,locale,defaultTheme}
   modulesJson  String? // JSON string[] of enabled module keys (null = all standard)
   domainsJson  String? // JSON string[] custom domains
   settingsJson String? // JSON {offlineMode,retentionProfile,aiThresholds}
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
   hospitals    Hospital[]
   apiKeys      NxApiKey[]
 
@@ -2362,17 +2375,17 @@ model NxTenant {
 }
 
 model NxApiKey {
-  id             String    @id @default(cuid())
-  tenantId       String
-  name           String
-  prefix         String // display prefix e.g. nxk_live_ab12
-  keyHash        String    @unique // sha256 of full secret
-  scopes         String // JSON string[] e.g. ["patients.read","observations.read"]
-  rateLimitPerMin Int     @default(60)
-  lastUsedAt     DateTime?
-  revokedAt      DateTime?
-  createdAt      DateTime  @default(now())
-  tenant         NxTenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id              String    @id @default(cuid())
+  tenantId        String
+  name            String
+  prefix          String // display prefix e.g. nxk_live_ab12
+  keyHash         String    @unique // sha256 of full secret
+  scopes          String // JSON string[] e.g. ["patients.read","observations.read"]
+  rateLimitPerMin Int       @default(60)
+  lastUsedAt      DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  tenant          NxTenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
 }
@@ -2426,36 +2439,36 @@ model NxEscalationEvent {
 }
 
 model NxPathwayDef {
-  id          String   @id @default(cuid())
-  hospitalId  String
-  code        String // sepsis-bundle|discharge-hf|chest-pain
-  name        String
-  specialty   String?
-  version     Int      @default(1)
-  stepsJson   String // DSL JSON [{id,title,withinMin,requires:[],onComplete:...,critical:true}]
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  runs        NxPathwayRun[]
+  id         String         @id @default(cuid())
+  hospitalId String
+  code       String // sepsis-bundle|discharge-hf|chest-pain
+  name       String
+  specialty  String?
+  version    Int            @default(1)
+  stepsJson  String // DSL JSON [{id,title,withinMin,requires:[],onComplete:...,critical:true}]
+  active     Boolean        @default(true)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  hospital   Hospital       @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  runs       NxPathwayRun[]
 
   @@index([hospitalId, code])
 }
 
 model NxPathwayRun {
-  id           String   @id @default(cuid())
-  hospitalId   String
-  defId        String
-  patientId    String?
-  patientName  String?
-  currentStep  String
-  stateJson    String? // JSON {completed:[stepId],skipped:[],evidence:{}}
-  status       String   @default("active") // active|completed|escalated|cancelled
-  startedBy    String?
-  startedAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  hospital     Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  definition   NxPathwayDef @relation(fields: [defId], references: [id])
+  id          String       @id @default(cuid())
+  hospitalId  String
+  defId       String
+  patientId   String?
+  patientName String?
+  currentStep String
+  stateJson   String? // JSON {completed:[stepId],skipped:[],evidence:{}}
+  status      String       @default("active") // active|completed|escalated|cancelled
+  startedBy   String?
+  startedAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  hospital    Hospital     @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  definition  NxPathwayDef @relation(fields: [defId], references: [id])
 
   @@index([hospitalId, status])
 }
@@ -2512,86 +2525,86 @@ model NxInsuranceContract {
 }
 
 model NxWearableDevice {
-  id         String   @id @default(cuid())
+  id         String             @id @default(cuid())
   hospitalId String
   patientId  String
   source     String // apple_health|whoop|fitbit|manual
   model      String?
-  active     Boolean  @default(true)
-  pairedAt   DateTime @default(now())
-  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  active     Boolean            @default(true)
+  pairedAt   DateTime           @default(now())
+  hospital   Hospital           @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   samples    NxWearableSample[]
 
   @@index([patientId])
 }
 
 model NxWearableSample {
-  id         String   @id @default(cuid())
+  id         String           @id @default(cuid())
   deviceId   String
   metric     String // hrv|resting_hr|spo2|steps|sleep_minutes
   value      Float
   unit       String?
   capturedAt DateTime
-  ingestedAt DateTime @default(now())
+  ingestedAt DateTime         @default(now())
   device     NxWearableDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([deviceId, capturedAt])
 }
 
 model NxGenomicProfile {
-  id          String   @id @default(cuid())
-  hospitalId  String
-  patientId   String
-  vaultRef    String // external vault pointer — raw genotype NEVER stored here
+  id           String   @id @default(cuid())
+  hospitalId   String
+  patientId    String
+  vaultRef     String // external vault pointer — raw genotype NEVER stored here
   variantsJson String? // JSON [{gene,variant,zygosity,classpath}]
-  riskJson    String? // JSON {cardio:0.12,diabetes:0.31,...}
-  consentId   String? // links NxConsent
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  riskJson     String? // JSON {cardio:0.12,diabetes:0.31,...}
+  consentId    String? // links NxConsent
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  hospital     Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
 }
 
 model NxSimulationScenario {
-  id         String  @id @default(cuid())
-  code       String  @unique
+  id         String            @id @default(cuid())
+  code       String            @unique
   title      String
-  audience   String  @default("clinician") // clinician|student|public
-  difficulty String  @default("intermediate")
+  audience   String            @default("clinician") // clinician|student|public
+  difficulty String            @default("intermediate")
   treeJson   String // adaptive branching tree DSL
-  active     Boolean @default(true)
-  createdAt  DateTime @default(now())
+  active     Boolean           @default(true)
+  createdAt  DateTime          @default(now())
   runs       NxSimulationRun[]
 
   @@index([audience])
 }
 
 model NxSimulationRun {
-  id          String   @id @default(cuid())
+  id          String               @id @default(cuid())
   scenarioId  String
-  subjectType String   @default("staff") // staff|patient|visitor
+  subjectType String               @default("staff") // staff|patient|visitor
   subjectName String?
   choicesJson String // JSON path taken
   outcome     String
-  score       Float    @default(0)
-  createdAt   DateTime @default(now())
+  score       Float                @default(0)
+  createdAt   DateTime             @default(now())
   scenario    NxSimulationScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
 
   @@index([scenarioId, createdAt])
 }
 
 model NxPlugin {
-  id             String   @id @default(cuid())
-  code           String   @unique
-  name           String
-  version        String
-  vendor         String?
+  id              String   @id @default(cuid())
+  code            String   @unique
+  name            String
+  version         String
+  vendor          String?
   permissionsJson String // JSON string[] e.g. ["patients.read"]
-  entryJson      String // JSON {kind:"panel"|"hook", route, slots:[]}
-  enabled        Boolean  @default(false)
-  installedAt    DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  entryJson       String // JSON {kind:"panel"|"hook", route, slots:[]}
+  enabled         Boolean  @default(false)
+  installedAt     DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model NxHospitalTemplate {
@@ -2774,20 +2787,20 @@ model PieTwinState {
 }
 
 model PieRiskAssessment {
-  id            String   @id @default(cuid())
-  patientId     String
-  hospitalId    String?
-  domain        String // sepsis|readmission|chronic_deterioration|cardiac|composite
-  score         Float // Time-to-Decay 0..100
-  band          String // green|yellow|red
-  confidence    Float // 0..1, <0.8 => uncertain, manual review
-  horizonHours  Int      @default(24)
-  driversJson   String // SHAP-like attribution, top factors
-  trendJson     String? // recent score trajectory for sparklines
-  modelVersion  String
-  uncertain     Boolean  @default(false)
-  reviewedBy    String?
-  createdAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  patientId    String
+  hospitalId   String?
+  domain       String // sepsis|readmission|chronic_deterioration|cardiac|composite
+  score        Float // Time-to-Decay 0..100
+  band         String // green|yellow|red
+  confidence   Float // 0..1, <0.8 => uncertain, manual review
+  horizonHours Int      @default(24)
+  driversJson  String // SHAP-like attribution, top factors
+  trendJson    String? // recent score trajectory for sparklines
+  modelVersion String
+  uncertain    Boolean  @default(false)
+  reviewedBy   String?
+  createdAt    DateTime @default(now())
 
   @@index([patientId, createdAt])
   @@index([hospitalId, band, createdAt])
@@ -2821,7 +2834,7 @@ model PieProtocol {
 }
 
 model PieGraphNode {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   label     String // Patient|Condition|Gene|Drug|LifestyleFactor|Environment|Observation
   key       String // stable business key e.g. patient:uhid, drug:metformin
   propsJson String?
@@ -2831,11 +2844,11 @@ model PieGraphNode {
 }
 
 model PieGraphEdge {
-  id         String @id @default(cuid())
+  id         String  @id @default(cuid())
   type       String // HIGH_RISK_OF|INTERACTS_WITH|HAS_CONDITION|EXPOSED_TO|SIMILAR_TO|IMPROVES|WORSENS
   fromNodeId String
   toNodeId   String
-  weight     Float  @default(1)
+  weight     Float   @default(1)
   propsJson  String?
 
   @@unique([type, fromNodeId, toNodeId])
@@ -2872,16 +2885,16 @@ model PieAdherenceEvent {
 }
 
 model PieFederatedUpdate {
-  id         String   @id @default(cuid())
-  tenantId   String
-  modelId    String // sepsis_early_warning|readmission|chronic_decay
+  id          String   @id @default(cuid())
+  tenantId    String
+  modelId     String // sepsis_early_warning|readmission|chronic_decay
   versionBase String
-  versionNew String
-  deltaJson  String // weight deltas only — no patient data leaves the tenant
-  samples    Int
-  loss       Float?
-  aggregated Boolean  @default(false)
-  uploadedAt DateTime @default(now())
+  versionNew  String
+  deltaJson   String // weight deltas only — no patient data leaves the tenant
+  samples     Int
+  loss        Float?
+  aggregated  Boolean  @default(false)
+  uploadedAt  DateTime @default(now())
 
   @@index([modelId, aggregated, uploadedAt])
   @@map("pie_federated_updates")
@@ -2930,16 +2943,244 @@ model PieBiasAudit {
  */
 
 model ForesightRun {
-  id           String   @id @default(cuid())
-  subjectKey   String
-  score        Int
-  band         String
-  triageLevel  String   @default("STANDARD")
-  topDomainId  String
-  inputJson    String
-  reportJson   String
-  engineVer    String
-  createdAt    DateTime @default(now())
+  id          String   @id @default(cuid())
+  subjectKey  String
+  score       Int
+  band        String
+  triageLevel String   @default("STANDARD")
+  topDomainId String
+  inputJson   String
+  reportJson  String
+  engineVer   String
+  createdAt   DateTime @default(now())
 
   @@index([subjectKey, createdAt])
+}
+
+/**
+ * ============================================================
+ * NEXURA DIY — consumer wellness roadmap module
+ * 13 models: goals → plans (versioned) → milestones → tasks,
+ * completions/progress, conflicts, granular consent, safety
+ * events, plan changes, source-bound knowledge, AI audit,
+ * idempotent generations. All identity = PortalUser.
+ * ============================================================
+ */
+
+model DiyGoal {
+  id                     String     @id @default(cuid())
+  userId                 String
+  user                   PortalUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batchId                String
+  clientKey              String
+  rawGoalText            String
+  normalizedText         String
+  category               String
+  status                 String     @default("DRAFTED")
+  timeframeDays          Int?
+  requestedTimeframeDays Int?
+  confidence             Float      @default(0.5)
+  needsClarify           Boolean    @default(false)
+  clarifyQuestion        String?
+  priority               Int        @default(2)
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+  diyPlans               DiyPlan[]
+
+  @@unique([userId, batchId, clientKey])
+  @@index([userId, status])
+  @@index([userId, category])
+}
+
+model DiyPlan {
+  id               String    @id @default(cuid())
+  goalId           String
+  goal             DiyGoal   @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  userId           String
+  version          Int       @default(1)
+  status           String    @default("ACTIVE")
+  roadmap          String
+  sourcePack       String
+  sourceKeys       String
+  aiEnriched       Boolean   @default(false)
+  contentValidated Boolean   @default(false)
+  burdenScore      Float     @default(0)
+  createdAt        DateTime  @default(now())
+  retiredAt        DateTime?
+
+  milestones   DiyMilestone[]
+  tasks        DiyTask[]
+  changes      DiyPlanChange[]
+  portalUser   PortalUser?     @relation(fields: [portalUserId], references: [id])
+  portalUserId String?
+
+  @@index([userId, status])
+  @@index([goalId, version])
+}
+
+model DiyMilestone {
+  id        String  @id @default(cuid())
+  planId    String
+  plan      DiyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  title     String
+  detail    String?
+  targetDay Int
+  sort      Int     @default(0)
+
+  @@index([planId, targetDay])
+}
+
+model DiyTask {
+  id          String   @id @default(cuid())
+  planId      String
+  plan        DiyPlan  @relation(fields: [planId], references: [id], onDelete: Cascade)
+  milestoneId String?
+  title       String
+  detail      String?
+  cadence     String   @default("DAILY")
+  estMinutes  Int      @default(10)
+  dayOffset   Int      @default(0)
+  category    String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  completions DiyTaskCompletion[]
+
+  @@index([planId, active])
+  @@index([category])
+}
+
+model DiyTaskCompletion {
+  id           String      @id @default(cuid())
+  taskId       String
+  task         DiyTask     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId       String
+  date         String
+  status       String      @default("DONE")
+  note         String?
+  createdAt    DateTime    @default(now())
+  portalUser   PortalUser? @relation(fields: [portalUserId], references: [id])
+  portalUserId String?
+
+  @@unique([taskId, userId, date])
+  @@index([userId, date])
+}
+
+model DiyProgressLog {
+  id             String      @id @default(cuid())
+  userId         String
+  date           String
+  completedTasks Int         @default(0)
+  skippedTasks   Int         @default(0)
+  symptoms       String?
+  mood           Int?
+  energy         Int?
+  sleep          Int?
+  userNotes      String?
+  createdAt      DateTime    @default(now())
+  portalUser     PortalUser? @relation(fields: [portalUserId], references: [id])
+  portalUserId   String?
+
+  @@unique([userId, date])
+}
+
+model DiyGoalConflict {
+  id           String      @id @default(cuid())
+  userId       String
+  goalAId      String
+  goalBId      String
+  rule         String
+  explanation  String
+  resolution   String      @default("TRIMMED")
+  createdAt    DateTime    @default(now())
+  portalUser   PortalUser? @relation(fields: [portalUserId], references: [id])
+  portalUserId String?
+
+  @@index([userId])
+}
+
+model DiyConsent {
+  id            String      @id @default(cuid())
+  userId        String
+  consentType   String
+  purpose       String
+  scope         String
+  policyVersion String
+  source        String
+  grantedAt     DateTime    @default(now())
+  withdrawnAt   DateTime?
+  portalUser    PortalUser? @relation(fields: [portalUserId], references: [id])
+  portalUserId  String?
+
+  @@index([userId, consentType])
+}
+
+model DiySafetyEvent {
+  id             String      @id @default(cuid())
+  userId         String?
+  kind           String
+  severity       String
+  matchedPattern String
+  sourceSnippet  String
+  action         String
+  createdAt      DateTime    @default(now())
+  portalUser     PortalUser? @relation(fields: [portalUserId], references: [id])
+  portalUserId   String?
+
+  @@index([userId, createdAt])
+  @@index([kind, createdAt])
+}
+
+model DiyPlanChange {
+  id        String   @id @default(cuid())
+  planId    String
+  plan      DiyPlan  @relation(fields: [planId], references: [id], onDelete: Cascade)
+  fromVer   Int
+  toVer     Int
+  reason    String
+  summary   String
+  createdAt DateTime @default(now())
+
+  @@index([planId])
+}
+
+model DiyKnowledgeSource {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  title         String
+  role          String
+  license       String
+  reviewStatus  String   @default("INTERNAL_REVIEW")
+  url           String?
+  prohibitedUse String?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}
+
+model DiyAiAudit {
+  id           String      @id @default(cuid())
+  userId       String?
+  capability   String
+  model        String
+  latencyMs    Int
+  requestId    String
+  inputHash    String
+  createdAt    DateTime    @default(now())
+  portalUser   PortalUser? @relation(fields: [portalUserId], references: [id])
+  portalUserId String?
+
+  @@index([userId, createdAt])
+}
+
+model DiyGeneration {
+  id             String      @id @default(cuid())
+  userId         String
+  idempotencyKey String      @unique
+  status         String      @default("COMPLETED")
+  planIds        String
+  createdAt      DateTime    @default(now())
+  portalUser     PortalUser? @relation(fields: [portalUserId], references: [id])
+  portalUserId   String?
+
+  @@index([userId, createdAt])
 }
