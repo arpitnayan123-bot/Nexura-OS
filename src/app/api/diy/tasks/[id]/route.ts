@@ -40,3 +40,22 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
 
   return NextResponse.json({ ok: true, completion });
 }
+
+/* DELETE — undo: removes today's completion row so the task returns
+   to PENDING (the Today UI's reset affordance). Ownership-checked. */
+export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const g = await guard(req, { consent: "TASKS", rate: { max: 120, windowMs: 60_000 } });
+  if (g instanceof NextResponse) return g;
+
+  const { id } = await ctx.params;
+  const task = await db.diyTask.findFirst({
+    where: { id, active: true, plan: { userId: g.userId } },
+  });
+  if (!task) return guardFail("NOT_FOUND", "Task not found.", 404);
+
+  await db.diyTaskCompletion.deleteMany({
+    where: { taskId: task.id, userId: g.userId, date: today() },
+  });
+
+  return NextResponse.json({ ok: true });
+}

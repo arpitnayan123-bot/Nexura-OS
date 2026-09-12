@@ -30,7 +30,11 @@ export interface ParsedGoal {
   clarifyQuestion?: string;
 }
 
-const SPLITTERS = /[,;\n]+|\.\s+|\s+aur\s+|\s+also\s+(?:i\s+)?(?:want|need)|,\s*(?:and\s+)?(?:i\s+)?(?:want|need|also)/i;
+// "and" only splits when a GOAL VERB follows ("...and fix my sleep"),
+// so plain conjunctions ("health and happiness") stay one goal.
+// Zero-width lookahead keeps "and <verb> ..." intact in the second
+// chunk so its classifier still sees the verb + noun.
+const SPLITTERS = /[,;\n]+|\.\s+|\s+aur\s+|\s+also\s+(?:i\s+)?(?:want|need)|,\s*(?:and\s+)?(?:i\s+)?(?:want|need|also)|\s+(?=and\s+(?:then\s+)?(?:fix|improve|reduce|lose|gain|start|stop|quit|build|sleep|wake|eat|walk|run|meditate|exercise|read|scroll|cut|drop|get|drink|lower|shed)\b)/i;
 
 export function parseTranscript(text: string): {
   language: string;
@@ -103,6 +107,17 @@ export function reconcile(goals: { category: string; rawGoalText: string; client
       trimmed.push({ ...kept[idx], reason: "Merged into your acne plan (it already covers general skin care)." });
       conflicts.push({ goalACategory: "SKIN_ACNE", goalBCategory: "SKIN_GENERAL", rule: "duplicate_surface", explanation: "Acne plan includes general skin care.", resolution: "MERGED" });
       kept.splice(idx, 1);
+    }
+  }
+
+  // same-category duplicates: keep the first stated (the chunk
+  // fallback classifier can map two chunks onto one focus)
+  for (let i = kept.length - 1; i >= 0; i--) {
+    const firstIdx = kept.findIndex((g) => g.category === kept[i].category);
+    if (firstIdx !== i && firstIdx >= 0) {
+      trimmed.push({ ...kept[i], reason: "Same focus as one you already stated — merged into it so the plan stays single-minded." });
+      conflicts.push({ goalACategory: kept[i].category, goalBCategory: kept[i].category, rule: "duplicate_category", explanation: "Two goals mapped to the same focus — we kept the one you stated first.", resolution: "MERGED" });
+      kept.splice(i, 1);
     }
   }
 
@@ -211,6 +226,36 @@ export async function generatePlans(input: GenerationInput): Promise<GenerationO
     const planIds: string[] = [];
     for (const r of roadmaps) {
       const pack = packFor(r.category);
+      // SUPERSEDE: retire the user's older ACTIVE plan(s) of the same
+      // category so Today never shows duplicate task sets. The new plan
+      // replaces the old one, and the change is explained honestly.
+      const oldPlans = await tx.diyPlan.findMany({
+        where: { userId: input.userId, status: "ACTIVE", goal: { category: r.category } },
+        select: { id: true, version: true },
+      });
+      if (oldPlans.length) {
+        await tx.diyPlan.updateMany({
+          where: { id: { in: oldPlans.map((o) => o.id) } },
+          data: { status: "RETIRED", retiredAt: new Date() },
+        });
+        const newest = oldPlans.reduce((a, b) => (b.version > a.version ? b : a));
+        await tx.diyPlanChange.create({
+          data: {
+            planId: newest.id,
+            fromVer: newest.version,
+            toVer: newest.version,
+            reason: "superseded",
+            summary: "A refreshed plan for this focus replaced the previous one — Today now shows the newest version.",
+          },
+        });
+        conflicts.push({
+          goalACategory: r.category,
+          goalBCategory: r.category,
+          rule: "superseded_plan",
+          explanation: `You already had an active ${r.category.replace(/_/g, " ").toLowerCase()} plan — this new one replaces it (Today shows the fresh version).`,
+          resolution: "REPLACED",
+        });
+      }
       const plan = await tx.diyPlan.create({
         data: {
           goalId: r.goal.id,

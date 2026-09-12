@@ -134,6 +134,38 @@ describe("DIY parser — deterministic, offline", () => {
     expect(classifyCategory("kabz rehti hai pet saaf nahi hota").category).toBe("DIGESTION");
     expect(classifyCategory("back pain and kamar dard from sitting").category).toBe("POSTURE_PAIN");
   });
+
+  it("classifies verb-first weight phrasings (the common English order)", () => {
+    expect(classifyCategory("I want to lose weight").category).toBe("WEIGHT_LOSS");
+    expect(classifyCategory("want to reduce my weight").category).toBe("WEIGHT_LOSS");
+    expect(classifyCategory("lose some weight in 2 months").category).toBe("WEIGHT_LOSS");
+    expect(classifyCategory("need to shed extra weight").category).toBe("WEIGHT_LOSS");
+    expect(classifyCategory("gain weight healthily").category).toBe("WEIGHT_GAIN");
+    expect(classifyCategory("put on healthy weight").category).toBe("WEIGHT_GAIN");
+    // noun-first orders still hold
+    expect(classifyCategory("weight loss karna hai").category).toBe("WEIGHT_LOSS");
+    expect(classifyCategory("mera vajan kam karna hai").category).toBe("WEIGHT_LOSS");
+    // no false positives
+    expect(classifyCategory("burnout at work").category).not.toBe("WEIGHT_LOSS");
+    expect(classifyCategory("walking on the sidewalk").category).toBe("FITNESS_ENDURANCE");
+  });
+
+  it("splits compound goal sentences on 'and <goal-verb>' but keeps plain conjunctions whole", () => {
+    const r = parseTranscript("I want to lose weight in 2 months and fix my sleep");
+    expect(r.goals.length).toBe(2);
+    const cats = r.goals.map((g) => g.category);
+    expect(cats).toContain("WEIGHT_LOSS");
+    expect(cats).toContain("SLEEP");
+
+    // plain "and" between non-goal words stays ONE goal
+    const single = parseTranscript("I want to build muscle and strength");
+    expect(single.goals).toHaveLength(1);
+    expect(single.goals[0].category).toBe("FITNESS_STRENGTH");
+  });
+
+  it("walking goals classify as endurance", () => {
+    expect(classifyCategory("I want to start walking every morning").category).toBe("FITNESS_ENDURANCE");
+  });
 });
 
 describe("DIY timeframe pacing floors — honest physiology", () => {

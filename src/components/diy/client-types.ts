@@ -31,6 +31,29 @@ export interface GoalRow {
   timeframeDays?: number | null;
 }
 
+export interface DashboardMilestone {
+  id: string;
+  title: string;
+  detail?: string;
+  targetDay: number;
+  reached?: boolean;
+}
+
+export interface DashboardPlan {
+  id: string;
+  goalId: string;
+  goalText: string;
+  version: number;
+  summary: string;
+  sourcePack: string;
+  sourceKeys: string;
+  burdenMinutes: number;
+  startedAt?: string;
+  dayNumber?: number;
+  totalDays?: number | null;
+  milestones: DashboardMilestone[];
+}
+
 export interface DashboardTask {
   id: string;
   title: string;
@@ -42,22 +65,22 @@ export interface DashboardTask {
   note?: string | null;
 }
 
+export interface DashboardWeekly {
+  id: string;
+  title: string;
+  detail: string;
+  category: string;
+  goalText: string;
+  status?: string;
+}
+
 export interface DashboardData {
   date: string;
+  streak?: number;
   goals: GoalRow[];
-  plans: {
-    id: string;
-    goalId: string;
-    goalText: string;
-    version: number;
-    summary: string;
-    sourcePack: string;
-    sourceKeys: string;
-    burdenMinutes: number;
-    milestones: { id: string; title: string; detail?: string; targetDay: number }[];
-  }[];
+  plans: DashboardPlan[];
   todayTasks: DashboardTask[];
-  weekly: { id: string; title: string; detail: string; category: string; goalText: string }[];
+  weekly: DashboardWeekly[];
   doneCount: number;
   skippedCount: number;
   conflicts: { id: string; rule: string; explanation: string; resolution: string }[];
