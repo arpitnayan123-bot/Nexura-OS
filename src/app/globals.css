@@ -1451,3 +1451,170 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
     transform: none;
   }
 }
+
+/* ============================================================
+   NEXURA DIY — premium warm design layer
+   Deep glass panels, frosted chips, textured terracotta
+   buttons (feTurbulence grain over a bevel gradient), and the
+   valley's ambient keyframes. All animation is disabled under
+   prefers-reduced-motion.
+   ============================================================ */
+
+.nx-glass-deep {
+  background: linear-gradient(155deg, rgba(255, 253, 248, 0.82), rgba(255, 250, 242, 0.62));
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    inset 0 -1px 2px rgba(120, 84, 56, 0.06),
+    0 24px 48px -20px rgba(84, 56, 34, 0.28),
+    0 4px 14px -6px rgba(84, 56, 34, 0.12);
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+}
+
+.nx-glass-chip {
+  background: rgba(255, 253, 248, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.85),
+    0 2px 8px -2px rgba(84, 56, 34, 0.14);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ---- textured primary button: mineral grain over a bevel ---- */
+.diy-btn-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 3rem;
+  padding-inline: 1.5rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(140, 68, 34, 0.55);
+  color: #FFF8EE;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background:
+    linear-gradient(180deg, #E29A72 0%, #C96F45 48%, #B05A34 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 235, 214, 0.55),
+    inset 0 -2px 3px rgba(84, 30, 8, 0.28),
+    0 10px 20px -8px rgba(150, 76, 40, 0.55),
+    0 2px 6px -2px rgba(150, 76, 40, 0.35);
+  transition: transform 160ms ease-out, filter 160ms ease-out, box-shadow 160ms ease-out;
+  overflow: hidden;
+  isolation: isolate;
+}
+/* the grain itself: fractal noise, soft-light blended */
+.diy-btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.diy-btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05) saturate(1.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 235, 214, 0.6),
+    inset 0 -2px 3px rgba(84, 30, 8, 0.28),
+    0 14px 26px -10px rgba(150, 76, 40, 0.6),
+    0 3px 8px -2px rgba(150, 76, 40, 0.4);
+}
+.diy-btn-primary:active {
+  transform: translateY(1px) scale(0.99);
+  filter: brightness(0.97);
+  box-shadow:
+    inset 0 2px 4px rgba(70, 24, 6, 0.35),
+    0 4px 10px -6px rgba(150, 76, 40, 0.5);
+}
+.diy-btn-primary:disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* small round textured icon button (composer send, etc.) */
+.diy-btn-icon-terra {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(140, 68, 34, 0.55);
+  color: #FFF8EE;
+  background: linear-gradient(180deg, #E29A72 0%, #C96F45 48%, #B05A34 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 235, 214, 0.55),
+    inset 0 -2px 3px rgba(84, 30, 8, 0.28),
+    0 8px 16px -6px rgba(150, 76, 40, 0.5);
+  transition: transform 150ms ease-out, filter 150ms ease-out;
+  overflow: hidden;
+  isolation: isolate;
+}
+.diy-btn-icon-terra::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.diy-btn-icon-terra:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+.diy-btn-icon-terra:active {
+  transform: translateY(1px);
+  filter: brightness(0.96);
+}
+
+/* ---- valley ambience ---- */
+@keyframes diy-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(90px); }
+}
+@keyframes diy-drift-slow {
+  from { transform: translateX(0); }
+  to { transform: translateX(140px); }
+}
+@keyframes diy-shimmer {
+  0%, 100% { opacity: 0.35; transform: scaleX(1); }
+  50% { opacity: 0.75; transform: scaleX(1.12); }
+}
+@keyframes diy-glow {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+@keyframes diy-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.diy-cloud-a { animation: diy-drift 70s ease-in-out infinite alternate; }
+.diy-cloud-b { animation: diy-drift-slow 110s ease-in-out infinite alternate; }
+.diy-shimmer { animation: diy-shimmer 7s ease-in-out infinite; transform-origin: center; }
+.diy-sun-glow { animation: diy-glow 9s ease-in-out infinite; }
+.diy-duck { animation: diy-bob 5s ease-in-out infinite; }
+.diy-duck-2 { animation: diy-bob 6.5s ease-in-out 1.2s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .diy-cloud-a,
+  .diy-cloud-b,
+  .diy-shimmer,
+  .diy-sun-glow,
+  .diy-duck,
+  .diy-duck-2 {
+    animation: none !important;
+  }
+}
