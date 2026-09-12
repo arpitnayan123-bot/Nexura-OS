@@ -172,6 +172,15 @@ export function Hero() {
 }
 
 function HeroVisual() {
+  // Graceful degradation: if the doctor portrait ever fails to load
+  // (transient 404 during a preview sandbox restart, proxy hiccup),
+  // render a warm branded gradient instead of an empty white card.
+  const doctorFallback =
+    "data:image/svg+xml," +
+    encodeURIComponent(
+      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 600' preserveAspectRatio='xMidYMid slice'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#F6EBE0'/><stop offset='0.55' stop-color='#EAD8C6'/><stop offset='1' stop-color='#DCC3AB'/></linearGradient><radialGradient id='o' cx='0.5' cy='0.42' r='0.5'><stop offset='0' stop-color='#AC5335' stop-opacity='0.35'/><stop offset='1' stop-color='#AC5335' stop-opacity='0'/></radialGradient><radialGradient id='s' cx='0.25' cy='0.85' r='0.45'><stop offset='0' stop-color='#9DB89E' stop-opacity='0.4'/><stop offset='1' stop-color='#9DB89E' stop-opacity='0'/></radialGradient></defs><rect width='500' height='600' fill='url(#g)'/><rect width='500' height='600' fill='url(#o)'/><rect width='500' height='600' fill='url(#s)'/><circle cx='250' cy='235' r='74' fill='none' stroke='#AC5335' stroke-opacity='0.45' stroke-width='2.5'/><path d='M175 420 Q 250 330 325 420' fill='none' stroke='#AC5335' stroke-opacity='0.45' stroke-width='2.5' stroke-linecap='round'/><circle cx='205' cy='215' r='5' fill='#AC5335' fill-opacity='0.5'/><circle cx='295' cy='215' r='5' fill='#AC5335' fill-opacity='0.5'/><path d='M225 265 Q 250 285 275 265' fill='none' stroke='#AC5335' stroke-opacity='0.5' stroke-width='2.5' stroke-linecap='round'/></svg>`
+    );
+
   return (
     <div className="relative mx-auto aspect-[5/6] w-full max-w-md sm:max-w-lg">
       {/* big breathing orb behind */}
@@ -191,6 +200,19 @@ function HeroVisual() {
           src="/nexura/hero-doctor.png"
           alt="Nexura OS care companion"
           className="h-full w-full object-cover"
+          loading="eager"
+          decoding="async"
+          ref={(el) => {
+            // Above-the-fold portrait: hint the browser to prioritise it
+            // (kept as a ref attribute so every React version stays happy).
+            if (el) el.setAttribute("fetchpriority", "high");
+          }}
+          onError={(e) => {
+            const img = e.currentTarget;
+            if (!img.src.startsWith("data:image/svg+xml")) {
+              img.src = doctorFallback;
+            }
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.31_0.02_55_0.55)] via-transparent to-transparent" />
 
