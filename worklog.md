@@ -3721,3 +3721,17 @@ Work Log:
 
 Stage Summary:
 - The globe card now wears the same morning as Nexura Intelligence: dawn canvas, cream espresso-dotted earth with terracotta corridors converging on Mumbai, sun halo, gulls and a sailboat on the sage horizon — premium, warm, reduced-motion-safe, facts unchanged. Screenshots: download/dawn-globe-card-v4.png, dawn-pair-final.png, dawn-globe-mobile.png. Committed as 1dc0434.
+
+---
+Task ID: NXP-GUARDIAN-LOCK (preview outage — stale build lock)
+Agent: Super Z (main)
+Task: User: preview disconnected / dev server died again — why does this keep happening?
+
+Work Log:
+- Incident window 23:56:37-23:58:15 (~100s): guardian health probe saw CSS chunk 500 (build/statics briefly out of sync after sandbox hiccup); restarted server; rebuild then FAILED 3x with "Unable to acquire lock at .next/lock" — a build that died mid-run leaves the lock behind, and do_build had no stale-lock handling, stretching recovery to ~3 min. Guardian eventually served the last good build; live state verified healthy (latest globe markup served, all CSS chunks 200, BUILD_ID dqDQBkeNT9z9OwDyl8a0q).
+- ROOT CAUSE of "keeps happening": (1) the preview is a long-lived process in a sandbox that periodically restarts/hiccups — every restart kills :3000 (second occurrence; first was NXP-RESTART-HEAL); (2) guardian self-heals, but healing = full next build, and a stale .next/lock from a killed build stalled it 3 extra cycles.
+- GUARDIAN PATCH (scripts/nx-guardian.sh do_build): before building — if a real `next build` process is alive, skip the cycle (don't fight an in-flight deploy); else if .next/lock exists, it is stale by definition -> rm and proceed with build. bash -n clean.
+- Redeployed via deploy-preview.sh — DEPLOY VERIFIED; homepage HTTP 200 in 0.08s.
+
+Stage Summary:
+- Preview restored and hardened: stale build locks can no longer prolong outages; guardian defers to in-flight builds instead of colliding. Recurrent downtime class (sandbox restarts) remains environmental; recovery is now automatic and fast.
