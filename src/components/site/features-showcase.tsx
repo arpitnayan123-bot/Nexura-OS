@@ -213,7 +213,7 @@ function FeatureCard({ feature, index, compact, featured, onClick }: { feature: 
       transition={{ delay: index * 0.05, duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
       className={
         featured
-          ? "group relative h-full sm:col-span-2 sm:row-span-2 rounded-[1.5rem] nx-inset-glass transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(46,42,38,0.3)]"
+          ? "group relative h-full overflow-hidden rounded-[1.5rem] nx-inset-glass p-0 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(46,42,38,0.3)]"
           : "group relative h-full overflow-hidden rounded-[1.5rem] nx-inset-glass p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(46,42,38,0.3)]"
       }
     >
@@ -257,7 +257,10 @@ function FeatureCard({ feature, index, compact, featured, onClick }: { feature: 
   }
 
   return (
-    <Link href={feature.href} className="block">
+    <Link
+      href={feature.href}
+      className={featured ? "block h-full sm:col-span-2 sm:row-span-2" : "block"}
+    >
       {card}
     </Link>
   );
