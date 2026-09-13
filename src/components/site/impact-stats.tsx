@@ -76,19 +76,16 @@ export function ImpactStats() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <Reveal>
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-coral anim-breathe" />
-              Quiet impact
-            </span>
+            <span className="eyebrow">Quiet impact</span>
           </Reveal>
           <Reveal delay={0.06}>
-            <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+            <h2 className="title-lux mt-4 text-3xl sm:text-4xl lg:text-5xl">
               Measured in{" "}
-              <span className="text-gradient-warm">calmer lives.</span>
+              <span className="text-gold-gradient">calmer lives.</span>
             </h2>
           </Reveal>
           <Reveal delay={0.12}>
-            <p className="mt-4 text-muted-foreground sm:text-lg">
+            <p className="lede-lux mt-4">
               Not vanity metrics — real outcomes, tracked ethically, with every
               patient's consent.
             </p>
@@ -130,9 +127,9 @@ function StatCard({
 }: (typeof STATS)[number] & { decimals?: number }) {
   return (
     <motion.div
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 280, damping: 22 }}
-      className="group relative overflow-hidden rounded-3xl border border-border bg-card p-6"
+      className="card-lux card-lux-hover group relative overflow-hidden rounded-3xl p-6"
     >
       <div
         className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-20 blur-2xl transition-opacity duration-500 group-hover:opacity-50"
@@ -153,7 +150,7 @@ function StatCard({
           style={{ background: accent }}
         />
       </div>
-      <p className="relative mt-5 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+      <p className="stat-lux relative mt-5 text-4xl sm:text-5xl">
         <AnimatedNumber value={value} format="comma" duration={2} />
         {decimals > 0 && (
           <span className="text-2xl text-muted-foreground">
@@ -173,10 +170,10 @@ function StatCard({
       <p className="relative mt-2 text-sm font-medium text-foreground">{label}</p>
       <p className="relative text-xs text-muted-foreground">{sub}</p>
 
-      {/* bottom accent line that grows on hover */}
+      {/* champagne hairline that grows on hover */}
       <div
-        className="absolute inset-x-6 bottom-0 h-0.5 origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
-        style={{ background: accent }}
+        className="absolute inset-x-6 bottom-0 h-px origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
+        style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
       />
     </motion.div>
   );

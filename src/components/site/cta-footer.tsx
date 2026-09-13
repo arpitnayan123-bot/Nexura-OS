@@ -61,24 +61,38 @@ function CtaBanner() {
 
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[2.5rem] border border-primary/25 bg-gradient-to-br from-[oklch(0.70_0.145_45)] via-[oklch(0.66_0.10_40)] to-[oklch(0.60_0.09_30)] p-8 text-primary-foreground shadow-[0_40px_120px_-50px_oklch(0.4_0.05_45/0.5)] sm:p-12">
-            <div className="absolute -right-12 -top-12 opacity-40">
-              <BreathingOrb size={260} color="white" ring={false} />
+          {/* Liquid Gold climax — deep charcoal ground, champagne light */}
+          <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-gradient-to-br from-[#26221E] via-[#1C1917] to-[#141210] p-8 text-[#F6F1E7] shadow-[0_48px_120px_-48px_oklch(0.2_0.03_55/0.7)] sm:p-12">
+            {/* champagne aurora hearts inside the card */}
+            <div
+              aria-hidden
+              className="aurora-gold -right-24 -top-24 h-80 w-80 opacity-50"
+              style={{ filter: "blur(70px)" }}
+            />
+            <div
+              aria-hidden
+              className="aurora-gold -bottom-28 left-1/4 h-64 w-72 opacity-30"
+              style={{ animationDelay: "-5s", filter: "blur(80px)" }}
+            />
+            <div className="absolute -right-12 -top-12 opacity-30">
+              <BreathingOrb size={260} color="#D9B87C" ring={false} />
             </div>
             <div className="relative grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
               <div>
-                <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
+                <span className="badge-lux bg-white/8 text-[#EED9A8]">
                   <CalendarHeart className="h-3.5 w-3.5" /> Early access · Q1 cohort
                 </span>
-                <h2 className="mt-5 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-[2.9rem]">
-                  Begin a calmer relationship with your health today.
+                <h2 className="title-lux mt-5 text-3xl sm:text-4xl lg:text-[2.9rem]">
+                  Begin a{" "}
+                  <span className="text-gold-gradient">calmer relationship</span>{" "}
+                  with your health today.
                 </h2>
-                <p className="mt-4 max-w-md text-sm text-primary-foreground/85 sm:text-base">
+                <p className="mt-4 max-w-md text-sm text-[#F6F1E7]/75 sm:text-base">
                   Join 184,000+ people on the early-access list. We'll send you a
                   warm welcome and your personal scan link.
                 </p>
 
-                <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-primary-foreground/80">
+                <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#F6F1E7]/70">
                   <span className="flex items-center gap-1.5">
                     <ShieldCheck className="h-3.5 w-3.5" /> HIPAA &amp; GDPR
                   </span>
@@ -88,8 +102,8 @@ function CtaBanner() {
                 </div>
               </div>
 
-              <form onSubmit={submit} className="rounded-3xl bg-white/15 p-5 backdrop-blur-md">
-                <label htmlFor="cta-email" className="text-xs font-medium uppercase tracking-[0.18em] text-primary-foreground/85">
+              <form onSubmit={submit} className="rounded-3xl border border-white/12 bg-white/8 p-5 backdrop-blur-md">
+                <label htmlFor="cta-email" className="text-xs font-medium uppercase tracking-[0.18em] text-[#EED9A8]/90">
                   Email
                 </label>
                 <Input
@@ -103,14 +117,14 @@ function CtaBanner() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="group mt-3 h-12 w-full rounded-xl bg-foreground text-background transition-all hover:bg-background/90"
+                  className="btn-gold group mt-3 h-12 w-full rounded-xl"
                 >
                   {loading ? "Reserving…" : "Reserve my spot"}
                   {!loading && (
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   )}
                 </Button>
-                <p className="mt-2 text-center text-[0.65rem] text-primary-foreground/70">
+                <p className="mt-2 text-center text-[0.65rem] text-[#F6F1E7]/60">
                   By joining you agree to our calm privacy policy.
                 </p>
               </form>

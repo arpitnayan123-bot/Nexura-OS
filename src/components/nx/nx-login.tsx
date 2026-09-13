@@ -152,7 +152,7 @@ export function NxLogin({ onSignedIn }: {
             <p className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-good" /> Break-glass policy enforced on every record</p>
             <p className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-good" /> Governed AI — it assists, clinicians decide</p>
           </div>
-          <div className="mt-6 inline-flex items-center gap-2 self-start rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[11px] font-medium text-amber-400">
+          <div className="mt-6 inline-flex items-center gap-2 self-start rounded-full border border-accent-line bg-accent-soft px-3 py-1.5 text-[11px] font-medium text-accent">
             <FlaskConical className="h-3.5 w-3.5" /> Demo environment — synthetic data only
           </div>
         </div>

@@ -67,14 +67,20 @@ const PRODUCTS = [
 export function ProductShowcase() {
   return (
     <section className="relative py-20 lg:py-28">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      {/* champagne ambience behind the chapter */}
+      <div
+        aria-hidden
+        className="aurora-gold top-24 left-1/2 h-[24rem] w-[40rem] -translate-x-1/2 opacity-45"
+      />
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.75rem]">
+            <span className="eyebrow">The Nexura suite</span>
+            <h2 className="title-lux mt-4 text-3xl sm:text-4xl lg:text-[2.75rem]">
               Four products.{" "}
-              <span className="text-gradient-warm">One warm ecosystem.</span>
+              <span className="text-gold-gradient">One warm ecosystem.</span>
             </h2>
-            <p className="mt-4 text-base text-muted-foreground sm:text-lg">
+            <p className="lede-lux mt-4 text-base sm:text-lg">
               From a full hospital OS to AI health tools — choose what fits.
             </p>
           </div>
@@ -85,7 +91,7 @@ export function ProductShowcase() {
             <Reveal key={p.name} delay={i * 0.08}>
               <Link
                 href={p.href}
-                className="group relative block overflow-hidden rounded-[1.75rem] glass-premium p-6 transition-all hover:shadow-[0_20px_60px_-30px_oklch(0.4_0.05_45/0.3)] sm:p-8"
+                className="card-lux card-lux-hover group relative block overflow-hidden rounded-[1.75rem] p-6 sm:p-8"
               >
                 {/* hover gradient glow */}
                 <div
@@ -93,21 +99,26 @@ export function ProductShowcase() {
                   style={{ background: p.accent }}
                 />
 
-                {/* icon */}
+                {/* icon — champagne-ringed tile */}
                 <div className="relative flex items-start justify-between">
                   <span
-                    className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br text-white shadow-lg anim-breathe"
-                    style={{ backgroundImage: `linear-gradient(135deg, ${p.accent}, color-mix(in srgb, ${p.accent} 70%, #E8C889))` }}
+                    className="grid h-14 w-14 place-items-center rounded-2xl text-white anim-breathe"
+                    style={{
+                      backgroundImage: `linear-gradient(135deg, ${p.accent}, color-mix(in srgb, ${p.accent} 70%, #E8C889))`,
+                      boxShadow: `0 10px 24px -10px color-mix(in srgb, ${p.accent} 55%, transparent), inset 0 1px 0 0 rgba(255,255,255,0.35)`,
+                    }}
                   >
                     <p.icon className="h-6 w-6" strokeWidth={2} />
                   </span>
                   <div className="flex items-center gap-2">
                     {"badge" in p && p.badge && (
-                      <span className="rounded-full bg-[#D98B6E] px-2 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider text-white shadow-sm">
+                      <span className="badge-lux px-2.5 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.14em]">
                         {p.badge}
                       </span>
                     )}
-                    <ArrowUpRight className="h-5 w-5 text-muted-foreground/40 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
+                    <span className="grid h-8 w-8 place-items-center rounded-full border border-border/70 text-muted-foreground/50 transition-all duration-300 group-hover:border-[#A16207]/40 group-hover:bg-[#A16207]/8 group-hover:text-[#A16207]">
+                      <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    </span>
                   </div>
                 </div>
 
@@ -128,10 +139,10 @@ export function ProductShowcase() {
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
                 </div>
 
-                {/* bottom accent line */}
+                {/* bottom champagne hairline wipe */}
                 <div
                   className="absolute inset-x-6 bottom-0 h-px origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
-                  style={{ background: p.accent }}
+                  style={{ background: `linear-gradient(90deg, transparent, ${p.accent}, transparent)` }}
                 />
               </Link>
             </Reveal>
