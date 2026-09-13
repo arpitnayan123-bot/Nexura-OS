@@ -48,44 +48,47 @@ const VARIANTS: Record<SegmentErrorVariant, VariantStyle> = {
     primary: "bg-[#0E8A6A] hover:bg-[#0FA37C]",
     ghost: "border border-white/25 hover:bg-white/10 opacity-90",
   },
-  /* /clinic /pharmacy /portal — light warm panels on the #FAF7F2 canvas. */
+  /* /clinic /pharmacy /portal — light warm panels on the #FAF7F2 canvas.
+     Accent: Liquid Gold (platform brand) — was pre-gold coral #D98B6E. */
   warm: {
     shell: "grid min-h-screen place-items-center bg-[#FAF7F2] px-4",
     panel: "w-full max-w-md rounded-2xl bg-white p-8 text-center ring-1 ring-[#EFE9E0] shadow-depth",
-    iconWrap: "bg-[#D98B6E]/12 text-[#A55A4A]",
+    iconWrap: "bg-[#A16207]/10 text-[#8A5A04]",
     title: "text-xl font-semibold tracking-tight text-[#2A2622]",
     body: "text-sm leading-relaxed text-[#7A6F63]",
-    primary: "bg-[#D98B6E] text-white hover:bg-[#C97759]",
+    primary: "bg-[#A16207] text-[#FFFDF6] hover:bg-[#8A5A04] shadow-[0_8px_22px_-8px_rgba(166,124,42,0.55)]",
     ghost: "border border-[#E7E5E4] text-[#57534E] hover:bg-[#FAF7F2]",
   },
-  /* /connect — dark warm-brown canvas used by the connect app shells. */
+  /* /connect — dark warm-brown canvas used by the connect app shells.
+     Champagne solid reads best on the dark brown (deep gold would sink). */
   connect: {
     shell: "grid min-h-screen place-items-center bg-[#1F1B17] px-4",
     panel: "w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 text-center",
-    iconWrap: "bg-[#D98B6E]/15 text-[#D98B6E]",
+    iconWrap: "bg-[#D9B87C]/15 text-[#D9B87C]",
     title: "text-xl font-semibold tracking-tight text-white",
     body: "text-sm leading-relaxed text-white/60",
-    primary: "bg-[#D98B6E] text-white hover:bg-[#C97759]",
+    primary: "bg-[#D9B87C] text-[#1F1B17] hover:bg-[#C9A55F] shadow-[0_8px_22px_-8px_rgba(217,184,124,0.35)]",
     ghost: "border border-white/20 text-white/80 hover:bg-white/10",
   },
-  /* /global — white marketing page, slate ink, amber accent. */
+  /* /global — white marketing page, slate ink, Liquid Gold accent. */
   light: {
     shell: "grid min-h-screen place-items-center bg-white px-4",
     panel: "w-full max-w-md rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center",
-    iconWrap: "bg-[#F59E0B]/10 text-[#92400E]",
+    iconWrap: "bg-[#A16207]/10 text-[#8A5A04]",
     title: "text-xl font-semibold tracking-tight text-slate-900",
     body: "text-sm leading-relaxed text-slate-500",
-    primary: "bg-[#F59E0B] text-white hover:bg-[#D97706]",
+    primary: "bg-[#A16207] text-[#FFFDF6] hover:bg-[#8A5A04] shadow-[0_8px_22px_-8px_rgba(166,124,42,0.55)]",
     ghost: "border border-slate-200 text-slate-600 hover:bg-slate-100",
   },
-  /* /know-your-health — KYH glass aesthetic on the #FAF7F2 mesh. */
+  /* /know-your-health — KYH glass aesthetic on the #FAF7F2 mesh,
+     Liquid Gold accent (was pre-gold rose #C98A7A). */
   kyh: {
     shell: "mesh-bg grid min-h-screen place-items-center bg-[#FAF7F2] px-4",
     panel: "glass-soft shadow-depth w-full max-w-md rounded-2xl p-6 text-center sm:p-8",
-    iconWrap: "bg-[#C98A7A]/15 text-[#9A6A5A]",
+    iconWrap: "bg-[#A16207]/12 text-[#8A5A04]",
     title: "text-xl font-semibold tracking-tight text-[#1F1B17]",
     body: "text-sm leading-relaxed text-[#9A8F84]",
-    primary: "bg-[#D98B6E] text-white hover:bg-[#C97759]",
+    primary: "bg-[#A16207] text-[#FFFDF6] hover:bg-[#8A5A04] shadow-[0_8px_22px_-8px_rgba(166,124,42,0.55)]",
     ghost: "border border-[#E7E0D6] text-[#5A5248] hover:bg-white/70",
   },
 };
