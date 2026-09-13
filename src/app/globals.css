@@ -98,17 +98,17 @@
   --popover: oklch(0.995 0.002 60);
   --popover-foreground: oklch(0.25 0.01 50);
 
-  /* Amber gold primary — warm, trustworthy */
-  --primary: oklch(0.72 0.15 60);              /* #D97706 amber gold */
-  --primary-foreground: oklch(0.99 0.002 60);
+  /* Liquid Gold primary — brand accent #A16207 (FINAL alignment) */
+  --primary: oklch(0.55 0.115 80);             /* #A16207 deep gold */
+  --primary-foreground: oklch(0.99 0.008 95);  /* warm white */
 
   /* Charcoal sidebar */
   --secondary: oklch(0.25 0.01 50);            /* #1C1917 charcoal */
   --secondary-foreground: oklch(0.95 0.005 60);
 
-  /* Amber accent */
-  --accent: oklch(0.72 0.15 60);               /* #D97706 */
-  --accent-foreground: oklch(0.99 0.002 60);
+  /* Champagne accent wash — shadcn hover surface (dark ink on top) */
+  --accent: oklch(0.93 0.05 85);               /* light champagne */
+  --accent-foreground: oklch(0.42 0.08 75);    /* deep gold-brown ink */
 
   --muted: oklch(0.96 0.004 60);               /* warm light gray */
   --muted-foreground: oklch(0.50 0.01 55);     /* warm medium gray */
@@ -116,17 +116,17 @@
   --destructive: oklch(0.55 0.22 25);          /* #DC2626 critical red */
   --border: oklch(0.92 0.003 60);              /* warm subtle border */
   --input: oklch(0.93 0.003 60);
-  --ring: oklch(0.70 0.145 45);
+  --ring: oklch(0.55 0.115 80);
 
   /* Chart colors - warm & soft */
-  --chart-1: oklch(0.70 0.145 45);   /* coral */
+  --chart-1: oklch(0.62 0.12 78);    /* gold */
   --chart-2: oklch(0.74 0.06 155);   /* sage green */
   --chart-3: oklch(0.80 0.10 75);    /* honey */
   --chart-4: oklch(0.72 0.13 15);    /* clay rose */
   --chart-5: oklch(0.68 0.09 200);   /* soft teal */
 
-  /* Brand tokens */
-  --coral: oklch(0.70 0.145 45);
+  /* Brand tokens (coral refined → Liquid Champagne Gold, FINAL) */
+  --coral: oklch(0.55 0.115 80);
   --sage: oklch(0.74 0.06 155);
   --honey: oklch(0.80 0.10 75);
   --cream: oklch(0.985 0.008 95);
@@ -134,12 +134,12 @@
 
   --sidebar: oklch(0.97 0.006 90);
   --sidebar-foreground: oklch(0.31 0.02 55);
-  --sidebar-primary: oklch(0.70 0.145 45);
+  --sidebar-primary: oklch(0.55 0.115 80);
   --sidebar-primary-foreground: oklch(0.99 0.005 95);
   --sidebar-accent: oklch(0.93 0.01 90);
   --sidebar-accent-foreground: oklch(0.31 0.02 55);
   --sidebar-border: oklch(0.92 0.01 85);
-  --sidebar-ring: oklch(0.70 0.145 45);
+  --sidebar-ring: oklch(0.55 0.115 80);
 }
 
 .dark {
@@ -150,14 +150,14 @@
   --popover: oklch(0.26 0.018 55);
   --popover-foreground: oklch(0.96 0.01 90);
 
-  --primary: oklch(0.76 0.13 45);            /* lighter coral for dark */
-  --primary-foreground: oklch(0.21 0.015 55);
+  --primary: oklch(0.80 0.115 82);           /* champagne gold for dark */
+  --primary-foreground: oklch(0.25 0.02 70); /* dark ink on champagne */
 
   --secondary: oklch(0.33 0.025 150);
   --secondary-foreground: oklch(0.92 0.02 150);
 
-  --accent: oklch(0.74 0.10 75);
-  --accent-foreground: oklch(0.21 0.015 55);
+  --accent: oklch(0.30 0.03 80);             /* champagne-tinted dark wash */
+  --accent-foreground: oklch(0.90 0.05 85);  /* light champagne ink */
 
   --muted: oklch(0.30 0.015 55);
   --muted-foreground: oklch(0.70 0.02 80);
@@ -165,15 +165,15 @@
   --destructive: oklch(0.68 0.19 25);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.76 0.13 45);
+  --ring: oklch(0.80 0.115 82);
 
-  --chart-1: oklch(0.76 0.13 45);
+  --chart-1: oklch(0.80 0.115 82);
   --chart-2: oklch(0.72 0.06 155);
   --chart-3: oklch(0.80 0.10 75);
   --chart-4: oklch(0.70 0.13 15);
   --chart-5: oklch(0.68 0.09 200);
 
-  --coral: oklch(0.76 0.13 45);
+  --coral: oklch(0.80 0.115 82);
   --sage: oklch(0.72 0.06 155);
   --honey: oklch(0.80 0.10 75);
   --cream: oklch(0.26 0.018 55);
@@ -181,12 +181,12 @@
 
   --sidebar: oklch(0.26 0.018 55);
   --sidebar-foreground: oklch(0.96 0.01 90);
-  --sidebar-primary: oklch(0.76 0.13 45);
+  --sidebar-primary: oklch(0.80 0.115 82);
   --sidebar-primary-foreground: oklch(0.21 0.015 55);
   --sidebar-accent: oklch(0.33 0.025 150);
   --sidebar-accent-foreground: oklch(0.96 0.01 90);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.76 0.13 45);
+  --sidebar-ring: oklch(0.80 0.115 82);
 }
 
 @layer base {

@@ -63,6 +63,7 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- load() only sets state after `await` (async fetch); every setState call is asynchronous, the sync-call heuristic is a false positive here
     load();
   }, [load]);
 
