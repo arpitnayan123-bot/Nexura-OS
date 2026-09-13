@@ -325,7 +325,7 @@ export function ConnectApp() {
       <aside className="flex w-[280px] shrink-0 flex-col border-r border-white/10 bg-black/30 backdrop-blur-xl">
         {/* Logo */}
         <div className="flex items-center gap-2 px-5 py-4">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#E8B04B] via-[#D98B6E] to-[#C97A5D] shadow-lg shadow-[#D98B6E]/25 ring-1 ring-inset ring-white/25">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#E8B04B] via-[#D98B6E] to-[#C97A5D] shadow-lg shadow-[#D98B6E]/25 ring-1 ring-inset ring-white/25 anim-breathe">
             <Activity className="h-4 w-4 text-white" strokeWidth={2.5} />
           </span>
           <div className="flex-1">
@@ -460,7 +460,8 @@ export function ConnectApp() {
         {selected ? (
           <>
             {/* Header */}
-            <header className="flex items-center justify-between border-b border-[#E5DFD4] bg-white/80 px-5 py-3 backdrop-blur-md">
+            <header className="relative flex items-center justify-between border-b border-[#E5DFD4] bg-white/80 px-5 py-3 backdrop-blur-md">
+              <div aria-hidden className="hairline-gold pointer-events-none absolute inset-x-0 bottom-0 opacity-50" />
               <div className="flex items-center gap-3">
                 <span className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-[#D98B6E] to-[#C98A7A] text-sm font-bold text-white shadow-depth">
                   {avatarInitials(selected.patientName)}
@@ -510,7 +511,7 @@ export function ConnectApp() {
                   </div>
                 </div>
               ) : (
-                <AnimatePresence initial={false}>
+                <AnimatePresence>
                   {messages.map((m, i) => {
                     const isDoctor = m.fromRole === "doctor";
                     const prev = messages[i - 1];
@@ -518,8 +519,14 @@ export function ConnectApp() {
                     return (
                       <motion.div
                         key={m.id}
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 30,
+                          delay: i < 14 ? i * 0.045 : 0,
+                        }}
                         className={cn("flex items-end gap-2", isDoctor && "justify-end")}
                       >
                         {!isDoctor && (

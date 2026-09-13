@@ -87,7 +87,7 @@ export function PharmaciaApp() {
       <aside className="sticky top-0 z-30 flex h-screen w-16 shrink-0 flex-col items-center border-r border-[#1E2228] bg-[#0D0F12]/95 backdrop-blur-xl py-4 lg:w-56">
         {/* Pharmacy name + live dot */}
         <Link href="/" className="mb-6 flex items-center gap-2 px-2 lg:px-4">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#E8B04B] via-[#D99A2B] to-[#B87A10] shadow-lg shadow-[#E8B04B]/25 ring-1 ring-white/20 ring-inset">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#E8B04B] via-[#D99A2B] to-[#B87A10] shadow-lg shadow-[#E8B04B]/25 ring-1 ring-white/20 ring-inset anim-breathe">
             <Pill className="h-4 w-4 text-white" strokeWidth={2.4} />
           </span>
           <div className="hidden leading-none lg:block">
@@ -138,8 +138,9 @@ export function PharmaciaApp() {
 
       {/* Main area */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mini-dashboard strip */}
-        <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-[#1E2228] bg-[#111418]/90 px-4 py-2.5 backdrop-blur-xl lg:px-6">
+        {/* Mini-dashboard strip — champagne glass with gold hairline */}
+        <div className="sticky top-0 z-20 relative flex items-center gap-3 border-b border-[#1E2228] bg-[#111418]/90 px-4 py-2.5 backdrop-blur-xl lg:px-6">
+          <div aria-hidden className="hairline-gold pointer-events-none absolute inset-x-0 bottom-0 opacity-60" />
           <MiniStat label="Today's Sales" value={`₹${miniData.sales.toLocaleString("en-IN")}`} color="#F59E0B" />
           <MiniStat label="Cash" value={`₹${miniData.cash.toLocaleString("en-IN")}`} color="#22C55E" />
           <MiniStat label="UPI" value={`₹${miniData.upi.toLocaleString("en-IN")}`} color="#3B82F6" />
@@ -163,7 +164,10 @@ export function PharmaciaApp() {
             >
               {pending ? (
                 <div className="grid h-64 place-items-center">
-                  <Loader2 className="h-5 w-5 animate-spin text-[#6B7280]" />
+                  <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="h-5 w-5 animate-spin text-[#E8B04B]" />
+                    <p className="text-xs text-[#6B7280]">Loading module…</p>
+                  </div>
                 </div>
               ) : active === "billing" ? (
                 <BillingModule />
