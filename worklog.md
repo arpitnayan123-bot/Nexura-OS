@@ -3858,3 +3858,20 @@ Work Log:
 
 Stage Summary:
 - Liquid Gold transformation LIVE on all 16 surfaces, zero errors, all green
+
+---
+Task ID: NXP-DESIGN-SKILLS-ARSENAL
+Agent: Super Z (main)
+Task: Download and install 4 design skills requested by user (taste-skill, web-design-guidelines, awesome-design-md, image-to-code-skill)
+
+Work Log:
+- Cloned Leonxlnx/taste-skill → skills/taste-skill/ (full family: 13 sub-skills incl. taste-skill v2, redesign-skill, gpt-tasteskill GSAP motion, image-to-code, imagegen-frontend-web/mobile, minimalist, brutalist, soft-skill, stitch-skill, brandkit, output-skill)
+- Cloned vercel-labs/agent-skills sparse → skills/web-design-guidelines/ (Vercel Web Interface Guidelines reviewer)
+- Pre-fetched and cached 190-line guidelines.md locally so the reviewer works offline
+- Cloned voltagent/awesome-design-md → skills/awesome-design-md/ (73 DESIGN.md files: Apple, Linear, Stripe, Vercel, Tesla, Ferrari, Airbnb, Notion, Spotify, raycast, etc.)
+- Verified contents (SKILL.md frontmatter + real rule lines), cleaned temp clones
+- No code/docs produced per user instruction — chat-only summary delivered
+
+Stage Summary:
+- Design arsenal now: ui-ux-pro-max (79 styles/192 palettes/74 font pairings) + taste family (taste + redesign + GSAP motion + image-first) + Vercel quality gate + 73 top-brand design systems
+- Skills folder: 77 skills total
