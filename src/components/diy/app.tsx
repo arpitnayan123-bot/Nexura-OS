@@ -81,7 +81,7 @@ export function DiyApp() {
                 onClick={() => setView(key)}
                 aria-current={active ? "page" : undefined}
                 className={`flex h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors ${
-                  active ? "text-[#B05A34]" : "text-[#8A7A66] hover:text-[#2E2A26]"
+                  active ? "text-[#A16207]" : "text-[#8A7A66] hover:text-[#2E2A26]"
                 }`}
               >
                 <Icon size={20} strokeWidth={active ? 2.2 : 1.8} aria-hidden />

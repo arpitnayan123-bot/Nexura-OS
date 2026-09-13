@@ -10,13 +10,13 @@ import { cn } from "@/lib/utils";
 import type { DashboardData, TimelineEvent } from "../portal-types";
 
 const TYPE_META: Record<string, { color: string; bg: string; ring: string; icon: typeof CalendarClock }> = {
-  appointment: { color: "text-[#D98B6E]", bg: "bg-[#D98B6E]/10", ring: "ring-[#D98B6E]/20", icon: Stethoscope },
+  appointment: { color: "text-[#A16207]", bg: "bg-[#A16207]/10", ring: "ring-[#A16207]/20", icon: Stethoscope },
   admission: { color: "text-[#B85A3F]", bg: "bg-[#B85A3F]/10", ring: "ring-[#B85A3F]/20", icon: Activity },
   vital: { color: "text-[#5E8A60]", bg: "bg-[#9DB89E]/15", ring: "ring-[#9DB89E]/30", icon: Activity },
-  bill: { color: "text-[#A87C45]", bg: "bg-[#E0B080]/15", ring: "ring-[#E0B080]/30", icon: IndianRupee },
+  bill: { color: "text-[#A87C45]", bg: "bg-[#C9962E]/15", ring: "ring-[#C9962E]/30", icon: IndianRupee },
   insurance: { color: "text-[#0284C7]", bg: "bg-[#0EA5E9]/10", ring: "ring-[#0EA5E9]/20", icon: ShieldCheck },
-  lab: { color: "text-[#A87C45]", bg: "bg-[#E0B080]/15", ring: "ring-[#E0B080]/30", icon: Beaker },
-  blood_booking: { color: "text-[#D98B6E]", bg: "bg-[#D98B6E]/10", ring: "ring-[#D98B6E]/20", icon: Droplet },
+  lab: { color: "text-[#A87C45]", bg: "bg-[#C9962E]/15", ring: "ring-[#C9962E]/30", icon: Beaker },
+  blood_booking: { color: "text-[#A16207]", bg: "bg-[#A16207]/10", ring: "ring-[#A16207]/20", icon: Droplet },
 };
 
 export function TimelineTab({ data }: { data: DashboardData }) {
@@ -43,7 +43,7 @@ export function TimelineTab({ data }: { data: DashboardData }) {
         className="rounded-3xl border border-[#E7E5E4] bg-white p-5 shadow-sm sm:p-6"
       >
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#D98B6E]/10 text-[#D98B6E]">
+          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#A16207]/10 text-[#A16207]">
             <CalendarClock className="h-5 w-5" />
           </span>
           <div>
@@ -58,7 +58,7 @@ export function TimelineTab({ data }: { data: DashboardData }) {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-3xl border border-[#9DB89E]/30 bg-gradient-to-br from-[#9DB89E]/8 to-[#D98B6E]/5 p-5 shadow-sm sm:p-6"
+        className="rounded-3xl border border-[#9DB89E]/30 bg-gradient-to-br from-[#9DB89E]/8 to-[#A16207]/5 p-5 shadow-sm sm:p-6"
       >
         <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
           <Sparkles className="h-3.5 w-3.5 text-[#9DB89E]" />

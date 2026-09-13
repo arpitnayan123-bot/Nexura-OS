@@ -154,7 +154,7 @@ export function HealthQuiz() {
                 {result.results.map((r, i) => (
                   <div key={i} className="rounded-xl bg-[#FAF7F2]/60 p-3">
                     <div className="mb-2 flex items-start gap-2">
-                      <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-white ${r.isCorrect ? "bg-[#5A7A5B]" : "bg-[#C98A7A]"}`}>
+                      <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-white ${r.isCorrect ? "bg-[#5A7A5B]" : "bg-[#B8860B]"}`}>
                         {r.isCorrect ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                       </span>
                       <div>
@@ -165,7 +165,7 @@ export function HealthQuiz() {
                     <div className="space-y-1 pl-7">
                       <p className="text-xs">
                         <span className="text-[#9A8F84]">Your answer: </span>
-                        <span className={r.isCorrect ? "font-medium text-[#5A7A5B]" : "font-medium text-[#9A6A5A]"}>{r.userAnswer >= 0 ? r.options[r.userAnswer] : "—"}</span>
+                        <span className={r.isCorrect ? "font-medium text-[#5A7A5B]" : "font-medium text-[#8A5A04]"}>{r.userAnswer >= 0 ? r.options[r.userAnswer] : "—"}</span>
                       </p>
                       {!r.isCorrect && (
                         <p className="text-xs">

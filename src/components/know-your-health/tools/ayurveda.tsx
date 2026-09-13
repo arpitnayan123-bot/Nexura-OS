@@ -42,7 +42,7 @@ const QUESTIONS: { q: string; opts: [string, string, string] }[] = [
   { q: "Reaction to change", opts: ["Adapts fast but anxious", "Plans and pushes through", "Resists, prefers routine"] },
 ];
 
-const DOSHA_COLOR: Record<string, string> = { Vata: "#9DB89E", Pitta: "#D98B6E", Kapha: "#7A9A7B" };
+const DOSHA_COLOR: Record<string, string> = { Vata: "#9DB89E", Pitta: "#A16207", Kapha: "#7A9A7B" };
 
 export function Ayurveda() {
   const tool = TOOLS_BY_ID["ayurveda"];
@@ -159,7 +159,7 @@ export function Ayurveda() {
               <ResultCard accent="#9DB89E" title="Body Type">
                 <p className="text-xs leading-relaxed text-[#1F1B17]">{result.bodyType}</p>
               </ResultCard>
-              <ResultCard accent="#D98B6E" title="Digestion">
+              <ResultCard accent="#A16207" title="Digestion">
                 <p className="text-xs leading-relaxed text-[#1F1B17]">{result.digestionType}</p>
               </ResultCard>
             </div>
@@ -182,30 +182,30 @@ export function Ayurveda() {
                   ))}
                 </ul>
               </ResultCard>
-              <ResultCard accent="#C98A7A" title="Foods to Avoid">
+              <ResultCard accent="#B8860B" title="Foods to Avoid">
                 <ul className="space-y-1.5">
                   {result.foodsToAvoid?.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-[#1F1B17]"><span className="mt-0.5 h-3 w-3 shrink-0 text-[#9A6A5A]">✕</span><span>{r}</span></li>
+                    <li key={i} className="flex items-start gap-2 text-xs text-[#1F1B17]"><span className="mt-0.5 h-3 w-3 shrink-0 text-[#8A5A04]">✕</span><span>{r}</span></li>
                   ))}
                 </ul>
               </ResultCard>
             </div>
 
             {result.lifestyleRecommendations?.length > 0 && (
-              <ResultCard accent="#E0B080" title="Lifestyle Recommendations">
+              <ResultCard accent="#C9962E" title="Lifestyle Recommendations">
                 <ul className="space-y-2">
                   {result.lifestyleRecommendations.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#1F1B17]"><Activity className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#E0B080]" /><span>{r}</span></li>
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#1F1B17]"><Activity className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#C9962E]" /><span>{r}</span></li>
                   ))}
                 </ul>
               </ResultCard>
             )}
 
             {result.dinacharya?.length > 0 && (
-              <ResultCard accent="#D98B6E" title="Dinacharya (Daily Routine)">
+              <ResultCard accent="#A16207" title="Dinacharya (Daily Routine)">
                 <ul className="space-y-2">
                   {result.dinacharya.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#1F1B17]"><Sun className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#D98B6E]" /><span>{r}</span></li>
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#1F1B17]"><Sun className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#A16207]" /><span>{r}</span></li>
                   ))}
                 </ul>
               </ResultCard>

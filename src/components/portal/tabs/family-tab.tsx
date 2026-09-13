@@ -38,7 +38,7 @@ export function FamilyTab({ data, onChanged }: Props) {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#D98B6E]/10 text-[#D98B6E]">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#A16207]/10 text-[#A16207]">
               <Users className="h-5 w-5" />
             </span>
             <div>
@@ -48,7 +48,7 @@ export function FamilyTab({ data, onChanged }: Props) {
           </div>
           <Button
             onClick={() => setAddOpen(true)}
-            className="rounded-full bg-[#D98B6E] text-white hover:bg-[#C97759] active:scale-95"
+            className="rounded-full bg-[#A16207] text-white hover:bg-[#8A5A04] active:scale-95"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Add member</span>
@@ -61,7 +61,7 @@ export function FamilyTab({ data, onChanged }: Props) {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="overflow-hidden rounded-3xl border border-[#E7E5E4] bg-gradient-to-br from-[#D98B6E] to-[#9DB89E] p-6 text-white shadow-[0_8px_32px_-12px_oklch(0.5_0.10_45/0.4)]"
+        className="overflow-hidden rounded-3xl border border-[#E7E5E4] bg-gradient-to-br from-[#A16207] to-[#7A9A7B] p-6 text-white shadow-[0_8px_32px_-12px_oklch(0.5_0.10_45/0.4)]"
       >
         <div className="flex flex-wrap items-center gap-4">
           <div className="grid h-16 w-16 place-items-center rounded-3xl bg-white/20 backdrop-blur">
@@ -116,9 +116,9 @@ export function FamilyTab({ data, onChanged }: Props) {
       {/* Family members grid */}
       <section>
         <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-semibold text-stone-800">
-          <Users className="h-5 w-5 text-[#D98B6E]" />
+          <Users className="h-5 w-5 text-[#A16207]" />
           Family members
-          <span className="rounded-full bg-[#D98B6E]/10 px-2 py-0.5 text-[0.65rem] font-semibold text-[#D98B6E]">
+          <span className="rounded-full bg-[#A16207]/10 px-2 py-0.5 text-[0.65rem] font-semibold text-[#A16207]">
             {data.familyMembers.length}
           </span>
         </h2>
@@ -132,7 +132,7 @@ export function FamilyTab({ data, onChanged }: Props) {
             <p className="mt-1 text-sm text-stone-500">Add a spouse, child, or parent to manage their health together.</p>
             <button
               onClick={() => setAddOpen(true)}
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#D98B6E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#C97759]"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#A16207] px-4 py-2 text-sm font-semibold text-white hover:bg-[#8A5A04]"
             >
               <Plus className="h-4 w-4" />
               Add member
@@ -170,7 +170,7 @@ function FamilyCard({ member, delay }: { member: FamilyMember; delay: number }) 
       className="group rounded-3xl border border-[#E7E5E4] bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_12px_-4px_oklch(0.4_0.05_45/0.1)]"
     >
       <div className="flex items-start gap-3">
-        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[#D98B6E]/15 to-[#9DB89E]/15 font-display text-base font-semibold text-[#D98B6E]">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[#A16207]/15 to-[#7A9A7B]/15 font-display text-base font-semibold text-[#A16207]">
           {initials}
         </div>
         <div className="min-w-0 flex-1">
@@ -180,7 +180,7 @@ function FamilyCard({ member, delay }: { member: FamilyMember; delay: number }) 
           <p className="text-[0.7rem] font-medium capitalize text-stone-400">{member.relationToHead ?? "—"}</p>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {member.bloodGroup && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#D98B6E]/10 px-2 py-0.5 text-[0.65rem] font-semibold text-[#D98B6E]">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#A16207]/10 px-2 py-0.5 text-[0.65rem] font-semibold text-[#A16207]">
                 <Droplet className="h-2.5 w-2.5" />
                 {member.bloodGroup}
               </span>
@@ -248,7 +248,7 @@ function AddMemberModal({
     <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>
       <DialogContent className="overflow-hidden p-0 sm:max-w-md">
         {/* Header */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#D98B6E] via-[#C97759] to-[#9DB89E] p-6 text-white">
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#8F5E06] via-[#A16207] to-[#B8860B] p-6 text-white">
           <div aria-hidden className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/15 blur-2xl" style={{ animation: "nexura-breathe 6s ease-in-out infinite" }} />
           <DialogHeader className="relative space-y-1.5 p-0">
             <div className="flex items-center gap-2.5">
@@ -276,7 +276,7 @@ function AddMemberModal({
               <select
                 value={relation}
                 onChange={(e) => setRelation(e.target.value)}
-                className="h-10 w-full rounded-md border border-[#E7E5E4] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#D98B6E]/20"
+                className="h-10 w-full rounded-md border border-[#E7E5E4] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
               >
                 {RELATIONS.map((r) => <option key={r} value={r} className="capitalize">{r}</option>)}
               </select>
@@ -285,7 +285,7 @@ function AddMemberModal({
               <select
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
-                className="h-10 w-full rounded-md border border-[#E7E5E4] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#D98B6E]/20"
+                className="h-10 w-full rounded-md border border-[#E7E5E4] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
               >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
@@ -301,7 +301,7 @@ function AddMemberModal({
               <select
                 value={bloodGroup}
                 onChange={(e) => setBloodGroup(e.target.value)}
-                className="h-10 w-full rounded-md border border-[#E7E5E4] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#D98B6E]/20"
+                className="h-10 w-full rounded-md border border-[#E7E5E4] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
               >
                 {BLOOD_GROUPS.map((b) => <option key={b} value={b}>{b}</option>)}
               </select>
@@ -321,7 +321,7 @@ function AddMemberModal({
           <Button
             onClick={submit}
             disabled={loading}
-            className="rounded-full bg-[#D98B6E] text-white hover:bg-[#C97759]"
+            className="rounded-full bg-[#A16207] text-white hover:bg-[#8A5A04]"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading ? "Adding…" : "Add member"}

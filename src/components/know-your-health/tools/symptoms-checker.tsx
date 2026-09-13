@@ -160,10 +160,10 @@ export function SymptomsChecker() {
             )}
 
             {result.redFlags?.length > 0 && (
-              <ResultCard accent="#C98A7A" title="Red Flags — Seek Immediate Care">
+              <ResultCard accent="#B8860B" title="Red Flags — Seek Immediate Care">
                 <ul className="space-y-2">
                   {result.redFlags.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#9A6A5A]">
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#8A5A04]">
                       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                       <span>{r}</span>
                     </li>
@@ -179,12 +179,12 @@ export function SymptomsChecker() {
                 animate={{ opacity: 1, y: 0 }}
                 className="overflow-hidden rounded-2xl glass-soft shadow-depth"
               >
-                <div className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white" style={{ background: "linear-gradient(135deg, #D98B6E, #C98A7A)" }}>
+                <div className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white" style={{ background: "linear-gradient(135deg, #A16207, #B8860B)" }}>
                   <MessageCircle className="h-3.5 w-3.5" /> Nexura Connect — Consult a doctor
                 </div>
                 <div className="p-4">
                   <div className="flex items-start gap-3">
-                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#D98B6E] to-[#C98A7A] font-serif text-base font-bold text-white shadow-depth">AK</span>
+                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#A16207] to-[#8F5E06] font-serif text-base font-bold text-white shadow-depth">AK</span>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-[#1F1B17]">Dr. Aanya Kapoor</p>
                       <p className="text-[0.7rem] text-[#9A8F84]">General Physician · via Nexura Connect</p>
@@ -194,7 +194,7 @@ export function SymptomsChecker() {
                   <button
                     onClick={connectToDoctor}
                     disabled={connecting || connected}
-                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#D98B6E] to-[#E0B080] px-4 py-2.5 text-sm font-semibold text-white shadow-depth transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#A16207] to-[#C9962E] px-4 py-2.5 text-sm font-semibold text-white shadow-depth transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {connecting ? (
                       <><Loader2 className="h-4 w-4 animate-spin" /> Connecting…</>

@@ -47,8 +47,8 @@ interface LabTest {
 
 const FLAG_STYLES: Record<string, { bg: string; text: string; label: string; icon: typeof CheckCircle2 }> = {
   normal: { bg: "bg-[#9DB89E]/15", text: "text-[#5E8A60]", label: "Normal", icon: CheckCircle2 },
-  borderline: { bg: "bg-[#E0B080]/20", text: "text-[#A87C45]", label: "Borderline", icon: AlertTriangle },
-  high: { bg: "bg-[#D98B6E]/15", text: "text-[#B85A3F]", label: "High", icon: AlertTriangle },
+  borderline: { bg: "bg-[#C9962E]/20", text: "text-[#A87C45]", label: "Borderline", icon: AlertTriangle },
+  high: { bg: "bg-[#A16207]/15", text: "text-[#B85A3F]", label: "High", icon: AlertTriangle },
   low: { bg: "bg-[#0EA5E9]/15", text: "text-[#0284C7]", label: "Low", icon: AlertTriangle },
   critical: { bg: "bg-red-100", text: "text-red-700", label: "Critical", icon: AlertTriangle },
 };
@@ -112,7 +112,7 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="overflow-hidden p-0 sm:max-w-3xl">
         {/* Header */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#D98B6E] via-[#C97759] to-[#9DB89E] p-6 text-white">
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#8F5E06] via-[#A16207] to-[#B8860B] p-6 text-white">
           <div
             aria-hidden
             className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/15 blur-2xl"
@@ -154,7 +154,7 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
             {Object.entries(grouped).map(([cat, items]) => (
               <div key={cat}>
                 <h3 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
-                  <Activity className="h-3.5 w-3.5 text-[#D98B6E]" />
+                  <Activity className="h-3.5 w-3.5 text-[#A16207]" />
                   {cat}
                 </h3>
                 <div className="overflow-hidden rounded-2xl border border-[#E7E5E4]">
@@ -197,16 +197,16 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
           {/* Understanding your report — static reading tips */}
           <div className="mt-6 rounded-2xl border border-[#E7E5E4] bg-white p-4">
             <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
-              <Info className="h-3.5 w-3.5 text-[#D98B6E]" />
+              <Info className="h-3.5 w-3.5 text-[#A16207]" />
               Understanding your report
             </h3>
             <ul className="mt-2.5 space-y-2 text-xs leading-snug text-stone-600">
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#D98B6E]" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#A16207]" />
                 Read each value against its printed reference range — normal ranges vary slightly between labs.
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#E0B080]" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9962E]" />
                 Note whether the test was fasting or non-fasting — sugar and lipid values shift after food.
               </li>
               <li className="flex items-start gap-2">
@@ -236,7 +236,7 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
                 <button
                   onClick={generateAI}
                   disabled={generating}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[#D98B6E] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#C97759] active:scale-95 disabled:opacity-60"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#A16207] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#8A5A04] active:scale-95 disabled:opacity-60"
                 >
                   {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
                   {generating ? "Generating…" : "Generate"}

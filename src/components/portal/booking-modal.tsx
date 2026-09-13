@@ -131,7 +131,7 @@ export function BookingModal({
     <Dialog open={open} onOpenChange={(v) => onOpenChange(v)}>
       <DialogContent className="overflow-hidden p-0 sm:max-w-[34rem]">
         {/* warm gradient header */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#D98B6E] via-[#C97759] to-[#9DB89E] p-6 text-white">
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#8F5E06] via-[#A16207] to-[#B8860B] p-6 text-white">
           <div
             aria-hidden
             className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/15 blur-2xl"
@@ -199,7 +199,7 @@ export function BookingModal({
                 </p>
                 <div className="mt-3 rounded-2xl border border-[#E7E5E4] bg-[#FAF7F2] p-3 text-left text-xs text-stone-600">
                   <div className="flex items-start gap-2">
-                    <MapPin className="mt-0.5 h-3.5 w-3.5 text-[#D98B6E]" />
+                    <MapPin className="mt-0.5 h-3.5 w-3.5 text-[#A16207]" />
                     <span>{address}, {city} — {pincode}</span>
                   </div>
                 </div>
@@ -230,7 +230,7 @@ export function BookingModal({
                             className={cn(
                               "flex flex-col items-center gap-0.5 rounded-2xl border py-2.5 transition-all",
                               sel
-                                ? "border-[#D98B6E] bg-[#D98B6E]/10 text-stone-800"
+                                ? "border-[#A16207] bg-[#A16207]/10 text-stone-800"
                                 : "border-[#E7E5E4] bg-white hover:bg-[#FAF7F2]"
                             )}
                           >
@@ -261,7 +261,7 @@ export function BookingModal({
                             className={cn(
                               "flex items-center justify-center gap-1 rounded-xl border py-2 text-xs font-medium transition-all",
                               sel
-                                ? "border-[#D98B6E] bg-[#D98B6E]/10 text-stone-800"
+                                ? "border-[#A16207] bg-[#A16207]/10 text-stone-800"
                                 : "border-[#E7E5E4] bg-white hover:bg-[#FAF7F2]"
                             )}
                           >
@@ -272,7 +272,7 @@ export function BookingModal({
                       })}
                     </div>
                     <p className="mt-3 flex items-center gap-1.5 text-xs text-stone-500">
-                      <Calendar className="h-3.5 w-3.5 text-[#D98B6E]" />
+                      <Calendar className="h-3.5 w-3.5 text-[#A16207]" />
                       Selected:{" "}
                       <span className="font-semibold text-stone-700">
                         {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
@@ -362,11 +362,11 @@ export function BookingModal({
                             className={cn(
                               "flex flex-col items-start gap-1 rounded-2xl border p-3 text-left transition-all",
                               sel
-                                ? "border-[#D98B6E] bg-[#D98B6E]/10"
+                                ? "border-[#A16207] bg-[#A16207]/10"
                                 : "border-[#E7E5E4] bg-white hover:bg-[#FAF7F2]"
                             )}
                           >
-                            <p.icon className={cn("h-5 w-5", sel ? "text-[#D98B6E]" : "text-stone-400")} />
+                            <p.icon className={cn("h-5 w-5", sel ? "text-[#A16207]" : "text-stone-400")} />
                             <span className="text-sm font-semibold text-stone-800">{p.label}</span>
                             <span className="text-[0.7rem] text-stone-500">{p.sub}</span>
                           </button>
@@ -393,7 +393,7 @@ export function BookingModal({
                       <div className="my-3 h-px bg-stone-200" />
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-semibold text-stone-700">Total payable</span>
-                        <span className="font-display text-xl font-semibold text-[#D98B6E]">
+                        <span className="font-display text-xl font-semibold text-[#A16207]">
                           ₹{panel?.price ?? 0}
                         </span>
                       </div>
@@ -417,14 +417,14 @@ export function BookingModal({
               Back
             </Button>
             <div className="flex items-center gap-2 text-xs text-stone-500">
-              <Droplet className="h-3.5 w-3.5 text-[#D98B6E]" />
+              <Droplet className="h-3.5 w-3.5 text-[#A16207]" />
               {panel?.name}
             </div>
             <Button
               type="button"
               onClick={next}
               disabled={!canNext || loading}
-              className="group rounded-full bg-[#D98B6E] text-white hover:bg-[#C97759]"
+              className="group rounded-full bg-[#A16207] text-white hover:bg-[#8A5A04]"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {step === STEPS.length - 1 ? (loading ? "Booking…" : `Confirm · ₹${panel?.price ?? 0}`) : (
@@ -442,7 +442,7 @@ export function BookingModal({
             <Button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-full bg-[#D98B6E] text-white hover:bg-[#C97759]"
+              className="rounded-full bg-[#A16207] text-white hover:bg-[#8A5A04]"
             >
               Done
             </Button>

@@ -68,11 +68,11 @@ const relativeTime = (iso: string | null): string => {
 };
 
 const SPECIALTY_COLOR: Record<string, string> = {
-  Cardiologist: "#D98B6E",
+  Cardiologist: "#A16207",
   Pediatrician: "#9DB89E",
-  "General Physician": "#E0B080",
-  Surgeon: "#C98A7A",
-  default: "#D98B6E",
+  "General Physician": "#C9962E",
+  Surgeon: "#B8860B",
+  default: "#A16207",
 };
 
 export function PatientView() {
@@ -258,7 +258,7 @@ export function PatientView() {
     return (
       <div className="mesh-bg grid min-h-screen place-items-center">
         <div className="flex flex-col items-center gap-3 text-[#5C544D]">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#E5DFD4] border-t-[#D98B6E]" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#E5DFD4] border-t-[#A16207]" />
           <p className="text-sm">Loading your doctors…</p>
         </div>
       </div>
@@ -269,7 +269,7 @@ export function PatientView() {
     return (
       <div className="mesh-bg grid min-h-screen place-items-center px-4">
         <div className="max-w-md rounded-3xl glass-soft p-6 text-center shadow-depth">
-          <Stethoscope className="mx-auto h-10 w-10 text-[#D98B6E]" />
+          <Stethoscope className="mx-auto h-10 w-10 text-[#A16207]" />
           <h2 className="mt-3 font-serif text-xl font-semibold text-[#1F1B17]">No patient profile found</h2>
           <p className="mt-1 text-sm text-[#9A8F84]">Please run the clinic seed first to set up a demo patient.</p>
           <Link href="/" className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#2A2622] px-4 py-2 text-sm font-semibold text-white">
@@ -289,7 +289,7 @@ export function PatientView() {
             <ArrowLeft className="h-3.5 w-3.5" /> Home
           </Link>
           <div className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-[#D98B6E] to-[#E0B080] shadow-sm">
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-[#A16207] to-[#C9962E] shadow-sm">
               <Activity className="h-3.5 w-3.5 text-white" strokeWidth={2.4} />
             </span>
             <span className="font-serif text-sm font-bold tracking-tight">Nexura Connect</span>
@@ -314,7 +314,7 @@ export function PatientView() {
 
         {connections.length === 0 ? (
           <div className="rounded-3xl glass-soft p-10 text-center shadow-depth">
-            <Heart className="mx-auto h-10 w-10 text-[#D98B6E]" />
+            <Heart className="mx-auto h-10 w-10 text-[#A16207]" />
             <p className="mt-3 font-serif text-lg font-semibold">No active connections yet</p>
             <p className="mt-1 text-sm text-[#9A8F84]">Once your doctor completes a consultation or admission, you will see them here.</p>
           </div>
@@ -339,7 +339,7 @@ export function PatientView() {
                           {avatarInitials(c.doctorName)}
                         </span>
                         {c.lastMessage && !c.lastMessage.read && c.lastMessage.fromRole === "doctor" && (
-                          <span className="rounded-full bg-[#D98B6E] px-2 py-0.5 text-[0.55rem] font-bold text-white anim-breathe">New</span>
+                          <span className="rounded-full bg-[#A16207] px-2 py-0.5 text-[0.55rem] font-bold text-white anim-breathe">New</span>
                         )}
                       </div>
                       <p className="mt-3 font-serif text-base font-semibold leading-tight">{c.doctorName}</p>
@@ -366,7 +366,7 @@ export function PatientView() {
                         onClick={() => setActiveConn(c)}
                         className="flex flex-col items-center gap-1 rounded-xl bg-white/80 px-2 py-2.5 text-[0.65rem] font-medium text-[#5C544D] ring-1 ring-[#E5DFD4] transition-all hover:bg-white hover:shadow-sm"
                       >
-                        <MessageCircle className="h-4 w-4 text-[#D98B6E]" />
+                        <MessageCircle className="h-4 w-4 text-[#A16207]" />
                         Chat
                       </button>
                       <button
@@ -380,7 +380,7 @@ export function PatientView() {
                         onClick={() => startCall(c, "video")}
                         className="flex flex-col items-center gap-1 rounded-xl bg-white/80 px-2 py-2.5 text-[0.65rem] font-medium text-[#5C544D] ring-1 ring-[#E5DFD4] transition-all hover:bg-white hover:shadow-sm"
                       >
-                        <Video className="h-4 w-4 text-[#C98A7A]" />
+                        <Video className="h-4 w-4 text-[#B8860B]" />
                         Video
                       </button>
                     </div>
@@ -467,7 +467,7 @@ function ChatDrawer({
         {/* header */}
         <header className="flex items-center justify-between border-b border-[#E5DFD4] bg-white/80 px-4 py-3 backdrop-blur-md">
           <div className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#D98B6E] to-[#C98A7A] text-xs font-bold text-white">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#A16207] to-[#8F5E06] text-xs font-bold text-white">
               {avatarInitials(conn.doctorName)}
             </span>
             <div>
@@ -477,7 +477,7 @@ function ChatDrawer({
           </div>
           <div className="flex items-center gap-1">
             <button onClick={() => onStartCall("voice")} className="grid h-8 w-8 place-items-center rounded-full text-[#9DB89E] ring-1 ring-[#E5DFD4] hover:bg-[#9DB89E]/10" title="Request a voice call" aria-label="Request a voice call"><Phone className="h-3.5 w-3.5" /></button>
-            <button onClick={() => onStartCall("video")} className="grid h-8 w-8 place-items-center rounded-full text-[#D98B6E] ring-1 ring-[#E5DFD4] hover:bg-[#D98B6E]/10" title="Request a video call" aria-label="Request a video call"><Video className="h-3.5 w-3.5" /></button>
+            <button onClick={() => onStartCall("video")} className="grid h-8 w-8 place-items-center rounded-full text-[#A16207] ring-1 ring-[#E5DFD4] hover:bg-[#A16207]/10" title="Request a video call" aria-label="Request a video call"><Video className="h-3.5 w-3.5" /></button>
             <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]"><X className="h-4 w-4" /></button>
           </div>
         </header>
@@ -508,7 +508,7 @@ function ChatDrawer({
                         {avatarInitials(conn.doctorName)}
                       </span>
                     )}
-                    <div className={cn("max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm", isPatient ? "bg-[#D98B6E] text-white rounded-br-sm" : "glass-soft text-[#1F1B17] rounded-bl-sm")}>
+                    <div className={cn("max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm", isPatient ? "bg-[#A16207] text-white rounded-br-sm" : "glass-soft text-[#1F1B17] rounded-bl-sm")}>
                       <p className="whitespace-pre-wrap leading-snug">{m.text}</p>
                       <div className={cn("mt-1 flex items-center justify-end gap-1 text-[0.55rem]", isPatient ? "text-white/70" : "text-[#9A8F84]")}>
                         <span>{relativeTime(m.createdAt)}</span>
@@ -537,7 +537,7 @@ function ChatDrawer({
             <button
               onClick={sendMessage}
               disabled={!draft.trim()}
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#D98B6E] text-white shadow-depth transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#A16207] text-white shadow-depth transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Send message"
             >
               <Send className="h-4 w-4" />
@@ -598,7 +598,7 @@ function PatientCallOverlay({
 
         <button
           onClick={() => onEnd(seconds)}
-          className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-[#C98A7A] px-5 py-3 text-sm font-semibold text-white shadow-depth transition-all hover:scale-105 hover:bg-[#A55A4A]"
+          className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-[#B8860B] px-5 py-3 text-sm font-semibold text-white shadow-depth transition-all hover:scale-105 hover:bg-[#8A5A04]"
         >
           <PhoneOff className="h-4 w-4" /> End Call
         </button>
@@ -623,13 +623,13 @@ function ConsultationStatus({ call, waiting }: { call: CallLog | null; waiting: 
           key={label}
           className={cn(
             "flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.55rem] font-medium",
-            i < stage ? "bg-[#9DB89E]/15 text-[#5A7A5B]" : i === stage ? "bg-[#D98B6E]/15 text-[#D98B6E]" : "bg-[#F3EEE6] text-[#B5A99E]"
+            i < stage ? "bg-[#9DB89E]/15 text-[#5A7A5B]" : i === stage ? "bg-[#A16207]/15 text-[#A16207]" : "bg-[#F3EEE6] text-[#B5A99E]"
           )}
         >
           {i < stage ? (
             <Check className="h-2.5 w-2.5" />
           ) : i === stage ? (
-            <span className="h-1.5 w-1.5 rounded-full bg-[#D98B6E] anim-breathe" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#A16207] anim-breathe" />
           ) : null}
           {label}
         </span>

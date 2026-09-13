@@ -31,11 +31,11 @@ type DashboardData = {
 };
 
 const STATUS: Record<string, { dot: string; text: string; label: string; bg: string }> = {
-  booked: { dot: "bg-[#E0B080]", text: "text-[#B8893D]", label: "Waiting", bg: "bg-[#E0B080]/10" },
-  arrived: { dot: "bg-[#D98B6E]", text: "text-[#A55A4A]", label: "In Consultation", bg: "bg-[#D98B6E]/10" },
+  booked: { dot: "bg-[#C9962E]", text: "text-[#B8893D]", label: "Waiting", bg: "bg-[#C9962E]/10" },
+  arrived: { dot: "bg-[#A16207]", text: "text-[#8A5A04]", label: "In Consultation", bg: "bg-[#A16207]/10" },
   done: { dot: "bg-[#9DB89E]", text: "text-[#5A7A5B]", label: "Done", bg: "bg-[#9DB89E]/10" },
-  cancelled: { dot: "bg-[#C98A7A]", text: "text-[#9A6A5A]", label: "Cancelled", bg: "bg-[#C98A7A]/8" },
-  no_show: { dot: "bg-[#C98A7A]", text: "text-[#9A6A5A]", label: "No Show", bg: "bg-[#C98A7A]/8" },
+  cancelled: { dot: "bg-[#B8860B]", text: "text-[#8A5A04]", label: "Cancelled", bg: "bg-[#B8860B]/8" },
+  no_show: { dot: "bg-[#B8860B]", text: "text-[#8A5A04]", label: "No Show", bg: "bg-[#B8860B]/8" },
 };
 
 export function ClinicApp() {
@@ -57,16 +57,16 @@ export function ClinicApp() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#2A2622]">
       {/* ambient loop animations */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#D98B6E]/8 blur-3xl anim-aurora" />
+        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#A16207]/8 blur-3xl anim-aurora" />
         <div className="absolute top-1/3 -right-32 h-80 w-80 rounded-full bg-[#9DB89E]/8 blur-3xl anim-aurora" style={{ animationDelay: "-8s" }} />
-        <div className="absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-[#E0B080]/8 blur-3xl anim-aurora" style={{ animationDelay: "-16s" }} />
+        <div className="absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-[#C9962E]/8 blur-3xl anim-aurora" style={{ animationDelay: "-16s" }} />
       </div>
 
       <div className="mx-auto flex max-w-[1280px]">
         {/* Left rail — Practo Ray style */}
         <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-[#EFE9E0] bg-white/60 backdrop-blur-xl sm:flex">
           <div className="flex items-center gap-2.5 px-5 py-5">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#D98B6E] to-[#E0B080] anim-breathe">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#A16207] to-[#C9962E] anim-breathe">
               <Stethoscope className="h-4.5 w-4.5 text-white" strokeWidth={2.2} aria-hidden="true" />
             </span>
             <div className="leading-none">
@@ -102,7 +102,7 @@ export function ClinicApp() {
               <p className="px-3 py-1 text-[0.55rem] font-semibold uppercase tracking-wider text-[#B5A99E]">Doctors</p>
               <div className="space-y-1">
                 {data.doctors.map((d) => (
-                  <button key={d.id} onClick={() => { setTab("today"); setDoctorFilter(d.id); }} className={cn("flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 transition-colors hover:bg-[#F3EEE6]", doctorFilter === d.id && "bg-[#D98B6E]/10")}>
+                  <button key={d.id} onClick={() => { setTab("today"); setDoctorFilter(d.id); }} className={cn("flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 transition-colors hover:bg-[#F3EEE6]", doctorFilter === d.id && "bg-[#A16207]/10")}>
                     <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#F3EEE6] to-[#E5DFD4] text-[0.6rem] font-bold text-[#5C544D]">
                       {d.name.split(" ").map((x) => x[0]).join("").slice(0, 2)}
                       <span className="absolute -bottom-0 -right-0 h-2 w-2 rounded-full bg-[#9DB89E] ring-2 ring-white anim-breathe" />
@@ -136,7 +136,7 @@ export function ClinicApp() {
           {loading || !data ? (
             <div className="grid h-64 place-items-center">
               <div className="flex flex-col items-center gap-4">
-                <span className="relative grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-[#D98B6E] to-[#E0B080] shadow-lg shadow-[#D98B6E]/25 anim-breathe">
+                <span className="relative grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-[#A16207] to-[#C9962E] shadow-lg shadow-[#A16207]/25 anim-breathe">
                   <Stethoscope className="h-6 w-6 text-white" strokeWidth={2.2} aria-hidden="true" />
                 </span>
                 <p className="font-serif text-sm font-medium text-[#5C544D]">Preparing your clinic…</p>
@@ -186,10 +186,10 @@ function TodayTab({ data, doctorFilter, onConsult, onReload, onClearFilter }: { 
 
       {/* KPI cards — staggered choreography, count-up numerals */}
       <StaggerGroup className="grid grid-cols-2 gap-3 lg:grid-cols-4" stagger={0.08}>
-        <StaggerItem className="h-full"><Kpi icon={Users} label="Patients" value={kpis.patients} sub="registered" accent="#D98B6E" /></StaggerItem>
+        <StaggerItem className="h-full"><Kpi icon={Users} label="Patients" value={kpis.patients} sub="registered" accent="#A16207" /></StaggerItem>
         <StaggerItem className="h-full"><Kpi icon={CalendarDays} label="Today" value={kpis.appointmentsToday} sub={`${kpis.done} done`} accent="#9DB89E" /></StaggerItem>
-        <StaggerItem className="h-full"><Kpi icon={Clock} label="Waiting" value={kpis.waiting} sub="in queue" accent="#E0B080" /></StaggerItem>
-        <StaggerItem className="h-full"><Kpi icon={Wallet} label="Revenue" value={kpis.revenueToday} prefix="₹" sub="today" accent="#C98A7A" /></StaggerItem>
+        <StaggerItem className="h-full"><Kpi icon={Clock} label="Waiting" value={kpis.waiting} sub="in queue" accent="#C9962E" /></StaggerItem>
+        <StaggerItem className="h-full"><Kpi icon={Wallet} label="Revenue" value={kpis.revenueToday} prefix="₹" sub="today" accent="#B8860B" /></StaggerItem>
       </StaggerGroup>
 
       {/* Queue — patient cards */}
@@ -270,7 +270,7 @@ function PatientsTab() {
       </div>
       <div className="relative">
         <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9A8F84]" />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, MRN, or phone…" className="h-11 w-full rounded-xl bg-white pl-10 pr-4 text-sm shadow-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, MRN, or phone…" className="h-11 w-full rounded-xl bg-white pl-10 pr-4 text-sm shadow-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#A16207]/40" />
       </div>
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#EFE9E0]">
         <div className="max-h-[60vh] overflow-auto">
@@ -281,7 +281,7 @@ function PatientsTab() {
                 <p className="text-sm font-medium">{p.name} {p.abhaId && <span className="ml-1 inline-flex items-center gap-0.5 rounded bg-[#9DB89E]/15 px-1 py-0.5 text-[0.55rem] font-medium text-[#5A7A5B]"><Shield className="h-2.5 w-2.5" />ABHA</span>}</p>
                 <p className="text-[0.65rem] text-[#9A8F84]">{p.mrn} · {p.age}{p.gender ? `/${p.gender[0]}` : ""} {p.bloodGroup ? `· ${p.bloodGroup}` : ""} · {p.phone || "no phone"}</p>
               </div>
-              {p.allergy && <span className="flex items-center gap-1 rounded-full bg-[#E0B080]/15 px-2 py-0.5 text-[0.6rem] font-medium text-[#B8893D]">⚠ {p.allergy}</span>}
+              {p.allergy && <span className="flex items-center gap-1 rounded-full bg-[#C9962E]/15 px-2 py-0.5 text-[0.6rem] font-medium text-[#B8893D]">⚠ {p.allergy}</span>}
               <span className="rounded-full bg-[#F3EEE6] px-2 py-0.5 text-[0.6rem] font-medium text-[#5C544D]">{p._count?.visits || 0} visits</span>
             </div>
           ))}
@@ -374,7 +374,7 @@ function ChronicWatchlist({ refreshKey }: { refreshKey: number }) {
     <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#EFE9E0]">
       <div className="flex items-center justify-between border-b border-[#EFE9E0] px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#C98A7A]/10 text-[#C98A7A]"><HeartPulse className="h-3.5 w-3.5" aria-hidden="true" /></span>
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#B8860B]/10 text-[#B8860B]"><HeartPulse className="h-3.5 w-3.5" aria-hidden="true" /></span>
           <div>
             <h3 className="font-serif text-sm font-semibold">Chronic care watchlist</h3>
             <p className="text-[0.6rem] text-[#9A8F84]">Patients with chronic conditions · ICMR cadence vs last recorded visit</p>
@@ -408,7 +408,7 @@ function ChronicWatchlist({ refreshKey }: { refreshKey: number }) {
               <div className="flex flex-wrap items-center gap-1.5">
                 {dxs.map((d: string) => <span key={d} className="rounded-full bg-[#9DB89E]/15 px-2 py-0.5 text-[0.6rem] font-medium text-[#5A7A5B]">{d}</span>)}
                 {topCheckup && (
-                  <span title={topCheckup.guideline} className={cn("rounded-full px-2 py-0.5 text-[0.6rem] font-medium", overdue ? "bg-[#E0B080]/15 text-[#B8893D]" : "bg-[#F3EEE6] text-[#5C544D]")}>
+                  <span title={topCheckup.guideline} className={cn("rounded-full px-2 py-0.5 text-[0.6rem] font-medium", overdue ? "bg-[#C9962E]/15 text-[#B8893D]" : "bg-[#F3EEE6] text-[#5C544D]")}>
                     {topCheckup.test} · {topCheckup.frequency}{overdue ? " · overdue" : ""}
                   </span>
                 )}
@@ -475,13 +475,13 @@ function AddPatientDialog({ open, onClose, onAdded }: { open: boolean; onClose: 
               <div className="col-span-2">
                 <label className="text-xs text-[#9A8F84]">ABHA ID (ABDM) — demo lookup, auto-fills profile</label>
                 <div className="mt-1.5 flex gap-2">
-                  <input value={form.abhaId} onChange={(e) => setForm({ ...form, abhaId: e.target.value })} placeholder="e.g. 91-1234-5678-9012" className="h-10 flex-1 rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" />
+                  <input value={form.abhaId} onChange={(e) => setForm({ ...form, abhaId: e.target.value })} placeholder="e.g. 91-1234-5678-9012" className="h-10 flex-1 rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#A16207]/40" />
                   <button onClick={lookupAbha} disabled={abhaLoading} className="flex items-center gap-1.5 rounded-lg bg-[#9DB89E]/15 px-3 text-xs font-medium text-[#5A7A5B] hover:bg-[#9DB89E]/25 disabled:opacity-50">{abhaLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Shield className="h-3.5 w-3.5" />}Fetch</button>
                 </div>
               </div>
               <In label="Full name *" value={form.name} onChange={(v) => setForm({ ...form, name: v })} cls="col-span-2" />
               <In label="Age" value={form.age} onChange={(v) => setForm({ ...form, age: v })} type="number" />
-              <div><label className="text-xs text-[#9A8F84]">Gender</label><select value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })} className="mt-1.5 h-10 w-full rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40"><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
+              <div><label className="text-xs text-[#9A8F84]">Gender</label><select value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })} className="mt-1.5 h-10 w-full rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#A16207]/40"><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
               <In label="Blood group" value={form.bloodGroup} onChange={(v) => setForm({ ...form, bloodGroup: v })} />
               <In label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
               <In label="Allergies" value={form.allergy} onChange={(v) => setForm({ ...form, allergy: v })} cls="col-span-2" />
@@ -499,7 +499,7 @@ function AddPatientDialog({ open, onClose, onAdded }: { open: boolean; onClose: 
 }
 
 function In({ label, value, onChange, type = "text", cls }: { label: string; value: string; onChange: (v: string) => void; type?: string; cls?: string }) {
-  return <div className={cls}><label className="text-xs text-[#9A8F84]">{label}</label><input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="mt-1.5 h-10 w-full rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" /></div>;
+  return <div className={cls}><label className="text-xs text-[#9A8F84]">{label}</label><input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="mt-1.5 h-10 w-full rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#A16207]/40" /></div>;
 }
 
 /* ============== OTHER TABS (simplified) ============== */
@@ -524,7 +524,7 @@ function BillingTab() {
   return (
     <div className="space-y-5">
       <div><h1 className="font-serif text-[1.75rem] font-semibold tracking-tight">Billing</h1><p className="text-sm text-[#9A8F84]">Invoices &amp; payments</p></div>
-      {summary && <div className="grid grid-cols-3 gap-3"><Kpi icon={Wallet} label="Collected" value={`₹${(summary.collected / 1000).toFixed(1)}k`} sub="all time" accent="#9DB89E" /><Kpi icon={Clock} label="Outstanding" value={`₹${(summary.outstanding / 1000).toFixed(1)}k`} sub="unpaid" accent="#C98A7A" /><Kpi icon={FileText} label="Invoices" value={summary.count} sub="total" accent="#D98B6E" /></div>}
+      {summary && <div className="grid grid-cols-3 gap-3"><Kpi icon={Wallet} label="Collected" value={`₹${(summary.collected / 1000).toFixed(1)}k`} sub="all time" accent="#9DB89E" /><Kpi icon={Clock} label="Outstanding" value={`₹${(summary.outstanding / 1000).toFixed(1)}k`} sub="unpaid" accent="#B8860B" /><Kpi icon={FileText} label="Invoices" value={summary.count} sub="total" accent="#A16207" /></div>}
       <div className="space-y-2">
         {bills.length === 0 && <p className="py-10 text-center text-sm text-[#9A8F84]">No invoices yet.</p>}
         {bills.map((b) => (
@@ -532,7 +532,7 @@ function BillingTab() {
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-[#F3EEE6]"><FileText className="h-4 w-4 text-[#9A8F84]" /></span>
             <div className="min-w-0 flex-1"><p className="text-sm font-medium">{b.description}</p><p className="text-[0.65rem] text-[#9A8F84]">{b.invoiceNo} · {b.patient.name} · {new Date(b.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p></div>
             <p className="font-serif text-base font-bold tabular-nums">₹{b.total.toLocaleString("en-IN")}</p>
-            <span className={cn("rounded-full px-2.5 py-1 text-[0.65rem] font-semibold", b.status === "paid" ? "bg-[#9DB89E]/15 text-[#5A7A5B]" : "bg-[#C98A7A]/15 text-[#A55A4A]")}>{b.status}</span>
+            <span className={cn("rounded-full px-2.5 py-1 text-[0.65rem] font-semibold", b.status === "paid" ? "bg-[#9DB89E]/15 text-[#5A7A5B]" : "bg-[#B8860B]/15 text-[#8A5A04]")}>{b.status}</span>
           </div>
         ))}
       </div>
@@ -546,17 +546,17 @@ function ReportsTab({ data }: { data: DashboardData }) {
     <div className="space-y-5">
       <div><h1 className="font-serif text-[1.75rem] font-semibold tracking-tight">Reports</h1><p className="text-sm text-[#9A8F84]">Clinic insights &amp; trends</p></div>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi icon={Users} label="Patients" value={data.kpis.patients} accent="#D98B6E" />
+        <Kpi icon={Users} label="Patients" value={data.kpis.patients} accent="#A16207" />
         <Kpi icon={CalendarDays} label="Today" value={data.kpis.appointmentsToday} accent="#9DB89E" />
-        <Kpi icon={TrendingUp} label="Revenue 7d" value={`₹${revenueTrend7d.reduce((s, r) => s + r.revenue, 0).toLocaleString("en-IN")}`} accent="#E0B080" />
-        <Kpi icon={Clock} label="Outstanding" value={`₹${data.kpis.outstanding.toLocaleString("en-IN")}`} accent="#C98A7A" />
+        <Kpi icon={TrendingUp} label="Revenue 7d" value={`₹${revenueTrend7d.reduce((s, r) => s + r.revenue, 0).toLocaleString("en-IN")}`} accent="#C9962E" />
+        <Kpi icon={Clock} label="Outstanding" value={`₹${data.kpis.outstanding.toLocaleString("en-IN")}`} accent="#B8860B" />
       </div>
       <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#EFE9E0]">
         <h3 className="mb-3 font-serif text-base font-semibold">Revenue · last 7 days</h3>
         <div className="flex h-32 items-end gap-1.5">
           {revenueTrend7d.map((r, i) => {
             const max = Math.max(...revenueTrend7d.map((x) => x.revenue), 1);
-            return <div key={i} className="flex flex-1 flex-col items-center gap-1.5"><motion.div className="w-full rounded-t-md bg-gradient-to-t from-[#D98B6E] to-[#E0B080]" initial={{ height: 0 }} whileInView={{ height: `${(r.revenue / max) * 100}%` }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.05 }} style={{ minHeight: r.revenue > 0 ? 3 : 0 }} /><span className="text-[0.5rem] text-[#9A8F84]">{r.date.slice(-2)}</span></div>;
+            return <div key={i} className="flex flex-1 flex-col items-center gap-1.5"><motion.div className="w-full rounded-t-md bg-gradient-to-t from-[#A16207] to-[#C9962E]" initial={{ height: 0 }} whileInView={{ height: `${(r.revenue / max) * 100}%` }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.05 }} style={{ minHeight: r.revenue > 0 ? 3 : 0 }} /><span className="text-[0.5rem] text-[#9A8F84]">{r.date.slice(-2)}</span></div>;
           })}
         </div>
       </div>
@@ -657,7 +657,7 @@ function ConsultModal({ data, onClose, onSaved }: { data: { appointmentId: strin
             <div className="sticky top-0 z-10 border-b border-[#EFE9E0] bg-white px-5 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#D98B6E]/10 text-[#D98B6E]"><HeartPulse className="h-4 w-4" aria-hidden="true" /></span>
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#A16207]/10 text-[#A16207]"><HeartPulse className="h-4 w-4" aria-hidden="true" /></span>
                   <div>
                     <h3 className="font-serif text-base font-semibold">SOAP Consultation</h3>
                     <p className="text-[0.65rem] text-[#9A8F84]">{data.patient.name} · {data.patient.mrn} · {data.patient.age}{data.patient.gender ? `/${data.patient.gender[0]}` : ""} {data.patient.bloodGroup ? `· ${data.patient.bloodGroup}` : ""} · Dr. {data.doctor.name}</p>
@@ -665,7 +665,7 @@ function ConsultModal({ data, onClose, onSaved }: { data: { appointmentId: strin
                 </div>
                 <div className="flex items-center gap-1">
                   <button onClick={() => toast.info("Rx saved to the patient record — share it from the consultation sheet")} className="grid h-7 w-7 place-items-center rounded-full bg-[#9DB89E]/15 text-[#5A7A5B] hover:bg-[#9DB89E]/25" title="Saved to patient record"><MessageCircle className="h-3.5 w-3.5" /></button>
-                  <button onClick={() => window.print()} className="grid h-7 w-7 place-items-center rounded-full bg-[#D98B6E]/10 text-[#D98B6E] hover:bg-[#D98B6E]/20" title="Print this page"><Download className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => window.print()} className="grid h-7 w-7 place-items-center rounded-full bg-[#A16207]/10 text-[#A16207] hover:bg-[#A16207]/20" title="Print this page"><Download className="h-3.5 w-3.5" /></button>
                   <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]"><X className="h-4 w-4" /></button>
                 </div>
               </div>
@@ -692,7 +692,7 @@ function ConsultModal({ data, onClose, onSaved }: { data: { appointmentId: strin
               )}
 
               {/* S — Subjective */}
-              <Section title="Subjective" color="#D98B6E">
+              <Section title="Subjective" color="#A16207">
                 <In label="Chief complaint & duration" value={soap.chiefComplaint} onChange={(v) => setSoap({ ...soap, chiefComplaint: v })} />
               </Section>
 
@@ -709,23 +709,23 @@ function ConsultModal({ data, onClose, onSaved }: { data: { appointmentId: strin
               </Section>
 
               {/* A — Assessment (ICD-10) */}
-              <Section title="Assessment — Diagnosis (ICD-10)" color="#E0B080">
+              <Section title="Assessment — Diagnosis (ICD-10)" color="#C9962E">
                 <In label="Diagnosis" value={soap.diagnosis} onChange={(v) => setSoap({ ...soap, diagnosis: v })} />
               </Section>
 
               {/* P — Plan (HealthPlix-style Rx) */}
-              <Section title="Plan — Prescription (HealthPlix-style)" color="#C98A7A">
+              <Section title="Plan — Prescription (HealthPlix-style)" color="#B8860B">
                 {/* drug autocomplete */}
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A8F84]" />
-                  <input value={drugQuery} onChange={(e) => setDrugQuery(e.target.value)} placeholder="Type medicine name or salt…" className="h-10 w-full rounded-lg bg-[#FAF7F2] pl-9 pr-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" />
+                  <input value={drugQuery} onChange={(e) => setDrugQuery(e.target.value)} placeholder="Type medicine name or salt…" className="h-10 w-full rounded-lg bg-[#FAF7F2] pl-9 pr-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#A16207]/40" />
                   {drugResults.length > 0 && (
                     <div className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-lg bg-white shadow-xl ring-1 ring-[#EFE9E0]">
                       {drugResults.map((d) => (
                         <button key={d.id} onMouseDown={() => addDrug(d)} className="flex w-full items-center gap-2 border-b border-[#F3EEE6] px-3 py-2 text-left last:border-0 hover:bg-[#FAF7F2]">
                           <Pill className="h-3.5 w-3.5 text-[#9DB89E]" />
                           <div className="flex-1"><p className="text-xs font-medium">{d.brandName} {d.strength}</p><p className="text-[0.6rem] text-[#9A8F84]">{d.saltName} · {d.company}</p></div>
-                          {d.schedule && d.schedule !== "OTC" && <span className="rounded bg-[#C98A7A]/15 px-1 text-[0.55rem] font-bold text-[#A55A4A]">{d.schedule}</span>}
+                          {d.schedule && d.schedule !== "OTC" && <span className="rounded bg-[#B8860B]/15 px-1 text-[0.55rem] font-bold text-[#8A5A04]">{d.schedule}</span>}
                         </button>
                       ))}
                     </div>
@@ -738,13 +738,13 @@ function ConsultModal({ data, onClose, onSaved }: { data: { appointmentId: strin
                     <div key={i} className="rounded-lg border border-[#EFE9E0] bg-[#FAF7F2] p-2.5">
                       <div className="flex items-center justify-between">
                         <p className="text-xs font-semibold">{r.drug} <span className="text-[#9A8F84]">{r.strength}</span></p>
-                        <button onClick={() => setRx(rx.filter((_, j) => j !== i))} className="text-[#9A8F84] hover:text-[#A55A4A]"><X className="h-3 w-3" /></button>
+                        <button onClick={() => setRx(rx.filter((_, j) => j !== i))} className="text-[#9A8F84] hover:text-[#8A5A04]"><X className="h-3 w-3" /></button>
                       </div>
                       <p className="text-[0.6rem] text-[#9A8F84]">{r.salt}</p>
                       <div className="mt-1.5 flex flex-wrap items-center gap-2">
                         {/* frequency checkboxes — M/A/E/Bedtime */}
                         {([["m", "Morning"], ["a", "Afternoon"], ["e", "Evening"], ["bed", "Bedtime"]] as const).map(([key, label]) => (
-                          <button key={key} onClick={() => toggleFreq(i, key)} className={cn("flex items-center gap-1 rounded-md px-2 py-1 text-[0.6rem] font-medium transition-colors", r.freq[key] ? "bg-[#D98B6E] text-white" : "bg-white text-[#9A8F84] ring-1 ring-[#EFE9E0]")}>
+                          <button key={key} onClick={() => toggleFreq(i, key)} className={cn("flex items-center gap-1 rounded-md px-2 py-1 text-[0.6rem] font-medium transition-colors", r.freq[key] ? "bg-[#A16207] text-white" : "bg-white text-[#9A8F84] ring-1 ring-[#EFE9E0]")}>
                             <span className={cn("h-2.5 w-2.5 rounded", r.freq[key] ? "bg-white" : "bg-[#EFE9E0]")} />
                             {label}
                           </button>
@@ -761,7 +761,7 @@ function ConsultModal({ data, onClose, onSaved }: { data: { appointmentId: strin
               {/* advice + follow-up */}
               <Section title="Advice & Follow-up" color="#5A7A5B">
                 <In label="Advice" value={soap.advice} onChange={(v) => setSoap({ ...soap, advice: v })} />
-                <div><label className="text-xs text-[#9A8F84]">Follow-up date (recorded on the visit — the clinic calls to remind)</label><input type="date" value={soap.followUp} onChange={(e) => setSoap({ ...soap, followUp: e.target.value })} className="mt-1.5 h-10 w-full rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" /></div>
+                <div><label className="text-xs text-[#9A8F84]">Follow-up date (recorded on the visit — the clinic calls to remind)</label><input type="date" value={soap.followUp} onChange={(e) => setSoap({ ...soap, followUp: e.target.value })} className="mt-1.5 h-10 w-full rounded-lg bg-[#FAF7F2] px-3 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#A16207]/40" /></div>
               </Section>
             </div>
 

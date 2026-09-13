@@ -21,9 +21,9 @@ interface BPResult {
 
 const CLASS_COLOR: Record<string, string> = {
   "Normal": "#5A7A5B",
-  "Elevated": "#E0B080",
-  "Stage 1 Hypertension": "#D98B6E",
-  "Stage 2 Hypertension": "#C98A7A",
+  "Elevated": "#C9962E",
+  "Stage 1 Hypertension": "#A16207",
+  "Stage 2 Hypertension": "#B8860B",
   "Hypertensive Crisis": "#7A4A3A",
 };
 
@@ -103,7 +103,7 @@ export function BpAnalyzer() {
                   <select value={r.position} onChange={(e)=>update(i,"position",e.target.value)} className={inputCls}>
                     <option>Sitting</option><option>Standing</option><option>Lying</option>
                   </select>
-                  <button onClick={() => removeRow(i)} disabled={readings.length === 1} className="grid h-10 w-9 place-items-center rounded-lg glass-chip text-[#9A6A5A] disabled:opacity-30 hover:bg-[#C98A7A]/10"><Trash2 className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => removeRow(i)} disabled={readings.length === 1} className="grid h-10 w-9 place-items-center rounded-lg glass-chip text-[#8A5A04] disabled:opacity-30 hover:bg-[#B8860B]/10"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
               ))}
             </div>
@@ -131,7 +131,7 @@ export function BpAnalyzer() {
                 <p className="mt-1 font-serif text-3xl font-bold text-[#1F1B17]">{result.averageSystolic}<span className="text-[#9A8F84]">/</span>{result.averageDiastolic}<span className="ml-1 text-sm text-[#9A8F84]">mmHg</span></p>
                 <p className="text-[0.65rem] text-[#9A8F84]">Pulse pressure: {result.pulsePressure} mmHg</p>
                 {result.whiteCoatSuspected && (
-                  <span className="mt-2 rounded-full px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider" style={{ background:"#E0B08015", color:"#B8893D" }}>⚠️ White-coat suspected</span>
+                  <span className="mt-2 rounded-full px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider" style={{ background:"#C9962E15", color:"#B8893D" }}>⚠️ White-coat suspected</span>
                 )}
               </div>
             </ResultCard>
@@ -158,9 +158,9 @@ export function BpAnalyzer() {
               </ResultCard>
             )}
 
-            <ResultCard accent="#C98A7A" title="When to See a Doctor">
+            <ResultCard accent="#B8860B" title="When to See a Doctor">
               <div className="flex items-start gap-3">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#9A6A5A]" />
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#8A5A04]" />
                 <p className="text-sm leading-relaxed text-[#1F1B17]">{result.whenToSeeDoctor}</p>
               </div>
             </ResultCard>

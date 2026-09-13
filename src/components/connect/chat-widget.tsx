@@ -169,7 +169,7 @@ export function PatientChatWidget({
     >
       {/* Header */}
       <div className="flex items-center gap-2.5 border-b border-[#EFE9E0] bg-white/80 px-4 py-3 backdrop-blur-xl">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D98B6E] to-[#C98A7A] text-xs font-bold text-white shadow-md">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A16207] to-[#8F5E06] text-xs font-bold text-white shadow-md">
           {initials || "DR"}
         </span>
         <div className="min-w-0 flex-1">
@@ -241,7 +241,7 @@ export function PatientChatWidget({
                         )}
                       >
                         {showAvatar && (
-                          <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-[#D98B6E] to-[#C98A7A] text-[0.55rem] font-bold text-white">
+                          <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-[#A16207] to-[#8F5E06] text-[0.55rem] font-bold text-white">
                             {initials}
                           </span>
                         )}
@@ -251,7 +251,7 @@ export function PatientChatWidget({
                       className={cn(
                         "max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
                         isPatient
-                          ? "bg-[#D98B6E] text-white"
+                          ? "bg-[#A16207] text-white"
                           : "glass-soft text-[#1F1B17]"
                       )}
                     >
@@ -299,7 +299,7 @@ export function PatientChatWidget({
         <button
           onClick={send}
           disabled={!input.trim() || sending}
-          className="grid h-9 w-9 place-items-center rounded-full bg-[#D98B6E] text-white shadow-md transition-all hover:scale-110 disabled:opacity-40"
+          className="grid h-9 w-9 place-items-center rounded-full bg-[#A16207] text-white shadow-md transition-all hover:scale-110 disabled:opacity-40"
           aria-label="Send message"
         >
           {sending ? (
@@ -351,7 +351,7 @@ export function ConnectDoctorCta({
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#D98B6E] to-[#E0B080] text-white shadow-md">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#A16207] to-[#C9962E] text-white shadow-md">
             <Stethoscope className="h-5 w-5" />
           </span>
           <div>
@@ -364,7 +364,7 @@ export function ConnectDoctorCta({
         <button
           onClick={onClick}
           disabled={loading}
-          className="flex items-center justify-center gap-2 rounded-full bg-[#D98B6E] px-5 py-2.5 text-sm font-semibold text-white shadow-depth transition-all hover:scale-[1.02] hover:bg-[#C97A5D] disabled:opacity-60"
+          className="flex items-center justify-center gap-2 rounded-full bg-[#A16207] px-5 py-2.5 text-sm font-semibold text-white shadow-depth transition-all hover:scale-[1.02] hover:bg-[#8A5A04] disabled:opacity-60"
         >
           {loading ? (
             <>

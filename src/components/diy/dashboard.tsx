@@ -190,7 +190,7 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center pb-28">
         <div className="flex items-center gap-2 text-sm text-[#8A7A66]">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-[#C96F45]" /> Loading today…
+          <span className="h-2 w-2 animate-pulse rounded-full bg-[#B8860B]" /> Loading today…
         </div>
       </div>
     );
@@ -228,7 +228,7 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
               )}
             </div>
             <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-[#EBDCC2]">
-              <div className={`h-full rounded-full transition-all ${allDone ? "bg-[#7A9A7B]" : "bg-gradient-to-r from-[#C96F45] to-[#7A9A7B]"}`} style={{ width: `${pct}%` }} />
+              <div className={`h-full rounded-full transition-all ${allDone ? "bg-[#7A9A7B]" : "bg-gradient-to-r from-[#B8860B] to-[#7A9A7B]"}`} style={{ width: `${pct}%` }} />
             </div>
             <div className="mt-1.5 flex items-center justify-between text-[11px] text-[#6B5D4E]">
               <span>
@@ -277,11 +277,11 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
                         {done ? <RotateCcw size={15} aria-hidden /> : <Check size={16} aria-hidden />}
                       </button>
                       {!done && (
-                        <button aria-label={skipped ? `Undo skip: ${t.title}` : `Skip: ${t.title}`} disabled={busyTask === t.id} onClick={() => (skipped ? undo(t) : act(t, "skipped"))} className={`flex h-10 w-10 items-center justify-center rounded-full border transition ${skipped ? "border-[#C96F45] bg-[#F6E3D3] text-[#B05A34]" : "border-[#D9C8AC] text-[#6B5D4E] hover:border-[#C96F45] hover:text-[#B05A34]"}`}>
+                        <button aria-label={skipped ? `Undo skip: ${t.title}` : `Skip: ${t.title}`} disabled={busyTask === t.id} onClick={() => (skipped ? undo(t) : act(t, "skipped"))} className={`flex h-10 w-10 items-center justify-center rounded-full border transition ${skipped ? "border-[#B8860B] bg-[#F3E8CF] text-[#A16207]" : "border-[#D9C8AC] text-[#6B5D4E] hover:border-[#B8860B] hover:text-[#A16207]"}`}>
                           {skipped ? <RotateCcw size={15} aria-hidden /> : <SkipForward size={15} aria-hidden />}
                         </button>
                       )}
-                      <button aria-label={`Add note: ${t.title}`} onClick={() => { setNoteFor(noteFor === t.id ? null : t.id); setNoteText(t.note ?? ""); }} className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D9C8AC] text-[#6B5D4E] transition hover:border-[#C96F45] hover:text-[#B05A34]">
+                      <button aria-label={`Add note: ${t.title}`} onClick={() => { setNoteFor(noteFor === t.id ? null : t.id); setNoteText(t.note ?? ""); }} className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D9C8AC] text-[#6B5D4E] transition hover:border-[#B8860B] hover:text-[#A16207]">
                         <MessageSquarePlus size={15} aria-hidden />
                       </button>
                     </div>
@@ -294,7 +294,7 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
                         onKeyDown={(e) => { if (e.key === "Enter" && noteText.trim()) saveNote(t); }}
                         placeholder="How did it go?"
                         aria-label={`Note for ${t.title}`}
-                        className="h-10 min-w-0 flex-1 rounded-full border border-[#E0D0B8] bg-white px-4 text-sm outline-none focus:border-[#C96F45]"
+                        className="h-10 min-w-0 flex-1 rounded-full border border-[#E0D0B8] bg-white px-4 text-sm outline-none focus:border-[#B8860B]"
                       />
                       <button onClick={() => saveNote(t)} className="diy-btn-primary shrink-0 px-4 text-xs">Save</button>
                     </div>
@@ -364,7 +364,7 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
               {(["mood", "energy", "sleep"] as const).map((k) => (
                 <div key={k}>
                   <label htmlFor={`ci-${k}`} className="text-xs font-medium capitalize text-[#6B5D4E]">{k} (1–5)</label>
-                  <input id={`ci-${k}`} type="range" min={1} max={5} value={checkin[k]} onChange={(e) => setCheckin((c) => ({ ...c, [k]: Number(e.target.value) }))} className="w-full accent-[#B05A34]" />
+                  <input id={`ci-${k}`} type="range" min={1} max={5} value={checkin[k]} onChange={(e) => setCheckin((c) => ({ ...c, [k]: Number(e.target.value) }))} className="w-full accent-[#A16207]" />
                 </div>
               ))}
               <button onClick={saveCheckin} className="diy-btn-primary w-full text-sm">{hasLog ? "Update check-in" : "Save check-in"}</button>
@@ -396,7 +396,7 @@ export function Dashboard({ onNewGoals }: { onNewGoals: () => void }) {
               </div>
               {totalDays != null && (
                 <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#F0E4CE]" aria-hidden>
-                  <div className="h-full rounded-full bg-gradient-to-r from-[#C96F45] to-[#7A9A7B]" style={{ width: `${posPct}%` }} />
+                  <div className="h-full rounded-full bg-gradient-to-r from-[#B8860B] to-[#7A9A7B]" style={{ width: `${posPct}%` }} />
                 </div>
               )}
               <div className="mt-4 space-y-2">

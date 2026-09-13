@@ -72,7 +72,7 @@ export function PreventionSchedule() {
         </div>
         <div className="rounded-xl bg-[#FAF7F2]/60 p-3.5 sm:p-4">
           <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#5C544D]">
-            <HeartHandshake className="h-3.5 w-3.5 text-[#C98A7A]" aria-hidden="true" /> Pregnancy care (ANC) highlights
+            <HeartHandshake className="h-3.5 w-3.5 text-[#B8860B]" aria-hidden="true" /> Pregnancy care (ANC) highlights
           </p>
           <p className="mt-0.5 text-[0.6rem] text-[#B5A99E]">Standard India / WHO guidance for every pregnancy</p>
           <RowList rows={PREGNANCY_ROWS} />

@@ -160,7 +160,7 @@ export function PortalLogin() {
           {/* Glass card — Liquid Glass lux */}
           <div className="glass-lux relative overflow-hidden rounded-3xl shadow-[var(--shadow-lux-2)]">
             {/* Header gradient */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-[#D98B6E] via-[#C97759] to-[#9DB89E] p-7 text-white">
+            <div className="relative overflow-hidden bg-gradient-to-br from-[#8F5E06] via-[#A16207] to-[#B8860B] p-7 text-white">
               <div
                 aria-hidden
                 className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/15 blur-2xl"
@@ -214,7 +214,7 @@ export function PortalLogin() {
                     <label className="text-xs font-semibold uppercase tracking-wider text-stone-500">
                       Mobile number
                     </label>
-                    <div className="mt-2 flex items-center gap-2 rounded-2xl border border-[#E7E5E4] bg-white px-4 py-3 focus-within:border-[#D98B6E] focus-within:ring-2 focus-within:ring-[#D98B6E]/20">
+                    <div className="mt-2 flex items-center gap-2 rounded-2xl border border-[#E7E5E4] bg-white px-4 py-3 focus-within:border-[#A16207] focus-within:ring-2 focus-within:ring-[#A16207]/20">
                       <Phone className="h-4 w-4 text-stone-400" />
                       <input
                         type="tel"
@@ -266,7 +266,7 @@ export function PortalLogin() {
                     <label className="text-xs font-semibold uppercase tracking-wider text-stone-500">
                       Enter OTP sent to {phone}
                     </label>
-                    <div className="mt-2 flex items-center gap-2 rounded-2xl border border-[#E7E5E4] bg-white px-4 py-3 focus-within:border-[#D98B6E] focus-within:ring-2 focus-within:ring-[#D98B6E]/20">
+                    <div className="mt-2 flex items-center gap-2 rounded-2xl border border-[#E7E5E4] bg-white px-4 py-3 focus-within:border-[#A16207] focus-within:ring-2 focus-within:ring-[#A16207]/20">
                       <KeyRound className="h-4 w-4 text-stone-400" />
                       <input
                         type="text"
@@ -324,7 +324,7 @@ export function PortalLogin() {
                   "transition-all hover:bg-white/80 hover:shadow-[0_4px_12px_-4px_oklch(0.4_0.05_45/0.1)]"
                 )}
               >
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#D98B6E]/10 text-[#D98B6E]">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#A16207]/10 text-[#A16207]">
                   <f.icon className="h-5 w-5" />
                 </span>
                 <div>

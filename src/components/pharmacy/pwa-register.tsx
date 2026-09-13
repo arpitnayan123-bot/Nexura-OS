@@ -16,7 +16,7 @@ export function PWARegister() {
     if (!document.querySelector('meta[name="theme-color"]')) {
       const m = document.createElement("meta");
       m.name = "theme-color";
-      m.content = "#D98B6E";
+      m.content = "#A16207";
       document.head.appendChild(m);
     }
     // register SW

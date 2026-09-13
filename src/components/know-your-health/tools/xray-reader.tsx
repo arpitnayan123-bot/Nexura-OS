@@ -34,12 +34,12 @@ interface XrayResult {
 const BODY_PARTS = ["Chest", "Hand/Wrist", "Knee", "Spine", "Skull", "Abdomen"] as const;
 const QUALITY_STYLE: Record<string, { bg: string; text: string; label: string }> = {
   good: { bg: "#9DB89E15", text: "#5A7A5B", label: "Good" },
-  adequate: { bg: "#E0B08015", text: "#B8893D", label: "Adequate" },
-  poor: { bg: "#C98A7A15", text: "#9A6A5A", label: "Poor" },
+  adequate: { bg: "#C9962E15", text: "#B8893D", label: "Adequate" },
+  poor: { bg: "#A1620715", text: "#8A5A04", label: "Poor" },
 };
 const LIKELIHOOD_STYLE: Record<string, { bg: string; text: string }> = {
-  "Likely": { bg: "#C98A7A15", text: "#9A6A5A" },
-  "Possible": { bg: "#E0B08015", text: "#B8893D" },
+  "Likely": { bg: "#A1620715", text: "#8A5A04" },
+  "Possible": { bg: "#C9962E15", text: "#B8893D" },
   "Unlikely": { bg: "#9DB89E15", text: "#5A7A5B" },
 };
 
@@ -119,11 +119,11 @@ export function XrayReader() {
         {result && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="space-y-4">
             {result.requiresRadiologistReview && (
-              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="flex items-start gap-3 rounded-2xl p-3.5 shadow-depth" style={{ background: "linear-gradient(135deg, #C98A7A18, #C98A7A08)" }}>
-                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#9A6A5A]" />
+              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="flex items-start gap-3 rounded-2xl p-3.5 shadow-depth" style={{ background: "linear-gradient(135deg, #A1620718, #A1620708)" }}>
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#8A5A04]" />
                 <div>
                   <p className="text-sm font-semibold text-[#7A4A3A]">A qualified radiologist should review this image</p>
-                  <p className="mt-0.5 text-[0.7rem] text-[#9A6A5A]">This AI overview is educational. It does not replace a formal radiology report.</p>
+                  <p className="mt-0.5 text-[0.7rem] text-[#8A5A04]">This AI overview is educational. It does not replace a formal radiology report.</p>
                 </div>
               </motion.div>
             )}
@@ -158,7 +158,7 @@ export function XrayReader() {
                           <td className="px-3 py-2.5 text-right">
                             {f.abnormality ? (
                               <div className="flex flex-col items-end gap-1">
-                                <span className="rounded-full px-2 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider" style={{ background: "#C98A7A15", color: "#9A6A5A" }}>Abnormal</span>
+                                <span className="rounded-full px-2 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider" style={{ background: "#A1620715", color: "#8A5A04" }}>Abnormal</span>
                                 {f.severity && <SeverityBadge level={f.severity} />}
                               </div>
                             ) : (
@@ -174,7 +174,7 @@ export function XrayReader() {
             )}
 
             {result.possibleAbnormalities?.length > 0 && (
-              <ResultCard accent="#C98A7A" title="Possible Abnormalities">
+              <ResultCard accent="#B8860B" title="Possible Abnormalities">
                 <div className="space-y-2.5">
                   {result.possibleAbnormalities.map((a, i) => {
                     const ls = LIKELIHOOD_STYLE[a.likelihood] || LIKELIHOOD_STYLE.Possible;

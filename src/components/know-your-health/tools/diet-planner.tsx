@@ -20,9 +20,9 @@ const inputCls = "glass-input h-10 w-full rounded-lg px-3 text-xs outline-none";
 
 // Static Indian-kitchen therapeutic swaps — general reference, a dietitian personalises these.
 const SWAPS: { condition: string; swap: string; bg: string; text: string }[] = [
-  { condition: "Blood sugar", swap: "white rice → millets / whole-wheat roti — portion first", bg: "#E0B08015", text: "#B8893D" },
-  { condition: "Blood pressure", swap: "pickle + papad daily → twice a week; salt added at table only", bg: "#C98A7A15", text: "#9A6A5A" },
-  { condition: "Fatty liver", swap: "sugary chai / mithai daily → unsweetened chai, weekend mithai", bg: "#D98B6E15", text: "#9A6A5A" },
+  { condition: "Blood sugar", swap: "white rice → millets / whole-wheat roti — portion first", bg: "#C9962E15", text: "#B8893D" },
+  { condition: "Blood pressure", swap: "pickle + papad daily → twice a week; salt added at table only", bg: "#A1620715", text: "#8A5A04" },
+  { condition: "Fatty liver", swap: "sugary chai / mithai daily → unsweetened chai, weekend mithai", bg: "#A1620715", text: "#8A5A04" },
   { condition: "Anaemia", swap: "chai with meals → chai an hour before / after; add vitamin-C foods with meals", bg: "#7A9A7B15", text: "#4A6A4B" },
   { condition: "Cholesterol", swap: "fried snacks → roasted chana / makhana", bg: "#9DB89E15", text: "#5A7A5B" },
 ];
@@ -138,7 +138,7 @@ export function DietPlanner() {
 
             <ResultCard accent={accent} title="Macro Split">
               <div className="grid grid-cols-3 gap-3">
-                {([["Protein", result.macroSplit?.protein, "#D98B6E"], ["Carbs", result.macroSplit?.carbs, "#E0B080"], ["Fat", result.macroSplit?.fat, "#9DB89E"]] as const).map(([label, g, c]) => (
+                {([["Protein", result.macroSplit?.protein, "#A16207"], ["Carbs", result.macroSplit?.carbs, "#C9962E"], ["Fat", result.macroSplit?.fat, "#9DB89E"]] as const).map(([label, g, c]) => (
                   <div key={label} className="rounded-xl bg-[#FAF7F2]/60 p-2.5 text-center">
                     <p className="font-serif text-xl font-bold text-[#1F1B17]">{g || 0}<span className="ml-0.5 text-[0.6rem] text-[#9A8F84]">g</span></p>
                     <p className="text-[0.6rem] uppercase tracking-wider" style={{ color: c }}>{label}</p>
@@ -153,9 +153,9 @@ export function DietPlanner() {
                   <motion.div key={i} initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} transition={{delay:i*0.05}} className="rounded-xl bg-[#FAF7F2]/60 p-3">
                     <p className="mb-2 font-serif text-sm font-bold text-[#1F1B17]">{d.day}</p>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      <MealRow label="Breakfast" meal={d.breakfast} accent="#E0B080" />
+                      <MealRow label="Breakfast" meal={d.breakfast} accent="#C9962E" />
                       <MealRow label="Lunch" meal={d.lunch} accent="#9DB89E" />
-                      <MealRow label="Dinner" meal={d.dinner} accent="#D98B6E" />
+                      <MealRow label="Dinner" meal={d.dinner} accent="#A16207" />
                       <MealRow label="Snacks" meal={d.snacks} accent="#7A9A7B" />
                     </div>
                   </motion.div>

@@ -18,8 +18,8 @@ interface DiabetesResult {
 
 const STATUS_MAP = {
   controlled: { bg: "#9DB89E15", text: "#5A7A5B", label: "Controlled", accent: "#9DB89E" },
-  borderline: { bg: "#E0B08015", text: "#B8893D", label: "Borderline", accent: "#E0B080" },
-  uncontrolled: { bg: "#C98A7A20", text: "#7A4A3A", label: "Uncontrolled", accent: "#C98A7A" },
+  borderline: { bg: "#C9962E15", text: "#B8893D", label: "Borderline", accent: "#C9962E" },
+  uncontrolled: { bg: "#A1620720", text: "#7A4A3A", label: "Uncontrolled", accent: "#B8860B" },
 } as const;
 // Defensive fallback — an unexpected status must never crash the view.
 const statusOf = (s: string) => STATUS_MAP[s as keyof typeof STATUS_MAP] ?? STATUS_MAP.borderline;
@@ -120,8 +120,8 @@ export function DiabetesCare() {
 
             <div className="grid gap-3 sm:grid-cols-3">
               <AssessCard label="Fasting" text={result.fastingAssessment} accent="#9DB89E" />
-              <AssessCard label="Post-Meal" text={result.postMealAssessment} accent="#D98B6E" />
-              <AssessCard label="HbA1c" text={result.hba1cAssessment} accent="#E0B080" />
+              <AssessCard label="Post-Meal" text={result.postMealAssessment} accent="#A16207" />
+              <AssessCard label="HbA1c" text={result.hba1cAssessment} accent="#C9962E" />
             </div>
 
             <ResultCard accent="#7A9A7B" title="Trend Analysis">
@@ -129,10 +129,10 @@ export function DiabetesCare() {
             </ResultCard>
 
             {result.alertFlags?.length > 0 && (
-              <ResultCard accent="#C98A7A" title="Alert Flags">
+              <ResultCard accent="#B8860B" title="Alert Flags">
                 <ul className="space-y-2">
                   {result.alertFlags.map((a, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#9A6A5A]"><AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /><span>{a}</span></li>
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#8A5A04]"><AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /><span>{a}</span></li>
                   ))}
                 </ul>
               </ResultCard>
@@ -149,10 +149,10 @@ export function DiabetesCare() {
             )}
 
             {result.indianDietTips?.length > 0 && (
-              <ResultCard accent="#D98B6E" title="Indian Diet Tips">
+              <ResultCard accent="#A16207" title="Indian Diet Tips">
                 <ul className="space-y-2">
                   {result.indianDietTips.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#1F1B17]"><Utensils className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#D98B6E]" /><span>{r}</span></li>
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#1F1B17]"><Utensils className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#A16207]" /><span>{r}</span></li>
                   ))}
                 </ul>
               </ResultCard>

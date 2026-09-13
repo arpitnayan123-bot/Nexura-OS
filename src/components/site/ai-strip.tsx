@@ -36,7 +36,7 @@ const BIRDS = [
 
 /* Petals loosed from the flowers, drifting down-wind */
 const PETALS = [
-  { left: "30%", bottom: "18px", dur: "8.5s", delay: "0.8s", color: "#D98B6E" },
+  { left: "30%", bottom: "18px", dur: "8.5s", delay: "0.8s", color: "#D9B87C" },
   { left: "48%", bottom: "12px", dur: "10s", delay: "3.4s", color: "#C4704B" },
   { left: "86%", bottom: "22px", dur: "9s", delay: "1.9s", color: "#D9A05B" },
 ];
@@ -189,7 +189,7 @@ export function AiStrip() {
                 <svg width="46" height="58" viewBox="0 0 46 58" fill="none">
                   <path d="M23 58 C22 42 24 28 23 14" stroke="rgba(90,122,91,0.5)" strokeWidth="1.4" strokeLinecap="round" />
                   <path d="M23 34 C31 31 36 24 37 16 C29 19 24 26 23 32 Z" fill="rgba(122,154,123,0.5)" />
-                  <circle cx="23" cy="10" r="2.2" fill="#D98B6E" />
+                  <circle cx="23" cy="10" r="2.2" fill="#D9B87C" />
                 </svg>
               </div>
               <div className="nx-stem hidden sm:block" style={{ left: "44%", animationDuration: "7s", animationDelay: "2s" }}>

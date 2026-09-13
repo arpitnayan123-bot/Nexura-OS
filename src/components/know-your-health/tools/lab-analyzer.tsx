@@ -41,7 +41,7 @@ const COMMON_TESTS = [
   { name: "RBC Count", unit: "10^6/μL" },
 ];
 
-const statusColor: Record<string, string> = { LOW: "#9DB89E", HIGH: "#C98A7A", NORMAL: "#5A7A5B" };
+const statusColor: Record<string, string> = { LOW: "#9DB89E", HIGH: "#B8860B", NORMAL: "#5A7A5B" };
 
 const QUICK_RANGES: { test: string; range: string }[] = [
   { test: "HbA1c", range: "<5.7 normal · 5.7-6.5 prediabetes range · >6.5 diabetes range" },
@@ -144,7 +144,7 @@ export function LabAnalyzer() {
                   </select>
                   <input value={t.value} onChange={(e) => update(i, "value", e.target.value)} placeholder="Value" type="text" inputMode="decimal" className="glass-input h-10 w-full rounded-lg px-2 text-xs outline-none" />
                   <input value={t.unit} onChange={(e) => update(i, "unit", e.target.value)} placeholder="Unit" className="glass-input h-10 w-full rounded-lg px-2 text-xs outline-none" />
-                  <button onClick={() => removeRow(i)} disabled={tests.length === 1} className="grid h-10 w-10 place-items-center rounded-lg glass-chip text-[#9A6A5A] disabled:opacity-30 hover:bg-[#C98A7A]/10"><Trash2 className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => removeRow(i)} disabled={tests.length === 1} className="grid h-10 w-10 place-items-center rounded-lg glass-chip text-[#8A5A04] disabled:opacity-30 hover:bg-[#B8860B]/10"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
               ))}
             </div>
@@ -167,9 +167,9 @@ export function LabAnalyzer() {
             <ResultCard accent={accent} title="Overall Summary">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span className="rounded-full glass-chip px-2.5 py-0.5 text-[0.65rem] font-semibold text-[#5C544D]">{result.tests.length} tests</span>
-                <span className="rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider" style={{ background: result.abnormalCount > 0 ? "#C98A7A15" : "#9DB89E15", color: result.abnormalCount > 0 ? "#9A6A5A" : "#5A7A5B" }}>{result.abnormalCount} abnormal</span>
-                {result.extractedFromImage && <span className="rounded-full px-2.5 py-0.5 text-[0.65rem] font-semibold" style={{ background:"#E0B08015", color:"#B8893D" }}>Read from photo — verify values</span>}
-                {result.requiresDoctorFollowUp && <span className="rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider" style={{ background:"#C98A7A20", color:"#7A4A3A" }}>Doctor follow-up advised</span>}
+                <span className="rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider" style={{ background: result.abnormalCount > 0 ? "#A1620715" : "#9DB89E15", color: result.abnormalCount > 0 ? "#8A5A04" : "#5A7A5B" }}>{result.abnormalCount} abnormal</span>
+                {result.extractedFromImage && <span className="rounded-full px-2.5 py-0.5 text-[0.65rem] font-semibold" style={{ background:"#C9962E15", color:"#B8893D" }}>Read from photo — verify values</span>}
+                {result.requiresDoctorFollowUp && <span className="rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider" style={{ background:"#A1620720", color:"#7A4A3A" }}>Doctor follow-up advised</span>}
               </div>
               <p className="text-sm leading-relaxed text-[#1F1B17]">{result.overallSummary}</p>
             </ResultCard>
@@ -210,7 +210,7 @@ export function LabAnalyzer() {
 
             <div className="flex items-center gap-3">
               <ResetButton onClick={reset} />
-              {result.requiresDoctorFollowUp && <span className="flex items-center gap-1 text-[0.65rem] text-[#9A6A5A]"><AlertCircle className="h-3 w-3" /> Please consult a physician</span>}
+              {result.requiresDoctorFollowUp && <span className="flex items-center gap-1 text-[0.65rem] text-[#8A5A04]"><AlertCircle className="h-3 w-3" /> Please consult a physician</span>}
             </div>
             <Disclaimer />
           </motion.div>

@@ -219,7 +219,7 @@ export function Onboarding({ booted, onDone }: { booted: boolean; onDone: () => 
         <Scenery className="absolute inset-0 h-full w-full" />
         <div className="absolute inset-x-0 top-6 z-10 flex justify-center px-4">
           <div className="nx-glass-chip flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6B5138]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#B05A34]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#A16207]" />
             Nexura DIY · No sign-in needed
           </div>
         </div>
@@ -227,7 +227,7 @@ export function Onboarding({ booted, onDone }: { booted: boolean; onDone: () => 
           <div className="nx-glass-deep rounded-3xl px-6 py-7 text-center sm:px-10">
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-[#2E2A26] sm:text-4xl">
               Tell it like it is.
-              <span className="block bg-gradient-to-r from-[#C96F45] via-[#B05A34] to-[#7A9A7B] bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-[#D9B87C] via-[#A16207] to-[#7A9A7B] bg-clip-text text-transparent">
                 We&apos;ll do the rest.
               </span>
             </h1>
@@ -260,7 +260,7 @@ export function Onboarding({ booted, onDone }: { booted: boolean; onDone: () => 
               const done = i < idx || step === "done";
               return (
                 <li key={key} className="flex items-center gap-2">
-                  <span className={`flex items-center gap-1.5 rounded-full px-3 py-1 ${active ? "bg-[#B05A34] text-[#FFF6EA]" : done ? "bg-[#7A9A7B]/20 text-[#4E6845]" : "bg-[#F1E6D4] text-[#8A7A66]"}`}>
+                  <span className={`flex items-center gap-1.5 rounded-full px-3 py-1 ${active ? "bg-[#A16207] text-[#FFF6EA]" : done ? "bg-[#7A9A7B]/20 text-[#4E6845]" : "bg-[#F1E6D4] text-[#8A7A66]"}`}>
                     {done ? <ShieldCheck size={12} aria-hidden /> : key === "tune" ? <Sparkles size={12} aria-hidden /> : key === "build" ? <Map size={12} aria-hidden /> : null}
                     {label}
                   </span>
@@ -287,7 +287,7 @@ export function Onboarding({ booted, onDone }: { booted: boolean; onDone: () => 
                 <p key={b.id} className="rounded-2xl border border-[#E7D9C4] bg-[#F7EEDD] px-4 py-2.5 text-xs leading-relaxed text-[#8A7454]">{b.text}</p>
               ) : (
                 <div key={b.id} className={`flex ${b.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <p className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${b.role === "user" ? "bg-[#B05A34] text-[#FFF6EA]" : "bg-[#FBF5EA] text-[#4E4237]"}`}>{b.text}</p>
+                  <p className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${b.role === "user" ? "bg-[#A16207] text-[#FFF6EA]" : "bg-[#FBF5EA] text-[#4E4237]"}`}>{b.text}</p>
                 </div>
               )
             )}
@@ -441,7 +441,7 @@ export function Onboarding({ booted, onDone }: { booted: boolean; onDone: () => 
               placeholder={booted ? "Tell it like it is — weight, sleep, stress, skin…" : "Waking the valley…"}
               disabled={!booted}
               aria-label="Describe your goals"
-              className="h-12 flex-1 rounded-full border border-[#E0D0B8] bg-white/90 px-5 text-sm outline-none transition placeholder:text-[#B3A28A] focus:border-[#C96F45] focus:ring-2 focus:ring-[#E29A72]/40 disabled:opacity-60"
+              className="h-12 flex-1 rounded-full border border-[#E0D0B8] bg-white/90 px-5 text-sm outline-none transition placeholder:text-[#B3A28A] focus:border-[#B8860B] focus:ring-2 focus:ring-[#D9B87C]/40 disabled:opacity-60"
             />
             <button type="submit" disabled={!booted || !input.trim() || thinking} aria-label="Send message" className="diy-btn-icon-terra shrink-0 disabled:opacity-50">
               <Send size={17} aria-hidden />
@@ -449,7 +449,7 @@ export function Onboarding({ booted, onDone }: { booted: boolean; onDone: () => 
           </form>
           <div className="mt-2.5 flex gap-1.5 overflow-x-auto pb-1">
             {EXAMPLES.map((x) => (
-              <button key={x} onClick={() => send(x)} disabled={!booted || thinking} className="shrink-0 rounded-full border border-[#E0D0B8] bg-white/70 px-3 py-1 text-[11px] text-[#6B5D4E] transition hover:border-[#C96F45] hover:text-[#B05A34] disabled:opacity-50">
+              <button key={x} onClick={() => send(x)} disabled={!booted || thinking} className="shrink-0 rounded-full border border-[#E0D0B8] bg-white/70 px-3 py-1 text-[11px] text-[#6B5D4E] transition hover:border-[#B8860B] hover:text-[#A16207] disabled:opacity-50">
                 {x.length > 42 ? `${x.slice(0, 42)}…` : x}
               </button>
             ))}

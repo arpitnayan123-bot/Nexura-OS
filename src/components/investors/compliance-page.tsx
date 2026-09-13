@@ -109,7 +109,7 @@ export function CompliancePage() {
       <nav className="fixed top-0 inset-x-0 z-50 backdrop-blur-xl bg-[#0A0A0A]/70 border-b border-white/5">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-[#D98B6E] to-[#E0B080]">
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-[#A16207] to-[#C9962E]">
               <HeartPulse className="h-4 w-4 text-white" strokeWidth={2.5} />
             </span>
             <span className="font-display text-sm font-semibold">Nexura OS</span>
@@ -214,7 +214,7 @@ export function CompliancePage() {
                 transition={{ delay: i * 0.08 }}
                 className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
               >
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#D98B6E]/10 text-[#D98B6E] mb-3">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#A16207]/10 text-[#A16207] mb-3">
                   <p.icon className="h-4 w-4" />
                 </span>
                 <p className="font-medium text-white text-sm">{p.title}</p>
@@ -258,7 +258,7 @@ export function CompliancePage() {
 
       {/* CTA */}
       <section className="px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="mx-auto max-w-3xl rounded-3xl bg-gradient-to-br from-[#D98B6E]/10 to-[#9DB89E]/5 border border-white/10 p-8 text-center">
+        <div className="mx-auto max-w-3xl rounded-3xl bg-gradient-to-br from-[#A16207]/10 to-[#7A9A7B]/5 border border-white/10 p-8 text-center">
           <h2 className="font-display text-2xl font-semibold mb-2">Need a compliance audit?</h2>
           <p className="text-white/60 text-sm mb-6">Our team can walk you through every regulation and how Nexura OS addresses it.</p>
           <a href="mailto:compliance@nexuraai.in" className="inline-flex items-center gap-1.5 rounded-full bg-white text-[#0A0A0A] px-5 py-2.5 text-sm font-semibold hover:bg-white/90">

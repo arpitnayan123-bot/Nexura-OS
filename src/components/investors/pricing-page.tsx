@@ -11,7 +11,7 @@ const TIERS = [
   {
     product: "Hospital OS",
     icon: Building2,
-    color: "#C98A7A",
+    color: "#B8860B",
     href: "/hospital",
     plans: [
       { name: "Starter", price: "₹50,000", period: "/month", desc: "Up to 50 beds", features: ["Dashboard + OPD + IPD", "EHR + Nursing", "Basic billing", "Email support", "1 hospital location"], cta: "Start onboarding" },
@@ -22,7 +22,7 @@ const TIERS = [
   {
     product: "Clinic OS",
     icon: Stethoscope,
-    color: "#D98B6E",
+    color: "#A16207",
     href: "/clinic",
     plans: [
       { name: "Solo", price: "₹2,000", period: "/month", desc: "1 doctor", features: ["SOAP consultation", "Drug autocomplete (54 meds)", "Patient register", "Basic billing", "Public booking page"], cta: "Start onboarding" },
@@ -63,7 +63,7 @@ export function PricingPage() {
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-[#FAF7F2]/80 border-b border-[#E7E5E4]">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-[#D98B6E] to-[#E0B080]">
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-[#A16207] to-[#C9962E]">
               <HeartPulse className="h-4 w-4 text-white" strokeWidth={2.5} />
             </span>
             <span className="font-display text-sm font-semibold text-[#0F172A]">Nexura OS</span>

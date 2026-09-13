@@ -61,7 +61,7 @@ const BIRDS = [
 
 /* Petals loosed on the morning breeze, drifting toward the sea */
 const PETALS = [
-  { left: "13%", bottom: "52px", dur: "9.5s", delay: "1.2s", color: "#D98B6E" },
+  { left: "13%", bottom: "52px", dur: "9.5s", delay: "1.2s", color: "#D9B87C" },
   { left: "19%", bottom: "34px", dur: "11s", delay: "4.1s", color: "#D9A05B" },
 ];
 
