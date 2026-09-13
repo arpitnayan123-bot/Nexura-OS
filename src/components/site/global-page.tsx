@@ -798,7 +798,7 @@ function Hero({
           transition={{ duration: 0.6 }}
           className="flex justify-center"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#F59E0B]/40 bg-[#F59E0B]/10 px-4 py-1.5 text-xs font-medium text-[#FBBF24]">
+          <span className="badge-lux border-[#F59E0B]/35 bg-[#F59E0B]/10 text-[#FBBF24]">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#F59E0B] opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[#F59E0B]" />
@@ -812,7 +812,7 @@ function Hero({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.08 }}
-          className="mx-auto mt-6 max-w-4xl text-center font-display text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl"
+          className="title-lux mx-auto mt-6 max-w-4xl text-center text-4xl font-bold text-white sm:text-5xl lg:text-6xl"
         >
           {t.heroTitle1}{" "}
           <span className="relative inline-block">

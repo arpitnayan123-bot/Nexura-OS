@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Search, X, ShieldCheck, Sparkles, HeartPulse, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Search, X, ShieldCheck, Sparkles, HeartPulse, ChevronRight, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TOOLS, TOOLS_BY_ID, CATEGORY_LABEL, type ToolCategory } from "./tools";
 import { LazyTool } from "./lazy-tools";
@@ -77,13 +77,15 @@ export function KnowYourHealthApp() {
                 <div className="pointer-events-none absolute inset-0 glass-dark" style={{ borderRadius:"inherit" }} />
                 <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-[#9DB89E]/30 blur-3xl anim-breathe" />
                 <div className="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-[#D98B6E]/30 blur-3xl anim-aurora" />
+                {/* champagne aurora heart — Liquid Gold signature */}
+                <div aria-hidden className="aurora-gold right-[-6%] top-[-30%] h-72 w-96 opacity-40" style={{ animationDelay: "-4s" }} />
                 <div className="relative max-w-2xl">
-                  <span className="inline-flex items-center gap-1.5 rounded-full glass-chip px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-white"><Sparkles className="h-3 w-3 text-[#9DB89E]" /> Powered by Google Gemini</span>
-                  <h1 className="mt-3 font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">Know your health,<br /><span className="bg-gradient-to-r from-[#9DB89E] to-[#D98B6E] bg-clip-text text-transparent">before it knows you.</span></h1>
+                  <span className="badge-lux bg-white/10 text-[#EED9A8] text-[0.65rem] font-semibold uppercase tracking-wider"><Sparkles className="h-3 w-3 text-[#D9B87C]" /> Powered by Google Gemini</span>
+                  <h1 className="title-lux mt-3 text-3xl sm:text-4xl">Know your health,<br /><span className="text-gold-gradient">before it knows you.</span></h1>
                   <p className="mt-3 max-w-lg text-sm text-white/80 sm:text-base">{TOOLS.length} AI health tools built for India — analyse your lab report, scan a skin concern, estimate your 10-year disease risk, plan an Indian diet, and more. All processed securely on the server. Educational tools: they offer information and signals, never a medical diagnosis.</p>
                   <div className="mt-5 flex flex-wrap gap-2">
-                    <button onClick={() => go("symptoms-checker")} className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#1F1B17] shadow-depth transition-transform hover:scale-105">Try Symptom Checker <ArrowRight className="h-3.5 w-3.5" /></button>
-                    <button onClick={() => go("lab-analyzer")} className="flex items-center gap-1.5 rounded-full glass-dark px-4 py-2 text-sm font-medium text-white transition-all hover:scale-105"><Sparkles className="h-3.5 w-3.5" /> Analyze a lab report</button>
+                    <button onClick={() => go("symptoms-checker")} className="btn-gold h-10 rounded-full px-4 text-sm font-semibold">Try Symptom Checker <ArrowRight className="h-3.5 w-3.5" /></button>
+                    <button onClick={() => go("lab-analyzer")} className="btn-glass-lux h-10 rounded-full border-white/25 bg-white/10 px-4 text-sm font-medium text-white"><span className="flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5" /> Analyze a lab report</span></button>
                   </div>
                 </div>
               </div>
@@ -126,7 +128,7 @@ export function KnowYourHealthApp() {
               </div>
 
               <div className="glass-soft rounded-2xl p-5 sm:p-6">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#5C544D]">How these tools work</p>
+                <p className="eyebrow text-[0.625rem]">How these tools work</p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-xl bg-[#FAF7F2]/60 p-3">
                     <span className="grid h-6 w-6 place-items-center rounded-full bg-[#9DB89E]/20 text-[0.65rem] font-bold text-[#5A7A5B]">1</span>
@@ -149,7 +151,7 @@ export function KnowYourHealthApp() {
               <PreventionSchedule />
 
               <div className="glass-soft rounded-2xl p-4 text-center">
-                <p className="text-[0.65rem] text-[#9A8F84]">🔒 All AI calls are processed securely on our server using Google Gemini. Your image/text data is not stored by this app — it is sent only to the Gemini API to generate your result. Every tool here is educational: outputs are informational estimates and signals, not medical advice, diagnosis, or treatment. Always consult a qualified doctor.</p>
+                <p className="flex items-center justify-center gap-1.5 text-[0.65rem] text-[#9A8F84]"><Lock className="h-3 w-3 shrink-0" aria-hidden="true" /> All AI calls are processed securely on our server using Google Gemini. Your image/text data is not stored by this app — it is sent only to the Gemini API to generate your result. Every tool here is educational: outputs are informational estimates and signals, not medical advice, diagnosis, or treatment. Always consult a qualified doctor.</p>
               </div>
             </motion.div>
           )}

@@ -325,12 +325,12 @@ export function ConnectApp() {
       <aside className="flex w-[280px] shrink-0 flex-col border-r border-white/10 bg-black/30 backdrop-blur-xl">
         {/* Logo */}
         <div className="flex items-center gap-2 px-5 py-4">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#D98B6E] to-[#E0B080] shadow-depth">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#E8B04B] via-[#D98B6E] to-[#C97A5D] shadow-lg shadow-[#D98B6E]/25 ring-1 ring-inset ring-white/25">
             <Activity className="h-4 w-4 text-white" strokeWidth={2.5} />
           </span>
           <div className="flex-1">
             <p className="font-serif text-sm font-bold tracking-tight">Nexura Connect</p>
-            <p className="text-[0.6rem] text-white/50">Doctor dashboard</p>
+            <p className="text-[0.6rem] uppercase tracking-[0.16em] text-[#D9B87C]/80">Doctor dashboard</p>
           </div>
         </div>
 

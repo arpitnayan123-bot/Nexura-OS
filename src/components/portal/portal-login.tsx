@@ -157,8 +157,8 @@ export function PortalLogin() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="w-full max-w-md"
         >
-          {/* Glass card */}
-          <div className="relative overflow-hidden rounded-3xl border border-[#E7E5E4] bg-white/70 shadow-[0_8px_40px_-12px_oklch(0.4_0.05_45/0.15)] backdrop-blur-xl">
+          {/* Glass card — Liquid Glass lux */}
+          <div className="glass-lux relative overflow-hidden rounded-3xl shadow-[var(--shadow-lux-2)]">
             {/* Header gradient */}
             <div className="relative overflow-hidden bg-gradient-to-br from-[#D98B6E] via-[#C97759] to-[#9DB89E] p-7 text-white">
               <div
@@ -166,6 +166,10 @@ export function PortalLogin() {
                 className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/15 blur-2xl"
                 style={{ animation: "nexura-breathe 6s ease-in-out infinite" }}
               />
+              {/* champagne aurora heart */}
+              <div aria-hidden className="aurora-gold -left-10 bottom-[-60%] h-48 w-64 opacity-45" style={{ filter: "blur(60px)" }} />
+              {/* champagne top-light */}
+              <div aria-hidden className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent" />
               <div className="relative flex items-center gap-3">
                 <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/20 backdrop-blur">
                   <HeartPulse className="h-6 w-6" />
@@ -224,7 +228,7 @@ export function PortalLogin() {
                     <button
                       onClick={() => sendOtp()}
                       disabled={loading}
-                      className="group mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#D98B6E] px-4 py-3.5 text-sm font-semibold text-white shadow-[0_6px_20px_-6px_oklch(0.65_0.13_45/0.6)] transition-all hover:-translate-y-0.5 hover:bg-[#C97759] active:scale-[0.98] disabled:opacity-60"
+                      className="btn-gold group mt-4 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold disabled:opacity-60"
                     >
                       {loading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -283,7 +287,7 @@ export function PortalLogin() {
                     <button
                       onClick={verifyOtp}
                       disabled={loading || otp.length < 4}
-                      className="group mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#D98B6E] px-4 py-3.5 text-sm font-semibold text-white shadow-[0_6px_20px_-6px_oklch(0.65_0.13_45/0.6)] transition-all hover:-translate-y-0.5 hover:bg-[#C97759] active:scale-[0.98] disabled:opacity-60"
+                      className="btn-gold group mt-4 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold disabled:opacity-60"
                     >
                       {loading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />

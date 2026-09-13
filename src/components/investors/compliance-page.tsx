@@ -123,16 +123,17 @@ export function CompliancePage() {
       </nav>
 
       {/* Hero */}
-      <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
+      <section className="relative overflow-hidden pt-32 pb-16 px-4 sm:px-6 lg:px-8">
+        <div aria-hidden className="aurora-gold -top-32 left-1/2 h-[24rem] w-[40rem] -translate-x-1/2 opacity-35" />
+        <div className="relative mx-auto max-w-4xl text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 mb-6">
-              <Shield className="h-3.5 w-3.5 text-[#9DB89E]" /> Regulatory Compliance
+            <span className="badge-lux mb-6 border-white/15 bg-white/5 text-[#EED9A8]">
+              <Shield className="h-3.5 w-3.5 text-[#D9B87C]" /> Regulatory Compliance
             </span>
-            <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight">
-              Compliance is our <span className="bg-gradient-to-r from-[#D98B6E] to-[#9DB89E] bg-clip-text text-transparent">moat.</span>
+            <h1 className="title-lux text-4xl sm:text-5xl">
+              Compliance is our <span className="text-gold-gradient">moat.</span>
             </h1>
-            <p className="mt-6 text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
+            <p className="lede-lux mx-auto mt-6 max-w-2xl text-white/60">
               Indian healthcare is one of the most regulated sectors in the world. Nexura OS is built
               compliant from the architecture up — not as a feature, but as a principle.
             </p>
@@ -150,8 +151,10 @@ export function CompliancePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 lg:p-8"
+              className="group relative rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition-colors duration-500 hover:border-[#D9B87C]/25 lg:p-8"
             >
+              {/* champagne top-light reveal */}
+              <span aria-hidden className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-[#D9B87C]/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               <div className="flex flex-col lg:flex-row lg:items-start gap-6">
                 {/* Left: header */}
                 <div className="lg:w-1/3">

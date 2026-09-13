@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Check, ArrowRight, Building2, Stethoscope, Pill, HeartPulse, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PageHero } from "@/components/premium/kit";
 
 const TIERS = [
   {
@@ -70,23 +71,17 @@ export function PricingPage() {
           <div className="flex items-center gap-4 text-xs">
             <Link href="/investors" className="text-[#64748B] hover:text-[#0F172A]">Investors</Link>
             <Link href="/" className="text-[#64748B] hover:text-[#0F172A]">Product</Link>
-            <Link href="/portal" className="rounded-full bg-[#D98B6E] text-white px-3 py-1.5 font-medium hover:bg-[#C97A5D]">Patient Portal</Link>
+            <Link href="/portal" className="btn-gold rounded-full px-3 py-1.5 font-medium">Patient Portal</Link>
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#D98B6E] mb-3">Pricing</p>
-          <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight text-[#0F172A]">
-            Simple, transparent pricing.
-          </h1>
-          <p className="mt-4 text-lg text-[#64748B] max-w-2xl mx-auto">
-            Pay for what you use. No hidden fees. Cancel anytime. Built for Indian healthcare budgets.
-          </p>
-        </motion.div>
-      </section>
+      <PageHero
+        eyebrow="Pricing"
+        title={<>Simple, <span className="text-gold-gradient">transparent</span> pricing.</>}
+        lede="Pay for what you use. No hidden fees. Cancel anytime. Built for Indian healthcare budgets."
+      />
 
       {/* Product tabs */}
       <section className="px-4 sm:px-6 lg:px-8 mb-12">
@@ -124,26 +119,30 @@ export function PricingPage() {
               <div
                 key={i}
                 className={cn(
-                  "relative rounded-3xl border bg-white p-6 lg:p-8",
-                  plan.popular ? "border-[#D98B6E] shadow-xl scale-105" : "border-[#E7E5E4] shadow-sm"
+                  "card-lux relative rounded-3xl p-6 lg:p-8",
+                  plan.popular
+                    ? "border-[#A16207]/40 bg-gradient-to-b from-white to-[#FBF4E4] shadow-[var(--shadow-lux-2)] md:scale-105"
+                    : "card-lux-hover"
                 )}
-                style={plan.popular ? { boxShadow: "0 20px 60px -30px rgba(217, 139, 110, 0.4)" } : {}}
               >
                 {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#D98B6E] px-3 py-1 text-[0.6rem] font-bold uppercase tracking-wider text-white shadow-md">
-                    Most Popular
-                  </span>
+                  <>
+                    <span className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-[#D9B87C] to-transparent" />
+                    <span className="badge-lux absolute -top-3.5 left-1/2 -translate-x-1/2 text-[0.6rem] font-bold uppercase tracking-[0.14em]">
+                      <Sparkles className="h-3 w-3" /> Most Popular
+                    </span>
+                  </>
                 )}
                 <p className="font-display text-lg font-semibold text-[#0F172A]">{plan.name}</p>
                 <p className="text-xs text-[#64748B] mt-0.5">{plan.desc}</p>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="font-display text-3xl font-bold text-[#0F172A]">{plan.price}</span>
+                  <span className="stat-lux text-3xl text-[#0F172A]">{plan.price}</span>
                   <span className="text-sm text-[#94A3B8]">{plan.period}</span>
                 </div>
                 <ul className="mt-6 space-y-2.5">
                   {plan.features.map((f, j) => (
                     <li key={j} className="flex items-start gap-2 text-sm text-[#64748B]">
-                      <span className="grid h-4 w-4 place-items-center rounded-full bg-[#9DB89E]/15 text-[#9DB89E] shrink-0 mt-0.5">
+                      <span className="grid h-4 w-4 place-items-center rounded-full bg-[#A16207]/12 text-[#A16207] shrink-0 mt-0.5">
                         <Check className="h-2.5 w-2.5" strokeWidth={3} />
                       </span>
                       {f}
@@ -153,10 +152,10 @@ export function PricingPage() {
                 <a
                   href={TIERS[activeProduct].href}
                   className={cn(
-                    "mt-6 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold transition-all",
+                    "mt-6 flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold transition-all",
                     plan.popular
-                      ? "bg-[#D98B6E] text-white hover:bg-[#C97A5D]"
-                      : "border border-[#E7E5E4] text-[#0F172A] hover:bg-[#F8FAFC]"
+                      ? "btn-gold rounded-xl"
+                      : "border border-[#E7E5E4] text-[#0F172A] hover:border-[#A16207]/35 hover:bg-[#FBF8F0]"
                   )}
                 >
                   {plan.cta} <ArrowRight className="h-3.5 w-3.5" />
@@ -170,7 +169,8 @@ export function PricingPage() {
       {/* FAQ */}
       <section className="px-4 sm:px-6 lg:px-8 pb-20 border-t border-[#E7E5E4]">
         <div className="mx-auto max-w-3xl pt-16">
-          <h2 className="font-display text-2xl font-semibold text-center text-[#0F172A] mb-8">Frequently asked questions</h2>
+          <div className="mb-8 text-center"><span className="eyebrow">Good to know</span></div>
+          <h2 className="title-lux text-center text-2xl text-[#0F172A] mb-8">Frequently asked questions</h2>
           <div className="space-y-4">
             {[
               { q: "Is there a free trial?", a: "New deployments start with an onboarding offer — contact us and we'll set up a guided walkthrough with demo data. Trial length and terms are finalised during onboarding." },
@@ -180,7 +180,7 @@ export function PricingPage() {
               { q: "Do you provide training?", a: "Yes. Every plan includes free onboarding training. Professional and Enterprise plans include dedicated training sessions for your team." },
               { q: "What payment modes do you accept?", a: "Payment modes are finalised during onboarding so they match how your organisation already pays — talk to us about the options, including annual-billing arrangements." },
             ].map((faq, i) => (
-              <div key={i} className="rounded-2xl border border-[#E7E5E4] bg-white p-5">
+              <div key={i} className="card-lux card-lux-hover rounded-2xl p-5">
                 <p className="font-medium text-[#0F172A]">{faq.q}</p>
                 <p className="text-sm text-[#64748B] mt-1.5 leading-relaxed">{faq.a}</p>
               </div>
@@ -189,16 +189,17 @@ export function PricingPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA — Liquid Gold climax */}
       <section className="px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="mx-auto max-w-4xl rounded-3xl bg-gradient-to-br from-[#D98B6E] to-[#E0B080] p-8 lg:p-12 text-center text-white">
-          <h2 className="font-display text-2xl sm:text-3xl font-semibold">Ready to digitize your healthcare?</h2>
-          <p className="mt-2 text-white/80">Join the ABDM revolution. Start your onboarding today.</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/hospital" className="rounded-full bg-white text-[#D98B6E] px-5 py-2.5 text-sm font-semibold hover:bg-white/90">
+        <div className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl bg-gradient-to-br from-[#26221E] via-[#1C1917] to-[#141210] p-8 lg:p-12 text-center text-[#F6F1E7] shadow-[var(--shadow-lux-3)]">
+          <div aria-hidden className="aurora-gold -top-24 left-1/2 h-64 w-[30rem] -translate-x-1/2 opacity-45" />
+          <h2 className="title-lux relative text-2xl sm:text-3xl">Ready to <span className="text-gold-gradient">digitize</span> your healthcare?</h2>
+          <p className="relative mt-2 text-[#F6F1E7]/75">Join the ABDM revolution. Start your onboarding today.</p>
+          <div className="relative mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/hospital" className="btn-gold h-11 rounded-full px-5 text-sm font-semibold">
               Explore Hospital OS
             </Link>
-            <Link href="/portal" className="rounded-full border border-white/30 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10">
+            <Link href="/portal" className="btn-glass-lux h-11 rounded-full border-white/20 bg-white/10 px-5 text-sm font-semibold text-white">
               Patient Portal
             </Link>
           </div>
