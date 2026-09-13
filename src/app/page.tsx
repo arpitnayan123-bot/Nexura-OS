@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/site/navbar";
 import { Hero } from "@/components/site/hero";
+import { ScrollProgress } from "@/components/premium/kit";
 import { FeaturesShowcase } from "@/components/site/features-showcase";
 import { DiyStrip } from "@/components/site/diy-strip";
 import { OsGlance } from "@/components/site/os-glance";
@@ -30,6 +31,7 @@ export default function Home() {
       />
 
       <SkipLink />
+      <ScrollProgress />
       <LazyCursorGlow />
       <Navbar />
 

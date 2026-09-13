@@ -53,12 +53,12 @@ export function Hero() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#A16207] opacity-60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#A16207]" />
                 </span>
-                Now in private beta · 22 apps · one Hospital OS
+                One OS for every layer of care
               </span>
             </Reveal>
 
             <Reveal delay={0.08}>
-              <h1 className="title-lux mt-5 text-[2.6rem] font-semibold sm:text-6xl lg:text-[4.2rem]">
+              <h1 className="display-xl mt-5 text-foreground">
                 A calmer{" "}
                 <span className="relative inline-block">
                   <span className="text-gold-gradient">operating system</span>
