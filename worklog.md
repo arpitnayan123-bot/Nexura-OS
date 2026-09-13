@@ -3936,3 +3936,27 @@ Work Log:
 Stage Summary:
 - All 4 remaining product pages now carry the full Liquid Gold 2.0 treatment — homepage-grade motion/depth on every surface
 - Functional demo apps untouched in behavior; purely presentation-layer upgrades; all safety systems intact
+
+---
+Task ID: NXP-FINAL-EVERYTHING
+Agent: Super Z (main)
+Task: "Do for whole platform, a final for everything" — definitive final pass across every Nexura OS surface
+
+Work Log:
+- Audited all surfaces; found the pre-gold accent family (coral #D98B6E / rose #C98A7A / violet / sky / emerald) still live in: root error.tsx (generic), global-error.tsx (coral), segment-error-boundary.tsx (all 5 variants), homepage data arrays (features-showcase, hamburger-menu, product-showcase, hero chips, how-it-works sections), ~45 app component files (portal tabs, connect, clinic, pharmacy, KYH tools ×16, investors trio), the ROOT THEME TOKENS (--primary was amber, --ring/--chart-1/--coral/--sidebar-* were hue-45 coral), portal oklch ambient blobs, and the DIY valley sub-brand (terracotta)
+- error.tsx: rewritten Liquid Gold (charcoal #141210, aurora-gold, champagne icon ring, eyebrow+title-lux, btn-gold/btn-glass-lux, digest pill); Bug-Sentinel + 2x auto-retry behavior preserved
+- global-error.tsx: inline-style gold (champagne radial glow, gold-gradient CTA, Nexura eyebrow) — owns its own <html> so no global CSS
+- segment-error-boundary.tsx: warm/connect/kyh/light variants → gold family (connect uses champagne-on-dark for contrast); canvas/nxf keeps documented emerald sub-brand
+- Marketing codemod (scripts/final-gold-codemod.mjs): 171 replacements — all bento/menu/showcase/how-it-works accents → #A16207; global-page/global-dashboard/hospital-profile amber sub-brand → brand gold (better AA); decorative particles → champagne
+- App codemod (scripts/final-app-gold.mjs): 45 files — coral/rose ramps → deep-gold ramps (white-ink safe end-to-end), sage gradient ends → deep sage #7A9A7B, KYH hex-alpha washes remapped
+- ROOT THEME TOKENS aligned to Liquid Gold: --primary #A16207 (dark: champagne 0.80 0.115 82 + dark ink), --accent → soft champagne hover wash + deep gold-brown ink (shadcn-correct hover semantics), --ring/--chart-1/--coral(named)/--sidebar-primary/--sidebar-ring all gold in both modes
+- Portal oklch ambient blobs: coral hue 45 → gold hue 80 (sage kept — portal's documented secondary); nx-sky-1 kept (Hospital OS ambience, verified look)
+- DIY valley refinement (scripts/final-diy-gold.mjs, 44 replacements): terracotta → champagne gold family (bevel button gradients #D9B87C→#B8860B→#8F5E06, gold-mid borders/hovers, soft champagne bgs); cream canvas + sage secondary + valley illustration untouched
+- Fixed pre-existing eslint react-hooks/set-state-in-effect false positive in diy/dashboard load() (targeted disable with justification) — lint now 0/0
+- Verification: rebuilt via guardian (BUILD_ID A4YhENDI_SuoSb4sRorIj); gold-sweep 14/14 pages ZERO console errors; mobile 390px sweep (scripts/final-mobile-check.sh) 14/14 zero overflow + zero errors; screenshots verified: portal login gold ramp, DIY gold valley, clinic/pharmacy/connect/global/investors all champagne; /api/ready green; check-preview-health 21/21
+- Locked in: commit 262ddcc, tag final-release (alongside liquid-gold-2.0-final), dual bundles refreshed + verify "complete history", BUNDLE RESTORE TEST PASSED (cloned offsite → exact commit + tags back), DB backup custom-20260913143047.db.gz integrity ok (counts match live)
+
+Stage Summary:
+- The ENTIRE platform — every page, every error state, every token, every sub-brand accent — now speaks one language: Liquid Champagne Gold
+- Sub-brands deliberately preserved: nxf emerald (predictive), navy (global logo), portal sage secondary, DIY valley illustration, semantic status colors
+- Three recovery paths re-proven; safety systems (guardian, autocommit, bundles) intact and fresh
