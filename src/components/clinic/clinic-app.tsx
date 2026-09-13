@@ -161,12 +161,12 @@ function TodayTab({ data, doctorFilter, onConsult, onReload, onClearFilter }: { 
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-[#9A8F84]">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p>
-          <h1 className="mt-0.5 font-serif text-[1.75rem] font-semibold leading-tight tracking-tight">{clinic.name}</h1>
-          {filterDoctor ? <p className="text-xs text-[#9A8F84]">Filtered: {filterDoctor.name} · <button onClick={onClearFilter} className="text-[#D98B6E] underline">clear</button></p> : <p className="text-xs text-[#9A8F84]">{clinic.city} · all doctors</p>}
+          <p className="eyebrow text-[0.625rem]">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p>
+          <h1 className="title-lux mt-1 text-[1.75rem]">{clinic.name}</h1>
+          {filterDoctor ? <p className="text-xs text-[#9A8F84]">Filtered: {filterDoctor.name} · <button onClick={onClearFilter} className="text-[#B8893D] underline">clear</button></p> : <p className="text-xs text-[#9A8F84]">{clinic.city} · all doctors</p>}
         </div>
         <div className="flex items-center gap-2">
-          {clinic.bookingSlug && <Link href={`/clinic/book/${clinic.bookingSlug}`} target="_blank" className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-[#5C544D] shadow-sm ring-1 ring-[#EFE9E0] hover:text-[#2A2622]"><MessageCircle className="h-3.5 w-3.5" />Booking page</Link>}
+          {clinic.bookingSlug && <Link href={`/clinic/book/${clinic.bookingSlug}`} target="_blank" className="btn-glass-lux h-9 rounded-full px-3.5 text-xs font-medium text-[#5C544D]"><span className="flex items-center gap-1.5"><MessageCircle className="h-3.5 w-3.5" />Booking page</span></Link>}
           <div className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium shadow-sm ring-1 ring-[#EFE9E0]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#9DB89E] animate-pulse" /> Live
           </div>
@@ -780,9 +780,9 @@ function Section({ title, color, children }: { title: string; color: string; chi
 
 function Kpi({ icon: Icon, label, value, sub, accent }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string | number; sub?: string; accent: string }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#EFE9E0]">
+    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -3 }} transition={{ type: "spring", stiffness: 280, damping: 22 }} className="card-lux rounded-2xl p-4">
       <span className="grid h-9 w-9 place-items-center rounded-xl" style={{ background: `color-mix(in srgb, ${accent} 12%, transparent)`, color: accent }}><Icon className="h-4 w-4" strokeWidth={2} /></span>
-      <p className="mt-3 font-serif text-2xl font-bold tracking-tight">{value}</p>
+      <p className="stat-lux mt-3 text-2xl">{value}</p>
       <p className="text-xs font-medium">{label}</p>
       {sub && <p className="text-[0.6rem] text-[#9A8F84]">{sub}</p>}
     </motion.div>

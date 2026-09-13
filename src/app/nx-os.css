@@ -59,12 +59,12 @@ html.nx-dark {
   --nx-ink-2:   oklch(0.800 0.011 75);
   --nx-ink-3:   oklch(0.610 0.012 70);
   --nx-ink-4:   oklch(0.455 0.011 68);
-  /* accent — Solar Amber (default) */
-  --nx-accent:      oklch(0.815 0.135 78);
-  --nx-accent-2:    oklch(0.870 0.120 82);
-  --nx-accent-ink:  oklch(0.230 0.055 70);
-  --nx-accent-soft: oklch(0.815 0.135 78 / 0.13);
-  --nx-accent-line: oklch(0.815 0.135 78 / 0.38);
+  /* accent — Liquid Champagne Gold (premium refinement of Solar Amber) */
+  --nx-accent:      oklch(0.825 0.115 82);
+  --nx-accent-2:    oklch(0.875 0.100 86);
+  --nx-accent-ink:  oklch(0.235 0.050 75);
+  --nx-accent-soft: oklch(0.825 0.115 82 / 0.13);
+  --nx-accent-line: oklch(0.825 0.115 82 / 0.38);
   /* status — tuned for dark ground */
   --nx-good: oklch(0.790 0.150 160); --nx-good-soft: oklch(0.790 0.150 160 / 0.11); --nx-good-line: oklch(0.790 0.150 160 / 0.32);
   --nx-warn: oklch(0.830 0.140 85);  --nx-warn-soft: oklch(0.830 0.140 85 / 0.12);  --nx-warn-line: oklch(0.830 0.140 85 / 0.35);
@@ -115,11 +115,11 @@ html.nx-light {
   --nx-ink-2:   oklch(0.385 0.016 58);
   --nx-ink-3:   oklch(0.520 0.014 62);
   --nx-ink-4:   oklch(0.640 0.012 66);
-  --nx-accent:      oklch(0.640 0.135 68);
-  --nx-accent-2:    oklch(0.580 0.140 64);
+  --nx-accent:      oklch(0.600 0.112 76);
+  --nx-accent-2:    oklch(0.660 0.098 80);
   --nx-accent-ink:  oklch(0.995 0.005 90);
-  --nx-accent-soft: oklch(0.640 0.135 68 / 0.10);
-  --nx-accent-line: oklch(0.640 0.135 68 / 0.32);
+  --nx-accent-soft: oklch(0.600 0.112 76 / 0.10);
+  --nx-accent-line: oklch(0.600 0.112 76 / 0.32);
   --nx-good: oklch(0.560 0.130 155); --nx-good-soft: oklch(0.560 0.130 155 / 0.10); --nx-good-line: oklch(0.560 0.130 155 / 0.28);
   --nx-warn: oklch(0.620 0.130 75);  --nx-warn-soft: oklch(0.620 0.130 75 / 0.11);  --nx-warn-line: oklch(0.620 0.130 75 / 0.30);
   --nx-crit: oklch(0.550 0.190 22);  --nx-crit-soft: oklch(0.550 0.190 22 / 0.09);  --nx-crit-line: oklch(0.550 0.190 22 / 0.28);
@@ -196,6 +196,9 @@ html.nx-light {
     radial-gradient(120% 90% at 18% -12%, var(--nx-sky-1), transparent 55%),
     radial-gradient(110% 80% at 88% 8%, var(--nx-sky-3), transparent 52%),
     radial-gradient(130% 110% at 50% 118%, var(--nx-sky-2), transparent 58%),
+    /* champagne horizon glow — the premium signature */
+    radial-gradient(58% 34% at 74% 96%, oklch(0.80 0.095 84 / 0.13), transparent 70%),
+    radial-gradient(40% 22% at 12% 102%, oklch(0.78 0.085 74 / 0.09), transparent 65%),
     var(--nx-void);
 }
 .nx-sky::after {
@@ -257,7 +260,16 @@ html.nx-light {
   box-shadow: var(--nx-e4), 0 0 0 1px var(--nx-line);
   transition: box-shadow var(--nx-t) var(--nx-ease), opacity var(--nx-t) var(--nx-ease);
 }
-.nx-win-focused { box-shadow: var(--nx-e5), 0 0 0 1px var(--nx-line-2); }
+.nx-win-focused {
+  box-shadow: var(--nx-e5), 0 0 0 1px var(--nx-line-2);
+  position: relative;
+}
+/* champagne top-light on the focused window — the "alive" cue */
+.nx-win-focused::before {
+  content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 1px;
+  background: linear-gradient(90deg, transparent, oklch(0.87 0.09 86 / 0.55), transparent);
+  z-index: 1; pointer-events: none;
+}
 .nx-win-unfocused { opacity: 0.92; }
 .nx-win-unfocused .nx-win-body { opacity: 0.82; }
 .nx-win-max { border-radius: 0; }
@@ -522,7 +534,9 @@ html.nx-light {
   content: ""; position: absolute; inset: 0;
   background:
     radial-gradient(90% 70% at 50% -10%, var(--nx-sky-1), transparent 60%),
-    radial-gradient(80% 60% at 85% 110%, var(--nx-sky-2), transparent 55%);
+    radial-gradient(80% 60% at 85% 110%, var(--nx-sky-2), transparent 55%),
+    /* champagne wake behind the mark */
+    radial-gradient(46% 30% at 50% 58%, oklch(0.82 0.10 84 / 0.10), transparent 72%);
 }
 .nx-boot > * { position: relative; }
 .nx-boot-mark { animation: nx-boot-pulse 1.6s var(--nx-ease) infinite; }
