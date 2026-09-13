@@ -250,7 +250,15 @@ export const BillingModule = memo(function BillingModule() {
 
           {cart.length === 0 ? (
             <div className="grid h-48 place-items-center text-center">
-              <div><Pill className="mx-auto mb-2 h-8 w-8 text-[#1E2228]" /><p className="text-sm text-[#6B7280]">Search above to add medicines</p></div>
+              <div className="flex flex-col items-center gap-3">
+                <span className="grid h-12 w-12 place-items-center rounded-2xl border border-dashed border-[#2A2E35] bg-[#0D0F12]/60" aria-hidden="true">
+                  <Pill className="h-5 w-5 text-[#E8B04B]/50" />
+                </span>
+                <div>
+                  <p className="text-sm font-medium text-[#9CA3AF]">Search above to add medicines</p>
+                  <p className="mt-0.5 text-[0.65rem] text-[#6B7280]">AI Rx reading · interaction checks · GST built in</p>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -316,16 +324,26 @@ export const BillingModule = memo(function BillingModule() {
                 <button key={m} onClick={() => setPayMode(m)} className={cn("rounded-lg px-2.5 py-1.5 text-xs font-medium uppercase transition-colors", payMode === m ? "bg-[#F59E0B] text-black" : "text-[#6B7280] hover:text-white")}>{m}</button>
               ))}
             </div>
-            <button onClick={submit} disabled={billing || cart.length === 0} className="flex items-center justify-center gap-2 rounded-xl bg-[#F59E0B] px-6 py-2.5 text-sm font-bold text-black shadow-lg shadow-[#F59E0B]/20 transition-all hover:bg-[#D97706] disabled:opacity-50">
-              {billing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-              Complete Sale · ₹{totals.total}
+            <button onClick={submit} disabled={billing || cart.length === 0} className="btn-gold flex items-center justify-center gap-2 rounded-xl bg-[#F59E0B] px-6 py-2.5 text-sm font-bold text-black shadow-lg shadow-[#F59E0B]/20 transition-all hover:bg-[#D97706] disabled:opacity-50">
+              <span className="flex items-center justify-center gap-2">
+                {billing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                Complete Sale · ₹{totals.total}
+              </span>
             </button>
           </div>
         </div>
 
         {/* RIGHT — GST summary */}
         <div className="space-y-3">
-          <div className="rounded-2xl border border-[#1E2228] bg-[#111418] p-4">
+          <div
+            onMouseMove={(e) => {
+              const el = e.currentTarget;
+              const r = el.getBoundingClientRect();
+              el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+              el.style.setProperty("--my", `${e.clientY - r.top}px`);
+            }}
+            className="spotlight-card rounded-2xl border border-[#1E2228] bg-[#111418] p-4"
+          >
             <h3 className="mb-3 font-serif text-base font-semibold text-white">GST Summary</h3>
             {/* slab breakdown */}
             <div className="mb-3 space-y-1">
