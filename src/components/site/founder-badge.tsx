@@ -33,7 +33,7 @@ export function FounderBadge() {
           {/* Circular founder photo */}
           <div className="relative shrink-0">
             {/* Subtle ring glow */}
-            <div className="absolute -inset-1.5 rounded-full bg-gradient-to-br from-[#C8A55B]/25 to-[#D98B6E]/15 opacity-60 blur-[3px]" />
+            <div className="absolute -inset-1.5 rounded-full bg-gradient-to-br from-[#C8A55B]/25 to-[#D9B87C]/15 opacity-60 blur-[3px]" />
             <img
               src="/founder-arpit-circle-white.jpg"
               alt="Arpit Nayan — Founder & CEO, Nexura OS"

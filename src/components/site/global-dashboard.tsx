@@ -25,8 +25,8 @@ const NAVY = "#0F172A";
 const NAVY_2 = "#1E293B";
 const NAVY_3 = "#334155";
 const NAVY_4 = "#475569";
-const GOLD = "#F59E0B";
-const GOLD_DARK = "#D97706";
+const GOLD = "#A16207";
+const GOLD_DARK = "#8A5A04";
 const GOLD_LIGHT = "#FCD34D";
 const SLATE = "#64748B";
 const SLATE_LIGHT = "#94A3B8";
@@ -136,7 +136,7 @@ const STATUSES = [
   { id: "new", label: "New", icon: Sparkles, color: "#3B82F6" },
   { id: "estimate_sent", label: "Estimate Sent", icon: FileText, color: "#8B5CF6" },
   { id: "appointment_booked", label: "Consultation Booked", icon: Calendar, color: "#06B6D4" },
-  { id: "visa_processing", label: "Visa Stage", icon: Plane, color: "#F59E0B" },
+  { id: "visa_processing", label: "Visa Stage", icon: Plane, color: "#A16207" },
   { id: "arrived", label: "Arrived", icon: MapPin, color: "#10B981" },
   { id: "treatment_ongoing", label: "Treatment", icon: Activity, color: "#EF4444" },
   { id: "discharged", label: "Discharged", icon: CheckCircle2, color: "#22C55E" },
@@ -337,7 +337,7 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#3B82F6]/15 blur-3xl anim-aurora" />
         <div
-          className="absolute top-1/3 -right-32 h-80 w-80 rounded-full bg-[#F59E0B]/20 blur-3xl anim-aurora"
+          className="absolute top-1/3 -right-32 h-80 w-80 rounded-full bg-[#A16207]/20 blur-3xl anim-aurora"
           style={{ animationDelay: "-8s" }}
         />
         <div
@@ -362,7 +362,7 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
         >
           {/* Logo / brand */}
           <div className="mb-8 text-center">
-            <span className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] shadow-lg shadow-[#F59E0B]/30">
+            <span className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-[#A16207] to-[#8A5A04] shadow-lg shadow-[#A16207]/30">
               <Globe2 className="h-8 w-8 text-white" strokeWidth={2.2} />
             </span>
             <h1 className="font-serif text-2xl font-semibold tracking-tight text-white">
@@ -380,7 +380,7 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
             className="glass-dark rounded-2xl border border-white/10 p-6 shadow-2xl"
           >
             <div className="mb-5 flex items-center gap-2">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#F59E0B]/15 text-[#F59E0B]">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#A16207]/15 text-[#A16207]">
                 <Lock className="h-5 w-5" strokeWidth={2.2} />
               </span>
               <div>
@@ -403,7 +403,7 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                   placeholder="coordinator@nexura.global"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-4 text-sm text-white outline-none transition-colors placeholder:text-white/20 focus:border-[#F59E0B]/50 focus:bg-white/10"
+                  className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-4 text-sm text-white outline-none transition-colors placeholder:text-white/20 focus:border-[#A16207]/50 focus:bg-white/10"
                 />
               </div>
             </div>
@@ -421,7 +421,7 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                   placeholder="••••••••"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-12 text-sm text-white outline-none transition-colors placeholder:text-white/20 focus:border-[#F59E0B]/50 focus:bg-white/10"
+                  className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-12 text-sm text-white outline-none transition-colors placeholder:text-white/20 focus:border-[#A16207]/50 focus:bg-white/10"
                 />
                 <button
                   type="button"
@@ -443,8 +443,8 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
               </p>
             )}
 
-            <div className="mb-4 rounded-lg border border-[#F59E0B]/20 bg-[#F59E0B]/5 px-3 py-2">
-              <p className="flex items-center gap-1.5 text-[0.65rem] text-[#F59E0B]">
+            <div className="mb-4 rounded-lg border border-[#A16207]/20 bg-[#A16207]/5 px-3 py-2">
+              <p className="flex items-center gap-1.5 text-[0.65rem] text-[#A16207]">
                 <Sparkles className="h-3 w-3" />
                 Demo credentials pre-filled — just click Sign In
               </p>
@@ -453,7 +453,7 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
             <button
               onClick={handleLogin}
               disabled={loading || !email.trim() || !password.trim()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#D97706] py-3 text-sm font-semibold text-white shadow-lg shadow-[#F59E0B]/30 transition-all hover:scale-[1.02] hover:shadow-[#F59E0B]/50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#A16207] to-[#8A5A04] py-3 text-sm font-semibold text-white shadow-lg shadow-[#A16207]/30 transition-all hover:scale-[1.02] hover:shadow-[#A16207]/50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
             >
               {loading ? (
                 <>
@@ -558,7 +558,7 @@ function DashboardShell({
       <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0F172A]/95 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1600px] items-center gap-4 px-4 py-3 lg:px-6">
           <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] shadow-lg shadow-[#F59E0B]/20">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#A16207] to-[#8A5A04] shadow-lg shadow-[#A16207]/20">
               <Globe2 className="h-5 w-5 text-white" strokeWidth={2.2} />
             </span>
             <div className="hidden sm:block">
@@ -579,7 +579,7 @@ function DashboardShell({
                 onClick={() => setTab(t.id)}
                 className={`relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                   tab === t.id
-                    ? "bg-[#F59E0B] text-white shadow-sm"
+                    ? "bg-[#A16207] text-white shadow-sm"
                     : "text-white/60 hover:bg-white/5 hover:text-white"
                 }`}
               >
@@ -595,7 +595,7 @@ function DashboardShell({
               <span className="text-[0.65rem] text-white/60">Live</span>
             </div>
             <div className="flex items-center gap-2 rounded-full bg-white/5 py-1 pl-1 pr-3">
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-[0.65rem] font-bold text-white">
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-[#A16207] to-[#8A5A04] text-[0.65rem] font-bold text-white">
                 {coordinator.name
                   .split(" ")
                   .map((s) => s[0])
@@ -628,7 +628,7 @@ function DashboardShell({
               onClick={() => setTab(t.id)}
               className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                 tab === t.id
-                  ? "bg-[#F59E0B] text-white"
+                  ? "bg-[#A16207] text-white"
                   : "bg-white/5 text-white/60"
               }`}
             >
@@ -837,7 +837,7 @@ function InquiryCard({
     <motion.div
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group cursor-pointer rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:border-[#F59E0B]/40 hover:shadow-md"
+      className="group cursor-pointer rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:border-[#A16207]/40 hover:shadow-md"
       onClick={onClick}
     >
       <div className="flex items-start justify-between gap-2">
@@ -867,7 +867,7 @@ function InquiryCard({
           {fmtDate(inquiry.createdAt)}
         </span>
         {inquiry.estimatedCostUSD != null && (
-          <span className="text-[0.6rem] font-semibold text-[#F59E0B]">
+          <span className="text-[0.6rem] font-semibold text-[#A16207]">
             {usd(inquiry.estimatedCostUSD)}
           </span>
         )}
@@ -878,7 +878,7 @@ function InquiryCard({
           onMoveNext();
         }}
         disabled={loading || nextStatus(inquiry.status) === null}
-        className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg bg-slate-50 py-1 text-[0.6rem] font-medium text-slate-600 transition-colors hover:bg-[#F59E0B]/10 hover:text-[#D97706] disabled:cursor-not-allowed disabled:opacity-40"
+        className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg bg-slate-50 py-1 text-[0.6rem] font-medium text-slate-600 transition-colors hover:bg-[#A16207]/10 hover:text-[#8A5A04] disabled:cursor-not-allowed disabled:opacity-40"
       >
         {loading ? (
           <Loader2 className="h-3 w-3 animate-spin" />
@@ -1095,7 +1095,7 @@ function InquiryDetail({
         {/* Header */}
         <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-[#0F172A] p-5 text-white">
           <div className="flex items-start gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-lg font-bold text-white">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#A16207] to-[#8A5A04] text-lg font-bold text-white">
               {inquiry.patientName[0]}
             </span>
             <div>
@@ -1226,7 +1226,7 @@ function InquiryDetail({
                       className={`max-w-[85%] rounded-lg px-3 py-2 text-xs ${
                         m.from === "patient"
                           ? "bg-slate-100 text-[#1E293B]"
-                          : "bg-[#F59E0B] text-white"
+                          : "bg-[#A16207] text-white"
                       }`}
                     >
                       <p>{m.text}</p>
@@ -1307,7 +1307,7 @@ function Section({
   return (
     <div>
       <div className="mb-2 flex items-center gap-1.5">
-        <Icon className="h-3.5 w-3.5 text-[#F59E0B]" />
+        <Icon className="h-3.5 w-3.5 text-[#A16207]" />
         <h3 className="text-xs font-semibold uppercase tracking-wider text-[#475569]">
           {title}
         </h3>
@@ -1343,7 +1343,7 @@ function ActionButton({
 }) {
   const styles = {
     default: "border-slate-200 bg-white text-[#1E293B] hover:bg-slate-50",
-    primary: "bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-md shadow-[#F59E0B]/20 hover:scale-[1.02]",
+    primary: "bg-gradient-to-r from-[#A16207] to-[#8A5A04] text-white shadow-md shadow-[#A16207]/20 hover:scale-[1.02]",
     whatsapp: "bg-[#25D366] text-white shadow-md shadow-[#25D366]/20 hover:bg-[#1eb858]",
   }[variant];
   return (
@@ -1478,7 +1478,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
         {/* Form */}
         <div className="glass-soft rounded-2xl p-5 shadow-depth">
           <div className="mb-4 flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#F59E0B]/15 text-[#F59E0B]">
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#A16207]/15 text-[#A16207]">
               <Calculator className="h-4 w-4" />
             </span>
             <h3 className="text-sm font-semibold text-[#1E293B]">
@@ -1497,7 +1497,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
               setProcedureId(e.target.value);
               if (p) setStayDays(p.avgStayDays);
             }}
-            className="mb-4 h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#1E293B] outline-none transition-colors focus:border-[#F59E0B]/50"
+            className="mb-4 h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#1E293B] outline-none transition-colors focus:border-[#A16207]/50"
           >
             {procedures.length === 0 && (
               <option value="">No procedures configured</option>
@@ -1522,7 +1522,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
               onChange={(e) =>
                 setStayDays(Math.max(1, Math.min(60, Number(e.target.value) || 1)))
               }
-              className="h-11 w-24 rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#1E293B] outline-none focus:border-[#F59E0B]/50"
+              className="h-11 w-24 rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#1E293B] outline-none focus:border-[#A16207]/50"
             />
             {selectedProc && (
               <span className="text-[0.65rem] text-slate-400">
@@ -1546,14 +1546,14 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
                   }
                   className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition-all ${
                     checked
-                      ? "border-[#F59E0B]/50 bg-[#F59E0B]/5"
+                      ? "border-[#A16207]/50 bg-[#A16207]/5"
                       : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <span
                       className={`grid h-8 w-8 place-items-center rounded-lg ${
-                        checked ? "bg-[#F59E0B] text-white" : "bg-slate-100 text-slate-500"
+                        checked ? "bg-[#A16207] text-white" : "bg-slate-100 text-slate-500"
                       }`}
                     >
                       <e.icon className="h-4 w-4" />
@@ -1570,7 +1570,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
                   <div
                     className={`grid h-5 w-5 place-items-center rounded-md border ${
                       checked
-                        ? "border-[#F59E0B] bg-[#F59E0B] text-white"
+                        ? "border-[#A16207] bg-[#A16207] text-white"
                         : "border-slate-300"
                     }`}
                   >
@@ -1604,7 +1604,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
           <button
             onClick={generate}
             disabled={loading || !selectedProc}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#D97706] py-3 text-sm font-semibold text-white shadow-lg shadow-[#F59E0B]/30 transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#A16207] to-[#8A5A04] py-3 text-sm font-semibold text-white shadow-lg shadow-[#A16207]/30 transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
           >
             {loading ? (
               <>
@@ -1622,7 +1622,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
         <div className="glass-soft rounded-2xl p-5 shadow-depth">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#F59E0B]/15 text-[#F59E0B]">
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#A16207]/15 text-[#A16207]">
                 <Receipt className="h-4 w-4" />
               </span>
               <h3 className="text-sm font-semibold text-[#1E293B]">
@@ -1693,7 +1693,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
               </div>
 
               {/* Total */}
-              <div className="rounded-xl border-2 border-[#F59E0B]/30 bg-[#F59E0B]/5 p-4">
+              <div className="rounded-xl border-2 border-[#A16207]/30 bg-[#A16207]/5 p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-[#475569]">
                     Total USD
@@ -1702,11 +1702,11 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
                     {usd(result.totalUSD)}
                   </span>
                 </div>
-                <div className="mt-1 flex items-center justify-between border-t border-[#F59E0B]/20 pt-2">
+                <div className="mt-1 flex items-center justify-between border-t border-[#A16207]/20 pt-2">
                   <span className="text-xs font-medium text-[#475569]">
                     Total INR
                   </span>
-                  <span className="font-serif text-xl font-bold text-[#F59E0B]">
+                  <span className="font-serif text-xl font-bold text-[#A16207]">
                     {inr(result.totalINR)}
                   </span>
                 </div>
@@ -1821,7 +1821,7 @@ function PatientsSection({ inquiries }: { inquiries: Inquiry[] }) {
           icon={TrendingUp}
           label="Success Rate"
           value={`${successRate}%`}
-          accent="#F59E0B"
+          accent="#A16207"
         />
       </div>
 
@@ -2128,7 +2128,7 @@ function AnalyticsSection({ data }: { data: TourismData }) {
           label="Avg Revenue / Patient"
           value={usd(avgRevenue)}
           sub={`${international.length} international`}
-          accent="#F59E0B"
+          accent="#A16207"
         />
         <KpiCard
           icon={Globe2}
@@ -2193,7 +2193,7 @@ function AnalyticsSection({ data }: { data: TourismData }) {
         <ChartCard
           title="Top 3 Procedures by Inquiry"
           icon={Stethoscope}
-          accent="#F59E0B"
+          accent="#A16207"
         >
           {procedureChart.length === 0 ? (
             <EmptyChart />
@@ -2232,7 +2232,7 @@ function AnalyticsSection({ data }: { data: TourismData }) {
                   {procedureChart.map((_, i) => (
                     <Cell
                       key={i}
-                      fill={["#F59E0B", "#FBBF24", "#FCD34D"][i] || "#F59E0B"}
+                      fill={["#A16207", "#D9B87C", "#FCD34D"][i] || "#A16207"}
                     />
                   ))}
                 </Bar>
@@ -2256,7 +2256,7 @@ function AnalyticsSection({ data }: { data: TourismData }) {
         <ListCard
           title="Procedures"
           icon={Stethoscope}
-          accent="#F59E0B"
+          accent="#A16207"
           items={topProcedures.map((p) => ({
             label: p.procedure,
             value: `${p.count} inquiries`,

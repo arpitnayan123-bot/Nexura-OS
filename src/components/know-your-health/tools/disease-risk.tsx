@@ -110,9 +110,9 @@ export function DiseaseRisk() {
               <select value={f.alcohol} onChange={(e)=>set("alcohol", e.target.value)} className={inputCls}>{OPTIONS_ALCOHOL.map(o=><option key={o}>{o}</option>)}</select>
             </Field>
             <div className="flex flex-col gap-1.5">
-              <label className="flex items-center gap-2 text-xs text-[#1F1B17]"><input type="checkbox" checked={f.smoker} onChange={(e)=>set("smoker", e.target.checked)} className="accent-[#C98A7A]" /> Smoker</label>
-              <label className="flex items-center gap-2 text-xs text-[#1F1B17]"><input type="checkbox" checked={f.familyHistoryDiabetes} onChange={(e)=>set("familyHistoryDiabetes", e.target.checked)} className="accent-[#C98A7A]" /> Family history of diabetes</label>
-              <label className="flex items-center gap-2 text-xs text-[#1F1B17]"><input type="checkbox" checked={f.familyHistoryHeart} onChange={(e)=>set("familyHistoryHeart", e.target.checked)} className="accent-[#C98A7A]" /> Family history of heart disease</label>
+              <label className="flex items-center gap-2 text-xs text-[#1F1B17]"><input type="checkbox" checked={f.smoker} onChange={(e)=>set("smoker", e.target.checked)} className="accent-[#B8860B]" /> Smoker</label>
+              <label className="flex items-center gap-2 text-xs text-[#1F1B17]"><input type="checkbox" checked={f.familyHistoryDiabetes} onChange={(e)=>set("familyHistoryDiabetes", e.target.checked)} className="accent-[#B8860B]" /> Family history of diabetes</label>
+              <label className="flex items-center gap-2 text-xs text-[#1F1B17]"><input type="checkbox" checked={f.familyHistoryHeart} onChange={(e)=>set("familyHistoryHeart", e.target.checked)} className="accent-[#B8860B]" /> Family history of heart disease</label>
             </div>
           </div>
 
@@ -134,8 +134,8 @@ export function DiseaseRisk() {
             </ResultCard>
 
             <div className="grid gap-3 sm:grid-cols-3">
-              <RiskCard label="Type 2 Diabetes" risk={result.diabetesRisk} accent="#C98A7A" icon={<Droplet className="h-4 w-4" />} />
-              <RiskCard label="Cardiovascular (CVD)" risk={result.cvdRisk} accent="#D98B6E" icon={<HeartPulse className="h-4 w-4" />} />
+              <RiskCard label="Type 2 Diabetes" risk={result.diabetesRisk} accent="#B8860B" icon={<Droplet className="h-4 w-4" />} />
+              <RiskCard label="Cardiovascular (CVD)" risk={result.cvdRisk} accent="#A16207" icon={<HeartPulse className="h-4 w-4" />} />
               <RiskCard label="Chronic Kidney" risk={result.ckdRisk} accent="#9DB89E" icon={<ShieldAlert className="h-4 w-4" />} />
             </div>
 

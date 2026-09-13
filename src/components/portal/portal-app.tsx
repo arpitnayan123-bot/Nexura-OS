@@ -138,7 +138,7 @@ export function PortalApp() {
     return (
       <div className="grid min-h-screen place-items-center bg-[#FAF7F2]">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-[#D98B6E]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#A16207]" />
           <p className="text-sm text-stone-500">Loading your portal…</p>
         </div>
       </div>
@@ -149,7 +149,7 @@ export function PortalApp() {
     return (
       <div className="grid min-h-screen place-items-center bg-[#FAF7F2] px-4">
         <div className="max-w-md rounded-3xl border border-[#E7E5E4] bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#D98B6E]/15 text-[#D98B6E]">
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#A16207]/15 text-[#A16207]">
             <AlertTriangle className="h-7 w-7" />
           </div>
           <h2 className="mt-4 font-display text-xl font-semibold text-stone-800">
@@ -158,7 +158,7 @@ export function PortalApp() {
           <p className="mt-1 text-sm text-stone-500">{error}</p>
           <button
             onClick={() => fetchDashboard()}
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#D98B6E] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#C97759] active:scale-95"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#A16207] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#8A5A04] active:scale-95"
           >
             <RefreshCw className="h-4 w-4" />
             Retry
@@ -190,7 +190,7 @@ export function PortalApp() {
       <header className="sticky top-0 z-30 border-b border-[#E7E5E4] bg-white/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#D98B6E] to-[#9DB89E] text-white shadow-sm">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#A16207] to-[#7A9A7B] text-white shadow-sm">
               <HeartPulse className="h-5 w-5" />
             </span>
             <div className="hidden sm:block">
@@ -223,7 +223,7 @@ export function PortalApp() {
             >
               <Bell className="h-4 w-4" />
               {data?.aiInsights && data.aiInsights.length > 0 && (
-                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#D98B6E]" />
+                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#A16207]" />
               )}
             </button>
             <button
@@ -251,11 +251,11 @@ export function PortalApp() {
                   className={cn(
                     "group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-all",
                     active
-                      ? "bg-gradient-to-r from-[#D98B6E] to-[#C97759] text-white shadow-[0_6px_20px_-8px_oklch(0.65_0.13_45/0.5)]"
+                      ? "bg-gradient-to-r from-[#A16207] to-[#8A5A04] text-white shadow-[0_6px_20px_-8px_oklch(0.65_0.13_45/0.5)]"
                       : "text-stone-600 hover:bg-[#FAF7F2]"
                   )}
                 >
-                  <t.icon className={cn("h-4 w-4", active ? "text-white" : "text-stone-400 group-hover:text-[#D98B6E]")} />
+                  <t.icon className={cn("h-4 w-4", active ? "text-white" : "text-stone-400 group-hover:text-[#A16207]")} />
                   {t.label}
                   {active && (
                     <motion.span layoutId="tab-indicator" className="ml-auto h-1.5 w-1.5 rounded-full bg-white" />
@@ -271,7 +271,7 @@ export function PortalApp() {
               <p className="text-[0.65rem] font-medium uppercase tracking-wider text-stone-400">ABHA ID</p>
               <p className="mt-0.5 text-sm font-semibold text-stone-800">{user.abhaId ?? "—"}</p>
               <div className="mt-2 flex items-center gap-1.5 text-[0.7rem]">
-                <span className="rounded-full bg-[#D98B6E]/10 px-2 py-0.5 font-semibold text-[#D98B6E]">
+                <span className="rounded-full bg-[#A16207]/10 px-2 py-0.5 font-semibold text-[#A16207]">
                   {user.bloodGroup ?? "?"}
                 </span>
                 <span className="rounded-full bg-[#9DB89E]/15 px-2 py-0.5 font-semibold text-[#5E8A60]">ABHA on file</span>
@@ -342,7 +342,7 @@ export function PortalApp() {
                 onClick={() => setTab(t.id)}
                 className={cn(
                   "flex flex-col items-center gap-0.5 rounded-xl px-1 py-1.5 text-[0.65rem] font-medium transition-all",
-                  active ? "text-[#D98B6E]" : "text-stone-400"
+                  active ? "text-[#A16207]" : "text-stone-400"
                 )}
               >
                 <t.icon className={cn("h-5 w-5", active && "scale-110")} />
@@ -393,14 +393,14 @@ function DashboardSkeleton() {
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <div className="rounded-3xl border border-[#E7E5E4] bg-white p-8 text-center">
-      <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#D98B6E]/15 text-[#D98B6E]">
+      <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#A16207]/15 text-[#A16207]">
         <AlertTriangle className="h-7 w-7" />
       </div>
       <h2 className="mt-4 font-display text-lg font-semibold text-stone-800">Something went wrong</h2>
       <p className="mt-1 text-sm text-stone-500">{message}</p>
       <button
         onClick={onRetry}
-        className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#D98B6E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#C97759]"
+        className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#A16207] px-4 py-2 text-sm font-semibold text-white hover:bg-[#8A5A04]"
       >
         <RefreshCw className="h-4 w-4" />
         Retry

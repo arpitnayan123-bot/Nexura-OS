@@ -440,12 +440,12 @@ export function PharmacyDashboard() {
         <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-[#D98B6E] to-[#9DB89E]">
+              <span className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-[#A16207] to-[#7A9A7B]">
                 <Pill className="h-4 w-4 text-white" strokeWidth={2.4} />
               </span>
               <div className="leading-none">
                 <span className="font-serif text-sm font-semibold">
-                  Nexura<span className="text-[#D98B6E]"> Pharmacia</span>
+                  Nexura<span className="text-[#A16207]"> Pharmacia</span>
                 </span>
                 <p className="text-[0.55rem] uppercase tracking-[0.2em] text-[#9A8F84]">
                   AI Pharmacy POS
@@ -453,7 +453,7 @@ export function PharmacyDashboard() {
               </div>
             </Link>
             <span className="ml-2 hidden items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[0.65rem] font-medium shadow-sm ring-1 ring-[#E5DFD4] sm:flex">
-              <span className={cn("h-1.5 w-1.5 rounded-full", offline ? "bg-[#C98A7A]" : "bg-[#9DB89E] anim-breathe")} />
+              <span className={cn("h-1.5 w-1.5 rounded-full", offline ? "bg-[#B8860B]" : "bg-[#9DB89E] anim-breathe")} />
               {offline ? "Offline" : "Live"}
             </span>
           </div>

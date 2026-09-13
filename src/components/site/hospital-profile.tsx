@@ -46,7 +46,7 @@ const COST_COMPARISON: Record<string, { usa: number; uk: number; uae: number }> 
 
 const NAVY = "#0F172A";
 const NAVY_2 = "#1E293B";
-const GOLD = "#F59E0B";
+const GOLD = "#A16207";
 
 export function HospitalProfile() {
   const params = useParams();
@@ -203,7 +203,7 @@ export function HospitalProfile() {
                   {[
                     { label: "This Hospital (India)", cost: procedures[0].priceUSD, color: "#22C55E", highlight: true },
                     { label: "USA Average", cost: COST_COMPARISON[procedures[0].name].usa, color: "#EF4444" },
-                    { label: "UK Average", cost: COST_COMPARISON[procedures[0].name].uk, color: "#F59E0B" },
+                    { label: "UK Average", cost: COST_COMPARISON[procedures[0].name].uk, color: "#A16207" },
                     { label: "UAE Average", cost: COST_COMPARISON[procedures[0].name].uae, color: "#8B5CF6" },
                   ].map((row) => (
                     <div key={row.label} className="flex items-center gap-3">

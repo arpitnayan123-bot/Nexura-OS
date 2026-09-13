@@ -115,7 +115,7 @@ type InquiryModalState = {
 const NAVY = "#0F172A";
 const NAVY_2 = "#1E293B";
 const NAVY_3 = "#334155";
-const GOLD = "#F59E0B";
+const GOLD = "#A16207";
 const GREEN_IND = "#16A34A";
 
 const PROCEDURE_CATEGORIES: {
@@ -375,7 +375,7 @@ function Stars({ rating, className = "" }: { rating: number; className?: string 
         <Star
           key={i}
           className={`h-3.5 w-3.5 ${
-            i <= Math.round(rating) ? "fill-[#F59E0B] text-[#F59E0B]" : "fill-slate-200 text-slate-200"
+            i <= Math.round(rating) ? "fill-[#A16207] text-[#A16207]" : "fill-slate-200 text-slate-200"
           }`}
         />
       ))}
@@ -672,7 +672,7 @@ function TopNav({
             className="grid h-9 w-9 place-items-center rounded-xl shadow-md"
             style={{ background: `linear-gradient(135deg, ${NAVY}, ${NAVY_2})` }}
           >
-            <HeartPulse className="h-4.5 w-4.5 text-[#F59E0B]" strokeWidth={2.5} />
+            <HeartPulse className="h-4.5 w-4.5 text-[#A16207]" strokeWidth={2.5} />
           </span>
           <div className="leading-none">
             <p className="font-display text-base font-bold tracking-tight text-slate-900">
@@ -800,10 +800,10 @@ function Hero({
           transition={{ duration: 0.6 }}
           className="flex justify-center"
         >
-          <span className="badge-lux border-[#F59E0B]/35 bg-[#F59E0B]/10 text-[#FBBF24]">
+          <span className="badge-lux border-[#A16207]/35 bg-[#A16207]/10 text-[#D9B87C]">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#F59E0B] opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#F59E0B]" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#A16207] opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#A16207]" />
             </span>
             {t.heroBadge}
           </span>
@@ -820,7 +820,7 @@ function Hero({
           <span className="relative inline-block">
             <span style={{ color: GOLD }}>{t.heroTitle2}</span>
             <svg
-              className="absolute -bottom-2 left-0 w-full text-[#F59E0B]/60"
+              className="absolute -bottom-2 left-0 w-full text-[#A16207]/60"
               viewBox="0 0 300 12"
               fill="none"
               aria-hidden
@@ -864,7 +864,7 @@ function Hero({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && onSearch()}
                 placeholder={t.searchPlaceholder}
-                className="w-full rounded-xl border-0 bg-transparent py-3 pl-11 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40"
+                className="w-full rounded-xl border-0 bg-transparent py-3 pl-11 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#A16207]/40"
               />
             </div>
             <div className="relative sm:w-56">
@@ -872,7 +872,7 @@ function Hero({
               <select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-9 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40"
+                className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-9 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#A16207]/40"
                 aria-label={t.countryLabel}
               >
                 <option value="">{t.countryPlaceholder}</option>
@@ -901,7 +901,7 @@ function Hero({
               <button
                 key={q}
                 onClick={() => setSearchQuery(q)}
-                className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-slate-200 transition-colors hover:border-[#F59E0B]/50 hover:text-[#FBBF24]"
+                className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-slate-200 transition-colors hover:border-[#A16207]/50 hover:text-[#D9B87C]"
               >
                 {q}
               </button>
@@ -969,7 +969,7 @@ function ProcedureGrid({
                 }
                 className={`group relative flex flex-col items-start overflow-hidden rounded-2xl border p-5 text-left transition-all ${
                   isActive
-                    ? "border-[#F59E0B] bg-[#FFFBEB] shadow-lg"
+                    ? "border-[#A16207] bg-[#FFFBEB] shadow-lg"
                     : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
                 }`}
               >
@@ -982,7 +982,7 @@ function ProcedureGrid({
                   className="relative grid h-12 w-12 place-items-center rounded-xl transition-transform group-hover:scale-110"
                   style={{
                     background: isActive
-                      ? `linear-gradient(135deg, ${GOLD}, #D97706)`
+                      ? `linear-gradient(135deg, ${GOLD}, #8A5A04)`
                       : `linear-gradient(135deg, ${NAVY}, ${NAVY_2})`,
                   }}
                 >
@@ -992,7 +992,7 @@ function ProcedureGrid({
                   {cat.name}
                 </h3>
                 <p className="relative mt-1 text-[0.7rem] text-slate-500">{cat.blurb}</p>
-                <div className="relative mt-3 flex items-center gap-1 text-[0.7rem] font-semibold text-slate-400 transition-colors group-hover:text-[#D97706]">
+                <div className="relative mt-3 flex items-center gap-1 text-[0.7rem] font-semibold text-slate-400 transition-colors group-hover:text-[#8A5A04]">
                   {t.catExplore}
                   <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1 rtl:rotate-180" />
                 </div>
@@ -1042,7 +1042,7 @@ const HospitalDirectory = memo(function HospitalDirectory({
         {/* demo-data note — shown until live hospital rows arrive from the API */}
         {isDemoDirectory && (
           <div className="mt-6 flex justify-center">
-            <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-[#F59E0B]/30 bg-[#FFFBEB] px-4 py-1.5 text-xs font-medium text-[#92400E]">
+            <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-[#A16207]/30 bg-[#FFFBEB] px-4 py-1.5 text-xs font-medium text-[#92400E]">
               <Sparkles className="h-3.5 w-3.5 shrink-0" />
               Demo directory — live hospitals appear here as partners are onboarded
             </p>
@@ -1052,12 +1052,12 @@ const HospitalDirectory = memo(function HospitalDirectory({
         {/* active filter chip */}
         {activeCategory !== "all" && (
           <div className="mt-6 flex items-center justify-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#F59E0B]/30 bg-[#FFFBEB] px-4 py-1.5 text-xs font-medium text-[#92400E]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#F59E0B]" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#A16207]/30 bg-[#FFFBEB] px-4 py-1.5 text-xs font-medium text-[#92400E]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#A16207]" />
               {PROCEDURE_CATEGORIES.find((c) => c.id === activeCategory)?.name}
               <button
                 onClick={() => setActiveCategory("all")}
-                className="ml-1 rounded-full p-0.5 hover:bg-[#F59E0B]/20"
+                className="ml-1 rounded-full p-0.5 hover:bg-[#A16207]/20"
                 aria-label="Clear filter"
               >
                 <X className="h-3 w-3" />
@@ -1109,7 +1109,7 @@ function HospitalCard({
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-xl"
     >
       {/* gold accent top bar */}
-      <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${GOLD}, #D97706)` }} />
+      <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${GOLD}, #8A5A04)` }} />
 
       <div className="flex flex-1 flex-col p-6">
         {/* header: name + rating */}
@@ -1141,13 +1141,13 @@ function HospitalCard({
         {/* accreditation badges */}
         <div className="mt-4 flex flex-wrap gap-1.5">
           {hasNABH && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#F59E0B]/30 bg-[#FFFBEB] px-2.5 py-1 text-[0.65rem] font-bold text-[#92400E]">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#A16207]/30 bg-[#FFFBEB] px-2.5 py-1 text-[0.65rem] font-bold text-[#92400E]">
               <ShieldCheck className="h-3 w-3" />
               {t.nabhBadge}
             </span>
           )}
           {hasJCI && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#F59E0B]/30 bg-[#FFFBEB] px-2.5 py-1 text-[0.65rem] font-bold text-[#92400E]">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#A16207]/30 bg-[#FFFBEB] px-2.5 py-1 text-[0.65rem] font-bold text-[#92400E]">
               <BadgeCheck className="h-3 w-3" />
               {t.jciBadge}
             </span>
@@ -1360,8 +1360,8 @@ function HowItWorks({ t }: { t: typeof I18N["en"] }) {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-[#FBBF24]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#F59E0B]" />
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-[#D9B87C]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#A16207]" />
             {t.howTitle}
           </span>
           <h2 className="mx-auto mt-4 max-w-2xl font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -1399,7 +1399,7 @@ function HowItWorks({ t }: { t: typeof I18N["en"] }) {
                   </span>
                 </div>
                 <div className="mt-4 text-center">
-                  <span className="inline-block rounded-full border border-[#F59E0B]/30 bg-[#F59E0B]/10 px-2.5 py-0.5 text-[0.65rem] font-bold text-[#FBBF24]">
+                  <span className="inline-block rounded-full border border-[#A16207]/30 bg-[#A16207]/10 px-2.5 py-0.5 text-[0.65rem] font-bold text-[#D9B87C]">
                     {s.badge}
                   </span>
                   <h3 className="mt-3 font-display text-base font-bold text-white">{s.title}</h3>
@@ -1553,7 +1553,7 @@ function GlobalFooter({ t }: { t: typeof I18N["en"] }) {
                 className="grid h-9 w-9 place-items-center rounded-xl"
                 style={{ background: `linear-gradient(135deg, ${NAVY}, ${NAVY_2})` }}
               >
-                <HeartPulse className="h-4.5 w-4.5 text-[#F59E0B]" strokeWidth={2.5} />
+                <HeartPulse className="h-4.5 w-4.5 text-[#A16207]" strokeWidth={2.5} />
               </span>
               <div className="leading-none">
                 <p className="font-display text-base font-bold text-slate-900">
@@ -1565,12 +1565,12 @@ function GlobalFooter({ t }: { t: typeof I18N["en"] }) {
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-500">{t.footerAbout}</p>
             <div className="mt-5 flex items-center gap-2">
               <span
-                className="inline-flex items-center gap-1 rounded-full border border-[#F59E0B]/30 bg-[#FFFBEB] px-2.5 py-1 text-[0.6rem] font-bold text-[#92400E]"
+                className="inline-flex items-center gap-1 rounded-full border border-[#A16207]/30 bg-[#FFFBEB] px-2.5 py-1 text-[0.6rem] font-bold text-[#92400E]"
               >
                 <ShieldCheck className="h-3 w-3" />
                 NABH
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#F59E0B]/30 bg-[#FFFBEB] px-2.5 py-1 text-[0.6rem] font-bold text-[#92400E]">
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#A16207]/30 bg-[#FFFBEB] px-2.5 py-1 text-[0.6rem] font-bold text-[#92400E]">
                 <BadgeCheck className="h-3 w-3" />
                 JCI
               </span>
@@ -1768,7 +1768,7 @@ function InquiryModal({
               <Stethoscope className="h-5 w-5 text-white" strokeWidth={1.9} />
             </span>
             <div>
-              <p className="text-[0.65rem] uppercase tracking-wider text-[#FBBF24]">Free Estimate Request</p>
+              <p className="text-[0.65rem] uppercase tracking-wider text-[#D9B87C]">Free Estimate Request</p>
               <h2 className="font-display text-lg font-bold leading-tight">{hospital.name}</h2>
             </div>
           </div>
@@ -1789,7 +1789,7 @@ function InquiryModal({
                 <input
                   name="name"
                   required
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#F59E0B] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/20"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#A16207] focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
                   placeholder="e.g. Ahmed Al-Rashid"
                 />
               </Field>
@@ -1800,7 +1800,7 @@ function InquiryModal({
                   name="email"
                   type="email"
                   required
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#F59E0B] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/20"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#A16207] focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
                   placeholder="you@example.com"
                 />
               </Field>
@@ -1811,7 +1811,7 @@ function InquiryModal({
                   <select
                     name="countryCode"
                     defaultValue="+971"
-                    className="w-28 shrink-0 rounded-lg border border-slate-200 bg-white px-2 py-2.5 text-sm text-slate-900 focus:border-[#F59E0B] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/20"
+                    className="w-28 shrink-0 rounded-lg border border-slate-200 bg-white px-2 py-2.5 text-sm text-slate-900 focus:border-[#A16207] focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
                   >
                     {COUNTRIES.map((c) => (
                       <option key={c.code} value={c.dial}>
@@ -1823,7 +1823,7 @@ function InquiryModal({
                     name="phone"
                     type="tel"
                     required
-                    className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#F59E0B] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/20"
+                    className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#A16207] focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
                     placeholder="50 123 4567"
                   />
                 </div>
@@ -1835,7 +1835,7 @@ function InquiryModal({
                   name="country"
                   required
                   defaultValue=""
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-[#F59E0B] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/20"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-[#A16207] focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
                 >
                   <option value="" disabled>
                     Select your country
@@ -1854,7 +1854,7 @@ function InquiryModal({
                   name="procedure"
                   required
                   defaultValue={procedure || ""}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-[#F59E0B] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/20"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-[#A16207] focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
                 >
                   <option value="" disabled>
                     Select a procedure
@@ -1874,7 +1874,7 @@ function InquiryModal({
                   name="condition"
                   required
                   rows={4}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#F59E0B] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/20"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#A16207] focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
                   placeholder="Briefly describe your medical condition, diagnosis, current treatment, and any prior surgeries."
                 />
               </Field>
@@ -1900,7 +1900,7 @@ function InquiryModal({
                 type="submit"
                 disabled={submitState === "submitting"}
                 className="flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-lg transition-transform hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70"
-                style={{ background: `linear-gradient(135deg, ${GOLD}, #D97706)` }}
+                style={{ background: `linear-gradient(135deg, ${GOLD}, #8A5A04)` }}
               >
                 {submitState === "submitting" ? (
                   <>

@@ -49,7 +49,7 @@ const VARIANTS: Record<SegmentErrorVariant, VariantStyle> = {
     ghost: "border border-white/25 hover:bg-white/10 opacity-90",
   },
   /* /clinic /pharmacy /portal — light warm panels on the #FAF7F2 canvas.
-     Accent: Liquid Gold (platform brand) — was pre-gold coral #D98B6E. */
+     Accent: Liquid Gold (platform brand) — replaces the pre-gold coral. */
   warm: {
     shell: "grid min-h-screen place-items-center bg-[#FAF7F2] px-4",
     panel: "w-full max-w-md rounded-2xl bg-white p-8 text-center ring-1 ring-[#EFE9E0] shadow-depth",
@@ -81,7 +81,7 @@ const VARIANTS: Record<SegmentErrorVariant, VariantStyle> = {
     ghost: "border border-slate-200 text-slate-600 hover:bg-slate-100",
   },
   /* /know-your-health — KYH glass aesthetic on the #FAF7F2 mesh,
-     Liquid Gold accent (was pre-gold rose #C98A7A). */
+     Liquid Gold accent (replaces the pre-gold rose). */
   kyh: {
     shell: "mesh-bg grid min-h-screen place-items-center bg-[#FAF7F2] px-4",
     panel: "glass-soft shadow-depth w-full max-w-md rounded-2xl p-6 text-center sm:p-8",

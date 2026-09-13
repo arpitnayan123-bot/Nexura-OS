@@ -20,7 +20,7 @@ export function ToolHeader({ title, tagline, icon: Icon, accent, inspiration }: 
   );
 }
 
-export function RunButton({ onClick, loading, disabled, label="Analyze with AI", accent="#D98B6E" }: { onClick:()=>void; loading:boolean; disabled?:boolean; label?:string; accent?:string }) {
+export function RunButton({ onClick, loading, disabled, label="Analyze with AI", accent="#A16207" }: { onClick:()=>void; loading:boolean; disabled?:boolean; label?:string; accent?:string }) {
   return (
     <button onClick={onClick} disabled={loading||disabled} className="group flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-depth transition-all hover:scale-[1.02] hover:shadow-depth-lg disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100" style={{ background:`linear-gradient(135deg, ${accent}, ${accent}cc)` }}>
       {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing…</> : <><Sparkles className="h-4 w-4" /> {label}</>}
@@ -51,7 +51,7 @@ export function ImageUploader({ image, onPick, onClear, accent="#9DB89E", label=
         {image ? (
           <div className="relative w-full">
             <img src={image.previewUrl} alt="Uploaded" className="mx-auto max-h-56 rounded-xl object-contain shadow-depth" />
-            <button type="button" onClick={(e)=>{e.preventDefault();e.stopPropagation();onClear();}} className="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-full bg-[#1F1B17] text-white shadow-depth hover:bg-[#C98A7A]"><X className="h-3.5 w-3.5" /></button>
+            <button type="button" onClick={(e)=>{e.preventDefault();e.stopPropagation();onClear();}} className="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-full bg-[#1F1B17] text-white shadow-depth hover:bg-[#B8860B]"><X className="h-3.5 w-3.5" /></button>
           </div>
         ) : (
           <>
@@ -85,7 +85,7 @@ export function ResultCard({ children, accent="#9DB89E", title }: { children:Rea
 }
 
 export function SeverityBadge({ level }: { level:"low"|"moderate"|"high"|"emergency"|"normal"|"info" }) {
-  const styles: Record<string,{bg:string;text:string;label:string}> = { low:{bg:"#9DB89E15",text:"#5A7A5B",label:"Low"}, moderate:{bg:"#E0B08015",text:"#B8893D",label:"Moderate"}, high:{bg:"#C98A7A15",text:"#9A6A5A",label:"High"}, emergency:{bg:"#C98A7A20",text:"#7A4A3A",label:"Emergency"}, normal:{bg:"#9DB89E15",text:"#5A7A5B",label:"Normal"}, info:{bg:"#7A9A7B15",text:"#4A6A4B",label:"Info"} };
+  const styles: Record<string,{bg:string;text:string;label:string}> = { low:{bg:"#9DB89E15",text:"#5A7A5B",label:"Low"}, moderate:{bg:"#C9962E15",text:"#B8893D",label:"Moderate"}, high:{bg:"#A1620715",text:"#8A5A04",label:"High"}, emergency:{bg:"#A1620720",text:"#7A4A3A",label:"Emergency"}, normal:{bg:"#9DB89E15",text:"#5A7A5B",label:"Normal"}, info:{bg:"#7A9A7B15",text:"#4A6A4B",label:"Info"} };
   const s = styles[level] || styles.info;
   return <span className="rounded-full px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider" style={{ background:s.bg, color:s.text }}>{s.label}</span>;
 }

@@ -30,25 +30,25 @@ type NavEntry = {
 };
 
 const PRODUCTS: NavEntry[] = [
-  { id: "hospital", name: "Hospital OS", sub: "Flagship · HMS", desc: "22-module hospital operating system — OPD, IPD, OT, EHR, Nursing, Lab, Radiology, Blood Bank, Billing, Insurance, AI Assistant. ABDM-ready workflows.", icon: Building2, accent: "#C98A7A", href: "/hospital", badge: "Flagship", group: "products" },
-  { id: "predictive", name: "Nexura Predictive", sub: "Health Foresight Engine", desc: "Healthcare is Reactive. But Nexura is Predictive. Twelve disease-risk domains mapped from symptoms, diet, BMI, fitness, sleep and history — calibrated for India.", icon: BrainCircuit, accent: "#7C3AED", href: "/predictive", badge: "AI 2.0", group: "products" },
-  { id: "clinic", name: "Clinic OS", sub: "EMR", desc: "HealthPlix-style EMR with SOAP consultation, drug autocomplete with interaction guard, ABHA lookup (simulated), public booking page.", icon: Stethoscope, accent: "#D98B6E", href: "/clinic", badge: "New", group: "products" },
-  { id: "pharmacy", name: "Pharmacia", sub: "POS", desc: "AI-powered pharmacy POS with voice billing, prescription OCR, GST e-invoice, Schedule H register, predictive analytics.", icon: Pill, accent: "#F59E0B", href: "/pharmacy", badge: "New", group: "products" },
-  { id: "portal", name: "Patient Portal", sub: "Unified Health", desc: "Unified health record across all products. Blood test at home with phlebotomist visit + AI report interpretation.", icon: HeartPulse, accent: "#0EA5E9", href: "/portal", badge: "New", group: "products" },
-  { id: "connect", name: "Nexura Connect", sub: "Communication", desc: "Doctor-patient chat, call coordination & Rx sync across all products.", icon: MessageCircle, accent: "#10B981", href: "/connect", group: "products" },
-  { id: "kyh", name: "Know Your Health", sub: "AI Tools", desc: "15 AI tools — symptom checker, derma scan, X-ray reader, diet planner, lab analyzer & more.", icon: Sparkles, accent: "#9DB89E", href: "/know-your-health", group: "products" },
-  { id: "global", name: "Nexura Global", sub: "Medical Tourism", desc: "World-class Indian healthcare for global patients. Discovery portal, cost calculator, coordinator dashboard.", icon: Globe, accent: "#1E40AF", href: "/global", group: "products" },
-  { id: "diy", name: "Nexura DIY", sub: "Free · No sign-in", desc: "Tell it like it is — one chat builds a safe, realistic wellness roadmap with safety screen and honest timeframes.", icon: Sprout, accent: "#D98B6E", href: "/diy", badge: "New", group: "products" },
+  { id: "hospital", name: "Hospital OS", sub: "Flagship · HMS", desc: "22-module hospital operating system — OPD, IPD, OT, EHR, Nursing, Lab, Radiology, Blood Bank, Billing, Insurance, AI Assistant. ABDM-ready workflows.", icon: Building2, accent: "#A16207", href: "/hospital", badge: "Flagship", group: "products" },
+  { id: "predictive", name: "Nexura Predictive", sub: "Health Foresight Engine", desc: "Healthcare is Reactive. But Nexura is Predictive. Twelve disease-risk domains mapped from symptoms, diet, BMI, fitness, sleep and history — calibrated for India.", icon: BrainCircuit, accent: "#A16207", href: "/predictive", badge: "AI 2.0", group: "products" },
+  { id: "clinic", name: "Clinic OS", sub: "EMR", desc: "HealthPlix-style EMR with SOAP consultation, drug autocomplete with interaction guard, ABHA lookup (simulated), public booking page.", icon: Stethoscope, accent: "#A16207", href: "/clinic", badge: "New", group: "products" },
+  { id: "pharmacy", name: "Pharmacia", sub: "POS", desc: "AI-powered pharmacy POS with voice billing, prescription OCR, GST e-invoice, Schedule H register, predictive analytics.", icon: Pill, accent: "#A16207", href: "/pharmacy", badge: "New", group: "products" },
+  { id: "portal", name: "Patient Portal", sub: "Unified Health", desc: "Unified health record across all products. Blood test at home with phlebotomist visit + AI report interpretation.", icon: HeartPulse, accent: "#A16207", href: "/portal", badge: "New", group: "products" },
+  { id: "connect", name: "Nexura Connect", sub: "Communication", desc: "Doctor-patient chat, call coordination & Rx sync across all products.", icon: MessageCircle, accent: "#A16207", href: "/connect", group: "products" },
+  { id: "kyh", name: "Know Your Health", sub: "AI Tools", desc: "15 AI tools — symptom checker, derma scan, X-ray reader, diet planner, lab analyzer & more.", icon: Sparkles, accent: "#A16207", href: "/know-your-health", group: "products" },
+  { id: "global", name: "Nexura Global", sub: "Medical Tourism", desc: "World-class Indian healthcare for global patients. Discovery portal, cost calculator, coordinator dashboard.", icon: Globe, accent: "#A16207", href: "/global", group: "products" },
+  { id: "diy", name: "Nexura DIY", sub: "Free · No sign-in", desc: "Tell it like it is — one chat builds a safe, realistic wellness roadmap with safety screen and honest timeframes.", icon: Sprout, accent: "#A16207", href: "/diy", badge: "New", group: "products" },
   { id: "founder", name: "The Founder", sub: "Arpit Nayan", desc: "The story behind Nexura OS — from Bihar to building an operating system for health.", icon: HeartPulse, accent: "#C8A55B", href: "/founder", badge: "Story", group: "products" },
 ];
 
 const ACTIONS: NavEntry[] = [
-  { id: "book", name: "Book Appointment", sub: "Schedule a visit", desc: "Book a doctor appointment", icon: Clock, accent: "#D98B6E", href: "#book", group: "actions" },
-  { id: "symptoms", name: "Check Symptoms", sub: "AI triage", desc: "AI-powered symptom checker", icon: Sparkles, accent: "#9DB89E", href: "/know-your-health#symptoms-checker", group: "actions" },
-  { id: "connect-doc", name: "Chat with Doctor", sub: "Nexura Connect", desc: "Start a conversation", icon: MessageCircle, accent: "#10B981", href: "/connect/patient", group: "actions" },
-  { id: "investors", name: "Investor Deck", sub: "Seed Round", desc: "Vision, market, traction, ask", icon: TrendingUp, accent: "#D98B6E", href: "/investors", group: "actions" },
-  { id: "pricing", name: "Pricing", sub: "SaaS Plans", desc: "Transparent pricing in INR", icon: TrendingUp, accent: "#E0B080", href: "/pricing", group: "actions" },
-  { id: "compliance", name: "Compliance", sub: "Regulatory", desc: "ABDM, DPDP, NABH, CDSCO, IRDAI", icon: Shield, accent: "#9DB89E", href: "/compliance", group: "actions" },
+  { id: "book", name: "Book Appointment", sub: "Schedule a visit", desc: "Book a doctor appointment", icon: Clock, accent: "#A16207", href: "#book", group: "actions" },
+  { id: "symptoms", name: "Check Symptoms", sub: "AI triage", desc: "AI-powered symptom checker", icon: Sparkles, accent: "#A16207", href: "/know-your-health#symptoms-checker", group: "actions" },
+  { id: "connect-doc", name: "Chat with Doctor", sub: "Nexura Connect", desc: "Start a conversation", icon: MessageCircle, accent: "#A16207", href: "/connect/patient", group: "actions" },
+  { id: "investors", name: "Investor Deck", sub: "Seed Round", desc: "Vision, market, traction, ask", icon: TrendingUp, accent: "#A16207", href: "/investors", group: "actions" },
+  { id: "pricing", name: "Pricing", sub: "SaaS Plans", desc: "Transparent pricing in INR", icon: TrendingUp, accent: "#A16207", href: "/pricing", group: "actions" },
+  { id: "compliance", name: "Compliance", sub: "Regulatory", desc: "ABDM, DPDP, NABH, CDSCO, IRDAI", icon: Shield, accent: "#A16207", href: "/compliance", group: "actions" },
 ];
 
 export function HamburgerMenu() {

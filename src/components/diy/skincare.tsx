@@ -85,9 +85,9 @@ export function Skincare() {
                 key={l.key}
                 onClick={() => setLevel(l.key)}
                 aria-pressed={level === l.key}
-                className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition ${level === l.key ? "border-[#C96F45] bg-[#FDF3E7]" : "border-[#EADDC7] bg-[#FFFDF8] hover:border-[#D9C8AC]"}`}
+                className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition ${level === l.key ? "border-[#B8860B] bg-[#FDF3E7]" : "border-[#EADDC7] bg-[#FFFDF8] hover:border-[#D9C8AC]"}`}
               >
-                <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${level === l.key ? "border-[#C96F45] bg-[#C96F45] text-white" : "border-[#D9C8AC]"}`}>
+                <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${level === l.key ? "border-[#B8860B] bg-[#A16207] text-[#FFFDF6]" : "border-[#D9C8AC]"}`}>
                   {level === l.key && <Check size={12} aria-hidden />}
                 </span>
                 <span>
@@ -99,11 +99,11 @@ export function Skincare() {
           </div>
           <div className="mt-4 space-y-2 text-xs text-[#6B5D4E]">
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={sensitive} onChange={(e) => setSensitive(e.target.checked)} className="accent-[#B05A34]" />
+              <input type="checkbox" checked={sensitive} onChange={(e) => setSensitive(e.target.checked)} className="accent-[#A16207]" />
               Sensitive skin (reacts easily)
             </label>
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={pregnant} onChange={(e) => setPregnant(e.target.checked)} className="accent-[#B05A34]" />
+              <input type="checkbox" checked={pregnant} onChange={(e) => setPregnant(e.target.checked)} className="accent-[#A16207]" />
               Pregnant or breastfeeding (actives are removed — obstetrician-guided only)
             </label>
           </div>

@@ -19,8 +19,8 @@ const PRODUCTS = [
     tagline: "Complete HMS",
     desc: "Epic + Oracle inspired — OPD, IPD, OT, EHR, nursing station, BPA alerts, AI clinical intelligence, insurance & TPA, blood bank, staff management, ABHA, WhatsApp.",
     href: "/hospital",
-    accent: "#C98A7A",
-    gradient: "from-[#C98A7A] to-[#A96A5A]",
+    accent: "#A16207",
+    gradient: "from-[#8F5E06] to-[#D9B87C]",
     badge: "Flagship",
   },
   {
@@ -29,8 +29,8 @@ const PRODUCTS = [
     tagline: "Medical Tourism",
     desc: "World-class Indian healthcare for global patients. Discovery portal, cost calculator, hospital profiles, coordinator dashboard.",
     href: "/global",
-    accent: "#1E40AF",
-    gradient: "from-[#0F172A] to-[#1E40AF]",
+    accent: "#A16207",
+    gradient: "from-[#5C4408] to-[#B8860B]",
     badge: "New",
   },
   {
@@ -39,8 +39,8 @@ const PRODUCTS = [
     tagline: "Doctor-Patient Link",
     desc: "Unified chat, voice & video. Auto-connects when consultations complete or symptom triage flags urgency.",
     href: "/connect",
-    accent: "#D98B6E",
-    gradient: "from-[#D98B6E] to-[#C97A5D]",
+    accent: "#A16207",
+    gradient: "from-[#8F5E06] to-[#D9B87C]",
     badge: "New",
   },
   {
@@ -49,8 +49,8 @@ const PRODUCTS = [
     tagline: "AI Health Tools",
     desc: "15 AI tools — symptom checker, lab analyzer, derma scan, X-ray reader, diet planner & more. Powered by Gemini.",
     href: "/know-your-health",
-    accent: "#9DB89E",
-    gradient: "from-[#9DB89E] to-[#7DA88E]",
+    accent: "#A16207",
+    gradient: "from-[#8F5E06] to-[#D9B87C]",
     badge: "New",
   },
   {
@@ -59,8 +59,8 @@ const PRODUCTS = [
     tagline: "Hospital operating system",
     desc: "AI diagnostics, continuous monitoring & living care plans for patients.",
     href: "#top",
-    accent: "#D98B6E",
-    gradient: "from-[#D98B6E] to-[#E0B080]",
+    accent: "#A16207",
+    gradient: "from-[#8F5E06] to-[#D9B87C]",
   },
 ];
 

@@ -20,13 +20,13 @@ const FILTERS = [
 type FilterId = (typeof FILTERS)[number]["id"];
 
 const TYPE_META: Record<string, { color: string; bg: string; icon: typeof CalendarDays }> = {
-  appointment: { color: "text-[#D98B6E]", bg: "bg-[#D98B6E]/10", icon: Stethoscope },
+  appointment: { color: "text-[#A16207]", bg: "bg-[#A16207]/10", icon: Stethoscope },
   admission: { color: "text-[#B85A3F]", bg: "bg-[#B85A3F]/10", icon: Activity },
   vital: { color: "text-[#5E8A60]", bg: "bg-[#9DB89E]/15", icon: Activity },
-  bill: { color: "text-[#A87C45]", bg: "bg-[#E0B080]/15", icon: IndianRupee },
+  bill: { color: "text-[#A87C45]", bg: "bg-[#C9962E]/15", icon: IndianRupee },
   insurance: { color: "text-[#0284C7]", bg: "bg-[#0EA5E9]/10", icon: ShieldCheck },
-  lab: { color: "text-[#A87C45]", bg: "bg-[#E0B080]/15", icon: Beaker },
-  blood_booking: { color: "text-[#D98B6E]", bg: "bg-[#D98B6E]/10", icon: FlaskConical },
+  lab: { color: "text-[#A87C45]", bg: "bg-[#C9962E]/15", icon: Beaker },
+  blood_booking: { color: "text-[#A16207]", bg: "bg-[#A16207]/10", icon: FlaskConical },
 };
 
 export function RecordsTab({ data }: { data: DashboardData }) {
@@ -46,7 +46,7 @@ export function RecordsTab({ data }: { data: DashboardData }) {
         className="rounded-3xl border border-[#E7E5E4] bg-white p-5 shadow-sm sm:p-6"
       >
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#D98B6E]/10 text-[#D98B6E]">
+          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#A16207]/10 text-[#A16207]">
             <FileText className="h-5 w-5" />
           </span>
           <div>
@@ -66,7 +66,7 @@ export function RecordsTab({ data }: { data: DashboardData }) {
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all",
                   active
-                    ? "bg-[#D98B6E] text-white shadow-sm"
+                    ? "bg-[#A16207] text-white shadow-sm"
                     : "border border-[#E7E5E4] bg-white text-stone-500 hover:bg-[#FAF7F2]"
                 )}
               >
@@ -130,7 +130,7 @@ function RecordRow({ event, delay }: { event: TimelineEvent; delay: number }) {
         </div>
         <p className="mt-0.5 truncate text-xs text-stone-500">{event.subtitle}</p>
         {isBill && billAmount > 0 && (
-          <p className="mt-1 font-display text-sm font-semibold text-[#D98B6E]">
+          <p className="mt-1 font-display text-sm font-semibold text-[#A16207]">
             ₹{billAmount.toLocaleString("en-IN")}
           </p>
         )}

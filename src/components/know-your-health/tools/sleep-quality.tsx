@@ -62,8 +62,8 @@ export function SleepQuality() {
     const c = (cat || "").toLowerCase();
     if (c.includes("excellent")) return "#5A7A5B";
     if (c.includes("good")) return "#9DB89E";
-    if (c.includes("fair")) return "#E0B080";
-    return "#C98A7A";
+    if (c.includes("fair")) return "#C9962E";
+    return "#B8860B";
   };
 
   return (
@@ -94,8 +94,8 @@ export function SleepQuality() {
 
           <div className="rounded-2xl glass-soft p-4 shadow-depth">
             <div className="grid grid-cols-2 gap-3">
-              <label className="flex items-center gap-2 text-xs text-[#1F1B17]"><input type="checkbox" checked={f.caffeineAfternoon} onChange={(e)=>set("caffeineAfternoon", e.target.checked)} className="accent-[#C98A7A]" /> <Coffee className="h-3.5 w-3.5 text-[#9A6A5A]" /> Had tea/coffee after 4pm</label>
-              <label className="flex items-center gap-2 text-xs text-[#1F1B17]"><input type="checkbox" checked={f.screenBeforeBed} onChange={(e)=>set("screenBeforeBed", e.target.checked)} className="accent-[#C98A7A]" /> <Smartphone className="h-3.5 w-3.5 text-[#9A6A5A]" /> Used phone in bed</label>
+              <label className="flex items-center gap-2 text-xs text-[#1F1B17]"><input type="checkbox" checked={f.caffeineAfternoon} onChange={(e)=>set("caffeineAfternoon", e.target.checked)} className="accent-[#B8860B]" /> <Coffee className="h-3.5 w-3.5 text-[#8A5A04]" /> Had tea/coffee after 4pm</label>
+              <label className="flex items-center gap-2 text-xs text-[#1F1B17]"><input type="checkbox" checked={f.screenBeforeBed} onChange={(e)=>set("screenBeforeBed", e.target.checked)} className="accent-[#B8860B]" /> <Smartphone className="h-3.5 w-3.5 text-[#8A5A04]" /> Used phone in bed</label>
             </div>
             <div className="mt-3">
               <label className="mb-1 block text-[0.65rem] font-semibold uppercase tracking-wider text-[#9A8F84]">Notes (optional)</label>
@@ -143,7 +143,7 @@ export function SleepQuality() {
             </div>
 
             {result.patternsDetected?.length > 0 && (
-              <ResultCard accent="#E0B080" title="Patterns Detected">
+              <ResultCard accent="#C9962E" title="Patterns Detected">
                 <div className="space-y-2.5">
                   {result.patternsDetected.map((p, i) => (
                     <div key={i} className="flex items-start gap-3 rounded-xl bg-[#FAF7F2]/60 p-2.5">
@@ -159,10 +159,10 @@ export function SleepQuality() {
             )}
 
             {result.issues?.length > 0 && (
-              <ResultCard accent="#C98A7A" title="Issues Identified">
+              <ResultCard accent="#B8860B" title="Issues Identified">
                 <ul className="space-y-2">
                   {result.issues.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#9A6A5A]"><AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /><span>{r}</span></li>
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#8A5A04]"><AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /><span>{r}</span></li>
                   ))}
                 </ul>
               </ResultCard>
@@ -188,7 +188,7 @@ export function SleepQuality() {
               </ResultCard>
             )}
 
-            <ResultCard accent="#C98A7A" title="When to See a Doctor">
+            <ResultCard accent="#B8860B" title="When to See a Doctor">
               <p className="text-sm leading-relaxed text-[#1F1B17]">{result.whenToSeeDoctor}</p>
             </ResultCard>
 

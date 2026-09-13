@@ -24,8 +24,8 @@ const INDIAN_BRANDS = ["Crocin", "Dolo 650", "Glycomet", "Amlong", "Telma", "Car
 
 const SEV_COLOR: Record<string, string> = {
   mild: "#9DB89E",
-  moderate: "#E0B080",
-  severe: "#C98A7A",
+  moderate: "#C9962E",
+  severe: "#B8860B",
   contraindicated: "#7A4A3A",
 };
 
@@ -112,7 +112,7 @@ export function MedInteraction() {
                       placeholder="e.g. Crocin 650, Glycomet 500"
                       className={inputCls}
                     />
-                    <button onClick={() => removeMed(i)} disabled={meds.length === 1} className="grid h-10 w-9 shrink-0 place-items-center rounded-lg glass-chip text-[#9A6A5A] disabled:opacity-30 hover:bg-[#C98A7A]/10"><Trash2 className="h-3.5 w-3.5" /></button>
+                    <button onClick={() => removeMed(i)} disabled={meds.length === 1} className="grid h-10 w-9 shrink-0 place-items-center rounded-lg glass-chip text-[#8A5A04] disabled:opacity-30 hover:bg-[#B8860B]/10"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
                   {activeIdx === i && suggestions.length > 0 && (
                     <div className="absolute z-10 mt-1 w-full rounded-xl glass-soft p-2 shadow-depth-lg">
@@ -137,7 +137,7 @@ export function MedInteraction() {
               {conditions.map((c, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <input value={c} onChange={(e)=>updateCond(i, e.target.value)} placeholder="e.g. Diabetes, Hypertension, Asthma" className={inputCls} />
-                  <button onClick={() => removeCond(i)} disabled={conditions.length === 1} className="grid h-10 w-9 shrink-0 place-items-center rounded-lg glass-chip text-[#9A6A5A] disabled:opacity-30 hover:bg-[#C98A7A]/10"><X className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => removeCond(i)} disabled={conditions.length === 1} className="grid h-10 w-9 shrink-0 place-items-center rounded-lg glass-chip text-[#8A5A04] disabled:opacity-30 hover:bg-[#B8860B]/10"><X className="h-3.5 w-3.5" /></button>
                 </div>
               ))}
             </div>
@@ -175,7 +175,7 @@ export function MedInteraction() {
             <ResultCard accent={accent} title="Safety Summary">
               <div className="flex items-center gap-2">
                 {result.requiresPharmacistConsult ? (
-                  <span className="rounded-full px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider" style={{ background:"#C98A7A15", color:"#9A6A5A" }}>⚠️ Pharmacist consult advised</span>
+                  <span className="rounded-full px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider" style={{ background:"#A1620715", color:"#8A5A04" }}>⚠️ Pharmacist consult advised</span>
                 ) : (
                   <span className="rounded-full px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider" style={{ background:"#9DB89E15", color:"#5A7A5B" }}><ShieldCheck className="mr-1 inline h-3 w-3" /> No major concerns</span>
                 )}
@@ -213,20 +213,20 @@ export function MedInteraction() {
             )}
 
             {result.conditionWarnings?.length > 0 && (
-              <ResultCard accent="#E0B080" title="Condition Warnings">
+              <ResultCard accent="#C9962E" title="Condition Warnings">
                 <ul className="space-y-2">
                   {result.conditionWarnings.map((c, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#1F1B17]"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#E0B080]" /><span>{c}</span></li>
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#1F1B17]"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#C9962E]" /><span>{c}</span></li>
                   ))}
                 </ul>
               </ResultCard>
             )}
 
             {result.topRisks?.length > 0 && (
-              <ResultCard accent="#C98A7A" title="Top Risks">
+              <ResultCard accent="#B8860B" title="Top Risks">
                 <ul className="space-y-2">
                   {result.topRisks.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#9A6A5A]"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" /><span>{r}</span></li>
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#8A5A04]"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" /><span>{r}</span></li>
                   ))}
                 </ul>
               </ResultCard>

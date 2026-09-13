@@ -41,7 +41,7 @@ function Nav() {
     <nav className="fixed top-0 inset-x-0 z-50 backdrop-blur-xl bg-[#0A0A0A]/70 border-b border-white/5">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
         <Link href="/" className="flex items-center gap-2">
-          <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-[#D98B6E] to-[#E0B080]">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-[#A16207] to-[#C9962E]">
             <HeartPulse className="h-4 w-4 text-white" strokeWidth={2.5} />
           </span>
           <span className="font-display text-sm font-semibold">Nexura OS</span>
@@ -64,7 +64,7 @@ function Hero() {
     <section className="relative pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Ambient glow — coral/sage hearts + champagne core */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-[#D98B6E]/10 blur-3xl" />
+        <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-[#A16207]/10 blur-3xl" />
         <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-[#9DB89E]/10 blur-3xl" />
         <div aria-hidden className="aurora-gold top-[-20%] left-1/2 h-[26rem] w-[44rem] -translate-x-1/2 opacity-40" />
       </div>
@@ -164,7 +164,7 @@ function Problem() {
             transition={{ delay: i * 0.1 }}
             className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"
           >
-            <p className="font-display text-3xl font-bold text-[#D98B6E]">{s.stat}</p>
+            <p className="font-display text-3xl font-bold text-[#A16207]">{s.stat}</p>
             <p className="mt-2 text-sm font-medium text-white">{s.label}</p>
             <p className="text-xs text-white/40 mt-0.5">{s.sub}</p>
           </motion.div>
@@ -186,8 +186,8 @@ function Solution() {
       </p>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
-          { icon: Building2, title: "Hospital OS", desc: "18-module HMS with AI clinical intelligence, NEWS2, NABH compliance", color: "#C98A7A" },
-          { icon: Stethoscope, title: "Clinic OS", desc: "HealthPlix-style EMR with SOAP, drug autocomplete, ABHA lookup (simulated)", color: "#D98B6E" },
+          { icon: Building2, title: "Hospital OS", desc: "18-module HMS with AI clinical intelligence, NEWS2, NABH compliance", color: "#B8860B" },
+          { icon: Stethoscope, title: "Clinic OS", desc: "HealthPlix-style EMR with SOAP, drug autocomplete, ABHA lookup (simulated)", color: "#A16207" },
           { icon: Pill, title: "Pharmacia", desc: "AI pharmacy POS with voice billing, Rx OCR, GST e-invoice, Schedule H", color: "#F59E0B" },
           { icon: HeartPulse, title: "Patient Portal", desc: "Unified health record + blood test at home with AI interpretation", color: "#0EA5E9" },
           { icon: MessageCircle, title: "Connect", desc: "Doctor-patient chat, voice, video across all products", color: "#10B981" },
@@ -222,13 +222,13 @@ function Market() {
       <div className="grid lg:grid-cols-3 gap-6 mb-12">
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
           <p className="text-xs text-white/40 uppercase tracking-wider mb-1">TAM</p>
-          <p className="font-display text-3xl font-bold text-[#D98B6E]">$372B</p>
+          <p className="font-display text-3xl font-bold text-[#A16207]">$372B</p>
           <p className="text-sm text-white/60 mt-1">Indian healthcare spend (2025)</p>
           <p className="text-xs text-white/30 mt-2">Growing 12% CAGR. 1.4B population.</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
           <p className="text-xs text-white/40 uppercase tracking-wider mb-1">SAM</p>
-          <p className="font-display text-3xl font-bold text-[#E0B080]">$48B</p>
+          <p className="font-display text-3xl font-bold text-[#C9962E]">$48B</p>
           <p className="text-sm text-white/60 mt-1">Digital health + hospital IT</p>
           <p className="text-xs text-white/30 mt-2">70,000 hospitals + 3M clinics + 850K pharmacies.</p>
         </div>
@@ -239,7 +239,7 @@ function Market() {
           <p className="text-xs text-white/30 mt-2">15,000 hospitals + 100,000 clinics + 200,000 pharmacies.</p>
         </div>
       </div>
-      <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-[#D98B6E]/10 to-[#9DB89E]/5 p-8">
+      <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-[#A16207]/10 to-[#7A9A7B]/5 p-8">
         <h3 className="font-display text-lg font-semibold mb-4">The ABDM tailwind</h3>
         <p className="text-white/60 text-sm leading-relaxed mb-4">
           The Ayushman Bharat Digital Mission (ABDM) is India's national mandate to digitize
@@ -296,7 +296,7 @@ function Traction() {
                 <p className="text-sm text-white">{p.name}</p>
                 <p className="text-xs text-white/40">{p.city} · {p.beds ? `${p.beds} beds` : p.stores ? `${p.stores} stores` : `${p.doctors} doctors`}</p>
               </div>
-              <span className={`text-xs font-medium px-2 py-1 rounded-full ${p.stage.includes("Demo") ? "bg-[#D98B6E]/10 text-[#D98B6E]" : "bg-white/5 text-white/40"}`}>
+              <span className={`text-xs font-medium px-2 py-1 rounded-full ${p.stage.includes("Demo") ? "bg-[#A16207]/10 text-[#A16207]" : "bg-white/5 text-white/40"}`}>
                 {p.stage}
               </span>
             </div>
@@ -326,12 +326,12 @@ function BusinessModel() {
               { name: "AI API (B2B)", model: "₹0.50–₹5 per AI call", desc: "Symptom checker, Rx OCR, lab interpretation", icon: Brain },
             ].map((r, i) => (
               <div key={i} className="flex items-start gap-3 pb-3 border-b border-white/5 last:border-0">
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#D98B6E]/10 text-[#D98B6E] shrink-0">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#A16207]/10 text-[#A16207] shrink-0">
                   <r.icon className="h-4 w-4" />
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white">{r.name}</p>
-                  <p className="text-xs text-[#D98B6E] font-mono">{r.model}</p>
+                  <p className="text-xs text-[#A16207] font-mono">{r.model}</p>
                   <p className="text-xs text-white/40 mt-0.5">{r.desc}</p>
                 </div>
               </div>
@@ -361,7 +361,7 @@ function BusinessModel() {
           </div>
         </div>
       </div>
-      <Link href="/pricing" className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[#D98B6E] hover:text-[#E0B080]">
+      <Link href="/pricing" className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[#A16207] hover:text-[#D9B87C]">
         See full pricing breakdown <ArrowRight className="h-3.5 w-3.5" />
       </Link>
     </Section>
@@ -376,8 +376,8 @@ function Products() {
       <SectionTitle>Eight products. One platform. Built Indian, for India.</SectionTitle>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
-          { icon: Building2, name: "Hospital OS", href: "/hospital", desc: "18 modules — OPD, IPD, OT, EHR, Nursing, Lab, Radiology, Blood Bank, Billing, Insurance, AI Assistant. ABDM-ready · NABH-aligned.", badge: "Flagship", color: "#C98A7A" },
-          { icon: Stethoscope, name: "Clinic OS", href: "/clinic", desc: "SOAP consultation, drug autocomplete (54 Indian medicines), ABHA lookup (simulated), public booking page.", badge: "New", color: "#D98B6E" },
+          { icon: Building2, name: "Hospital OS", href: "/hospital", desc: "18 modules — OPD, IPD, OT, EHR, Nursing, Lab, Radiology, Blood Bank, Billing, Insurance, AI Assistant. ABDM-ready · NABH-aligned.", badge: "Flagship", color: "#B8860B" },
+          { icon: Stethoscope, name: "Clinic OS", href: "/clinic", desc: "SOAP consultation, drug autocomplete (54 Indian medicines), ABHA lookup (simulated), public booking page.", badge: "New", color: "#A16207" },
           { icon: Pill, name: "Pharmacia", href: "/pharmacy", desc: "Voice billing, prescription OCR, GST e-invoice, Schedule H register, predictive analytics.", badge: "New", color: "#F59E0B" },
           { icon: HeartPulse, name: "Patient Portal", href: "/portal", desc: "Unified health record. Blood test at home with phlebotomist visit + AI report interpretation.", badge: "New", color: "#0EA5E9" },
           { icon: MessageCircle, name: "Connect", href: "/connect", desc: "Doctor-patient chat, voice, video. Auto-connects when consultations complete or triage flags urgency.", color: "#10B981" },
@@ -403,7 +403,7 @@ function Products() {
               </div>
               <p className="font-medium text-white">{p.name}</p>
               <p className="text-xs text-white/50 mt-1 leading-relaxed">{p.desc}</p>
-              <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[#D98B6E] opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[#A16207] opacity-0 group-hover:opacity-100 transition-opacity">
                 Launch product <ArrowRight className="h-3 w-3" />
               </span>
             </Link>
@@ -425,7 +425,7 @@ function CompetitiveLandscape() {
           <thead>
             <tr className="border-b border-white/10">
               <th className="text-left py-3 px-2 text-white/40 font-medium text-xs uppercase tracking-wider">Capability</th>
-              <th className="text-center py-3 px-2 text-[#D98B6E] font-semibold">Nexura OS</th>
+              <th className="text-center py-3 px-2 text-[#A16207] font-semibold">Nexura OS</th>
               <th className="text-center py-3 px-2 text-white/40">Insta HMS</th>
               <th className="text-center py-3 px-2 text-white/40">Apollo 24/7</th>
               <th className="text-center py-3 px-2 text-white/40">Practo Ray</th>
@@ -449,7 +449,7 @@ function CompetitiveLandscape() {
             ].map((row, i) => (
               <tr key={i} className="hover:bg-white/[0.02]">
                 <td className="py-2.5 px-2 text-white/80">{row.cap}</td>
-                <td className="text-center py-2.5 px-2">{row.nexura ? <CheckCircle2 className="h-4 w-4 text-[#D98B6E] mx-auto" /> : <span className="text-white/20">—</span>}</td>
+                <td className="text-center py-2.5 px-2">{row.nexura ? <CheckCircle2 className="h-4 w-4 text-[#A16207] mx-auto" /> : <span className="text-white/20">—</span>}</td>
                 <td className="text-center py-2.5 px-2">{row.insta ? <CheckCircle2 className="h-4 w-4 text-white/40 mx-auto" /> : <span className="text-white/20">—</span>}</td>
                 <td className="text-center py-2.5 px-2">{row.apollo ? <CheckCircle2 className="h-4 w-4 text-white/40 mx-auto" /> : <span className="text-white/20">—</span>}</td>
                 <td className="text-center py-2.5 px-2">{row.practo ? <CheckCircle2 className="h-4 w-4 text-white/40 mx-auto" /> : <span className="text-white/20">—</span>}</td>
@@ -478,10 +478,10 @@ function Compliance() {
       </p>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
-          { name: "ABDM", full: "Ayushman Bharat Digital Mission", status: "In progress", desc: "ABHA ID integration, health record exchange, ABDM-compliant APIs", icon: Shield, color: "#D98B6E" },
+          { name: "ABDM", full: "Ayushman Bharat Digital Mission", status: "In progress", desc: "ABHA ID integration, health record exchange, ABDM-compliant APIs", icon: Shield, color: "#A16207" },
           { name: "DPDP 2023", full: "Digital Personal Data Protection Act", status: "Built-in", desc: "Patient consent, data localization, right to erasure, audit trail", icon: Shield, color: "#9DB89E" },
-          { name: "NABH", full: "National Accreditation Board for Hospitals", status: "Standards-ready", desc: "Quality indicators, patient safety, infection control tracking", icon: Shield, color: "#E0B080" },
-          { name: "CDSCO", full: "Central Drugs Standard Control Organisation", status: "Built-in", desc: "Schedule H/H1 register, drug traceability, pharmacovigilance", icon: Shield, color: "#C98A7A" },
+          { name: "NABH", full: "National Accreditation Board for Hospitals", status: "Standards-ready", desc: "Quality indicators, patient safety, infection control tracking", icon: Shield, color: "#C9962E" },
+          { name: "CDSCO", full: "Central Drugs Standard Control Organisation", status: "Built-in", desc: "Schedule H/H1 register, drug traceability, pharmacovigilance", icon: Shield, color: "#B8860B" },
           { name: "IRDAI", full: "Insurance Regulatory and Development Authority", status: "Built-in", desc: "TPA claims workflow, cashless pre-auth, claim status tracking", icon: Shield, color: "#0EA5E9" },
           { name: "GST e-Invoice", status: "Built-in", desc: "IRN-ready JSON, CGST/SGST split, HSN codes, e-way bill", icon: Shield, color: "#F59E0B" },
         ].map((c, i) => (
@@ -507,7 +507,7 @@ function Compliance() {
           </motion.div>
         ))}
       </div>
-      <Link href="/compliance" className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[#D98B6E] hover:text-[#E0B080]">
+      <Link href="/compliance" className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[#A16207] hover:text-[#D9B87C]">
         Full compliance roadmap <ArrowRight className="h-3.5 w-3.5" />
       </Link>
     </Section>
@@ -537,14 +537,14 @@ function Roadmap() {
             className="flex gap-4"
           >
             <div className="flex flex-col items-center">
-              <span className={`grid h-10 w-10 place-items-center rounded-full border-2 shrink-0 ${r.status === "current" ? "bg-[#D98B6E] border-[#D98B6E] text-white" : r.status === "next" ? "border-[#D98B6E] text-[#D98B6E]" : "border-white/20 text-white/40"}`}>
+              <span className={`grid h-10 w-10 place-items-center rounded-full border-2 shrink-0 ${r.status === "current" ? "bg-[#A16207] border-[#A16207] text-white" : r.status === "next" ? "border-[#A16207] text-[#A16207]" : "border-white/20 text-white/40"}`}>
                 {r.status === "current" ? <Rocket className="h-4 w-4" /> : <span className="text-xs font-bold">{i + 1}</span>}
               </span>
               {i < 4 && <div className="w-px flex-1 bg-white/10 my-1" />}
             </div>
             <div className="flex-1 pb-6">
               <div className="flex items-center gap-2 mb-1">
-                <p className="text-xs font-semibold text-[#D98B6E] uppercase tracking-wider">{r.phase}</p>
+                <p className="text-xs font-semibold text-[#A16207] uppercase tracking-wider">{r.phase}</p>
                 {r.status === "current" && <span className="text-[0.5rem] font-bold uppercase px-1.5 py-0.5 rounded-full bg-[#22C55E] text-white">Now</span>}
               </div>
               <p className="font-medium text-white mb-2">{r.title}</p>
@@ -571,10 +571,10 @@ function Team() {
       <SectionTitle>Built by builders who understand Indian healthcare.</SectionTitle>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
-          { name: "Arpit Nayan", role: "Founder & CEO", desc: "Full-stack architect. Built Nexura OS from zero — 8 products, 145 data models, 172 API endpoints.", initials: "AN", color: "#D98B6E" },
+          { name: "Arpit Nayan", role: "Founder & CEO", desc: "Full-stack architect. Built Nexura OS from zero — 8 products, 145 data models, 172 API endpoints.", initials: "AN", color: "#A16207" },
           { role: "CTO (hiring)", desc: "Will lead engineering scale-up. Targeting ex-Practo/Innovaccer/Cerner.", initials: "CT", color: "#9DB89E", hiring: true },
-          { role: "Head of Compliance (hiring)", desc: "Will own ABDM + NABH + DPDP certification. Targeting ex-NHA/IRDAI.", initials: "HC", color: "#E0B080", hiring: true },
-          { role: "VP Sales (hiring)", desc: "Will lead hospital + clinic GTM. Targeting ex-Insta/Apollo/Practo.", initials: "VS", color: "#C98A7A", hiring: true },
+          { role: "Head of Compliance (hiring)", desc: "Will own ABDM + NABH + DPDP certification. Targeting ex-NHA/IRDAI.", initials: "HC", color: "#C9962E", hiring: true },
+          { role: "VP Sales (hiring)", desc: "Will lead hospital + clinic GTM. Targeting ex-Insta/Apollo/Practo.", initials: "VS", color: "#B8860B", hiring: true },
         ].map((m, i) => (
           <motion.div
             key={i}
@@ -594,7 +594,7 @@ function Team() {
               </div>
             </div>
             <p className="text-xs text-white/50 mt-3 leading-relaxed">{m.desc}</p>
-            {m.hiring && <span className="mt-2 inline-block text-[0.5rem] font-bold uppercase tracking-wider text-[#D98B6E] bg-[#D98B6E]/10 px-2 py-0.5 rounded-full">Hiring</span>}
+            {m.hiring && <span className="mt-2 inline-block text-[0.5rem] font-bold uppercase tracking-wider text-[#A16207] bg-[#A16207]/10 px-2 py-0.5 rounded-full">Hiring</span>}
           </motion.div>
         ))}
       </div>
@@ -607,7 +607,7 @@ function Ask() {
   return (
     <Section id="ask" className="border-t border-white/5">
       <SectionLabel>The Ask</SectionLabel>
-      <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#D98B6E]/10 via-[#E0B080]/5 to-[#9DB89E]/10 p-8 lg:p-12">
+      <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#A16207]/10 via-[#C9962E]/5 to-[#7A9A7B]/10 p-8 lg:p-12">
         <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight mb-4">
           Raising $8M Seed.
         </h2>
@@ -617,11 +617,11 @@ function Ask() {
         </p>
         <div className="grid sm:grid-cols-3 gap-6 mb-8">
           <div>
-            <p className="font-display text-2xl font-bold text-[#D98B6E]">$3M</p>
+            <p className="font-display text-2xl font-bold text-[#A16207]">$3M</p>
             <p className="text-xs text-white/40 mt-1">Engineering team (8 hires)</p>
           </div>
           <div>
-            <p className="font-display text-2xl font-bold text-[#E0B080]">$2M</p>
+            <p className="font-display text-2xl font-bold text-[#C9962E]">$2M</p>
             <p className="text-xs text-white/40 mt-1">Sales + GTM (4 cities)</p>
           </div>
           <div>
@@ -654,7 +654,7 @@ function Footer() {
     <footer className="border-t border-white/5 py-8 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <span className="grid h-6 w-6 place-items-center rounded-md bg-gradient-to-br from-[#D98B6E] to-[#E0B080]">
+          <span className="grid h-6 w-6 place-items-center rounded-md bg-gradient-to-br from-[#A16207] to-[#C9962E]">
             <HeartPulse className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
           </span>
           <span className="text-xs text-white/40">© 2026 Nexura AI Technologies Pvt. Ltd. · Built in India 🇮🇳</span>

@@ -122,17 +122,17 @@ export function Hero() {
                   href="/know-your-health"
                   className="group flex items-center gap-1.5 rounded-full glass-chip px-3.5 py-2 text-xs font-medium text-foreground transition-all hover:scale-105"
                 >
-                  <Sparkles className="h-3.5 w-3.5 text-[#9DB89E]" />
+                  <Sparkles className="h-3.5 w-3.5 text-[#A16207]" />
                   Know Your Health
-                  <span className="rounded-full bg-[#9DB89E]/15 px-1.5 py-0.5 text-[0.5rem] font-bold text-[#5A7A5B]">15 AI tools</span>
+                  <span className="rounded-full bg-[#A16207]/10 px-1.5 py-0.5 text-[0.5rem] font-bold text-[#8A5A04]">15 AI tools</span>
                 </Link>
                 <Link
                   href="/connect"
                   className="group flex items-center gap-1.5 rounded-full glass-chip px-3.5 py-2 text-xs font-medium text-foreground transition-all hover:scale-105"
                 >
-                  <MessageCircle className="h-3.5 w-3.5 text-[#D98B6E]" />
+                  <MessageCircle className="h-3.5 w-3.5 text-[#A16207]" />
                   Nexura Connect
-                  <span className="rounded-full bg-[#D98B6E] px-1.5 py-0.5 text-[0.5rem] font-bold text-white">NEW</span>
+                  <span className="rounded-full bg-[#A16207] px-1.5 py-0.5 text-[0.5rem] font-bold text-white">NEW</span>
                 </Link>
               </div>
             </Reveal>

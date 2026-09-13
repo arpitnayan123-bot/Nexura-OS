@@ -42,8 +42,8 @@ function MacroStat({ icon: Icon, label, value, unit, accent }: { icon: any; labe
 function scoreColor(score: number): { bg: string; text: string } {
   if (score >= 8) return { bg: "#5A7A5B15", text: "#5A7A5B" };
   if (score >= 6) return { bg: "#9DB89E15", text: "#5A7A5B" };
-  if (score >= 4) return { bg: "#E0B08015", text: "#B8893D" };
-  return { bg: "#C98A7A15", text: "#9A6A5A" };
+  if (score >= 4) return { bg: "#C9962E15", text: "#B8893D" };
+  return { bg: "#A1620715", text: "#8A5A04" };
 }
 
 export function FoodScan() {
@@ -126,8 +126,8 @@ export function FoodScan() {
             </ResultCard>
 
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-              <MacroStat icon={Beef} label="Protein" value={result.macros?.protein_g ?? 0} unit="g" accent="#C98A7A" />
-              <MacroStat icon={Wheat} label="Carbs" value={result.macros?.carbs_g ?? 0} unit="g" accent="#E0B080" />
+              <MacroStat icon={Beef} label="Protein" value={result.macros?.protein_g ?? 0} unit="g" accent="#B8860B" />
+              <MacroStat icon={Wheat} label="Carbs" value={result.macros?.carbs_g ?? 0} unit="g" accent="#C9962E" />
               <MacroStat icon={Droplet} label="Fat" value={result.macros?.fat_g ?? 0} unit="g" accent="#7A9A7B" />
               <MacroStat icon={Leaf} label="Fibre" value={result.macros?.fiber_g ?? 0} unit="g" accent="#5A7A5B" />
             </div>

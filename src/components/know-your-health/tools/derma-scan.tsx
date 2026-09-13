@@ -34,8 +34,8 @@ const CONCERN_CHIPS = [
 ];
 
 const confidenceStyle: Record<string, { bg: string; text: string }> = {
-  "Likely": { bg: "#C98A7A15", text: "#9A6A5A" },
-  "Possible": { bg: "#E0B08015", text: "#B8893D" },
+  "Likely": { bg: "#A1620715", text: "#8A5A04" },
+  "Possible": { bg: "#C9962E15", text: "#B8893D" },
   "Less likely": { bg: "#9DB89E15", text: "#5A7A5B" },
 };
 
@@ -144,10 +144,10 @@ export function DermaScan() {
             )}
 
             {result.redFlags?.length > 0 && (
-              <ResultCard accent="#C98A7A" title="Red Flags — Seek Immediate Care">
+              <ResultCard accent="#B8860B" title="Red Flags — Seek Immediate Care">
                 <ul className="space-y-2">
                   {result.redFlags.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#9A6A5A]">
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#8A5A04]">
                       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                       <span>{r}</span>
                     </li>

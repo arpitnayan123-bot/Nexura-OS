@@ -42,7 +42,7 @@ export function ReportsModule() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi label="Total Sales" value={`₹${data.totalSales.toLocaleString("en-IN")}`} sub={`${data.invoiceCount} invoices`} color="#F59E0B" />
         <Kpi label="CGST" value={`₹${data.cgstCollected.toFixed(2)}`} color="#9DB89E" />
-        <Kpi label="SGST" value={`₹${data.sgstCollected.toFixed(2)}`} color="#E0B080" />
+        <Kpi label="SGST" value={`₹${data.sgstCollected.toFixed(2)}`} color="#C9962E" />
         <Kpi label="Net Profit" value={`₹${(data.totalSales-data.totalDiscount).toLocaleString("en-IN")}`} color="#22C55E" />
       </div>
       <div className="rounded-2xl border border-[#1E2228] bg-[#111418] p-5">

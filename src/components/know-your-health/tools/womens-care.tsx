@@ -130,7 +130,7 @@ export function WomensCare() {
             </ResultCard>
 
             {result.possibleConditions?.length > 0 && (
-              <ResultCard accent="#E0B080" title="Possible Conditions">
+              <ResultCard accent="#C9962E" title="Possible Conditions">
                 <div className="space-y-2.5">
                   {result.possibleConditions.map((c, i) => (
                     <div key={i} className="flex items-start gap-3 rounded-xl bg-[#FAF7F2]/60 p-2.5">
@@ -162,9 +162,9 @@ export function WomensCare() {
               </ResultCard>
             )}
 
-            <ResultCard accent="#C98A7A" title="When to See a Doctor">
+            <ResultCard accent="#B8860B" title="When to See a Doctor">
               <div className="flex items-start gap-3">
-                <Stethoscope className="mt-0.5 h-4 w-4 shrink-0 text-[#9A6A5A]" />
+                <Stethoscope className="mt-0.5 h-4 w-4 shrink-0 text-[#8A5A04]" />
                 <p className="text-sm leading-relaxed text-[#1F1B17]">{result.whenToSeeDoctor}</p>
               </div>
             </ResultCard>

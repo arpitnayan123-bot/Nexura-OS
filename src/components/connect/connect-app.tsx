@@ -77,9 +77,9 @@ type QueueEntry = {
 type Tab = "inbox" | "queue" | "calls";
 
 const SOURCE_STYLE: Record<string, { bg: string; text: string; label: string }> = {
-  clinic: { bg: "bg-[#D98B6E]/15", text: "text-[#D98B6E]", label: "Clinic" },
+  clinic: { bg: "bg-[#A16207]/15", text: "text-[#A16207]", label: "Clinic" },
   hospital: { bg: "bg-[#9DB89E]/15", text: "text-[#5A7A5B]", label: "Hospital" },
-  know_your_health: { bg: "bg-[#E0B080]/15", text: "text-[#B8893D]", label: "KYH" },
+  know_your_health: { bg: "bg-[#C9962E]/15", text: "text-[#B8893D]", label: "KYH" },
 };
 
 const avatarInitials = (name: string) =>
@@ -297,7 +297,7 @@ export function ConnectApp() {
     return (
       <div className="grid min-h-screen place-items-center bg-[#1F1B17] text-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-[#D98B6E]" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-[#A16207]" />
           <p className="text-sm text-white/60">Loading Nexura Connect…</p>
         </div>
       </div>
@@ -308,10 +308,10 @@ export function ConnectApp() {
     return (
       <div className="grid min-h-screen place-items-center bg-[#1F1B17] text-white">
         <div className="max-w-md rounded-2xl glass-dark p-6 text-center shadow-depth">
-          <Stethoscope className="mx-auto h-10 w-10 text-[#D98B6E]" />
+          <Stethoscope className="mx-auto h-10 w-10 text-[#A16207]" />
           <h2 className="mt-3 font-serif text-xl font-semibold">No doctor profile found</h2>
           <p className="mt-1 text-sm text-white/60">Run the clinic or hospital seed first, then return here.</p>
-          <Link href="/" className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#D98B6E] px-4 py-2 text-sm font-semibold text-white">
+          <Link href="/" className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#A16207] px-4 py-2 text-sm font-semibold text-white">
             <ArrowLeft className="h-4 w-4" /> Back to homepage
           </Link>
         </div>
@@ -325,7 +325,7 @@ export function ConnectApp() {
       <aside className="flex w-[280px] shrink-0 flex-col border-r border-white/10 bg-black/30 backdrop-blur-xl">
         {/* Logo */}
         <div className="flex items-center gap-2 px-5 py-4">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#E8B04B] via-[#D98B6E] to-[#C97A5D] shadow-lg shadow-[#D98B6E]/25 ring-1 ring-inset ring-white/25 anim-breathe">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#E8B04B] via-[#A16207] to-[#8A5A04] shadow-lg shadow-[#A16207]/25 ring-1 ring-inset ring-white/25 anim-breathe">
             <Activity className="h-4 w-4 text-white" strokeWidth={2.5} />
           </span>
           <div className="flex-1">
@@ -352,10 +352,10 @@ export function ConnectApp() {
               <t.icon className="h-3.5 w-3.5" />
               {t.label}
               {t.id === "queue" && totalWaiting > 0 && (
-                <span className="ml-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-[#D98B6E] px-1 text-[0.55rem] font-bold text-white">{totalWaiting}</span>
+                <span className="ml-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-[#A16207] px-1 text-[0.55rem] font-bold text-white">{totalWaiting}</span>
               )}
               {t.id === "inbox" && connections.some((c) => c.unreadCount > 0) && (
-                <span className="ml-0.5 h-2 w-2 rounded-full bg-[#D98B6E] anim-breathe" />
+                <span className="ml-0.5 h-2 w-2 rounded-full bg-[#A16207] anim-breathe" />
               )}
             </button>
           ))}
@@ -370,7 +370,7 @@ export function ConnectApp() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search patient…"
-                className="h-9 w-full rounded-lg border border-white/10 bg-white/5 pl-9 pr-3 text-xs text-white placeholder-white/40 outline-none focus:border-[#D98B6E]/60"
+                className="h-9 w-full rounded-lg border border-white/10 bg-white/5 pl-9 pr-3 text-xs text-white placeholder-white/40 outline-none focus:border-[#A16207]/60"
               />
             </div>
           </div>
@@ -392,10 +392,10 @@ export function ConnectApp() {
                     selectedId === c.id ? "bg-white/10 shadow-depth" : "hover:bg-white/5"
                   )}
                 >
-                  <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D98B6E]/40 to-[#C98A7A]/40 text-xs font-bold text-white">
+                  <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A16207]/40 to-[#8F5E06]/40 text-xs font-bold text-white">
                     {avatarInitials(c.patientName)}
                     {c.unreadCount > 0 && (
-                      <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#D98B6E] px-1 text-[0.55rem] font-bold text-white ring-2 ring-[#1F1B17]">{c.unreadCount}</span>
+                      <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#A16207] px-1 text-[0.55rem] font-bold text-white ring-2 ring-[#1F1B17]">{c.unreadCount}</span>
                     )}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -463,7 +463,7 @@ export function ConnectApp() {
             <header className="relative flex items-center justify-between border-b border-[#E5DFD4] bg-white/80 px-5 py-3 backdrop-blur-md">
               <div aria-hidden className="hairline-gold pointer-events-none absolute inset-x-0 bottom-0 opacity-50" />
               <div className="flex items-center gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-[#D98B6E] to-[#C98A7A] text-sm font-bold text-white shadow-depth">
+                <span className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-[#A16207] to-[#8F5E06] text-sm font-bold text-white shadow-depth">
                   {avatarInitials(selected.patientName)}
                 </span>
                 <div>
@@ -490,7 +490,7 @@ export function ConnectApp() {
                 </button>
                 <button
                   onClick={() => startCall("video")}
-                  className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#D98B6E] shadow-sm ring-1 ring-[#E5DFD4] transition-all hover:scale-105 hover:bg-[#D98B6E] hover:text-white"
+                  className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#A16207] shadow-sm ring-1 ring-[#E5DFD4] transition-all hover:scale-105 hover:bg-[#A16207] hover:text-white"
                   title="Video consult (demo)"
                 >
                   <Video className="h-4 w-4" />
@@ -530,11 +530,11 @@ export function ConnectApp() {
                         className={cn("flex items-end gap-2", isDoctor && "justify-end")}
                       >
                         {!isDoctor && (
-                          <span className={cn("grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D98B6E]/60 to-[#C98A7A]/60 text-[0.55rem] font-bold text-white", !showAvatar && "opacity-0")}>
+                          <span className={cn("grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A16207]/60 to-[#8F5E06]/60 text-[0.55rem] font-bold text-white", !showAvatar && "opacity-0")}>
                             {avatarInitials(selected.patientName)}
                           </span>
                         )}
-                        <div className={cn("max-w-[68%] rounded-2xl px-3.5 py-2 text-sm shadow-sm", isDoctor ? "bg-[#D98B6E] text-white rounded-br-sm" : "glass-soft text-[#1F1B17] rounded-bl-sm")}>
+                        <div className={cn("max-w-[68%] rounded-2xl px-3.5 py-2 text-sm shadow-sm", isDoctor ? "bg-[#A16207] text-white rounded-br-sm" : "glass-soft text-[#1F1B17] rounded-bl-sm")}>
                           <p className="whitespace-pre-wrap leading-snug">{m.text}</p>
                           <div className={cn("mt-1 flex items-center justify-end gap-1 text-[0.55rem]", isDoctor ? "text-white/70" : "text-[#9A8F84]")}>
                             <span>{relativeTime(m.createdAt)}</span>
@@ -570,7 +570,7 @@ export function ConnectApp() {
                 <button
                   onClick={sendMessage}
                   disabled={!draft.trim()}
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#D98B6E] text-white shadow-depth transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#A16207] text-white shadow-depth transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label="Send message"
                 >
                   <Send className="h-4 w-4" />
@@ -634,8 +634,8 @@ export function ConnectApp() {
 
 function QueueTab({ queue, onPick }: { queue: { chat: QueueEntry[]; voice: QueueEntry[]; video: QueueEntry[] }; onPick: (e: QueueEntry) => void }) {
   const groups = [
-    { id: "video", label: "Video", items: queue.video, color: "#D98B6E" },
-    { id: "voice", label: "Voice", items: queue.voice, color: "#E0B080" },
+    { id: "video", label: "Video", items: queue.video, color: "#A16207" },
+    { id: "voice", label: "Voice", items: queue.voice, color: "#C9962E" },
     { id: "chat", label: "Chat", items: queue.chat, color: "#9DB89E" },
   ] as const;
   const total = queue.chat.length + queue.voice.length + queue.video.length;
@@ -662,7 +662,7 @@ function QueueTab({ queue, onPick }: { queue: { chat: QueueEntry[]; voice: Queue
                 className="group w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-left transition-all hover:bg-white/10"
               >
                 <div className="flex items-center gap-2">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D98B6E]/40 to-[#C98A7A]/40 text-[0.6rem] font-bold text-white">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A16207]/40 to-[#8F5E06]/40 text-[0.6rem] font-bold text-white">
                     {avatarInitials(e.connection.patientName)}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -691,7 +691,7 @@ function CallsTab({ calls }: { calls: Call[] }) {
       {calls.map((c) => (
         <div key={c.id} className="rounded-xl border border-white/10 bg-white/5 p-2.5">
           <div className="flex items-center gap-2">
-            <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full", c.type === "video" ? "bg-[#D98B6E]/20 text-[#D98B6E]" : "bg-[#9DB89E]/20 text-[#9DB89E]")}>
+            <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full", c.type === "video" ? "bg-[#A16207]/20 text-[#A16207]" : "bg-[#9DB89E]/20 text-[#9DB89E]")}>
               {c.type === "video" ? <Video className="h-3.5 w-3.5" /> : <Phone className="h-3.5 w-3.5" />}
             </span>
             <div className="min-w-0 flex-1">
@@ -701,7 +701,7 @@ function CallsTab({ calls }: { calls: Call[] }) {
               </p>
             </div>
             {c.prescriptionJson && (
-              <span className={cn("flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[0.5rem] font-semibold", c.prescriptionSynced ? "bg-[#9DB89E]/15 text-[#9DB89E]" : "bg-[#E0B080]/15 text-[#E0B080]")}>
+              <span className={cn("flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[0.5rem] font-semibold", c.prescriptionSynced ? "bg-[#9DB89E]/15 text-[#9DB89E]" : "bg-[#C9962E]/15 text-[#C9962E]")}>
                 <Pill className="h-2.5 w-2.5" /> {c.prescriptionSynced ? "Synced" : "Pending"}
               </span>
             )}
@@ -831,8 +831,8 @@ function CallOverlay({
         <div className="absolute inset-0 grid place-items-center mesh-bg-dark">
           <div className="text-center">
             <div className="relative mx-auto h-32 w-32">
-              <span className="absolute inset-0 rounded-full bg-gradient-to-br from-[#D98B6E] to-[#C98A7A] anim-breathe" />
-              <span className="absolute inset-2 grid place-items-center rounded-full bg-gradient-to-br from-[#D98B6E] to-[#C98A7A] font-serif text-4xl font-bold text-white shadow-depth">
+              <span className="absolute inset-0 rounded-full bg-gradient-to-br from-[#A16207] to-[#8F5E06] anim-breathe" />
+              <span className="absolute inset-2 grid place-items-center rounded-full bg-gradient-to-br from-[#A16207] to-[#8F5E06] font-serif text-4xl font-bold text-white shadow-depth">
                 {avatarInitials(call.connection.patientName)}
               </span>
               <span className="pulse-ring absolute inset-0 rounded-full" />
@@ -868,7 +868,7 @@ function CallOverlay({
         {/* Top bar */}
         <div className="absolute left-4 top-4 flex items-center gap-2">
           <span className="flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-            {call.type === "video" ? <Video className="h-3.5 w-3.5 text-[#D98B6E]" /> : <Phone className="h-3.5 w-3.5 text-[#9DB89E]" />}
+            {call.type === "video" ? <Video className="h-3.5 w-3.5 text-[#A16207]" /> : <Phone className="h-3.5 w-3.5 text-[#9DB89E]" />}
             {call.type === "video" ? "Video consult · demo" : "Voice consult · demo"}
           </span>
           <span className="rounded-full bg-black/40 px-2 py-1 text-[0.6rem] text-white/60 backdrop-blur-sm">with {call.connection.patientName}</span>
@@ -879,8 +879,8 @@ function CallOverlay({
           onClick={() => setShowRx(!showRx)}
           className="absolute right-4 bottom-4 flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm hover:bg-white/20"
         >
-          <Pill className="h-3.5 w-3.5 text-[#D98B6E]" /> {showRx ? "Hide" : "Show"} Rx
-          {rx.length > 0 && <span className="grid h-4 min-w-4 place-items-center rounded-full bg-[#D98B6E] px-1 text-[0.5rem] font-bold">{rx.length}</span>}
+          <Pill className="h-3.5 w-3.5 text-[#A16207]" /> {showRx ? "Hide" : "Show"} Rx
+          {rx.length > 0 && <span className="grid h-4 min-w-4 place-items-center rounded-full bg-[#A16207] px-1 text-[0.5rem] font-bold">{rx.length}</span>}
         </button>
 
         {/* Rx panel */}
@@ -895,7 +895,7 @@ function CallOverlay({
             >
               <div className="mb-2 flex items-center justify-between">
                 <p className="flex items-center gap-1.5 text-sm font-semibold">
-                  <Pill className="h-4 w-4 text-[#D98B6E]" aria-hidden="true" /> Live Prescription
+                  <Pill className="h-4 w-4 text-[#A16207]" aria-hidden="true" /> Live Prescription
                 </p>
                 <button onClick={() => setShowRx(false)} className="grid h-6 w-6 place-items-center rounded-full text-white/50 hover:bg-white/10"><X className="h-3.5 w-3.5" /></button>
               </div>
@@ -907,7 +907,7 @@ function CallOverlay({
                   value={drugQuery}
                   onChange={(e) => setDrugQuery(e.target.value)}
                   placeholder="Add medicine…"
-                  className="h-9 w-full rounded-lg border border-white/10 bg-white/5 pl-8 pr-2 text-xs text-white placeholder-white/40 outline-none focus:border-[#D98B6E]/60"
+                  className="h-9 w-full rounded-lg border border-white/10 bg-white/5 pl-8 pr-2 text-xs text-white placeholder-white/40 outline-none focus:border-[#A16207]/60"
                 />
                 {drugResults.length > 0 && (
                   <div className="absolute z-10 mt-1 max-h-44 w-full overflow-auto rounded-lg bg-[#1F1B17] shadow-depth-lg ring-1 ring-white/10">
@@ -918,7 +918,7 @@ function CallOverlay({
                           <p className="text-xs font-medium">{d.brandName} {d.strength}</p>
                           <p className="text-[0.55rem] text-white/50">{d.saltName} · {d.company}</p>
                         </div>
-                        <Plus className="h-3 w-3 text-[#D98B6E]" />
+                        <Plus className="h-3 w-3 text-[#A16207]" />
                       </button>
                     ))}
                   </div>
@@ -936,7 +936,7 @@ function CallOverlay({
                   <div key={x.id} className="rounded-lg border border-white/10 bg-white/5 p-2">
                     <div className="flex items-center justify-between gap-2">
                       <p className="truncate text-xs font-semibold">{x.name} <span className="text-white/50">{x.dosage}</span></p>
-                      <button onClick={() => removeRx(x.id)} className="shrink-0 text-white/50 hover:text-[#D98B6E]"><X className="h-3 w-3" /></button>
+                      <button onClick={() => removeRx(x.id)} className="shrink-0 text-white/50 hover:text-[#A16207]"><X className="h-3 w-3" /></button>
                     </div>
                     <p className="text-[0.55rem] text-white/50">{x.salt}</p>
                     <div className="mt-1.5 grid grid-cols-3 gap-1">
@@ -952,7 +952,7 @@ function CallOverlay({
               <button
                 onClick={syncPrescription}
                 disabled={syncing || rx.length === 0}
-                className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#D98B6E] to-[#E0B080] px-3 py-2 text-xs font-semibold text-white shadow-depth transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40"
+                className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#A16207] to-[#C9962E] px-3 py-2 text-xs font-semibold text-white shadow-depth transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
                 {syncing ? "Syncing…" : "Sync to Pharmacia"}
@@ -968,7 +968,7 @@ function CallOverlay({
         <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/40 px-3 py-2 backdrop-blur-md">
           <button
             onClick={() => setMuted(!muted)}
-            className={cn("grid h-10 w-10 place-items-center rounded-full transition-colors", muted ? "bg-[#D98B6E] text-white" : "bg-white/10 text-white hover:bg-white/20")}
+            className={cn("grid h-10 w-10 place-items-center rounded-full transition-colors", muted ? "bg-[#A16207] text-white" : "bg-white/10 text-white hover:bg-white/20")}
             title={muted ? "Unmute" : "Mute"}
           >
             {muted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
@@ -976,7 +976,7 @@ function CallOverlay({
           {call.type === "video" && (
             <button
               onClick={() => setCameraOff(!cameraOff)}
-              className={cn("grid h-10 w-10 place-items-center rounded-full transition-colors", cameraOff ? "bg-[#D98B6E] text-white" : "bg-white/10 text-white hover:bg-white/20")}
+              className={cn("grid h-10 w-10 place-items-center rounded-full transition-colors", cameraOff ? "bg-[#A16207] text-white" : "bg-white/10 text-white hover:bg-white/20")}
               title={cameraOff ? "Camera on" : "Camera off"}
             >
               {cameraOff ? <VideoOff className="h-4 w-4" /> : <Video className="h-4 w-4" />}
@@ -984,7 +984,7 @@ function CallOverlay({
           )}
           <button
             onClick={handleEnd}
-            className="flex items-center gap-1.5 rounded-full bg-[#C98A7A] px-4 py-2.5 text-sm font-semibold text-white shadow-depth transition-all hover:scale-105 hover:bg-[#A55A4A]"
+            className="flex items-center gap-1.5 rounded-full bg-[#B8860B] px-4 py-2.5 text-sm font-semibold text-white shadow-depth transition-all hover:scale-105 hover:bg-[#8A5A04]"
           >
             <PhoneOff className="h-4 w-4" /> End Call
           </button>

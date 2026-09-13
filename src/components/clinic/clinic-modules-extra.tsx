@@ -36,8 +36,8 @@ export function SymptomTriageModule() {
   };
 
   const urgencyStyle: Record<string, { color: string; bg: string; label: string; icon: any }> = {
-    emergency: { color: "#C98A7A", bg: "#C98A7A15", label: "Emergency", icon: Siren },
-    urgent: { color: "#E0B080", bg: "#E0B08015", label: "Urgent", icon: AlertTriangle },
+    emergency: { color: "#B8860B", bg: "#A1620715", label: "Emergency", icon: Siren },
+    urgent: { color: "#C9962E", bg: "#C9962E15", label: "Urgent", icon: AlertTriangle },
     routine: { color: "#9DB89E", bg: "#9DB89E15", label: "Routine", icon: CheckCircle2 },
   };
 
@@ -55,14 +55,14 @@ export function SymptomTriageModule() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="e.g. chest pain and shortness of breath for 2 hours, fever 102°F since 3 days, severe abdominal pain…"
-          className="h-24 w-full resize-none rounded-xl border border-[#E5DFD4] bg-[#FAF7F2] px-3 py-2 text-sm outline-none focus:border-[#D98B6E]/50 focus:ring-2 focus:ring-[#D98B6E]/15"
+          className="h-24 w-full resize-none rounded-xl border border-[#E5DFD4] bg-[#FAF7F2] px-3 py-2 text-sm outline-none focus:border-[#A16207]/50 focus:ring-2 focus:ring-[#A16207]/15"
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {["fever", "chest pain", "headache", "abdominal pain", "shortness of breath"].map((s) => (
             <button
               key={s}
               onClick={() => setInput(s)}
-              className="rounded-full bg-[#F3EEE6] px-3 py-1 text-xs text-[#5C544D] transition-colors hover:bg-[#D98B6E]/10 hover:text-[#D98B6E]"
+              className="rounded-full bg-[#F3EEE6] px-3 py-1 text-xs text-[#5C544D] transition-colors hover:bg-[#A16207]/10 hover:text-[#A16207]"
             >
               {s}
             </button>
@@ -70,7 +70,7 @@ export function SymptomTriageModule() {
           <button
             onClick={analyze}
             disabled={loading || !input.trim()}
-            className="ml-auto flex items-center gap-1.5 rounded-full bg-[#D98B6E] px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#C97A5D] disabled:opacity-40"
+            className="ml-auto flex items-center gap-1.5 rounded-full bg-[#A16207] px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#8A5A04] disabled:opacity-40"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
             Get AI Triage
@@ -167,12 +167,12 @@ export function SimilarPatientsModule() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && analyze()}
           placeholder="e.g. fever, diabetes, hypertension…"
-          className="h-11 w-full rounded-xl border border-[#E5DFD4] bg-[#FAF7F2] px-3 text-sm outline-none focus:border-[#D98B6E]/50 focus:ring-2 focus:ring-[#D98B6E]/15"
+          className="h-11 w-full rounded-xl border border-[#E5DFD4] bg-[#FAF7F2] px-3 text-sm outline-none focus:border-[#A16207]/50 focus:ring-2 focus:ring-[#A16207]/15"
         />
         <button
           onClick={analyze}
           disabled={loading || !input.trim()}
-          className="mt-3 flex items-center gap-1.5 rounded-full bg-[#D98B6E] px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#C97A5D] disabled:opacity-40"
+          className="mt-3 flex items-center gap-1.5 rounded-full bg-[#A16207] px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#8A5A04] disabled:opacity-40"
         >
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
           Find Similar Patients
@@ -203,7 +203,7 @@ export function SimilarPatientsModule() {
                     <p className="text-[0.65rem] text-[#9A8F84]">Matched symptom: "{m.query}"</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-serif text-2xl font-bold text-[#D98B6E]">{m.percentage}%</p>
+                    <p className="font-serif text-2xl font-bold text-[#A16207]">{m.percentage}%</p>
                     <p className="text-[0.55rem] text-[#9A8F84]">of similar Indian patients</p>
                   </div>
                 </div>
@@ -212,14 +212,14 @@ export function SimilarPatientsModule() {
                     initial={{ width: 0 }}
                     animate={{ width: `${m.percentage}%` }}
                     transition={{ duration: 0.7, delay: i * 0.06 }}
-                    className="h-full rounded-full bg-gradient-to-r from-[#D98B6E] to-[#E0B080]"
+                    className="h-full rounded-full bg-gradient-to-r from-[#A16207] to-[#C9962E]"
                   />
                 </div>
                 <div className="mt-3">
                   <p className="text-[0.6rem] font-semibold uppercase tracking-wider text-[#9A8F84]">Commonly prescribed in India</p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {(m.commonMeds || []).map((med: string) => (
-                      <span key={med} className="rounded-full bg-[#D98B6E]/8 px-2.5 py-1 text-[0.65rem] font-medium text-[#A55A4A]">
+                      <span key={med} className="rounded-full bg-[#A16207]/8 px-2.5 py-1 text-[0.65rem] font-medium text-[#8A5A04]">
                         {med}
                       </span>
                     ))}
@@ -272,14 +272,14 @@ export function ChronicCareModule() {
             <button
               key={dx}
               onClick={() => loadPlan(dx)}
-              className="group rounded-2xl border border-[#E5DFD4] bg-white p-4 text-left shadow-sm transition-all hover:border-[#D98B6E]/40 hover:shadow-md"
+              className="group rounded-2xl border border-[#E5DFD4] bg-white p-4 text-left shadow-sm transition-all hover:border-[#A16207]/40 hover:shadow-md"
             >
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#D98B6E]/10 text-[#D98B6E]">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#A16207]/10 text-[#A16207]">
                 <HeartPulse className="h-4 w-4" />
               </span>
               <p className="mt-2 text-sm font-semibold text-[#1F1B17]">{dx}</p>
               <p className="text-[0.6rem] text-[#9A8F84]">ICMR monitoring plan</p>
-              <div className="mt-2 flex items-center gap-1 text-[0.6rem] font-medium text-[#D98B6E] opacity-0 transition-opacity group-hover:opacity-100">
+              <div className="mt-2 flex items-center gap-1 text-[0.6rem] font-medium text-[#A16207] opacity-0 transition-opacity group-hover:opacity-100">
                 View plan <ChevronRight className="h-3 w-3" />
               </div>
             </button>
@@ -297,7 +297,7 @@ export function ChronicCareModule() {
             className="rounded-2xl border border-[#E5DFD4] bg-white p-5 shadow-sm"
           >
             <div className="flex items-center gap-2">
-              <HeartPulse className="h-4 w-4 text-[#D98B6E]" />
+              <HeartPulse className="h-4 w-4 text-[#A16207]" />
               <h3 className="font-serif text-base font-semibold text-[#1F1B17]">{selected.disease} — ICMR Monitoring Plan</h3>
             </div>
             <div className="mt-3 space-y-2">
@@ -318,7 +318,7 @@ export function ChronicCareModule() {
                       <p className="text-[0.6rem] text-[#9A8F84]">{c.guideline}</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-[#D98B6E]/10 px-2.5 py-0.5 text-xs font-semibold text-[#D98B6E]">{c.frequency}</span>
+                  <span className="rounded-full bg-[#A16207]/10 px-2.5 py-0.5 text-xs font-semibold text-[#A16207]">{c.frequency}</span>
                 </motion.div>
               ))}
             </div>
@@ -379,8 +379,8 @@ export function LabInterpretationModule() {
   };
 
   const statusStyle: Record<string, { color: string; bg: string; icon: any }> = {
-    LOW: { color: "#E0B080", bg: "#E0B08015", icon: ArrowRight },
-    HIGH: { color: "#C98A7A", bg: "#C98A7A15", icon: AlertTriangle },
+    LOW: { color: "#C9962E", bg: "#C9962E15", icon: ArrowRight },
+    HIGH: { color: "#B8860B", bg: "#A1620715", icon: AlertTriangle },
     NORMAL: { color: "#9DB89E", bg: "#9DB89E15", icon: CheckCircle2 },
   };
 
@@ -399,7 +399,7 @@ export function LabInterpretationModule() {
             <select
               value={test}
               onChange={(e) => setTest(e.target.value)}
-              className="h-11 w-full rounded-xl border border-[#E5DFD4] bg-[#FAF7F2] px-3 text-sm outline-none focus:border-[#D98B6E]/50"
+              className="h-11 w-full rounded-xl border border-[#E5DFD4] bg-[#FAF7F2] px-3 text-sm outline-none focus:border-[#A16207]/50"
             >
               <option value="">Select test…</option>
               {TESTS.map((t) => (
@@ -414,14 +414,14 @@ export function LabInterpretationModule() {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="0.0"
-              className="h-11 w-full rounded-xl border border-[#E5DFD4] bg-[#FAF7F2] px-3 text-sm outline-none focus:border-[#D98B6E]/50"
+              className="h-11 w-full rounded-xl border border-[#E5DFD4] bg-[#FAF7F2] px-3 text-sm outline-none focus:border-[#A16207]/50"
             />
           </div>
         </div>
         <button
           onClick={analyze}
           disabled={loading || !test || !value}
-          className="mt-3 flex items-center gap-1.5 rounded-full bg-[#D98B6E] px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#C97A5D] disabled:opacity-40"
+          className="mt-3 flex items-center gap-1.5 rounded-full bg-[#A16207] px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#8A5A04] disabled:opacity-40"
         >
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
           Interpret with AI
@@ -477,16 +477,16 @@ export function LabInterpretationModule() {
                 {/* Meaning */}
                 <div className="rounded-2xl border border-[#E5DFD4] bg-white p-4 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <Lightbulb className="h-4 w-4 text-[#E0B080]" />
+                    <Lightbulb className="h-4 w-4 text-[#C9962E]" />
                     <p className="text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Clinical meaning</p>
                   </div>
                   <p className="mt-2 text-sm text-[#1F1B17]">{result.meaning}</p>
                 </div>
 
                 {/* Advice */}
-                <div className="rounded-2xl border border-[#D98B6E]/20 bg-gradient-to-br from-[#D98B6E]/8 to-[#E0B080]/8 p-4 shadow-sm">
+                <div className="rounded-2xl border border-[#A16207]/20 bg-gradient-to-br from-[#A16207]/8 to-[#C9962E]/8 p-4 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <Stethoscope className="h-4 w-4 text-[#D98B6E]" />
+                    <Stethoscope className="h-4 w-4 text-[#A16207]" />
                     <p className="text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">AI recommendation</p>
                   </div>
                   <p className="mt-2 text-sm text-[#1F1B17]">{result.advice}</p>
@@ -538,10 +538,10 @@ export function PrescribingAnalyticsModule() {
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Kpi label="Total visits" value={data?.totalVisits || 0} color="#D98B6E" />
+        <Kpi label="Total visits" value={data?.totalVisits || 0} color="#A16207" />
         <Kpi label="Top diagnosis" value={data?.topDiagnoses?.[0]?.diagnosis?.slice(0, 10) || "—"} color="#9DB89E" />
-        <Kpi label="Unique drugs" value={data?.topDrugs?.length || 0} color="#E0B080" />
-        <Kpi label="Avg per visit" value="2.3" color="#C98A7A" />
+        <Kpi label="Unique drugs" value={data?.topDrugs?.length || 0} color="#C9962E" />
+        <Kpi label="Avg per visit" value="2.3" color="#B8860B" />
       </div>
 
       <div className="rounded-2xl border border-[#E5DFD4] bg-white p-5 shadow-sm">
@@ -563,7 +563,7 @@ export function PrescribingAnalyticsModule() {
                   initial={{ width: 0 }}
                   animate={{ width: `${(d.count / max) * 100}%` }}
                   transition={{ duration: 0.7, delay: i * 0.05 }}
-                  className="h-full rounded-full bg-gradient-to-r from-[#D98B6E] to-[#E0B080]"
+                  className="h-full rounded-full bg-gradient-to-r from-[#A16207] to-[#C9962E]"
                 />
               </div>
             </motion.div>
@@ -578,7 +578,7 @@ export function PrescribingAnalyticsModule() {
             {data.topDrugs.map((d: any, i: number) => (
               <span
                 key={i}
-                className="rounded-full bg-[#D98B6E]/8 px-3 py-1 text-xs font-medium text-[#A55A4A]"
+                className="rounded-full bg-[#A16207]/8 px-3 py-1 text-xs font-medium text-[#8A5A04]"
               >
                 {d.drug || d.name} · {d.count}
               </span>
@@ -646,9 +646,9 @@ export function PatientChatModule() {
                 className={cn(
                   "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-sm",
                   m.role === "user"
-                    ? "bg-[#D98B6E] text-white"
+                    ? "bg-[#A16207] text-white"
                     : m.escalated
-                      ? "bg-[#E0B080]/15 text-[#1F1B17] ring-1 ring-[#E0B080]/30"
+                      ? "bg-[#C9962E]/15 text-[#1F1B17] ring-1 ring-[#C9962E]/30"
                       : "bg-[#F3EEE6] text-[#1F1B17]"
                 )}
               >
@@ -681,7 +681,7 @@ export function PatientChatModule() {
               <button
                 key={s}
                 onClick={() => setInput(s)}
-                className="rounded-full bg-[#F3EEE6] px-3 py-1 text-xs text-[#5C544D] transition-colors hover:bg-[#D98B6E]/10 hover:text-[#D98B6E]"
+                className="rounded-full bg-[#F3EEE6] px-3 py-1 text-xs text-[#5C544D] transition-colors hover:bg-[#A16207]/10 hover:text-[#A16207]"
               >
                 {s}
               </button>
@@ -696,11 +696,11 @@ export function PatientChatModule() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()}
             placeholder="Ask about medicines, diet, side effects…"
-            className="flex-1 rounded-xl border border-[#E5DFD4] bg-[#FAF7F2] px-4 py-2.5 text-sm outline-none focus:border-[#D98B6E]/50 focus:ring-2 focus:ring-[#D98B6E]/15"
+            className="flex-1 rounded-xl border border-[#E5DFD4] bg-[#FAF7F2] px-4 py-2.5 text-sm outline-none focus:border-[#A16207]/50 focus:ring-2 focus:ring-[#A16207]/15"
           />
           <button
             onClick={send}
-            className="grid h-10 w-10 place-items-center rounded-xl bg-[#D98B6E] text-white shadow-md transition-colors hover:bg-[#C97A5D]"
+            className="grid h-10 w-10 place-items-center rounded-xl bg-[#A16207] text-white shadow-md transition-colors hover:bg-[#8A5A04]"
             aria-label="Send message"
           >
             <Send className="h-4 w-4" />
@@ -715,7 +715,7 @@ export function PatientChatModule() {
 function Header({ title, subtitle, icon: Icon }: { title: string; subtitle: string; icon: any }) {
   return (
     <div className="flex items-center gap-2.5">
-      <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-[#D98B6E] to-[#C98A7A] text-white shadow-md">
+      <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-[#A16207] to-[#8F5E06] text-white shadow-md">
         <Icon className="h-5 w-5" strokeWidth={2.2} />
       </span>
       <div>

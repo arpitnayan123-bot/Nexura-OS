@@ -46,8 +46,8 @@ export function KnowYourHealthApp() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#1F1B17] mesh-bg">
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#9DB89E]/15 blur-3xl anim-aurora" />
-        <div className="absolute top-1/3 -right-32 h-80 w-80 rounded-full bg-[#D98B6E]/12 blur-3xl anim-aurora" style={{ animationDelay:"-8s" }} />
-        <div className="absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-[#E0B080]/12 blur-3xl anim-aurora" style={{ animationDelay:"-16s" }} />
+        <div className="absolute top-1/3 -right-32 h-80 w-80 rounded-full bg-[#A16207]/12 blur-3xl anim-aurora" style={{ animationDelay:"-8s" }} />
+        <div className="absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-[#C9962E]/12 blur-3xl anim-aurora" style={{ animationDelay:"-16s" }} />
       </div>
 
       <header className="glass-premium sticky top-0 z-40">
@@ -59,7 +59,7 @@ export function KnowYourHealthApp() {
           </div>
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden items-center gap-1.5 rounded-full glass-chip px-3 py-1.5 text-xs font-medium text-[#5A7A5B] sm:flex"><ShieldCheck className="h-3.5 w-3.5" /> Secure · server-side</span>
-            <span className="flex items-center gap-1.5 rounded-full glass-chip px-3 py-1.5 text-xs font-medium text-[#A55A4A]"><Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> {TOOLS.length} tools</span>
+            <span className="flex items-center gap-1.5 rounded-full glass-chip px-3 py-1.5 text-xs font-medium text-[#8A5A04]"><Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> {TOOLS.length} tools</span>
           </div>
         </div>
       </header>
@@ -76,7 +76,7 @@ export function KnowYourHealthApp() {
               <div className="relative overflow-hidden rounded-3xl mesh-bg-dark p-6 text-white shadow-depth-lg sm:p-10">
                 <div className="pointer-events-none absolute inset-0 glass-dark" style={{ borderRadius:"inherit" }} />
                 <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-[#9DB89E]/30 blur-3xl anim-breathe" />
-                <div className="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-[#D98B6E]/30 blur-3xl anim-aurora" />
+                <div className="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-[#A16207]/30 blur-3xl anim-aurora" />
                 {/* champagne aurora heart — Liquid Gold signature */}
                 <div aria-hidden className="aurora-gold right-[-6%] top-[-30%] h-72 w-96 opacity-40" style={{ animationDelay: "-4s" }} />
                 <div className="relative max-w-2xl">
@@ -136,12 +136,12 @@ export function KnowYourHealthApp() {
                     <p className="mt-1 text-[0.7rem] leading-relaxed text-[#5C544D]">Type your details, fill a short form, or upload a photo — whichever the tool asks for.</p>
                   </div>
                   <div className="rounded-xl bg-[#FAF7F2]/60 p-3">
-                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[#E0B080]/20 text-[0.65rem] font-bold text-[#B8893D]">2</span>
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[#C9962E]/20 text-[0.65rem] font-bold text-[#B8893D]">2</span>
                     <p className="mt-2 text-xs font-semibold text-[#1F1B17]">AI analyses it server-side</p>
                     <p className="mt-1 text-[0.7rem] leading-relaxed text-[#5C544D]">Gemini reviews your input against Indian clinical reference ranges (ICMR, ICMR-INDIAB, ACC/AHA) in an Indian care context.</p>
                   </div>
                   <div className="rounded-xl bg-[#FAF7F2]/60 p-3">
-                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[#C98A7A]/20 text-[0.65rem] font-bold text-[#9A6A5A]">3</span>
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[#B8860B]/20 text-[0.65rem] font-bold text-[#8A5A04]">3</span>
                     <p className="mt-2 text-xs font-semibold text-[#1F1B17]">Get educational guidance</p>
                     <p className="mt-1 text-[0.7rem] leading-relaxed text-[#5C544D]">Plain-English results with practical steps — and a clear flag when it's time to see a doctor.</p>
                   </div>

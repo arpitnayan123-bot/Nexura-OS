@@ -191,20 +191,20 @@ export function MentalWellness() {
                 <li className="flex items-start gap-2 text-sm text-[#1F1B17]"><Sun className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#5A7A5B]" /><span>Get <strong>20–30 minutes of movement</strong> each day — a brisk walk in morning light counts. Daylight plus movement reliably lifts mood.</span></li>
                 <li className="flex items-start gap-2 text-sm text-[#1F1B17]"><MessageCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#5A7A5B]" /><span><strong>Tell one trusted person</strong> how you've been feeling — a friend, family member, or a counsellor (Tele-MANAS 14416 is free and 24×7).</span></li>
               </ul>
-              <div className="mt-3 flex items-start gap-2.5 rounded-xl bg-[#C98A7A15] p-3">
-                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#9A6A5A]" />
-                <p className="text-xs leading-relaxed text-[#1F1B17]"><strong className="text-[#7A4A3A]">When to reach out now:</strong> if you have thoughts of harming yourself or feel unsafe, call <a href="tel:14416" className="font-semibold text-[#9A6A5A] underline underline-offset-2">Tele-MANAS 14416</a> (also 1-800-891-4416) right away (free, 24×7) or dial <a href="tel:108" className="font-semibold text-[#9A6A5A] underline underline-offset-2">108</a> in an emergency. Reaching out early is a strength — you don't have to wait.</p>
+              <div className="mt-3 flex items-start gap-2.5 rounded-xl bg-[#A1620715] p-3">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#8A5A04]" />
+                <p className="text-xs leading-relaxed text-[#1F1B17]"><strong className="text-[#7A4A3A]">When to reach out now:</strong> if you have thoughts of harming yourself or feel unsafe, call <a href="tel:14416" className="font-semibold text-[#8A5A04] underline underline-offset-2">Tele-MANAS 14416</a> (also 1-800-891-4416) right away (free, 24×7) or dial <a href="tel:108" className="font-semibold text-[#8A5A04] underline underline-offset-2">108</a> in an emergency. Reaching out early is a strength — you don't have to wait.</p>
               </div>
             </ResultCard>
 
-            <ResultCard accent="#C98A7A" title="When to Seek Help">
+            <ResultCard accent="#B8860B" title="When to Seek Help">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#9A6A5A]" />
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#8A5A04]" />
                 <p className="text-sm leading-relaxed text-[#1F1B17]">{result.whenToSeekHelp}</p>
               </div>
             </ResultCard>
 
-            <ResultCard accent="#C98A7A" title="Crisis Resources — Available Now">
+            <ResultCard accent="#B8860B" title="Crisis Resources — Available Now">
               <div className="grid gap-2 sm:grid-cols-3">
                 {(result.crisisResources?.length ? result.crisisResources : [
                   { name: "Tele-MANAS (Govt of India)", phone: "14416", hours: "24x7 · Free · All Indian languages" },
@@ -213,8 +213,8 @@ export function MentalWellness() {
                   { name: "AASRA", phone: "9820466726", hours: "24x7" },
                 ]).map((c, i) => (
                   <a key={i} href={`tel:${c.phone}`} className="block rounded-xl bg-[#FAF7F2]/60 p-3 transition-all hover:scale-[1.02]">
-                    <p className="flex items-center gap-1 text-xs font-semibold text-[#1F1B17]"><Phone className="h-3 w-3 text-[#9A6A5A]" /> {c.name}</p>
-                    <p className="mt-1 font-serif text-lg font-bold text-[#9A6A5A]">{c.phone}</p>
+                    <p className="flex items-center gap-1 text-xs font-semibold text-[#1F1B17]"><Phone className="h-3 w-3 text-[#8A5A04]" /> {c.name}</p>
+                    <p className="mt-1 font-serif text-lg font-bold text-[#8A5A04]">{c.phone}</p>
                     <p className="text-[0.6rem] text-[#9A8F84]">{c.hours}</p>
                   </a>
                 ))}

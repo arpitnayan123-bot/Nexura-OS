@@ -56,14 +56,14 @@ export default function BookingPage({ params }: { params: Promise<{ slug: string
     } catch { toast.error("Booking failed — please try again or call the clinic"); } finally { setBooking(false); }
   };
 
-  if (loading) return <div className="grid min-h-screen place-items-center bg-[#FAF7F2]"><Loader2 className="h-6 w-6 animate-spin text-[#D98B6E]" /></div>;
+  if (loading) return <div className="grid min-h-screen place-items-center bg-[#FAF7F2]"><Loader2 className="h-6 w-6 animate-spin text-[#A16207]" /></div>;
   if (!data) return <div className="grid min-h-screen place-items-center bg-[#FAF7F2] text-sm text-[#9A8F84]">Clinic not found.</div>;
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#2A2622]">
       {/* ambient */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#D98B6E]/10 blur-3xl anim-aurora" />
+        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#A16207]/10 blur-3xl anim-aurora" />
         <div className="absolute bottom-0 -right-32 h-80 w-80 rounded-full bg-[#9DB89E]/10 blur-3xl anim-aurora" style={{ animationDelay: "-8s" }} />
       </div>
 
@@ -89,12 +89,12 @@ export default function BookingPage({ params }: { params: Promise<{ slug: string
             <div>
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Choose doctor</h3>
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => setSelectedDoctor("")} className={cn("rounded-xl border p-3 text-left transition-all", !selectedDoctor ? "border-[#D98B6E] bg-[#D98B6E]/5 shadow-sm" : "border-[#EFE9E0] bg-white hover:border-[#D98B6E]/30")}>
+                <button onClick={() => setSelectedDoctor("")} className={cn("rounded-xl border p-3 text-left transition-all", !selectedDoctor ? "border-[#A16207] bg-[#A16207]/5 shadow-sm" : "border-[#EFE9E0] bg-white hover:border-[#A16207]/30")}>
                   <p className="text-sm font-semibold">Any doctor</p>
                   <p className="text-[0.6rem] text-[#9A8F84]">First available</p>
                 </button>
                 {data.doctors.map((d) => (
-                  <button key={d.id} onClick={() => setSelectedDoctor(d.id)} className={cn("rounded-xl border p-3 text-left transition-all", selectedDoctor === d.id ? "border-[#D98B6E] bg-[#D98B6E]/5 shadow-sm" : "border-[#EFE9E0] bg-white hover:border-[#D98B6E]/30")}>
+                  <button key={d.id} onClick={() => setSelectedDoctor(d.id)} className={cn("rounded-xl border p-3 text-left transition-all", selectedDoctor === d.id ? "border-[#A16207] bg-[#A16207]/5 shadow-sm" : "border-[#EFE9E0] bg-white hover:border-[#A16207]/30")}>
                     <p className="text-sm font-semibold">{d.name}</p>
                     <p className="text-[0.6rem] text-[#9A8F84]">{d.specialization} · ₹{d.feeConsult}</p>
                   </button>
@@ -107,7 +107,7 @@ export default function BookingPage({ params }: { params: Promise<{ slug: string
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Select day (next 7 days)</h3>
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {days.map((d, i) => (
-                  <button key={i} onClick={() => setSelectedDay(i)} className={cn("flex shrink-0 flex-col items-center gap-0.5 rounded-xl border px-3 py-2 transition-all", selectedDay === i ? "border-[#D98B6E] bg-[#D98B6E] text-white shadow-sm" : "border-[#EFE9E0] bg-white text-[#5C544D]")}>
+                  <button key={i} onClick={() => setSelectedDay(i)} className={cn("flex shrink-0 flex-col items-center gap-0.5 rounded-xl border px-3 py-2 transition-all", selectedDay === i ? "border-[#A16207] bg-[#A16207] text-white shadow-sm" : "border-[#EFE9E0] bg-white text-[#5C544D]")}>
                     <span className="text-[0.6rem] font-medium">{d.label}</span>
                     <span className="font-serif text-lg font-bold">{d.day}</span>
                     <span className="text-[0.55rem]">{d.month}</span>
@@ -121,7 +121,7 @@ export default function BookingPage({ params }: { params: Promise<{ slug: string
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Available slots</h3>
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                 {slots.map((s) => (
-                  <button key={s} onClick={() => setSelectedSlot(s)} className={cn("rounded-lg border py-2 text-xs font-medium transition-all", selectedSlot === s ? "border-[#D98B6E] bg-[#D98B6E] text-white shadow-sm" : "border-[#EFE9E0] bg-white text-[#5C544D] hover:border-[#D98B6E]/30")}>{s}</button>
+                  <button key={s} onClick={() => setSelectedSlot(s)} className={cn("rounded-lg border py-2 text-xs font-medium transition-all", selectedSlot === s ? "border-[#A16207] bg-[#A16207] text-white shadow-sm" : "border-[#EFE9E0] bg-white text-[#5C544D] hover:border-[#A16207]/30")}>{s}</button>
                 ))}
               </div>
             </div>
@@ -129,8 +129,8 @@ export default function BookingPage({ params }: { params: Promise<{ slug: string
             {/* patient info */}
             <div className="space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#EFE9E0]">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Your details</h3>
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="h-11 w-full rounded-xl bg-[#FAF7F2] px-4 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" />
-              <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile number" type="tel" className="h-11 w-full rounded-xl bg-[#FAF7F2] px-4 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#D98B6E]/40" />
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="h-11 w-full rounded-xl bg-[#FAF7F2] px-4 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#A16207]/40" />
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile number" type="tel" className="h-11 w-full rounded-xl bg-[#FAF7F2] px-4 text-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#A16207]/40" />
               <button onClick={submit} disabled={booking || !name || !phone || !selectedSlot} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2A2622] py-3 text-sm font-semibold text-white disabled:opacity-50">
                 {booking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Calendar className="h-4 w-4" />}
                 {selectedSlot ? `Book ${days[selectedDay].label} ${days[selectedDay].day} at ${selectedSlot}` : "Select a slot"}

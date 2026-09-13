@@ -18,8 +18,8 @@ const INSIGHT_ICON: Record<string, typeof AlertTriangle> = {
 };
 
 const INSIGHT_STYLES: Record<string, { bg: string; text: string; border: string }> = {
-  alert: { bg: "bg-[#D98B6E]/8", text: "text-[#B85A3F]", border: "border-[#D98B6E]/30" },
-  warning: { bg: "bg-[#E0B080]/12", text: "text-[#A87C45]", border: "border-[#E0B080]/30" },
+  alert: { bg: "bg-[#A16207]/8", text: "text-[#B85A3F]", border: "border-[#A16207]/30" },
+  warning: { bg: "bg-[#C9962E]/12", text: "text-[#A87C45]", border: "border-[#C9962E]/30" },
   info: { bg: "bg-[#9DB89E]/12", text: "text-[#5E8A60]", border: "border-[#9DB89E]/30" },
 };
 
@@ -45,7 +45,7 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-3xl border border-[#E7E5E4] bg-gradient-to-br from-[#D98B6E] via-[#C97759] to-[#9DB89E] p-6 text-white shadow-[0_8px_32px_-12px_oklch(0.5_0.10_45/0.4)] sm:p-8"
+        className="relative overflow-hidden rounded-3xl border border-[#E7E5E4] bg-gradient-to-br from-[#8F5E06] via-[#A16207] to-[#B8860B] p-6 text-white shadow-[0_8px_32px_-12px_oklch(0.5_0.10_45/0.4)] sm:p-8"
       >
         <div aria-hidden className="absolute inset-0 overflow-hidden">
           <motion.div
@@ -82,7 +82,7 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
           {/* CTA */}
           <button
             onClick={onBookTest}
-            className="group mt-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#C97759] shadow-lg transition-all hover:-translate-y-0.5 active:scale-95"
+            className="group mt-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#8A5A04] shadow-lg transition-all hover:-translate-y-0.5 active:scale-95"
           >
             <Droplet className="h-4 w-4" />
             Book Blood Test at Home
@@ -180,10 +180,10 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
           <section className="rounded-3xl border border-[#E7E5E4] bg-white p-5 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="flex items-center gap-2 text-sm font-semibold text-stone-800">
-                <Stethoscope className="h-4 w-4 text-[#D98B6E]" />
+                <Stethoscope className="h-4 w-4 text-[#A16207]" />
                 Upcoming visits
               </h2>
-              <span className="rounded-full bg-[#D98B6E]/10 px-2 py-0.5 text-[0.65rem] font-semibold text-[#D98B6E]">
+              <span className="rounded-full bg-[#A16207]/10 px-2 py-0.5 text-[0.65rem] font-semibold text-[#A16207]">
                 {stats.upcomingAppointments ?? 0}
               </span>
             </div>
@@ -211,12 +211,12 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
           <section className="rounded-3xl border border-[#E7E5E4] bg-white p-5 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="flex items-center gap-2 text-sm font-semibold text-stone-800">
-                <Droplet className="h-4 w-4 text-[#D98B6E]" />
+                <Droplet className="h-4 w-4 text-[#A16207]" />
                 Active blood tests
               </h2>
               <button
                 onClick={onGoToBlood}
-                className="text-[0.65rem] font-semibold uppercase tracking-wider text-[#D98B6E] hover:underline"
+                className="text-[0.65rem] font-semibold uppercase tracking-wider text-[#A16207] hover:underline"
               >
                 View all →
               </button>
@@ -236,7 +236,7 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
                       <Clock className="h-3 w-3" />
                       {new Date(b.scheduledDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {b.timeSlot}
                     </p>
-                    <span className="mt-1.5 inline-block rounded-full bg-[#E0B080]/20 px-2 py-0.5 text-[0.6rem] font-semibold text-[#A87C45] capitalize">
+                    <span className="mt-1.5 inline-block rounded-full bg-[#C9962E]/20 px-2 py-0.5 text-[0.6rem] font-semibold text-[#A87C45] capitalize">
                       {b.status.replace("_", " ")}
                     </span>
                   </button>
@@ -283,7 +283,7 @@ function SummaryCard({ label, value, icon: Icon }: { label: string; value: strin
   return (
     <div className="rounded-2xl border border-[#E7E5E4] bg-[#FAF7F2] p-4">
       <div className="flex items-center gap-1.5 text-[0.7rem] font-medium uppercase tracking-wider text-stone-500">
-        <Icon className="h-3 w-3 text-[#D98B6E]" />
+        <Icon className="h-3 w-3 text-[#A16207]" />
         {label}
       </div>
       <p className="mt-1.5 font-display text-2xl font-semibold text-stone-800">{value}</p>
@@ -293,13 +293,13 @@ function SummaryCard({ label, value, icon: Icon }: { label: string; value: strin
 
 function TimelineDot({ type }: { type: string }) {
   const colors: Record<string, string> = {
-    appointment: "bg-[#D98B6E]",
+    appointment: "bg-[#A16207]",
     admission: "bg-[#B85A3F]",
     vital: "bg-[#9DB89E]",
-    bill: "bg-[#E0B080]",
+    bill: "bg-[#C9962E]",
     insurance: "bg-[#0EA5E9]",
     lab: "bg-[#A87C45]",
-    blood_booking: "bg-[#D98B6E]",
+    blood_booking: "bg-[#A16207]",
   };
   return (
     <span className="relative z-10 mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-full ring-4 ring-white">
