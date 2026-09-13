@@ -30,7 +30,17 @@ export function Hero() {
       id="top"
       className="relative overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24 lg:pt-44 lg:pb-28"
     >
-      {/* Background layers — Linen spec: calm canvas, ≤2% grain */}
+      {/* Background layers — Liquid Gold spec: calm stone canvas,
+          breathing champagne aurora, ≤2% fine grain */}
+      <div
+        aria-hidden
+        className="aurora-gold -top-40 right-[-10%] h-[30rem] w-[46rem] opacity-70"
+      />
+      <div
+        aria-hidden
+        className="aurora-gold top-1/3 left-[-12%] h-[22rem] w-[30rem] opacity-40"
+        style={{ animationDelay: "-6s" }}
+      />
       <GrainOverlay className="opacity-[0.02]" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -38,22 +48,22 @@ export function Hero() {
           {/* Left: copy */}
           <div className="max-w-2xl">
             <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-primary">
+              <span className="badge-lux">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#A16207] opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#A16207]" />
                 </span>
                 Now in private beta · 22 apps · one Hospital OS
               </span>
             </Reveal>
 
             <Reveal delay={0.08}>
-              <h1 className="mt-5 font-display text-[2.6rem] font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.2rem]">
+              <h1 className="title-lux mt-5 text-[2.6rem] font-semibold sm:text-6xl lg:text-[4.2rem]">
                 A calmer{" "}
                 <span className="relative inline-block">
-                  <span className="text-gradient-warm">operating system</span>
+                  <span className="text-gold-gradient">operating system</span>
                   <svg
-                    className="absolute -bottom-2 left-0 w-full text-primary/50"
+                    className="absolute -bottom-2 left-0 w-full text-[#A16207]/45"
                     viewBox="0 0 300 12"
                     fill="none"
                     aria-hidden
@@ -87,7 +97,7 @@ export function Hero() {
                   <Button
                     onClick={() => openBooking()}
                     size="lg"
-                    className="group h-11 rounded-full bg-[#AC5335] px-6 text-[0.95rem] font-medium text-[#FFF8F3] shadow-none transition-colors hover:bg-[#9A4830]"
+                    className="btn-gold group h-11 rounded-full px-6 text-[0.95rem] font-medium"
                   >
                     <span className="flex items-center gap-2">
                       Start your health scan
@@ -97,9 +107,9 @@ export function Hero() {
                 </Magnetic>
                 <Link
                   href="/hospital"
-                  className="nx-glass nx-btn-glass text-[0.95rem]"
+                  className="btn-glass-lux h-11 rounded-full px-6 text-[0.95rem] font-medium"
                 >
-                  <PlayCircle className="h-4.5 w-4.5 text-[#AC5335]" />
+                  <PlayCircle className="h-4.5 w-4.5 text-[#A16207]" />
                   Watch the demo
                 </Link>
               </div>
@@ -216,8 +226,8 @@ function HeroVisual() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.31_0.02_55_0.55)] via-transparent to-transparent" />
 
-        {/* name plate */}
-        <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-2xl bg-white/85 px-4 py-3 backdrop-blur-md">
+        {/* name plate — Liquid Glass */}
+        <div className="glass-lux absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
           <div className="flex items-center gap-3">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-sage/30 text-foreground">
               <Stethoscope className="h-4 w-4" />
@@ -235,12 +245,12 @@ function HeroVisual() {
 
       {/* floating chip: AI diagnosis */}
       <motion.div
-        className="absolute -left-3 top-6 w-44 rounded-2xl border border-white/60 bg-white/90 p-3 shadow-xl backdrop-blur sm:-left-6"
+        className="glass-lux absolute -left-3 top-6 w-44 rounded-2xl p-3 sm:-left-6"
         animate={{ y: [0, 12, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
       >
         <div className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-coral/15 text-coral">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#A16207]/12 text-[#A16207]">
             <Sparkles className="h-4 w-4" />
           </span>
           <div className="leading-tight">
@@ -267,7 +277,7 @@ function HeroVisual() {
 
       {/* floating chip: live vitals */}
       <motion.div
-        className="absolute -right-2 top-1/3 w-52 rounded-2xl border border-white/60 bg-white/90 p-3.5 shadow-xl backdrop-blur sm:-right-6"
+        className="glass-lux absolute -right-2 top-1/3 w-52 rounded-2xl p-3.5 sm:-right-6"
         animate={{ y: [0, -14, 0] }}
         transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
       >
@@ -291,7 +301,7 @@ function HeroVisual() {
 
       {/* floating chip: care score */}
       <motion.div
-        className="absolute -bottom-3 left-4 w-40 rounded-2xl border border-white/60 bg-white/90 p-3 shadow-xl backdrop-blur sm:left-8"
+        className="glass-lux absolute -bottom-3 left-4 w-40 rounded-2xl p-3 sm:left-8"
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
       >
