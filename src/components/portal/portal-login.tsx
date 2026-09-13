@@ -115,7 +115,7 @@ export function PortalLogin() {
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute -top-32 -left-32 h-[32rem] w-[32rem] rounded-full"
-          style={{ background: "radial-gradient(circle, oklch(0.85 0.12 45 / 0.55), transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, oklch(0.85 0.10 80 / 0.55), transparent 70%)" }}
           animate={{ x: [0, 30, -10, 0], y: [0, -10, 20, 0], scale: [1, 1.1, 0.95, 1] }}
           transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -142,7 +142,7 @@ export function PortalLogin() {
               top: `${(i * 37) % 100}%`,
               width: 4 + (i % 3) * 2,
               height: 4 + (i % 3) * 2,
-              background: i % 3 === 0 ? "oklch(0.70 0.145 45 / 0.4)" : i % 3 === 1 ? "oklch(0.74 0.06 155 / 0.4)" : "oklch(0.80 0.10 75 / 0.4)",
+              background: i % 3 === 0 ? "oklch(0.72 0.12 80 / 0.4)" : i % 3 === 1 ? "oklch(0.74 0.06 155 / 0.4)" : "oklch(0.80 0.10 75 / 0.4)",
             }}
             animate={{ y: [0, -30, 0], opacity: [0.3, 0.7, 0.3] }}
             transition={{ duration: 6 + (i % 4), repeat: Infinity, delay: -i * 0.5 }}

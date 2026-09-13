@@ -174,7 +174,7 @@ export function PortalApp() {
       <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
         <motion.div
           className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full"
-          style={{ background: "radial-gradient(circle, oklch(0.85 0.10 45 / 0.25), transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, oklch(0.85 0.09 80 / 0.25), transparent 70%)" }}
           animate={{ x: [0, -20, 10, 0], y: [0, 20, -10, 0] }}
           transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
         />
