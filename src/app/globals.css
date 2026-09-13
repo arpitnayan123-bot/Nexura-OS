@@ -1661,3 +1661,406 @@ html.nx-force-visible [style*="opacity:0"] {
   opacity: 1 !important;
   transform: none !important;
 }
+
+/* =============================================================
+   NEXURA "LIQUID GOLD" — premium layer v2
+   ----------------------------------------------------------
+   Derived from the ui-ux-pro-max design-intelligence run:
+   · Style ........ Liquid Glass (optical translucency, sheen)
+   · Palette ...... Luxury/Premium — warm stone ground,
+                    deep charcoal ink, refined gold accent
+                    (#A16207 base / champagne highlights)
+   · Pattern ...... scroll-triggered storytelling chapters
+   · Motion ....... 300–450ms reveals, y ≤ 16px, expo-out,
+                    reduced-motion always respected
+   · Anti-patterns  cheap visuals, fast (<150ms) animations
+   These utilities layer ON TOP of the warm system above and
+   are consumed by every Nexura product surface.
+   ============================================================= */
+
+:root {
+  /* refined gold system — replaces flat amber as THE premium signal */
+  --gold:        #A16207;                       /* deep refined gold   */
+  --gold-deep:   #7C4A03;                       /* pressed gold        */
+  --champagne:   #D9B87C;                       /* champagne highlight */
+  --champagne-2: #F0E2C4;                       /* pale champagne      */
+  --ink-lux:     #1C1917;                       /* premium charcoal    */
+  --ink-lux-2:   #44403C;                       /* warm stone ink      */
+
+  /* layered luxury shadows — soft, directional, expensive */
+  --shadow-lux-1: 0 1px 2px oklch(0.25 0.03 60 / 0.05),
+                  0 2px 6px -1px oklch(0.25 0.03 60 / 0.06),
+                  0 12px 28px -10px oklch(0.30 0.05 55 / 0.12);
+  --shadow-lux-2: 0 2px 4px oklch(0.25 0.03 60 / 0.05),
+                  0 8px 18px -6px oklch(0.28 0.04 58 / 0.10),
+                  0 28px 64px -18px oklch(0.32 0.06 52 / 0.18);
+  --shadow-lux-3: 0 4px 8px oklch(0.25 0.03 60 / 0.06),
+                  0 16px 36px -10px oklch(0.28 0.04 58 / 0.14),
+                  0 48px 110px -24px oklch(0.34 0.07 50 / 0.24);
+
+  /* gold radiance for hover glows & aurora hearts */
+  --gold-glow: 0 0 0 1px oklch(0.72 0.12 80 / 0.22),
+               0 8px 32px -6px oklch(0.72 0.12 80 / 0.28);
+}
+
+.dark {
+  --gold:        #E3B04B;
+  --gold-deep:   #C89040;
+  --champagne:   #EED9A8;
+  --champagne-2: #F6EBCE;
+  --ink-lux:     #EDE6DA;
+  --ink-lux-2:   #C9C0B2;
+  --shadow-lux-1: 0 1px 2px oklch(0 0 0 / 0.3), 0 8px 24px -10px oklch(0 0 0 / 0.4);
+  --shadow-lux-2: 0 2px 4px oklch(0 0 0 / 0.32), 0 16px 40px -12px oklch(0 0 0 / 0.5);
+  --shadow-lux-3: 0 4px 8px oklch(0 0 0 / 0.35), 0 32px 80px -20px oklch(0 0 0 / 0.6);
+}
+
+/* ---------- typography ---------- */
+
+/* display headline — Fraunces, optically balanced */
+.title-lux {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 560;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+  text-wrap: balance;
+  font-variation-settings: "opsz" 96, "SOFT" 60;
+}
+
+/* supporting lede under a headline */
+.lede-lux {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+
+/* champagne→gold gradient text (hero keywords, key numerals) */
+.text-gold-gradient {
+  background: linear-gradient(105deg, var(--gold-deep) 0%, var(--gold) 32%, var(--champagne) 78%, var(--gold) 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  animation: gold-pan 9s ease-in-out infinite;
+}
+@keyframes gold-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-gold-gradient { animation: none; }
+}
+
+/* eyebrow chapter label — tracked caps with gold dash */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 1.75rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+}
+.eyebrow::after {
+  content: "";
+  display: inline-block;
+  width: 0.3125rem;
+  height: 0.3125rem;
+  transform: rotate(45deg);
+  background: var(--champagne);
+}
+
+/* ---------- surfaces ---------- */
+
+/* Liquid Glass — the skill's primary style, refined */
+.glass-lux {
+  position: relative;
+  background: linear-gradient(160deg,
+    color-mix(in oklch, var(--card) 82%, transparent) 0%,
+    color-mix(in oklch, var(--card) 62%, transparent) 100%);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid color-mix(in oklch, white 42%, var(--border) 20%);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklch, white 62%, transparent),
+    inset 0 -1px 0 0 color-mix(in oklch, var(--border) 25%, transparent),
+    var(--shadow-lux-1);
+}
+.glass-lux::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(115deg,
+    color-mix(in oklch, white 16%, transparent) 0%,
+    transparent 34%,
+    transparent 62%,
+    color-mix(in oklch, var(--champagne) 9%, transparent) 100%);
+}
+.dark .glass-lux {
+  background: linear-gradient(160deg,
+    color-mix(in oklch, var(--card) 76%, transparent) 0%,
+    color-mix(in oklch, var(--card) 56%, transparent) 100%);
+  border-color: color-mix(in oklch, white 14%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklch, white 10%, transparent),
+    var(--shadow-lux-1);
+}
+
+/* premium card — hairline, layered shadow, gold hover reveal */
+.card-lux {
+  position: relative;
+  background: linear-gradient(175deg,
+    color-mix(in oklch, var(--card) 100%, transparent),
+    color-mix(in oklch, var(--background) 92%, transparent));
+  border: 1px solid color-mix(in oklch, var(--border) 85%, transparent);
+  box-shadow: var(--shadow-lux-1);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.45s ease;
+}
+.card-lux-hover:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in oklch, var(--gold) 34%, var(--border));
+  box-shadow: var(--shadow-lux-2), var(--gold-glow);
+}
+/* gold hairline that wipes in across the top edge on hover */
+.card-lux::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--champagne), transparent);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.card-lux-hover:hover::after { opacity: 1; }
+
+/* ---------- buttons ---------- */
+
+/* charcoal premium button — the "quiet luxury" CTA */
+.btn-lux {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  background: linear-gradient(180deg, #2B2724, var(--ink-lux));
+  color: #FAF7F1;
+  border: 1px solid oklch(1 0 0 / 0.09);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 0.14),
+    var(--shadow-lux-1);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s ease, filter 0.3s ease;
+}
+.btn-lux::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 32%, oklch(0.86 0.09 82 / 0.20) 50%, transparent 68%);
+  transform: translateX(-120%);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.btn-lux:hover {
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.16), var(--shadow-lux-2);
+  filter: brightness(1.08);
+}
+.btn-lux:hover::before { transform: translateX(120%); }
+.btn-lux:active { transform: translateY(0); }
+
+/* gold gradient button — the climax CTA */
+.btn-gold {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold) 45%, #C08A2D 78%, var(--champagne) 110%);
+  color: #FFFDF6;
+  border: 1px solid oklch(1 0 0 / 0.16);
+  text-shadow: 0 1px 1px oklch(0.4 0.08 70 / 0.25);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 0.28),
+    0 8px 22px -8px oklch(0.62 0.12 75 / 0.55);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s ease, filter 0.3s ease;
+}
+.btn-gold:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06) saturate(1.05);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 0.3),
+    0 12px 32px -8px oklch(0.62 0.12 75 / 0.62),
+    var(--gold-glow);
+}
+.btn-gold:active { transform: translateY(0); }
+
+/* glass button, upgraded */
+.btn-glass-lux {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: color-mix(in oklch, var(--card) 58%, transparent);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid color-mix(in oklch, white 40%, var(--border) 30%);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklch, white 55%, transparent),
+    var(--shadow-lux-1);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.btn-glass-lux:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklch, var(--gold) 30%, var(--border));
+  box-shadow: inset 0 1px 0 0 color-mix(in oklch, white 60%, transparent), var(--shadow-lux-2);
+}
+
+/* ---------- ornaments & texture ---------- */
+
+/* hairline divider with center champagne diamond */
+.ornament {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+.ornament::before,
+.ornament::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--gold) 36%, transparent));
+}
+.ornament::after {
+  background: linear-gradient(90deg, color-mix(in oklch, var(--gold) 36%, transparent), transparent);
+}
+.ornament > * {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, var(--champagne), var(--gold));
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--champagne) 22%, transparent);
+}
+
+/* premium pill badge — gold hairline */
+.badge-lux {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--gold-deep);
+  background: linear-gradient(120deg,
+    color-mix(in oklch, var(--champagne) 26%, transparent),
+    color-mix(in oklch, var(--champagne) 8%, transparent));
+  border: 1px solid color-mix(in oklch, var(--gold) 26%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklch, white 45%, transparent),
+    0 2px 10px -4px oklch(0.62 0.12 75 / 0.18);
+}
+.dark .badge-lux {
+  color: var(--champagne);
+  background: linear-gradient(120deg,
+    color-mix(in oklch, var(--gold) 16%, transparent),
+    color-mix(in oklch, var(--gold) 5%, transparent));
+  border-color: color-mix(in oklch, var(--champagne) 22%, transparent);
+}
+
+/* stat numeral — Fraunces with gold gradient option */
+.stat-lux {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 540;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: "opsz" 72;
+}
+
+/* fine film grain — for hero backdrops */
+.grain-fine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* gold aurora heart — ambience behind premium sections */
+.aurora-gold {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  background: radial-gradient(circle at 35% 35%,
+    color-mix(in oklch, var(--champagne) 42%, transparent),
+    color-mix(in oklch, var(--gold) 16%, transparent) 55%,
+    transparent 75%);
+  pointer-events: none;
+  animation: gold-breathe 12s ease-in-out infinite;
+}
+@keyframes gold-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.8;  transform: scale(1.08); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora-gold { animation: none; }
+}
+
+/* ---------- site-wide chrome upgrades ---------- */
+
+/* premium scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg,
+    color-mix(in oklch, var(--gold) 34%, transparent),
+    color-mix(in oklch, var(--gold) 20%, transparent));
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg,
+    color-mix(in oklch, var(--gold) 52%, transparent),
+    color-mix(in oklch, var(--gold) 34%, transparent));
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+/* champagne selection */
+::selection {
+  background: color-mix(in oklch, var(--champagne) 42%, transparent);
+  color: var(--ink-lux);
+}
+
+/* gold focus ring */
+:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--gold) 75%, transparent);
+  outline-offset: 2px;
+}
+
+/* =============================================================
+   END LIQUID GOLD LAYER
+   ============================================================= */
