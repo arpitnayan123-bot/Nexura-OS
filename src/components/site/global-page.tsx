@@ -10,6 +10,7 @@ import {
   type FormEvent,
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Magnetic, ScrollProgress } from "@/components/premium/kit";
 import {
   Activity,
   ArrowRight,
@@ -553,6 +554,7 @@ export function GlobalPage() {
 
   return (
     <div className="relative min-h-screen bg-white font-sans text-slate-900 antialiased">
+      <ScrollProgress className="z-[80]" />
       {/* ============== TOP NAV ============== */}
       <TopNav
         t={t}
@@ -812,7 +814,7 @@ function Hero({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.08 }}
-          className="title-lux mx-auto mt-6 max-w-4xl text-center text-4xl font-bold text-white sm:text-5xl lg:text-6xl"
+          className="display-xl mx-auto mt-6 max-w-4xl text-center text-white"
         >
           {t.heroTitle1}{" "}
           <span className="relative inline-block">
@@ -1512,14 +1514,15 @@ function FinalCTA({ t, onCta }: { t: typeof I18N["en"]; onCta: () => void }) {
           coordinators speak English, Arabic, Hindi, and Russian.
         </p>
         <div className="flex flex-col items-center gap-3 sm:flex-row">
-          <button
-            onClick={onCta}
-            className="flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-slate-900 shadow-lg transition-transform hover:scale-[1.03]"
-            style={{ background: GOLD }}
-          >
-            {t.navCta}
-            <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-          </button>
+          <Magnetic strength={0.3}>
+            <button
+              onClick={onCta}
+              className="btn-gold flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-lg"
+            >
+              <span>{t.navCta}</span>
+              <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            </button>
+          </Magnetic>
           <a
             href="https://wa.me/919820012345?text=Hello%2C%20I%27d%20like%20to%20know%20more%20about%20medical%20treatment%20in%20India%20via%20Nexura%20OS"
             target="_blank"

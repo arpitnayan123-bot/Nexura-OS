@@ -6,6 +6,7 @@
  * ============================================================ */
 
 import { motion } from "framer-motion";
+import { Magnetic } from "@/components/premium/kit";
 import { ArrowRight, ChevronDown, Footprints, HeartPulse, History, MoonStar, ShieldCheck, Sparkles, Wind, UtensilsCrossed, Dna, Activity } from "lucide-react";
 import { Eyebrow, CountUp, GlassCard, Ornament, Spotlight, fadeUp, type FsLang } from "./ui";
 import { DomainGlossary } from "./glossary";
@@ -83,10 +84,12 @@ export function Landing({
             )}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <button type="button" className="nxf-cta" onClick={onStart}>
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-              {t("Map My Health Future", HI.ctaPrimary)}
-            </button>
+            <Magnetic strength={0.3}>
+              <button type="button" className="nxf-cta" onClick={onStart}>
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+                {t("Map My Health Future", HI.ctaPrimary)}
+              </button>
+            </Magnetic>
             {hasHistory && (
               <button type="button" className="nxf-cta nxf-cta-ghost" onClick={onHistory}>
                 {t("My history", HI.ctaHistory)}
