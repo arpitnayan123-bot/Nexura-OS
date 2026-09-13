@@ -65,7 +65,7 @@ export function OsGlance() {
                 Nexura OS at a glance
               </h2>
               <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-[#5E5A52]">
-                One operating system for Indian healthcare — every number below
+                One operating system for Indian healthcare: every number below
                 is the real shipped inventory, from the app registry to the
                 foresight engine that maps twelve risk domains from 40 symptom
                 patterns and 130+ weighted factors.
@@ -92,7 +92,7 @@ export function OsGlance() {
                   <f.icon className="h-4 w-4 shrink-0 text-[#AC5335]" aria-hidden="true" />
                   <p className="nx-micro">{f.label}</p>
                 </div>
-                <p className="mt-3 font-display text-[2.15rem] font-semibold leading-none text-[#2E2A26]">
+                <p className="tabular mt-3 font-display text-[2.15rem] font-semibold leading-none text-[#2E2A26]">
                   <AnimatedNumber value={f.value} />
                 </p>
                 <span className="nx-pill-sage mt-2.5">{f.pill}</span>

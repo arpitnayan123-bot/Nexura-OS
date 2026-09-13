@@ -9,6 +9,7 @@ import {
   ArrowUpRight, type LucideIcon,
 } from "lucide-react";
 import { useBooking } from "./booking-context";
+import { Counter, SpotlightCard } from "@/components/premium/kit";
 
 /* ============================================================
    FEATURES SHOWCASE — All menu items displayed on homepage
@@ -74,12 +75,12 @@ export function FeaturesShowcase() {
           <p className="nx-micro mb-3">
             Everything Nexura OS
           </p>
-          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.75rem]">
+          <h2 className="display-md text-foreground">
             One ecosystem.{" "}
-            <span className="text-gradient-warm">Every feature.</span>
+            <span className="text-gold-gradient">Every feature.</span>
           </h2>
-          <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            9 products + 6 quick actions. Built for Indian healthcare — hospitals, clinics, pharmacies, patients, and beyond.
+          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            9 products and 6 quick actions, built for Indian healthcare: hospitals, clinics, pharmacies, patients, and beyond.
           </p>
         </motion.div>
 
@@ -91,7 +92,13 @@ export function FeaturesShowcase() {
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {PRODUCTS.map((p, i) => (
-            <FeatureCard key={p.id} feature={p} index={i} onClick={() => handleClick(p)} />
+            <FeatureCard
+              key={p.id}
+              feature={p}
+              index={i}
+              featured={i === 0}
+              onClick={() => handleClick(p)}
+            />
           ))}
         </div>
 
@@ -116,13 +123,19 @@ export function FeaturesShowcase() {
           className="mt-12 flex flex-wrap items-center justify-center gap-6 text-center"
         >
           {[
-            { stat: "9", label: "Products" },
-            { stat: "6", label: "Quick Actions" },
-            { stat: "15", label: "AI Tools" },
-            { stat: "1.4B", label: "People we build for" },
+            { stat: 9, label: "Products" },
+            { stat: 6, label: "Quick Actions" },
+            { stat: 15, label: "AI Tools" },
+            { stat: 1.4, suffix: "B", decimals: 1, label: "People we build for" },
           ].map((s, i) => (
             <div key={i}>
-              <div className="font-display text-2xl font-bold text-gradient-warm">{s.stat}</div>
+              <div className="font-display text-2xl font-bold text-gradient-warm">
+                <Counter
+                  to={s.stat}
+                  suffix={"suffix" in s ? s.suffix : ""}
+                  decimals={"decimals" in s ? s.decimals : 0}
+                />
+              </div>
               <p className="text-[0.6rem] uppercase tracking-wider text-muted-foreground/50 mt-0.5">{s.label}</p>
             </div>
           ))}
@@ -133,7 +146,7 @@ export function FeaturesShowcase() {
 }
 
 /* ---------- Feature card ---------- */
-function FeatureCard({ feature, index, compact, onClick }: { feature: Feature; index: number; compact?: boolean; onClick?: () => void }) {
+function FeatureCard({ feature, index, compact, featured, onClick }: { feature: Feature; index: number; compact?: boolean; featured?: boolean; onClick?: () => void }) {
   const Icon = feature.icon;
   const content = (
     <>
@@ -173,9 +186,13 @@ function FeatureCard({ feature, index, compact, onClick }: { feature: Feature; i
         <ArrowUpRight className="h-4 w-4 text-muted-foreground/30 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
       </div>
 
-      {/* Description (hidden in compact mode) */}
+      {/* Description (hidden in compact mode, fuller on the flagship) */}
       {!compact && (
-        <p className="relative mt-2.5 text-[0.65rem] leading-relaxed text-muted-foreground/70 line-clamp-3">
+        <p className={
+          featured
+            ? "relative mt-3 max-w-md text-[0.8rem] leading-relaxed text-muted-foreground"
+            : "relative mt-2.5 text-[0.65rem] leading-relaxed text-muted-foreground/70 line-clamp-3"
+        }>
           {feature.desc}
         </p>
       )}
@@ -194,9 +211,43 @@ function FeatureCard({ feature, index, compact, onClick }: { feature: Feature; i
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.05, duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-      className="group relative overflow-hidden rounded-[1.5rem] nx-inset-glass p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(46,42,38,0.3)]"
+      className={
+        featured
+          ? "group relative h-full sm:col-span-2 sm:row-span-2 rounded-[1.5rem] nx-inset-glass transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(46,42,38,0.3)]"
+          : "group relative h-full overflow-hidden rounded-[1.5rem] nx-inset-glass p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(46,42,38,0.3)]"
+      }
     >
-      {content}
+      {featured ? (
+        <SpotlightCard className="flex h-full flex-col justify-between rounded-[1.5rem] p-5 sm:p-6">
+          <div className="flex items-start justify-between gap-3">
+            <span
+              className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white shadow-sm ring-1 ring-white/20"
+              style={{ background: `linear-gradient(135deg, ${feature.accent}, color-mix(in srgb, ${feature.accent} 65%, #000))` }}
+            >
+              <Icon className="h-6 w-6" strokeWidth={2.2} />
+            </span>
+            {feature.badge && (
+              <span
+                className="rounded-full px-2 py-0.5 text-[0.5rem] font-bold uppercase tracking-wider text-white"
+                style={{ background: feature.accent }}
+              >
+                {feature.badge}
+              </span>
+            )}
+          </div>
+          <div className="mt-6">
+            <h3 className="font-display text-lg font-semibold text-foreground sm:text-xl">{feature.name}</h3>
+            <p className="text-[0.7rem] text-muted-foreground mt-0.5">{feature.sub}</p>
+            <p className="relative mt-3 max-w-md text-[0.8rem] leading-relaxed text-muted-foreground">{feature.desc}</p>
+          </div>
+          <span className="mt-5 inline-flex items-center gap-1.5 text-[0.75rem] font-medium text-foreground">
+            Explore {feature.name}
+            <ArrowUpRight className="h-3.5 w-3.5 text-[#A16207] transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </span>
+        </SpotlightCard>
+      ) : (
+        content
+      )}
     </motion.div>
   );
 

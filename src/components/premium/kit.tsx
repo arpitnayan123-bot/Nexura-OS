@@ -449,11 +449,7 @@ export function Counter({
   const [val, setVal] = useState(0);
 
   useEffect(() => {
-    if (!inView) return;
-    if (reduce) {
-      setVal(to);
-      return;
-    }
+    if (!inView || reduce) return;
     let raf = 0;
     const t0 = performance.now();
     const tick = (t: number) => {
@@ -466,10 +462,12 @@ export function Counter({
     return () => cancelAnimationFrame(raf);
   }, [inView, to, duration, reduce]);
 
+  const shown = reduce ? to : val;
+
   return (
     <span ref={ref} className={cn("tabular", className)}>
       {prefix}
-      {val.toLocaleString("en-IN", {
+      {shown.toLocaleString("en-IN", {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
       })}
