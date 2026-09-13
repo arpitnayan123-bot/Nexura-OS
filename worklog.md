@@ -3875,3 +3875,24 @@ Work Log:
 Stage Summary:
 - Design arsenal now: ui-ux-pro-max (79 styles/192 palettes/74 font pairings) + taste family (taste + redesign + GSAP motion + image-first) + Vercel quality gate + 73 top-brand design systems
 - Skills folder: 77 skills total
+
+---
+Task ID: NXP-LIQUID-GOLD-2.0
+Agent: Super Z (main)
+Task: Full premium transformation of every Nexura OS product page + homepage using the complete design arsenal (ui-ux-pro-max + taste-skill family + Vercel web-design-guidelines + awesome-design-md Linear DNA)
+
+Work Log:
+- Ran taste-skill redesign protocol: audit-first, mode = Redesign-Overhaul (user-approved), preserve IA/slugs/nav/copy voice; brand accent stays gold (LILA rule)
+- Dials set: DESIGN_VARIANCE 6, MOTION_INTENSITY 7, VISUAL_DENSITY 4; Linear DESIGN.md extracted for display type reference (80px/600/-3px)
+- globals.css LIQUID GOLD 2.0 layer: display-xl/lg/md fluid clamp scale with -0.035em tracking, tabular numerals, hairline-gold, frame-lux corner brackets, spotlight-card (--mx/--my), btn-gold sheen sweep, u-draw underline, reveal-word masks, marquee + float-lux keyframes, all reduced-motion safe
+- premium/kit.tsx motion engine: Magnetic (useMotionValue/useSpring outside render cycle), TiltCard, SpotlightCard, TextReveal, Counter (rAF quartic ease, tabular), StaggerGroup/Item (blur choreography), Marquee, ScrollProgress; FIXED missing "use client" (server-context import from app shells broke build)
+- Homepage: banned "private beta" hero label removed (taste-skill 9.F), display-xl hero, features showcase flagship Hospital OS 2x2 bento (span hoisted to the Link grid item — inner-div span was a no-op, verified 538/1088px), Counter stats, gold ScrollProgress, em-dash copy fixes
+- Foresight: Magnetic physics on primary CTA
+- Global: display-xl headline, ScrollProgress, Magnetic gold finale CTA
+- Connect patient-view: display-lg hero + em-dash fix
+- Pricing: frame-lux brackets on popular card, tabular prices
+- Investors + Compliance: display hero typography
+- Vercel guidelines audit: alts/aria-labels/dialog semantics/skip-link verified present; hamburger aria em-dash fixed
+
+Stage Summary:
+- BUILD OK via nx-guardian; 14/14 pages zero console errors; real 390px mobile: home/global/pricing/hospital zero overflow; hydration flag true; /api/ready green (database ok, seed ok); autocommit checkpoints 12:46/12:57/13:18 + final commit
