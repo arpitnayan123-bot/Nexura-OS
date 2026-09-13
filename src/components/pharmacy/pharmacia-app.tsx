@@ -78,11 +78,16 @@ export function PharmaciaApp() {
 
   return (
     <div className="flex min-h-screen bg-[#0D0F12] text-white">
+      {/* champagne ambient wash behind the shell */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute -top-40 right-[-8%] h-96 w-[38rem] rounded-full opacity-25 blur-3xl anim-aurora" style={{ background: "radial-gradient(circle, rgba(232,176,75,0.35), transparent 65%)" }} />
+        <div className="absolute bottom-[-20%] left-[8%] h-80 w-96 rounded-full opacity-15 blur-3xl anim-aurora" style={{ background: "radial-gradient(circle, rgba(217,184,124,0.3), transparent 65%)", animationDelay: "-9s" }} />
+      </div>
       {/* Fixed left sidebar */}
-      <aside className="sticky top-0 z-30 flex h-screen w-16 shrink-0 flex-col items-center border-r border-[#1E2228] bg-[#0D0F12] py-4 lg:w-56">
+      <aside className="sticky top-0 z-30 flex h-screen w-16 shrink-0 flex-col items-center border-r border-[#1E2228] bg-[#0D0F12]/95 backdrop-blur-xl py-4 lg:w-56">
         {/* Pharmacy name + live dot */}
         <Link href="/" className="mb-6 flex items-center gap-2 px-2 lg:px-4">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] shadow-lg shadow-[#F59E0B]/20">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#E8B04B] via-[#D99A2B] to-[#B87A10] shadow-lg shadow-[#E8B04B]/25 ring-1 ring-white/20 ring-inset">
             <Pill className="h-4 w-4 text-white" strokeWidth={2.4} />
           </span>
           <div className="hidden leading-none lg:block">
@@ -106,7 +111,7 @@ export function PharmaciaApp() {
                 className={cn(
                   "group relative flex items-center gap-3 rounded-xl px-2 py-2.5 text-left transition-all lg:px-3",
                   isActive
-                    ? "bg-[#F59E0B]/10 text-[#F59E0B]"
+                    ? "bg-[#E8B04B]/10 text-[#E8B04B]"
                     : "text-[#6B7280] hover:bg-[#1E2228] hover:text-white"
                 )}
               >
@@ -115,7 +120,7 @@ export function PharmaciaApp() {
                 {isActive && (
                   <motion.span
                     layoutId="pharm-nav"
-                    className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-[#F59E0B]"
+                    className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-[#E8B04B] shadow-[0_0_8px_rgba(232,176,75,0.6)]"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
@@ -134,7 +139,7 @@ export function PharmaciaApp() {
       {/* Main area */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mini-dashboard strip */}
-        <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-[#1E2228] bg-[#111418] px-4 py-2.5 lg:px-6">
+        <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-[#1E2228] bg-[#111418]/90 px-4 py-2.5 backdrop-blur-xl lg:px-6">
           <MiniStat label="Today's Sales" value={`₹${miniData.sales.toLocaleString("en-IN")}`} color="#F59E0B" />
           <MiniStat label="Cash" value={`₹${miniData.cash.toLocaleString("en-IN")}`} color="#22C55E" />
           <MiniStat label="UPI" value={`₹${miniData.upi.toLocaleString("en-IN")}`} color="#3B82F6" />

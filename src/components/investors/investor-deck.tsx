@@ -62,17 +62,18 @@ function Hero() {
   const inView = useInView(ref, { once: true });
   return (
     <section className="relative pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Ambient glow */}
+      {/* Ambient glow — coral/sage hearts + champagne core */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-[#D98B6E]/10 blur-3xl" />
         <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-[#9DB89E]/10 blur-3xl" />
+        <div aria-hidden className="aurora-gold top-[-20%] left-1/2 h-[26rem] w-[44rem] -translate-x-1/2 opacity-40" />
       </div>
       <div ref={ref} className="relative mx-auto max-w-4xl text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 mb-6"
+          className="badge-lux mb-6 border-white/12 bg-white/5 text-[#EED9A8]"
         >
           <span className="h-1.5 w-1.5 rounded-full bg-[#22C55E] animate-pulse" />
           Seed Round · Seeking $8M · India HealthTech
@@ -81,10 +82,10 @@ function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1]"
+          className="title-lux text-4xl sm:text-5xl lg:text-6xl"
         >
           Building the OS for{" "}
-          <span className="bg-gradient-to-r from-[#D98B6E] via-[#E0B080] to-[#9DB89E] bg-clip-text text-transparent">
+          <span className="text-gold-gradient">
             Indian healthcare.
           </span>
         </motion.h1>
@@ -92,7 +93,7 @@ function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="mt-6 text-lg text-white/60 max-w-2xl mx-auto leading-relaxed"
+          className="lede-lux mx-auto mt-6 max-w-2xl text-white/60"
         >
           Nexura OS is the first unified, AI-native healthcare platform for India —
           connecting hospitals, clinics, pharmacies, and 1.4 billion patients through one
@@ -104,10 +105,10 @@ function Hero() {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="mt-8 flex items-center justify-center gap-3"
         >
-          <a href="#problem" className="rounded-full bg-white text-[#0A0A0A] px-5 py-2.5 text-sm font-semibold hover:bg-white/90 transition-colors">
+          <a href="#problem" className="btn-gold h-11 rounded-full px-5 text-sm font-semibold">
             Explore the deck
           </a>
-          <a href="#ask" className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/5 transition-colors">
+          <a href="#ask" className="btn-glass-lux h-11 rounded-full border-white/20 bg-white/5 px-5 text-sm font-semibold text-white">
             Investment ask →
           </a>
         </motion.div>
@@ -127,7 +128,7 @@ function Section({ id, children, className = "" }: { id: string; children: React
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#D98B6E] mb-3">{children}</p>
+    <p className="eyebrow mb-3">{children}</p>
   );
 }
 
@@ -276,7 +277,7 @@ function Traction() {
             transition={{ delay: i * 0.08 }}
             className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-center"
           >
-            <p className="font-display text-3xl font-bold bg-gradient-to-br from-[#D98B6E] to-[#E0B080] bg-clip-text text-transparent">{s.stat}</p>
+            <p className="stat-lux text-3xl text-gold-gradient">{s.stat}</p>
             <p className="text-sm font-medium text-white mt-1">{s.label}</p>
             <p className="text-xs text-white/40 mt-0.5">{s.sub}</p>
           </motion.div>

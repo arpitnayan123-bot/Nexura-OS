@@ -604,6 +604,14 @@
     0 30px 60px -26px rgba(2, 8, 23, 0.7),
     0 0 0 1px rgba(45, 212, 191, 0.16);
 }
+/* champagne top-light sweep on hover — Liquid Gold signature */
+.nxf-glass-hover { position: relative; }
+.nxf-glass-hover::after {
+  content: ""; position: absolute; top: 0; left: 14%; right: 14%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(252, 211, 77, 0.55), transparent);
+  opacity: 0; transition: opacity .35s ease; pointer-events: none;
+}
+.nxf-glass-hover:hover::after { opacity: 1; }
 
 /* type + data inks — GOLD STANDARD pass: every ink is a
    high-contrast warm tone; yellow/gold carries emphasis so
