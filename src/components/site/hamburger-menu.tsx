@@ -90,7 +90,7 @@ export function HamburgerMenu() {
       {/* Trigger — visible on every breakpoint */}
       <button
         onClick={() => setOpen(true)}
-        aria-label="Open menu — all Nexura products"
+        aria-label="Open menu: all Nexura products"
         aria-expanded={open}
         className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
       >

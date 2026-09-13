@@ -304,11 +304,11 @@ export function PatientView() {
         {/* Hero header */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-center">
           <p className="text-xs font-medium uppercase tracking-wider text-[#9A8F84]">Welcome back</p>
-          <h1 className="mt-1 font-serif text-3xl font-bold tracking-tight text-[#1F1B17] sm:text-4xl">
+          <h1 className="display-lg mt-1 text-[#1F1B17]">
             Your Doctors, <span className="text-gradient-warm">One Tap Away</span>
           </h1>
           <p className="mt-2 text-sm text-[#9A8F84] sm:max-w-xl sm:mx-auto">
-            Hi {patientName?.split(" ")[0]} — your care team is here for follow-up. Message them anytime, or log a call request — the clinic calls you back at its slot.
+            Hi {patientName?.split(" ")[0]}, your care team is here for follow-up. Message them anytime, or log a call request and the clinic calls you back at its slot.
           </p>
         </motion.div>
 

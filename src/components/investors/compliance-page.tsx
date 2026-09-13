@@ -130,7 +130,7 @@ export function CompliancePage() {
             <span className="badge-lux mb-6 border-white/15 bg-white/5 text-[#EED9A8]">
               <Shield className="h-3.5 w-3.5 text-[#D9B87C]" /> Regulatory Compliance
             </span>
-            <h1 className="title-lux text-4xl sm:text-5xl">
+            <h1 className="display-lg">
               Compliance is our <span className="text-gold-gradient">moat.</span>
             </h1>
             <p className="lede-lux mx-auto mt-6 max-w-2xl text-white/60">

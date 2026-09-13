@@ -121,7 +121,7 @@ export function PricingPage() {
                 className={cn(
                   "card-lux relative rounded-3xl p-6 lg:p-8",
                   plan.popular
-                    ? "border-[#A16207]/40 bg-gradient-to-b from-white to-[#FBF4E4] shadow-[var(--shadow-lux-2)] md:scale-105"
+                    ? "frame-lux border-[#A16207]/40 bg-gradient-to-b from-white to-[#FBF4E4] shadow-[var(--shadow-lux-2)] md:scale-105"
                     : "card-lux-hover"
                 )}
               >
@@ -136,7 +136,7 @@ export function PricingPage() {
                 <p className="font-display text-lg font-semibold text-[#0F172A]">{plan.name}</p>
                 <p className="text-xs text-[#64748B] mt-0.5">{plan.desc}</p>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="stat-lux text-3xl text-[#0F172A]">{plan.price}</span>
+                  <span className="stat-lux tabular text-3xl text-[#0F172A]">{plan.price}</span>
                   <span className="text-sm text-[#94A3B8]">{plan.period}</span>
                 </div>
                 <ul className="mt-6 space-y-2.5">
