@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Counter, StaggerGroup, StaggerItem } from "@/components/premium/kit";
 
 type Tab = "today" | "patients" | "appointments" | "prescriptions" | "billing" | "reports";
 
@@ -133,7 +134,14 @@ export function ClinicApp() {
         {/* Main */}
         <main className="flex-1 overflow-x-hidden px-5 pt-14 sm:px-8 sm:pt-8">
           {loading || !data ? (
-            <div className="grid h-64 place-items-center"><div className="h-5 w-5 animate-spin rounded-full border-2 border-[#EFE9E0] border-t-[#D98B6E]" /></div>
+            <div className="grid h-64 place-items-center">
+              <div className="flex flex-col items-center gap-4">
+                <span className="relative grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-[#D98B6E] to-[#E0B080] shadow-lg shadow-[#D98B6E]/25 anim-breathe">
+                  <Stethoscope className="h-6 w-6 text-white" strokeWidth={2.2} aria-hidden="true" />
+                </span>
+                <p className="font-serif text-sm font-medium text-[#5C544D]">Preparing your clinic…</p>
+              </div>
+            </div>
           ) : (
             <AnimatePresence mode="wait">
               <motion.div key={tab + (doctorFilter || "")} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
@@ -161,7 +169,10 @@ function TodayTab({ data, doctorFilter, onConsult, onReload, onClearFilter }: { 
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="eyebrow text-[0.625rem]">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p>
+          <p className="eyebrow flex items-center gap-2 text-[0.625rem]">
+            <span aria-hidden className="hairline-gold inline-block h-px w-8" />
+            {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+          </p>
           <h1 className="title-lux mt-1 text-[1.75rem]">{clinic.name}</h1>
           {filterDoctor ? <p className="text-xs text-[#9A8F84]">Filtered: {filterDoctor.name} · <button onClick={onClearFilter} className="text-[#B8893D] underline">clear</button></p> : <p className="text-xs text-[#9A8F84]">{clinic.city} · all doctors</p>}
         </div>
@@ -173,20 +184,20 @@ function TodayTab({ data, doctorFilter, onConsult, onReload, onClearFilter }: { 
         </div>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi icon={Users} label="Patients" value={kpis.patients} sub="registered" accent="#D98B6E" />
-        <Kpi icon={CalendarDays} label="Today" value={kpis.appointmentsToday} sub={`${kpis.done} done`} accent="#9DB89E" />
-        <Kpi icon={Clock} label="Waiting" value={kpis.waiting} sub="in queue" accent="#E0B080" />
-        <Kpi icon={Wallet} label="Revenue" value={`₹${kpis.revenueToday.toLocaleString("en-IN")}`} sub="today" accent="#C98A7A" />
-      </div>
+      {/* KPI cards — staggered choreography, count-up numerals */}
+      <StaggerGroup className="grid grid-cols-2 gap-3 lg:grid-cols-4" stagger={0.08}>
+        <StaggerItem className="h-full"><Kpi icon={Users} label="Patients" value={kpis.patients} sub="registered" accent="#D98B6E" /></StaggerItem>
+        <StaggerItem className="h-full"><Kpi icon={CalendarDays} label="Today" value={kpis.appointmentsToday} sub={`${kpis.done} done`} accent="#9DB89E" /></StaggerItem>
+        <StaggerItem className="h-full"><Kpi icon={Clock} label="Waiting" value={kpis.waiting} sub="in queue" accent="#E0B080" /></StaggerItem>
+        <StaggerItem className="h-full"><Kpi icon={Wallet} label="Revenue" value={kpis.revenueToday} prefix="₹" sub="today" accent="#C98A7A" /></StaggerItem>
+      </StaggerGroup>
 
       {/* Queue — patient cards */}
       <div>
         <h3 className="mb-3 font-serif text-base font-semibold">Today&apos;s Queue {filterDoctor && `· ${filterDoctor.name}`}</h3>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.length === 0 && <p className="py-8 text-center text-sm text-[#9A8F84]">No appointments {filterDoctor ? "for this doctor" : "today"}.</p>}
-          {filtered.map((a) => {
+          {filtered.map((a, i) => {
             const s = STATUS[a.status] || STATUS.booked;
             const time = new Date(a.slot).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
             const isOnline = a.source === "online";
@@ -194,8 +205,9 @@ function TodayTab({ data, doctorFilter, onConsult, onReload, onClearFilter }: { 
               <motion.button
                 key={a.id}
                 layout
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.45, delay: 0.25 + (i % 9) * 0.05, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={{ y: -2 }}
                 onClick={() => (a.status === "booked" || a.status === "arrived") && onConsult(a)}
                 className={cn("group relative overflow-hidden rounded-2xl border bg-white p-4 text-left shadow-sm ring-1 ring-[#EFE9E0] transition-all hover:shadow-md", (a.status === "done" || a.status === "cancelled") && "opacity-60")}
@@ -778,11 +790,29 @@ function Section({ title, color, children }: { title: string; color: string; chi
   );
 }
 
-function Kpi({ icon: Icon, label, value, sub, accent }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string | number; sub?: string; accent: string }) {
+function Kpi({ icon: Icon, label, value, prefix, sub, accent }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string | number; prefix?: string; sub?: string; accent: string }) {
+  const spotRef = useRef<HTMLDivElement>(null);
   return (
-    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -3 }} transition={{ type: "spring", stiffness: 280, damping: 22 }} className="card-lux rounded-2xl p-4">
+    <motion.div
+      ref={spotRef}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -3 }}
+      transition={{ type: "spring", stiffness: 280, damping: 22 }}
+      onMouseMove={(e) => {
+        const el = spotRef.current; if (!el) return;
+        const r = el.getBoundingClientRect();
+        el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+        el.style.setProperty("--my", `${e.clientY - r.top}px`);
+      }}
+      className="card-lux spotlight-card h-full rounded-2xl p-4"
+    >
       <span className="grid h-9 w-9 place-items-center rounded-xl" style={{ background: `color-mix(in srgb, ${accent} 12%, transparent)`, color: accent }}><Icon className="h-4 w-4" strokeWidth={2} /></span>
-      <p className="stat-lux mt-3 text-2xl">{value}</p>
+      <p className="stat-lux mt-3 text-2xl">
+        {typeof value === "number"
+          ? <Counter to={value} prefix={prefix} duration={1.4} />
+          : value}
+      </p>
       <p className="text-xs font-medium">{label}</p>
       {sub && <p className="text-[0.6rem] text-[#9A8F84]">{sub}</p>}
     </motion.div>
