@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu, X, ArrowUpRight, Building2, Stethoscope, Pill, HeartPulse,
   MessageCircle, Sparkles, Globe, BrainCircuit, Clock, TrendingUp,
-  Shield, Sprout, FlaskConical, type LucideIcon,
+  Shield, Sprout, FlaskConical, Siren, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBooking } from "./booking-context";
@@ -39,6 +39,7 @@ const PRODUCTS: NavEntry[] = [
   { id: "kyh", name: "Know Your Health", sub: "AI Tools", desc: "15 AI tools — symptom checker, derma scan, X-ray reader, diet planner, lab analyzer & more.", icon: Sparkles, accent: "#A16207", href: "/know-your-health", group: "products" },
   { id: "labs", name: "Nexura Labs", sub: "Diagnostics, Decoded", desc: "400+ tests collected at home in 30-minute windows, run in NABL-certified labs, decoded by AI into plain language — reports in 4–12 hours.", icon: FlaskConical, accent: "#A16207", href: "/labs", badge: "New", group: "products" },
   { id: "global", name: "Nexura Global", sub: "Medical Tourism", desc: "World-class Indian healthcare for global patients. Discovery portal, cost calculator, coordinator dashboard.", icon: Globe, accent: "#A16207", href: "/global", group: "products" },
+  { id: "emergency", name: "Nexura Emergency", sub: "Seconds, respected", desc: "Press-and-hold SOS dispatches the nearest ambulance with your medical ID streaming to the crew. Live ER beds, blood-bank availability, offline first-aid.", icon: Siren, accent: "#A16207", href: "/emergency", badge: "SOS", group: "products" },
   { id: "diy", name: "Nexura DIY", sub: "Free · No sign-in", desc: "Tell it like it is — one chat builds a safe, realistic wellness roadmap with safety screen and honest timeframes.", icon: Sprout, accent: "#A16207", href: "/diy", badge: "New", group: "products" },
   { id: "founder", name: "The Founder", sub: "Arpit Nayan", desc: "The story behind Nexura OS — from Bihar to building an operating system for health.", icon: HeartPulse, accent: "#C8A55B", href: "/founder", badge: "Story", group: "products" },
 ];
