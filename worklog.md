@@ -4300,3 +4300,26 @@ Verification:
 Stage Summary:
 - Audit open list after this: payment + OTP delivery (TODO by design), Postgres/Redis/ClamAV (needs real infra host), legal review of the new pages (professional counsel), dependency lockfile for CI
 - Tag: p2-hardening-1-final; dual bundles refreshed; tracked-bundle check = 0
+
+---
+Task ID: improve-all-1
+Agent: main (Super Z)
+Task: Overnight autonomous pass — "improve the existing features product by product, first principles, every feature should be a worthwhile experience" (no new features; fix dead ends, truth-in-copy, broken loops, realism)
+
+Work Log:
+- Phase 0 UX audit: live browser walkthrough of every product surface (home, KYH, clinic, pharmacy POS, portal OTP→dashboard, connect doctor+patient, global desk, DIY tell→tune→plan, vitals, predictive, emergency SOS hold, care, labs cart→slot, pricing, privacy/terms) + mobile 390px pass. Core flows confirmed working; issues catalogued below.
+- Dead-end scan built (scripts/deadend-scan.mjs): extracts all fetch() targets from src and diffs against real API routes. Found 2 hard dead ends: /api/hospital/ehr (connect patient view) and the Global coordinator desk contract (GET shape missing entirely + update_status/generate_estimate 400).
+- TRUTH-IN-COPY: 36 stale "Gemini 2.0 Flash" claims in KYH tool catalog + 6 tool UIs → neutral "Nexura AI" labels (backend is OpenRouter/GLM; same class of fix as prod-audit-1). Pharmacy credits footer: removed false DrugSetu / "Indian Medicine MCP Server" / Claude-Anthropic / Supabase-Vercel claims → honest in-platform descriptions. billing.tsx + online-orders.tsx "Claude Vision" → neutral.
+- GLOBAL DESK BACKEND (was infinite skeletons): /api/global now serves ?scope=desk (settings/procedures/coordinators/inquiries/kanban/testimonials/stats computed server-side) gated by deskGate (demo principal in DEMO_MODE; revocation-aware staff session in production; patient roles rejected). POST update_status (flow-validated, message appended, hash-chained audit event) + generate_estimate (procedure fee + surgeon 30% + room $150/day + nursing 10% + extras; CurrencyRate override with 88 fallback; response matches the desk UI contract incl. download/WhatsApp text). Client load() repointed to ?scope=desk. Verified live: kanban renders, status moves audit-logged, estimate panel complete.
+- CONNECT PATIENT VIEW: dead /api/hospital/ehr fetch → new /api/connect/patient-identity (portal session → own linked patient; demo → demo patient; production no-session → 401; minimal id+name only). Signed-out card rewritten (was "run the clinic seed" developer-speak → proper portal sign-in CTA). Doctor console "Attach (coming soon)" dead button removed (+ unused import).
+- CLINIC APPOINTMENTS TAB (was "coming soon" placeholder): real tab — Today/Upcoming/Past ranges, token rows with status badges, Check-in/Done/No-show actions, BookForm (patient+doctor+date/time+reason) POST. New GET /api/clinic/appointments?range= (clinic-scoped). PATCH hardened: status whitelist + clinic ownership check (was cross-clinic IDOR by appointmentId).
+- CLINIC PRESCRIPTIONS TAB (was placeholder): real feed via GET /api/clinic/visit?recent=1 (clinic-wide recent Rx with meds, doctor, patient, follow-up) + search + med chips.
+- BOOKING LOOP CLOSED: clinic seed now sets bookingSlug (was null → public booking page unreachable); OnlineBooking accept action added (POST action=accept → find-or-create patient by phone, appointment with source:online + token, booking marked converted; double-accept 409; no-doctor 409); TodayTab shows "Online booking requests" strip with Accept buttons (dashboard payload now includes doctor + ordering). Verified end-to-end live: public book → console strip → accept → queue.
+- SEED REALISM: clinic seed appointments now deterministic PRNG with collision guards (no same patient+doctor within 2h, no patient within 45min) — queue no longer shows duplicate same-patient-same-doctor tokens.
+- POLISH: command palette shortcut hint platform-aware (⌘K on Apple, Ctrl K elsewhere; useSyncExternalStore, hydration-safe, passes react-hooks/set-state-in-effect); global desk "Placeholder —" copy → real guidance.
+- Verification: tsc 0, eslint 0, vitest 252/252 (17 files), next build OK, DEPLOY VERIFIED, scripts/smoke-improvements.sh 42/42 (20 pages 200, all new APIs, regressions, booking loop incl. 409 paths, estimate contract), smoke data cleaned, queue chain healthy (57 done + 1 pending queue-scan).
+
+Stage Summary:
+- Every product surface now passes: works end-to-end, no dead controls, no false third-party claims, honest states.
+- Deliberately left for later (design-level, not tonight's scope): real payment capture (TODO(payment)), OTP delivery (TODO(otp-delivery)), Postgres/Redis/ClamAV host swap (documented runbooks), legal review of privacy/terms.
+- Tag: improve-all-1-final; dual bundles refreshed; tracked-bundle check = 0

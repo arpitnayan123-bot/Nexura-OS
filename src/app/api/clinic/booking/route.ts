@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getClinicContext } from "@/lib/clinic-context";
 import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
@@ -64,11 +65,25 @@ async function POST_impl(req: NextRequest) {
       const dayEnd = new Date(booking.slot); dayEnd.setHours(23, 59, 59, 999);
       const tokenNo = (await db.clinicAppointment.count({ where: { clinicId: ctx.clinic.id, slot: { gte: dayStart, lte: dayEnd } } })) + 1;
 
+      // Appointments require a doctor — "any doctor" bookings resolve to
+      // the clinic's first active doctor at acceptance time. Fail closed
+      // when the clinic has no active doctor at all.
+      let doctorId: string | null = booking.doctorId;
+      if (!doctorId) {
+        const firstDoctor = await db.clinicDoctor.findFirst({
+          where: { clinicId: ctx.clinic.id, active: true },
+          orderBy: { createdAt: "asc" },
+          select: { id: true },
+        });
+        if (!firstDoctor) return NextResponse.json({ error: "no_doctor" }, { status: 409 });
+        doctorId = firstDoctor.id;
+      }
+
       const appointment = await db.clinicAppointment.create({
         data: {
           clinicId: ctx.clinic.id,
           patientId: patient.id,
-          doctorId: booking.doctorId,
+          doctorId: doctorId ?? undefined,
           slot: booking.slot,
           tokenNo,
           reason: "Online booking",
