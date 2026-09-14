@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,7 +23,7 @@ const CHRONIC_MAP: Record<string, { disease: string; saltPatterns: string[]; typ
 };
 
 // GET /api/pharmacy/med-sync — list chronic patients with med sync status
-export async function GET() {
+async function GET_impl() {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -115,7 +116,7 @@ export async function GET() {
 }
 
 // POST — send WhatsApp reminder to a patient (simulated)
-export async function POST(req: any) {
+async function POST_impl(req: any) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -135,3 +136,6 @@ export async function POST(req: any) {
     return NextResponse.json({ error: "reminder_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("pharmacy.med-sync.GET", GET_impl);
+export const POST = withProductAuth("pharmacy.med-sync.POST", POST_impl);

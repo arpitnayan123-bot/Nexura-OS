@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aiGate } from "@/lib/nx/ai-guard";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // POST /api/pharmacy/ai-query { query }
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   const __ai = aiGate(req);
   if (__ai) return __ai;
   try {
@@ -29,3 +30,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "ai_query_failed", detail: message }, { status: 500 });
   }
 }
+
+export const POST = withProductAuth("pharmacy.ai-query.POST", POST_impl);

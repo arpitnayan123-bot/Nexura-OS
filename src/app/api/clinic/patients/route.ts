@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET /api/clinic/patients?q=
-export async function GET(req: NextRequest) {
+async function GET_impl(req: NextRequest) {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST — register a new patient
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
@@ -40,3 +41,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "clinic_patient_create_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("clinic.patients.GET", GET_impl);
+export const POST = withProductAuth("clinic.patients.POST", POST_impl);

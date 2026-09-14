@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET — billing summary + recent invoices
-export async function GET() {
+async function GET_impl() {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
@@ -21,3 +22,5 @@ export async function GET() {
     return NextResponse.json({ error: "clinic_billing_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("clinic.billing.GET", GET_impl);

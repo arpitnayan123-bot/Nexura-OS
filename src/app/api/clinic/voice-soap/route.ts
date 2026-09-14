@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aiGate } from "@/lib/nx/ai-guard";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -42,7 +43,7 @@ If the doctor mentions a diagnosis, always try to assign an ICD-10 code.
 Return ONLY JSON, no prose.`;
 
 // POST /api/clinic/voice-soap
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   const __ai = aiGate(req);
   if (__ai) return __ai;
   try {
@@ -100,3 +101,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "voice_soap_failed", detail: message }, { status: 500 });
   }
 }
+
+export const POST = withProductAuth("clinic.voice-soap.POST", POST_impl);

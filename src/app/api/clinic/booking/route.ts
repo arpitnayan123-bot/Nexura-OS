@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET /api/clinic/booking?slug=rao-clinic — public booking page data
-export async function GET(req: NextRequest) {
+async function GET_impl(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const slug = searchParams.get("slug");
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST — create an online booking (from public page)
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const { clinicId, doctorId, patientName, phone, slot } = body as { clinicId?: string; doctorId?: string; patientName?: string; phone?: string; slot?: string };
@@ -35,3 +36,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "booking_create_failed" }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("clinic.booking.GET", GET_impl);
+export const POST = withProductAuth("clinic.booking.POST", POST_impl);

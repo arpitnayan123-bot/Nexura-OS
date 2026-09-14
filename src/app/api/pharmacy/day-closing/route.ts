@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET /api/pharmacy/day-closing?date=YYYY-MM-DD
-export async function GET(req: NextRequest) {
+async function GET_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -64,7 +65,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST — close the day (persist)
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -83,3 +84,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "day_close_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("pharmacy.day-closing.GET", GET_impl);
+export const POST = withProductAuth("pharmacy.day-closing.POST", POST_impl);

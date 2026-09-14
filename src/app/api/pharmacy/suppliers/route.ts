@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET /api/pharmacy/suppliers — list with ledger (outstanding + payments)
-export async function GET() {
+async function GET_impl() {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -31,7 +32,7 @@ export async function GET() {
 }
 
 // POST — record a supplier payment
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -52,3 +53,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "supplier_payment_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("pharmacy.suppliers.GET", GET_impl);
+export const POST = withProductAuth("pharmacy.suppliers.POST", POST_impl);

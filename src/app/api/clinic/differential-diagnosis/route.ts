@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -51,7 +52,7 @@ const COMPLAINT_MAP: Record<string, string[]> = {
   "frequent urination": ["Diabetes Type 2"],
 };
 
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const complaint = (body?.complaint || "").trim().toLowerCase();
@@ -108,3 +109,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "ddx_failed", detail: message }, { status: 500 });
   }
 }
+
+export const POST = withProductAuth("clinic.differential-diagnosis.POST", POST_impl);

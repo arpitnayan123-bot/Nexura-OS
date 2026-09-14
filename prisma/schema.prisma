@@ -2532,6 +2532,7 @@ model NxWearableDevice {
   model      String?
   active     Boolean            @default(true)
   pairedAt   DateTime           @default(now())
+  secretHash String? // sha256(deviceSecret) — HMAC ingest auth; null = legacy unpaired device
   hospital   Hospital           @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   samples    NxWearableSample[]
 
@@ -3183,4 +3184,49 @@ model DiyGeneration {
   portalUserId   String?
 
   @@index([userId, createdAt])
+}
+
+// ============================================================
+// NEXURA OS — BACKEND CORE (backend-core-1)
+// ============================================================
+
+// Durable background job queue. Single-node safe (SQLite WAL or
+// Postgres row locks) — claim is a guarded conditional update, so
+// concurrent workers can never double-run a job.
+model NxJob {
+  id          String    @id @default(cuid())
+  type        String
+  dedupeKey   String    @unique
+  payload     String    @default("{}")
+  status      String    @default("pending") // pending | running | done | failed | dead
+  runAt       DateTime  @default(now())
+  maxAttempts Int       @default(3)
+  attempts    Int       @default(0)
+  lastError   String?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, runAt])
+  @@index([type, status])
+}
+
+// Verified family invites — a portal head can no longer attach an
+// existing onboarded PortalUser by phone alone; the invite must be
+// accepted with a one-time token before any linkage happens.
+model PortalFamilyInvite {
+  id         String    @id @default(cuid())
+  headId     String
+  phone      String
+  fullName   String
+  relation   String
+  tokenHash  String    @unique // sha256(one-time token); plaintext never stored
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([phone])
+  @@index([headId])
 }

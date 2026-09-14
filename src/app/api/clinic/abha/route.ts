@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // POST /api/clinic/abha — look up ABHA ID from ABDM registry (simulated)
 // In production this calls the ABDM Health ID API (https://healthids.abdm.gov.in)
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const abhaId = typeof body?.abhaId === "string" ? body.abhaId.trim() : "";
@@ -39,3 +40,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "abha_failed", detail: message }, { status: 500 });
   }
 }
+
+export const POST = withProductAuth("clinic.abha.POST", POST_impl);

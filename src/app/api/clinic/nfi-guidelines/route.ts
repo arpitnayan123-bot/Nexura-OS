@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -247,7 +248,7 @@ const NFI_GUIDELINES: Record<string, {
 };
 
 // GET /api/clinic/nfi-guidelines?diagnosis=Hypertension
-export async function GET(req: NextRequest) {
+async function GET_impl(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const diagnosis = (searchParams.get("diagnosis") || "").trim();
@@ -274,3 +275,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "nfi_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("clinic.nfi-guidelines.GET", GET_impl);

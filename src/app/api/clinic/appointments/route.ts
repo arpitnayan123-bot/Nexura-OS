@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // POST — book an appointment
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
 }
 
 // PATCH — update status
-export async function PATCH(req: NextRequest) {
+async function PATCH_impl(req: NextRequest) {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
@@ -39,3 +40,6 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "clinic_update_failed", detail: message }, { status: 500 });
   }
 }
+
+export const POST = withProductAuth("clinic.appointments.POST", POST_impl);
+export const PATCH = withProductAuth("clinic.appointments.PATCH", PATCH_impl);
