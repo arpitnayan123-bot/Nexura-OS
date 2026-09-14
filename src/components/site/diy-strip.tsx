@@ -17,7 +17,8 @@ export function DiyStrip() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <Link
           href="/diy"
-          className="nx-diy-bento group relative block overflow-hidden rounded-[2rem] border border-[#EBDDC6] bg-[#FBF3E4] p-7 transition-transform duration-300 hover:-translate-y-0.5 sm:p-10"
+          className="mat-card--clay group relative block overflow-hidden rounded-[2rem] p-7 transition-transform duration-300 hover:-translate-y-0.5 sm:p-10"
+          style={{ "--mat-accent": "#4D7C0F", "--mat-accent-2": "#7BB661" } as React.CSSProperties}
         >
           {/* inner aurora */}
           <div
@@ -73,7 +74,10 @@ export function DiyStrip() {
               </div>
             </div>
 
-            <span className="diy-btn-primary shrink-0 text-sm">
+            <span
+              className="mat-btn mat-btn--textured mat-btn--lg shrink-0 text-sm"
+              style={{ "--mat-accent": "#4D7C0F", "--mat-accent-2": "#7BB661" } as React.CSSProperties}
+            >
               Start the chat <ArrowRight size={15} aria-hidden className="transition-transform group-hover:translate-x-0.5" />
             </span>
           </div>

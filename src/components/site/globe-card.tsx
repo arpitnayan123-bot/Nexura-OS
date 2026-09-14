@@ -132,9 +132,18 @@ export function GlobeCard() {
               background:
                 "linear-gradient(180deg, #FFFCF6 0%, #FBF0DE 58%, #F6E7CF 100%)",
               borderColor: "#EFE9E0",
-              boxShadow: "0 1px 2px rgba(46,42,38,0.05)",
+              boxShadow: "0 1px 2px rgba(46,42,38,0.05), 0 0 0 1px color-mix(in srgb, #0E7490 8%, transparent), 0 18px 44px -24px color-mix(in srgb, #1D4ED8 26%, transparent)",
             }}
           >
+            {/* MATERIAL SPECTRUM — dawn aurora sky: teal → blue → violet */}
+            <div
+              aria-hidden="true"
+              className="anim-aurora pointer-events-none absolute inset-0 opacity-70 [mask-image:linear-gradient(to_bottom,black_0%,transparent_62%)]"
+              style={{
+                background:
+                  "radial-gradient(at 20% 18%, color-mix(in srgb, #0E7490 16%, transparent) 0%, transparent 46%), radial-gradient(at 72% 10%, color-mix(in srgb, #1D4ED8 13%, transparent) 0%, transparent 44%), radial-gradient(at 92% 30%, color-mix(in srgb, #6D28D9 11%, transparent) 0%, transparent 40%)",
+              }}
+            />
             {/* ---- dawn coast scene (decorative) ---- */}
             <div aria-hidden="true" className="pointer-events-none absolute inset-0">
               {/* gulls gliding high above the copy */}

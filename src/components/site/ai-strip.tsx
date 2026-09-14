@@ -79,6 +79,15 @@ export function AiStrip() {
               boxShadow: "0 1px 2px rgba(46,42,38,0.05)",
             }}
           >
+            {/* MATERIAL SPECTRUM — violet/teal aurora wash over the garden */}
+            <div
+              aria-hidden
+              className="anim-aurora pointer-events-none absolute inset-0 opacity-60 [mask-image:radial-gradient(75%_75%_at_50%_20%,black,transparent)]"
+              style={{
+                background:
+                  "radial-gradient(at 14% 24%, color-mix(in srgb, #6D28D9 14%, transparent) 0%, transparent 44%), radial-gradient(at 84% 30%, color-mix(in srgb, #0E7490 13%, transparent) 0%, transparent 42%), radial-gradient(at 52% 8%, color-mix(in srgb, #EC4899 9%, transparent) 0%, transparent 40%)",
+              }}
+            />
             {/* ---- morning garden by the sea (decorative) ---- */}
             <div aria-hidden="true" className="pointer-events-none absolute inset-0">
               {/* sun — soft amber, the day's quiet centre */}
