@@ -2752,9 +2752,10 @@ html.nx-force-visible [style*="opacity:0"] {
   50% { transform: scale(1.4); opacity: 1; }
 }
 
-/* drawer panel — warm aurora glass, never plain white */
+/* drawer panel — warm aurora glass, never plain white
+   NOTE: no `position` here — Tailwind's `absolute` utility must control
+   anchoring (unlayered CSS would override it and break right-0). */
 .menu-drawer {
-  position: relative;
   isolation: isolate;
   overflow: hidden;
   background: linear-gradient(
