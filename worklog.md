@@ -4192,3 +4192,20 @@ Stage Summary:
 - .git now 29MB packed, workspace ~1.9GB on disk (node_modules 1.1GB is gitignored & needed by dev server)
 - New lock tag: repo-hygiene-1-final; bundles regenerated from clean history (small)
 - Rule added to protocol: *.bundle must NEVER be git-tracked; verify with `git ls-files | rg bundle` after each lock
+
+---
+Task ID: label-clean-1
+Agent: main (Super Z)
+Task: Restart dev server + remove material style words (textured/aurora/glassmorphism/claymorphism/neon) from product UI
+
+Work Log:
+- Located visible material labels in features-showcase.tsx (at-a-glance grid): MATERIAL_LABEL map + 2 render sites next to each product's Explore button
+- Removed MATERIAL_LABEL map + both label <span> render sites; reworded intro line "each rendered in its own premium material: clay, glass, mineral, neon and aurora" → "each crafted with its own premium finish"
+- material: field kept — it still drives MatButton/card styling, only visible words removed
+- tsc --noEmit exit 0; bash scripts/deploy-preview.sh → DEPLOY VERIFIED
+- Verified rendered homepage HTML: 0 occurrences of Glassmorphism/Claymorphism/Textured/Aurora/Neon (any case)
+- Route sweep: 18 routes → 200; /api/ready status "ready" (database+seed ok)
+
+Stage Summary:
+- New tag: label-clean-1-final; dual bundles refreshed
+- UI now shows product name + Explore button only — no material jargon visible
