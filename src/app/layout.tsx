@@ -8,6 +8,7 @@ import { BookingModalLazy } from "@/components/site/booking-modal-lazy";
 import { PwaRegister } from "@/components/pwa-register";
 import { ErrorSentinel } from "@/components/nx/error-sentinel";
 import { HydrationWatchdog } from "@/components/site/hydration-watchdog";
+import { CommandPalette } from "@/components/site/command-palette";
 
 // Preview freshness guarantee: without this, fully static pages emit
 // "Cache-Control: s-maxage=31536000" and any proxy/CDN between the
@@ -108,6 +109,7 @@ export default function RootLayout({
               renders every toast twice. top-center clears the OS system bar
               (46px) and never overlaps the dock or the mobile back FAB. */}
           <SonnerToaster position="top-center" offset={56} richColors closeButton visibleToasts={3} />
+          <CommandPalette />
           <PwaRegister />
           <ErrorSentinel />
           <HydrationWatchdog />
