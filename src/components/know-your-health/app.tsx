@@ -55,7 +55,7 @@ export function KnowYourHealthApp() {
           <Link href="/" className="flex items-center gap-1.5 rounded-full glass-chip px-3 py-1.5 text-xs font-medium text-[#5C544D] transition-all hover:text-[#1F1B17] hover:scale-105"><ArrowLeft className="h-3.5 w-3.5" /> Home</Link>
           <div className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#9DB89E] to-[#7A9A7B] text-white shadow-md ring-1 ring-white/30"><HeartPulse className="h-4.5 w-4.5" strokeWidth={2.2} /></span>
-            <div className="leading-none"><p className="font-serif text-base font-semibold tracking-tight">Know Your Health</p><p className="text-[0.55rem] uppercase tracking-[0.18em] text-[#9A8F84]">AI Tools · Gemini Powered</p></div>
+            <div className="leading-none"><p className="font-serif text-base font-semibold tracking-tight">Know Your Health</p><p className="text-[0.55rem] uppercase tracking-[0.18em] text-[#9A8F84]">AI Tools · Instant &amp; Private</p></div>
           </div>
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden items-center gap-1.5 rounded-full glass-chip px-3 py-1.5 text-xs font-medium text-[#5A7A5B] sm:flex"><ShieldCheck className="h-3.5 w-3.5" /> Secure · server-side</span>
@@ -80,7 +80,7 @@ export function KnowYourHealthApp() {
                 {/* champagne aurora heart — Liquid Gold signature */}
                 <div aria-hidden className="aurora-gold right-[-6%] top-[-30%] h-72 w-96 opacity-40" style={{ animationDelay: "-4s" }} />
                 <div className="relative max-w-2xl">
-                  <span className="badge-lux bg-white/10 text-[#EED9A8] text-[0.65rem] font-semibold uppercase tracking-wider"><Sparkles className="h-3 w-3 text-[#D9B87C]" /> Powered by Google Gemini</span>
+                  <span className="badge-lux bg-white/10 text-[#EED9A8] text-[0.65rem] font-semibold uppercase tracking-wider"><Sparkles className="h-3 w-3 text-[#D9B87C]" /> AI-processed · not stored</span>
                   <h1 className="title-lux mt-3 text-3xl sm:text-4xl">Know your health,<br /><span className="text-gold-gradient">before it knows you.</span></h1>
                   <p className="mt-3 max-w-lg text-sm text-white/80 sm:text-base">{TOOLS.length} AI health tools built for India — analyse your lab report, scan a skin concern, estimate your 10-year disease risk, plan an Indian diet, and more. All processed securely on the server. Educational tools: they offer information and signals, never a medical diagnosis.</p>
                   <div className="mt-5 flex flex-wrap gap-2">
@@ -138,7 +138,7 @@ export function KnowYourHealthApp() {
                   <div className="rounded-xl bg-[#FAF7F2]/60 p-3">
                     <span className="grid h-6 w-6 place-items-center rounded-full bg-[#C9962E]/20 text-[0.65rem] font-bold text-[#B8893D]">2</span>
                     <p className="mt-2 text-xs font-semibold text-[#1F1B17]">AI analyses it server-side</p>
-                    <p className="mt-1 text-[0.7rem] leading-relaxed text-[#5C544D]">Gemini reviews your input against Indian clinical reference ranges (ICMR, ICMR-INDIAB, ACC/AHA) in an Indian care context.</p>
+                    <p className="mt-1 text-[0.7rem] leading-relaxed text-[#5C544D]">Our AI reviews your input against Indian clinical reference ranges (ICMR, ICMR-INDIAB, ACC/AHA) in an Indian care context.</p>
                   </div>
                   <div className="rounded-xl bg-[#FAF7F2]/60 p-3">
                     <span className="grid h-6 w-6 place-items-center rounded-full bg-[#B8860B]/20 text-[0.65rem] font-bold text-[#8A5A04]">3</span>
@@ -151,7 +151,7 @@ export function KnowYourHealthApp() {
               <PreventionSchedule />
 
               <div className="glass-soft rounded-2xl p-4 text-center">
-                <p className="flex items-center justify-center gap-1.5 text-[0.65rem] text-[#9A8F84]"><Lock className="h-3 w-3 shrink-0" aria-hidden="true" /> All AI calls are processed securely on our server using Google Gemini. Your image/text data is not stored by this app — it is sent only to the Gemini API to generate your result. Every tool here is educational: outputs are informational estimates and signals, not medical advice, diagnosis, or treatment. Always consult a qualified doctor.</p>
+                <p className="flex items-center justify-center gap-1.5 text-[0.65rem] text-[#9A8F84]"><Lock className="h-3 w-3 shrink-0" aria-hidden="true" /> All AI calls are processed securely on our server. Your image/text data is not stored by this app — it is passed to our AI provider only to generate your result. Every tool here is educational: outputs are informational estimates and signals, not medical advice, diagnosis, or treatment. Always consult a qualified doctor.</p>
               </div>
             </motion.div>
           )}

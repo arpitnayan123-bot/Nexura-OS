@@ -3,14 +3,16 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { guard, ok, fail, parseBody, withRoute } from "@/lib/nx/api";
 import { audit } from "@/lib/nx/audit";
-import { WEBHOOK_EVENTS } from "@/lib/nx/webhooks";
+import { WEBHOOK_EVENTS, isSafeWebhookUrl } from "@/lib/nx/webhooks";
 
 /* Outbound webhook endpoint registry (integrations config). */
 
 const UpsertSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(2).max(80),
-  url: z.string().url().max(400),
+  url: z.string().url().max(400).refine(isSafeWebhookUrl, {
+    message: "Webhook URL must be https and must not point at private/internal hosts",
+  }),
   events: z.array(z.string().max(40)).min(1).max(10),
   active: z.boolean().optional(),
 });

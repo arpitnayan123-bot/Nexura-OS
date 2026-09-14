@@ -69,7 +69,7 @@ export function ImageUploader({ image, onPick, onClear, accent="#9DB89E", label=
 export function LoadingResult({ accent="#9DB89E" }: { accent?:string }) {
   return (
     <motion.div initial={{opacity:0}} animate={{opacity:1}} className="space-y-3">
-      <div className="flex items-center gap-2 text-sm text-[#9A8F84]"><Loader2 className="h-4 w-4 animate-spin" style={{color:accent}} />Gemini is analyzing…</div>
+      <div className="flex items-center gap-2 text-sm text-[#9A8F84]"><Loader2 className="h-4 w-4 animate-spin" style={{color:accent}} />AI is analyzing…</div>
       <div className="space-y-2">{[80,100,90,70,95,60,85].map((w,i)=>(<motion.div key={i} initial={{opacity:0,x:-8}} animate={{opacity:1,x:0}} transition={{delay:i*0.15}} className="h-3 rounded-full bg-[#EFE9E0]" style={{width:`${w}%`}} />))}</div>
     </motion.div>
   );
@@ -94,7 +94,7 @@ export function Disclaimer() {
   return (
     <div className="glass-soft flex items-start gap-2 rounded-xl px-3.5 py-2.5 text-[0.65rem] text-[#9A8F84]">
       <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-[#9DB89E]" />
-      <p>Nexa AI is informational only and not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified doctor for health concerns. Powered by Google Gemini. Indian-context reference ranges from ICMR, NFHS-5, and ICMR-INDIAB.</p>
+      <p>Nexa AI is informational only and not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified doctor for health concerns. Indian-context reference ranges from ICMR, NFHS-5, and ICMR-INDIAB.</p>
     </div>
   );
 }

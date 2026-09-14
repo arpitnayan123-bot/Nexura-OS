@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,8 +15,8 @@ export async function GET(req: NextRequest) {
     if (!clinic) return NextResponse.json({ error: "not_found" }, { status: 404 });
     return NextResponse.json({ clinic, doctors: clinic.doctors });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "booking_failed", detail: message }, { status: 500 });
+    log.error("api", "clinic.booking.read_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "booking_failed" }, { status: 500 });
   }
 }
 
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ ok: true, booking });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "booking_create_failed", detail: message }, { status: 500 });
+    log.error("api", "clinic.booking.create_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "booking_create_failed" }, { status: 500 });
   }
 }

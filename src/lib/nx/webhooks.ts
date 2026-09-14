@@ -56,6 +56,25 @@ export function dispatchWebhooks(hospitalId: string, event: WebhookEvent, payloa
   })();
 }
 
+/**
+ * SSRF guard for operator-registered webhook URLs: https-only and no
+ * private/loopback/link-local/metadata hosts. DNS-rebinding is out of scope
+ * here (hostname-level check); the 8s abort + status-only storage limit what
+ * a malicious endpoint learns even if it passes.
+ */
+const BLOCKED_WEBHOOK_HOST = /(^(localhost|127\.|0\.0\.0\.0|10\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)|^(\[)?::1(\])?$|\.local$|\.internal$)/i;
+
+export function isSafeWebhookUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:") return false; // HMAC signatures over plain http are readable in transit
+    if (BLOCKED_WEBHOOK_HOST.test(u.hostname)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function deliver(endpoint: EndpointLike, event: string, payload: Record<string, unknown>, attempt: number): Promise<void> {
   const body = JSON.stringify({
     event,
@@ -65,23 +84,29 @@ async function deliver(endpoint: EndpointLike, event: string, payload: Record<st
   });
   const started = Date.now();
   let status = 0;
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 8_000);
-    const res = await fetch(endpoint.url, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-nexura-event": event,
-        "x-nexura-signature": signPayload(endpoint.secret, body),
-      },
-      body,
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-    status = res.status;
-  } catch {
+  if (!isSafeWebhookUrl(endpoint.url)) {
+    // SSRF guard — refuse to fetch private/internal/non-https targets and
+    // record the delivery as failed instead of performing the request.
     status = 0;
+  } else {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8_000);
+      const res = await fetch(endpoint.url, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-nexura-event": event,
+          "x-nexura-signature": signPayload(endpoint.secret, body),
+        },
+        body,
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      status = res.status;
+    } catch {
+      status = 0;
+    }
   }
   await db.nxWebhookDelivery.create({
     data: {

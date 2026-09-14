@@ -119,7 +119,7 @@ export const SECTIONS_PLATFORM: HiwSection[] = [
     minutes: "3 min",
     steps: [
       { title: "Book a visit from this page", desc: "Press “Book a visit” and watch it confirm in four taps — no account needed." },
-      { title: "Run a live AI call", desc: "Open Know Your Health and try the Symptom Checker — a real Gemini response, free, no login." },
+      { title: "Run a live AI call", desc: "Open Know Your Health and try the Symptom Checker — a real AI response, free, no login." },
       { title: "Boot the hospital", desc: "Enter Hospital OS as the demo commandant — CMD.ANITA, PIN 2468 — and explore the Command Center and module windows." },
       { title: "Write a consultation", desc: "Sign into Clinic OS as doctor@demo.nexura.health / Demo@12345 and finish a visit in minutes." },
       { title: "Check the proof layer", desc: "Visit /compliance and the Trust Center to see the audits, trackers and PoCs behind it all." },

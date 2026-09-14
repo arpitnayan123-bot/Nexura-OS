@@ -39,44 +39,43 @@ async function callZAI(messages: ORMsg[]): Promise<string> {
 
 interface ORMsg { role: "user"|"system"|"assistant"; content: string | Array<{type:"text";text:string}|{type:"image_url";image_url:{url:string}}>; }
 
+const OPENROUTER_TIMEOUT_MS = 45_000; // bound every AI call — a hung provider must never hold the route open
+
 async function callOR(messages: ORMsg[], maxTokens = 8192): Promise<string> {
   // No OpenRouter key → use the built-in z-ai SDK path directly.
   if (!getKey()) return callZAI(messages);
-  let lastError: Error | null = null;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const res = await fetch(OPENROUTER_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${getKey()}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://nexura-os.app",
-          "X-Title": "Nexura OS",
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages,
-          max_tokens: maxTokens,
-          temperature: 0.4,
-        }),
-      });
-      if (!res.ok) {
-        const t = await res.text().catch(() => "");
-        let m = `OpenRouter ${res.status}`;
-        try { const e = JSON.parse(t); m = e?.error?.message || m; } catch { if (t) m += `: ${t.slice(0, 200)}`; }
-        throw new Error(m);
-      }
-      const d = await res.json();
-      const c = d.choices?.[0]?.message?.content || "";
-      if (!c) throw new Error("Empty response from model");
-      return c;
-    } catch (e: any) {
-      lastError = e;
-      // If OpenRouter fails (bad key, quota, network), fall back to z-ai SDK.
-      try { return await callZAI(messages); } catch { throw e; }
+  try {
+    const res = await fetch(OPENROUTER_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getKey()}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://nexura-os.app",
+        "X-Title": "Nexura OS",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages,
+        max_tokens: maxTokens,
+        temperature: 0.4,
+      }),
+      signal: AbortSignal.timeout(OPENROUTER_TIMEOUT_MS),
+    });
+    if (!res.ok) {
+      const t = await res.text().catch(() => "");
+      let m = `OpenRouter ${res.status}`;
+      try { const e = JSON.parse(t); m = e?.error?.message || m; } catch { if (t) m += `: ${t.slice(0, 200)}`; }
+      throw new Error(m);
     }
+    const d = await res.json();
+    const c = d.choices?.[0]?.message?.content || "";
+    if (!c) throw new Error("Empty response from model");
+    return c;
+  } catch (e) {
+    // One OpenRouter attempt, then the z-ai SDK fallback. No retry loop —
+    // the previous loop's second iteration was unreachable dead code.
+    try { return await callZAI(messages); } catch { throw e; }
   }
-  throw lastError || new Error("OpenRouter failed after retries");
 }
 
 function parseJson<T>(text: string): T {

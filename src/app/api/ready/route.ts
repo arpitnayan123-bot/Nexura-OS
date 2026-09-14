@@ -15,8 +15,10 @@ export async function GET(_req: NextRequest) {
   try {
     await db.$queryRaw`SELECT 1`;
     checks.database = { ok: true, ms: Date.now() - t0 };
-  } catch (err) {
-    checks.database = { ok: false, detail: err instanceof Error ? err.message.slice(0, 120) : "unreachable" };
+  } catch {
+    // Generic detail for an unauthenticated probe — the underlying DB error
+    // (which can carry driver/connection detail) stays in server logs only.
+    checks.database = { ok: false, detail: "database unreachable" };
   }
 
   try {

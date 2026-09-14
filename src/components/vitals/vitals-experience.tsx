@@ -13,7 +13,7 @@
    alive without lying about what a demo can do.
    ============================================================ */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -179,24 +179,28 @@ function LiveHeartRate() {
   const BASE = series(42, 40, 68, 6);
   const [tick, setTick] = useState(0);
   const [live, setLive] = useState(true);
-  const reduce = useRef(false);
+  // Reduced-motion via a real external-system subscription (SSR-safe,
+  // lint-clean): render reads a reactive value, never a ref.
+  const reduce = useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false
+  );
 
   useEffect(() => {
-    reduce.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  }, []);
-
-  useEffect(() => {
-    if (!live || reduce.current) return;
+    if (!live || reduce) return;
     const id = setInterval(() => setTick((t) => t + 1), 1600);
     return () => clearInterval(id);
-  }, [live]);
+  }, [live, reduce]);
 
-  const data = useMemo(() => {
-    if (tick === 0) return BASE;
-    const drift = ((tick * 7) % 11) - 5;
-    return [...BASE.slice(tick % 8), ...series(100 + tick, 8, 68 + drift, 5)];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tick]);
+  // Plain derivation — React Compiler memoizes this automatically; a manual
+  // useMemo here made the compiler skip the component entirely.
+  const drift = ((tick * 7) % 11) - 5;
+  const data = tick === 0 ? BASE : [...BASE.slice(tick % 8), ...series(100 + tick, 8, 68 + drift, 5)];
 
   const current = Math.round(data[data.length - 1]);
 
@@ -231,7 +235,7 @@ function LiveHeartRate() {
         <Sparkline data={data} height={64} live={live} stroke="#E58F7A" fill="rgba(229,100,84,0.14)" />
       </div>
       <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-[#6E6654]">
-        <span className={`inline-block h-1.5 w-1.5 rounded-full ${live && !reduce.current ? "bg-[#E58F7A] nxl-vt-pulse" : "bg-[#6E6654]"}`} aria-hidden="true" />
+        <span className={`inline-block h-1.5 w-1.5 rounded-full ${live && !reduce ? "bg-[#E58F7A] nxl-vt-pulse" : "bg-[#6E6654]"}`} aria-hidden="true" />
         {live ? "Live demo simulation" : "Simulation paused"}
       </p>
     </SpotlightCard>

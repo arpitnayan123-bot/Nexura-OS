@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,10 +42,12 @@ export async function POST(req: NextRequest) {
       id: lead.id,
     });
   } catch (err) {
-    // Fallback: keep working even if the DB is unavailable in this request
-    const message = err instanceof Error ? err.message : "unknown";
+    // Fallback: keep working even if the DB is unavailable in this request.
+    // Never echo err.message to anonymous callers (Prisma errors can carry
+    // internal detail) — full context goes to the redacting logger.
+    log.error("api", "appointments.persist_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
-      { ok: false, error: "server_error", detail: message },
+      { ok: false, error: "server_error" },
       { status: 500 }
     );
   }
