@@ -8,7 +8,12 @@ export const STEPUP_ACTIONS = ["billing.approve", "medication.verify", "prescrip
 export type StepUpAction = (typeof STEPUP_ACTIONS)[number];
 
 function stepUpSecret(): string {
-  return process.env.JWT_SECRET || "nexura-os-dev-secret-change-in-prod";
+  const s = process.env.JWT_SECRET;
+  if (s && s.length >= 16) return s;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET must be set (>=16 chars) in production — step-up HMAC must not use a fallback.");
+  }
+  return "nexura-os-dev-secret-change-in-prod";
 }
 
 export function issueStepUpToken(userId: string, action: StepUpAction, subjectId?: string): string {

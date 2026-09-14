@@ -23,7 +23,10 @@ export function redactString(input: string): string {
   return out;
 }
 
-const SENSITIVE_KEYS = /^(password|pin|token|secret|authorization|cookie|pinhash|passwordhash|signature|ssn|aadhaar)/i;
+// Unanchored ON PURPOSE: keys like `verifyToken` / `resetToken` / `accessToken`
+// must also match — an anchored regex let live auth tokens reach server.log.
+// Over-matching (e.g. "tokenize") fails closed, which is correct here.
+const SENSITIVE_KEYS = /(password|pin|token|secret|authorization|cookie|signature|ssn|aadhaar)/i;
 
 export function redactDeep<T>(value: T, depth = 0): T {
   if (depth > 6) return "[deep]" as unknown as T;

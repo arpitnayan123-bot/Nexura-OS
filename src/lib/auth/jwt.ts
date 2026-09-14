@@ -64,7 +64,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 /* ---------- Token Generation ---------- */
-export function generateAccessToken(user: AuthUser, claims?: { jti?: string; staffCode?: string; department?: string; hospitalId?: string; breakGlass?: boolean; linkedPatientId?: string | null }): string {
+export function generateAccessToken(user: AuthUser, claims?: { jti?: string; staffCode?: string; department?: string; hospitalId?: string; breakGlass?: boolean; linkedPatientId?: string | null }, expiresIn: string = ACCESS_TOKEN_EXPIRY): string {
   return jwt.sign(
     {
       userId: user.id,
@@ -73,7 +73,7 @@ export function generateAccessToken(user: AuthUser, claims?: { jti?: string; sta
       ...(claims || {}),
     },
     JWT_SECRET,
-    { expiresIn: ACCESS_TOKEN_EXPIRY }
+    { expiresIn: expiresIn as jwt.SignOptions["expiresIn"] }
   );
 }
 
