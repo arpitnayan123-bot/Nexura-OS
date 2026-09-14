@@ -4172,3 +4172,23 @@ Stage Summary:
 - Drawer now opens from the right edge — directly beneath the trigger — wearing the full material spectrum
 - Second unlayered-position cascade bug fixed and documented; side now provably measured (x=1024/1440) not assumed
 - Committed + tagged menu-hero-2-final + dual bundles refreshed immediately
+
+---
+Task ID: repo-hygiene-1
+Agent: main (Super Z)
+Task: Diagnose & fix workspace archive/download failure
+
+Work Log:
+- Diagnosis: workspace totaled 3.4GB — repo.bundle (256MB) had been accidentally tracked in git, so every commit embedded a ~256MB blob as loose objects; .git/objects ballooned to 1.5GB (6 blobs ≥127MB)
+- Untracked repo.bundle, added *.bundle to .gitignore, committed
+- git filter-repo --invert-paths --path repo.bundle --force: purged bundle blobs from all 181 commits; tags rewritten to new hashes, names preserved
+- reflog expire + git gc --aggressive --prune=now: .git 1.5GB → 29MB (98% reduction)
+- git fsck clean; 9 tags intact; working tree unchanged; 0 bundle files tracked
+- Health: tsc --noEmit exit 0; / → 200, /predictive → 200, /api/ready green (database+seed ok)
+- Recreated repo.bundle from clean history + copied to backups/repo.bundle
+
+Stage Summary:
+- Root cause of archive/download failure: 3.4GB workspace (1.5GB .git from tracked bundles)
+- .git now 29MB packed, workspace ~1.9GB on disk (node_modules 1.1GB is gitignored & needed by dev server)
+- New lock tag: repo-hygiene-1-final; bundles regenerated from clean history (small)
+- Rule added to protocol: *.bundle must NEVER be git-tracked; verify with `git ls-files | rg bundle` after each lock
