@@ -25,7 +25,66 @@ async function GET_impl(req: NextRequest) {
 async function POST_impl(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { clinicId, doctorId, patientName, phone, slot } = body as { clinicId?: string; doctorId?: string; patientName?: string; phone?: string; slot?: string };
+    const { clinicId, doctorId, patientName, phone, slot, action } = body as { clinicId?: string; doctorId?: string; patientName?: string; phone?: string; slot?: string; action?: string };
+
+    // accept — convert a pending online booking into patient + appointment.
+    // This closes the loop: request → clinic accepts → it lands in the queue.
+    if (action === "accept") {
+      const ctx = await getClinicContext();
+      if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
+      const bookingId = body.bookingId as string;
+      if (!bookingId) return NextResponse.json({ error: "missing" }, { status: 400 });
+
+      const booking = await db.onlineBooking.findUnique({ where: { id: bookingId } });
+      if (!booking || booking.clinicId !== ctx.clinic.id) {
+        return NextResponse.json({ error: "not_found" }, { status: 404 });
+      }
+      if (booking.status !== "booked") {
+        return NextResponse.json({ error: "already_processed" }, { status: 409 });
+      }
+
+      // Find-or-create the walk-in patient by phone (dedupes repeat bookers).
+      let patient = await db.clinicPatient.findFirst({
+        where: { clinicId: ctx.clinic.id, phone: booking.phone },
+      });
+      if (!patient) {
+        const count = await db.clinicPatient.count({ where: { clinicId: ctx.clinic.id } });
+        patient = await db.clinicPatient.create({
+          data: {
+            clinicId: ctx.clinic.id,
+            mrn: `CLN-${2001 + count}`,
+            name: booking.patientName,
+            gender: "unknown",
+            phone: booking.phone,
+          },
+        });
+      }
+
+      const dayStart = new Date(booking.slot); dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(booking.slot); dayEnd.setHours(23, 59, 59, 999);
+      const tokenNo = (await db.clinicAppointment.count({ where: { clinicId: ctx.clinic.id, slot: { gte: dayStart, lte: dayEnd } } })) + 1;
+
+      const appointment = await db.clinicAppointment.create({
+        data: {
+          clinicId: ctx.clinic.id,
+          patientId: patient.id,
+          doctorId: booking.doctorId,
+          slot: booking.slot,
+          tokenNo,
+          reason: "Online booking",
+          source: "online",
+          status: "booked",
+        },
+      });
+
+      const updated = await db.onlineBooking.update({
+        where: { id: booking.id },
+        data: { status: "converted", convertedPatientId: patient.id, convertedAppointmentId: appointment.id },
+      });
+
+      return NextResponse.json({ ok: true, booking: updated, appointment, patient });
+    }
+
     if (!clinicId || !patientName || !phone || !slot) return NextResponse.json({ error: "missing" }, { status: 400 });
     const booking = await db.onlineBooking.create({
       data: { clinicId, doctorId: doctorId || null, patientName, phone, slot: new Date(slot) },

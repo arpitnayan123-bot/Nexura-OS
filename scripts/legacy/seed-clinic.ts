@@ -18,6 +18,7 @@ async function main() {
       address: "Shop 12, Sai Plaza, Bandra West",
       city: "Mumbai",
       regNo: "MMC-44512",
+      bookingSlug: "rao-clinic",
     },
   });
 

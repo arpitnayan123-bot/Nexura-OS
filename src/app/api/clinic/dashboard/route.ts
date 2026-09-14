@@ -42,7 +42,11 @@ async function GET_impl() {
       }),
       (async () => {
         // convert online bookings to walk-in appointments for today
-        const pendingBookings = await db.onlineBooking.findMany({ where: { clinicId: cId, status: "booked", convertedPatientId: null } });
+        const pendingBookings = await db.onlineBooking.findMany({
+          where: { clinicId: cId, status: "booked", convertedPatientId: null },
+          orderBy: { createdAt: "desc" },
+          include: { doctor: { select: { id: true, name: true, specialization: true } } },
+        });
         return pendingBookings;
       })(),
       (async () => {

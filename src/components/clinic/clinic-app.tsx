@@ -192,6 +192,11 @@ function TodayTab({ data, doctorFilter, onConsult, onReload, onClearFilter }: { 
         <StaggerItem className="h-full"><Kpi icon={Wallet} label="Revenue" value={kpis.revenueToday} prefix="₹" sub="today" accent="#B8860B" /></StaggerItem>
       </StaggerGroup>
 
+      {/* Online booking requests — the clinic must see and accept these */}
+      {data.pendingOnlineBookings?.length > 0 && (
+        <OnlineRequests items={data.pendingOnlineBookings} onReload={load} />
+      )}
+
       {/* Queue — patient cards */}
       <div>
         <h3 className="mb-3 font-serif text-base font-semibold">Today&apos;s Queue {filterDoctor && `· ${filterDoctor.name}`}</h3>
@@ -243,6 +248,48 @@ function TodayTab({ data, doctorFilter, onConsult, onReload, onClearFilter }: { 
 }
 
 /* ============== PATIENTS ============== */
+
+function OnlineRequests({ items, onReload }: { items: any[]; onReload: () => Promise<void> | void }) {
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const accept = async (id: string) => {
+    setBusy(id);
+    try {
+      const res = await fetch("/api/clinic/booking", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "accept", bookingId: id }) });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d?.error || "failed");
+      toast.success(`Accepted — ${d.patient?.name || "patient"} added to the queue`);
+      await onReload();
+    } catch {
+      toast.error("Could not accept the request");
+    } finally { setBusy(null); }
+  };
+
+  return (
+    <div className="rounded-2xl border border-[#C9962E]/40 bg-[#C9962E]/5 p-4">
+      <h3 className="flex items-center gap-2 font-serif text-sm font-semibold text-[#8A5A04]">
+        <MessageCircle className="h-4 w-4" />Online booking requests
+        <span className="rounded-full bg-[#C9962E]/15 px-2 py-0.5 text-[0.6rem]">{items.length} awaiting confirmation</span>
+      </h3>
+      <div className="mt-2.5 space-y-1.5">
+        {items.map((b) => (
+          <div key={b.id} className="flex flex-wrap items-center gap-3 rounded-xl bg-white px-3 py-2 shadow-sm ring-1 ring-[#EFE9E0]">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{b.patientName} <span className="ml-1 text-[0.6rem] font-normal text-[#9A8F84]">{b.phone}</span></p>
+              <p className="text-[0.65rem] text-[#9A8F84]">
+                {new Date(b.slot).toLocaleString("en-IN", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                {b.doctor?.name ? ` · ${b.doctor.name}` : " · any doctor"}
+              </p>
+            </div>
+            <button onClick={() => accept(b.id)} disabled={busy === b.id} className="flex shrink-0 items-center gap-1 rounded-full bg-[#2A2622] px-3 py-1.5 text-[0.65rem] font-semibold text-white hover:bg-[#3D352E] disabled:opacity-60">
+              {busy === b.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}Accept
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function PatientsTab() {
   const [patients, setPatients] = useState<any[]>([]);
