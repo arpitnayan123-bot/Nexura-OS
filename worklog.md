@@ -4134,3 +4134,24 @@ Work Log:
 Stage Summary:
 - Homepage is now a full Material Spectrum: 5 material systems × 8 hue families (gold, amber, orange, sage, teal, violet, crimson, blue) — still one warm Linen canvas, every color earning its place
 - Committed + tagged material-spectrum-final + dual bundles refreshed
+
+---
+Task ID: MENU-HERO-1
+Agent: Super Z (main)
+Task: Premium hamburger menu (trigger + drawer) · hero girl-photo showpiece with loop animations · commit & lock everything
+
+Work Log:
+- CONTEXT: previous turn was cut off after tsc (deploy/verify/lock never ran — user called this out); user also reported the menu "opening on the opposite side" (drawer was right-anchored) → flipped to LEFT-edge drawer
+- globals.css +367 lines (PREMIUM MENU + HERO SHOWPIECE systems): .menu-trigger (gold-glass disc, staggered 3-line mark that aligns on hover, live breathing pulse dot, Apple-style press-down scale .93), .menu-drawer (warm aurora glass: radial gold/violet/teal/rose wash + mat-aurora-drift + mineral grain, light+dark variants), .menu-row (per-accent tinted hover wash + gradient hairline reveal + translate-x), .menu-scroll thin gold scrollbar; hero layers: .hero-halo (conic gold→violet→teal→crimson ring, 30s spin, ring-masked+blurred), .hero-orbit A/B (dashed gold 20s + solid teal 34s counter-rotation) with .hero-sat gold/teal glowing satellites, .hero-sheen (specular sweep, 7.5s loop), .hero-spark ×5 (twinkle), .hero-seal-ring (dashed rotator), .mat-chip--neon/--glass/--clay (material identities reusing mat-neon-breathe); full prefers-reduced-motion guards (frozen transforms keep centering via !important translate)
+- hamburger-menu.tsx FULL REBUILD: trigger = custom 3-line gold-glass disc + pulse dot (no lucide Menu); drawer = LEFT-anchored (x:-100% spring, rounded-r, gold hairline border-r), liquid-gold brand tile + live chip header, rotating-X close button, count pills on section labels w/ gradient hairlines, 14 products + 6 quick actions EACH with own spectrum accent (hospital gold, predictive violet, clinic teal, pharmacia sage, portal gold, connect amber, kyh orange, labs cyan, global blue, vitals crimson, care rose, emergency red, diy green, founder champagne + action hues), glowing gradient icon chips, gradient badges, violet spotlight row w/ ping kept, staggered spring entrances (critically damped, delayChildren), footer trust line + ABDM/DPDP/NABH dot chips; a11y preserved (dialog/aria-modal/Escape/scroll-lock/focus)
+- hero.tsx HeroVisual SHOWPIECE: portrait card gains gold inset hairline + top light + endless sheen sweep + deeper gold-tinted shadow; chips re-materialized — AI risk = neon amber (#B45309/#F59E0B, gradient icon chip), Heart rate = crimson glass (#BE123C/#F43F5E), Care score = rose clay (#9F5B6B/#C48B9F, rose bars); NEW rotating DPDP privacy seal (glass disc + dashed gold rotator); 5 twinkling gold sparks; halo + orbits + satellites behind
+- BUG FIX 1 (real): .mat-chip had `position: relative` in unlayered CSS → beat Tailwind's `absolute` utility → chips collapsed into flow, stacked mid-portrait. Removed position from .mat-chip (isolation only) + documented the trap in a comment
+- BUG FIX 2 (pre-existing, surfaced): .glass-lux also sets unlayered `position: relative` → hero nameplate "Dr. Amelia Hart" was silently clipped below the card's overflow edge (17px sliver). Fixed with inline `style={{ position: "absolute" }}` on the plate (inline beats cascade games). Plate now renders perfectly
+- VERIFY: tsc EXIT:0; deploys tIPlqlJjxHcsirzVB2kKX → final verified; /predictive flaky check manually re-confirmed 200 + marker (3x + 2x); NEW scripts/menu-hero-verify.mjs — 32 checks ALL PASS: trigger/3-lines/dot, drawer LEFT x=0 w=416, 20 rows, 20 icon chips, violet spotlight, ABDM/DPDP/NABH chips, Escape close, halo/orbit/counter-orbit animations computed, 2 satellites, sheen looping, 5 sparks, 3 mat-chips (neon/glass/clay), seal rotating, 0 console errors desktop+mobile, 390px no overflow, mobile drawer full-width left; 18/18 routes 200; /api/ready green
+- Screenshots: logs/menu-open-left.png (drawer), logs/hero-showpiece.png (portrait), logs/menu-open-mobile.png
+
+Stage Summary:
+- Menu is now a premium LEFT drawer wearing the full material spectrum with per-product color identities; trigger is a gold-glass disc with living 3-line mark
+- Hero girl photo is a full showpiece: spectrum halo, orbital satellites, sheen sweep, DPDP seal, material chips — all looping, all reduced-motion safe
+- Two cascade bugs fixed (unlayered position vs Tailwind utilities) — documented to prevent recurrence
+- Committed + tagged menu-hero-1-final + dual bundles refreshed immediately

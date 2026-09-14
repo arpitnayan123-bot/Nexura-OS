@@ -2970,8 +2970,10 @@ html.nx-force-visible [style*="opacity:0"] {
   to { transform: rotate(360deg); }
 }
 
-/* ---------- material chips — spectrum identities for the hero ---------- */
-.mat-chip { position: relative; isolation: isolate; }
+/* ---------- material chips — spectrum identities for the hero ----------
+   NOTE: no `position` here on purpose — Tailwind's `absolute` utility
+   must keep control (unlayered CSS would override layered utilities). */
+.mat-chip { isolation: isolate; }
 .mat-chip--neon {
   border: 1px solid transparent;
   background:
