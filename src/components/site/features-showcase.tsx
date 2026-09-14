@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   Building2, Stethoscope, Pill, HeartPulse, MessageCircle,
   Sparkles, Globe, Clock, TrendingUp, Shield, BrainCircuit, Sprout,
-  ArrowUpRight, FlaskConical, Siren, Activity, type LucideIcon,
+  ArrowUpRight, FlaskConical, Siren, Activity, Users, type LucideIcon,
 } from "lucide-react";
 import { useBooking } from "./booking-context";
 import { Counter, SpotlightCard } from "@/components/premium/kit";
@@ -39,6 +39,7 @@ const PRODUCTS: Feature[] = [
   { id: "kyh", name: "Know Your Health", sub: "AI Tools", desc: "15 AI tools — symptom checker, derma scan, X-ray reader, diet planner, lab analyzer & more.", icon: Sparkles, accent: "#A16207", href: "/know-your-health" },
   { id: "labs", name: "Nexura Labs", sub: "Diagnostics, Decoded", desc: "400+ tests collected at home in 30-minute windows, run in NABL-certified labs, decoded by AI into plain language — reports in 4–12 hours.", icon: FlaskConical, accent: "#A16207", href: "/labs", badge: "New" },
   { id: "vitals", name: "Nexura Vitals", sub: "Your body, in real time", desc: "Connect the wearables you already own — heart rate, SpO₂, HRV, sleep and stress become one calm, physician-grade picture with trends explained.", icon: Activity, accent: "#A16207", href: "/vitals", badge: "New" },
+  { id: "care", name: "Nexura Care Circle", sub: "Family health", desc: "One calm view for the whole family — kids' vaccines, elders' medication adherence, shared insurance, DPDP consent controls. Up to 8 members.", icon: Users, accent: "#A16207", href: "/care", badge: "New" },
   { id: "emergency", name: "Nexura Emergency", sub: "Seconds, respected", desc: "Press-and-hold SOS dispatches the nearest ambulance with your medical ID streaming to the crew. Live ER beds, blood-bank availability, offline first-aid.", icon: Siren, accent: "#A16207", href: "/emergency", badge: "SOS" },
   { id: "global", name: "Nexura Global", sub: "Medical Tourism", desc: "World-class Indian healthcare for global patients. Discovery portal, cost calculator, coordinator dashboard.", icon: Globe, accent: "#A16207", href: "/global" },
   { id: "diy", name: "Nexura DIY", sub: "Your Wellness Roadmap", desc: "Tell it like it is — one chat builds a safe, realistic wellness roadmap. Safety screen, honest timeframes, no sign-in needed.", icon: Sprout, accent: "#A16207", href: "/diy", badge: "Free · No sign-in" },

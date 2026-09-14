@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu, X, ArrowUpRight, Building2, Stethoscope, Pill, HeartPulse,
   MessageCircle, Sparkles, Globe, BrainCircuit, Clock, TrendingUp,
-  Shield, Sprout, FlaskConical, Siren, Activity, type LucideIcon,
+  Shield, Sprout, FlaskConical, Siren, Activity, Users, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBooking } from "./booking-context";
@@ -40,6 +40,7 @@ const PRODUCTS: NavEntry[] = [
   { id: "labs", name: "Nexura Labs", sub: "Diagnostics, Decoded", desc: "400+ tests collected at home in 30-minute windows, run in NABL-certified labs, decoded by AI into plain language — reports in 4–12 hours.", icon: FlaskConical, accent: "#A16207", href: "/labs", badge: "New", group: "products" },
   { id: "global", name: "Nexura Global", sub: "Medical Tourism", desc: "World-class Indian healthcare for global patients. Discovery portal, cost calculator, coordinator dashboard.", icon: Globe, accent: "#A16207", href: "/global", group: "products" },
   { id: "vitals", name: "Nexura Vitals", sub: "Your body, in real time", desc: "Connect the wearables you already own — heart rate, SpO₂, HRV, sleep and stress become one calm, physician-grade picture with trends explained.", icon: Activity, accent: "#A16207", href: "/vitals", badge: "New", group: "products" },
+  { id: "care", name: "Nexura Care Circle", sub: "Family health", desc: "One calm view for the whole family — kids' vaccines, elders' medication adherence, shared insurance, DPDP consent controls. Up to 8 members.", icon: Users, accent: "#A16207", href: "/care", badge: "New", group: "products" },
   { id: "emergency", name: "Nexura Emergency", sub: "Seconds, respected", desc: "Press-and-hold SOS dispatches the nearest ambulance with your medical ID streaming to the crew. Live ER beds, blood-bank availability, offline first-aid.", icon: Siren, accent: "#A16207", href: "/emergency", badge: "SOS", group: "products" },
   { id: "diy", name: "Nexura DIY", sub: "Free · No sign-in", desc: "Tell it like it is — one chat builds a safe, realistic wellness roadmap with safety screen and honest timeframes.", icon: Sprout, accent: "#A16207", href: "/diy", badge: "New", group: "products" },
   { id: "founder", name: "The Founder", sub: "Arpit Nayan", desc: "The story behind Nexura OS — from Bihar to building an operating system for health.", icon: HeartPulse, accent: "#C8A55B", href: "/founder", badge: "Story", group: "products" },

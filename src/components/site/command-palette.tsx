@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import {
   Building2, Stethoscope, Pill, HeartPulse, MessageCircle, Sparkles,
   Globe, BrainCircuit, FlaskConical, Sprout, Clock, TrendingUp, Shield,
-  Search, ArrowRight, CornerDownLeft, User, Siren, Activity,
+  Search, ArrowRight, CornerDownLeft, User, Siren, Activity, Users,
 } from "lucide-react";
 import {
   CommandDialog,
@@ -37,6 +37,7 @@ const PRODUCTS: Entry[] = [
   { id: "labs", name: "Nexura Labs", hint: "Diagnostics, decoded · home collection", icon: FlaskConical, href: "/labs" },
   { id: "emergency", name: "Nexura Emergency", hint: "SOS dispatch · live ER beds", icon: Siren, href: "/emergency" },
   { id: "vitals", name: "Nexura Vitals", hint: "Continuous health from wearables", icon: Activity, href: "/vitals" },
+  { id: "care", name: "Nexura Care Circle", hint: "Family health · consent controls", icon: Users, href: "/care" },
   { id: "predictive", name: "Nexura Predictive", hint: "Health foresight engine", icon: BrainCircuit, href: "/predictive" },
   { id: "clinic", name: "Clinic OS", hint: "EMR · SOAP · drug guard", icon: Stethoscope, href: "/clinic" },
   { id: "pharmacy", name: "Pharmacia", hint: "AI pharmacy POS", icon: Pill, href: "/pharmacy" },
