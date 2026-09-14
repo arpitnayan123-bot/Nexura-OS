@@ -312,28 +312,38 @@ export async function POST(req: NextRequest) {
             .slice(0, 10)
         : [];
 
-      // Estimate breakdown: procedure base price + extended stay
-      // (per-day bed & care beyond the bundled avgStayDays) + extras.
+      // Estimate breakdown (matches the desk UI contract):
+      //   procedure fee + surgeon fee (30%) + room ($150/day × stay)
+      //   + nursing & meds (10% of the above) + optional add-on packages.
       const rate = await usdInrRate();
-      const extraStayDays = Math.max(0, stayDays - proc.avgStayDays);
-      const perDayCare = 150;
-      const extraStayCost = extraStayDays * perDayCare;
+      const procedureFee = proc.priceUSD;
+      const surgeonFee = Math.round(procedureFee * 0.30);
+      const roomCharges = stayDays * 150;
+      const nursingMed = Math.round((procedureFee + surgeonFee + roomCharges) * 0.10);
       const extrasCost = extras.reduce((s: number, e: { cost: number }) => s + e.cost, 0);
-      const totalUSD = Math.round(proc.priceUSD + extraStayCost + extrasCost);
+      const totalUSD = procedureFee + surgeonFee + roomCharges + nursingMed + extrasCost;
       const totalINR = Math.round(totalUSD * rate);
 
       return NextResponse.json({
+        procedure: proc.name,
+        stayDays,
+        procedureFee,
+        surgeonFee,
+        roomCharges,
+        nursingMed,
+        extras: extrasCost,
+        extrasList: extras,
         totalUSD,
         totalINR,
+        inrRate: rate,
         rate,
         breakdown: {
           procedure: proc.name,
           baseUSD: proc.priceUSD,
           stayDays,
           bundledStayDays: proc.avgStayDays,
-          extraStayDays,
-          perDayCareUSD: perDayCare,
-          extraStayCostUSD: extraStayCost,
+          perDayRoomUSD: 150,
+          roomChargesUSD: roomCharges,
           extras,
           extrasCostUSD: extrasCost,
         },

@@ -1205,7 +1205,7 @@ function InquiryDetail({
               )}
             </div>
             <p className="mt-2 text-[0.6rem] text-slate-400">
-              Placeholder — patient has not uploaded files yet
+              No records uploaded yet — the coordinator requests them over WhatsApp or Connect before the visa stage.
             </p>
           </Section>
 
