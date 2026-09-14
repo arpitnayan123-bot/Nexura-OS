@@ -12,7 +12,6 @@ import {
   PlayCircle,
   MessageCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useBooking } from "./booking-context";
 import { Magnetic } from "./magnetic";
 import {
@@ -94,16 +93,15 @@ export function Hero() {
             <Reveal delay={0.24}>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Magnetic strength={0.4}>
-                  <Button
+                  <button
+                    type="button"
                     onClick={() => openBooking()}
-                    size="lg"
-                    className="btn-gold group h-11 rounded-full px-6 text-[0.95rem] font-medium"
+                    className="mat-btn mat-btn--lg mat-btn--textured group h-11 px-7 text-[0.95rem]"
+                    style={{ "--mat-accent": "#A16207", "--mat-accent-2": "#C88A1F" } as React.CSSProperties}
                   >
-                    <span className="flex items-center gap-2">
-                      Start your health scan
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </Button>
+                    Start your health scan
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </button>
                 </Magnetic>
                 <Link
                   href="/hospital"
