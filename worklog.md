@@ -3978,3 +3978,19 @@ Work Log:
 Stage Summary:
 - Product #5 live: Nexura Labs joins Hospital OS / Predictive / Clinic OS / Pharmacia / Portal / Connect / KYH / Global / DIY — nav + homepage showcase integrated
 - All interactions verified end-to-end in real browser; safety systems (guardian, autocommit) confirmed alive during the session
+
+---
+Task ID: AUTO-ITER-3-CMDK
+Agent: Super Z (main, autonomous session)
+Task: Iteration 3 — site-wide ⌘K command palette
+
+Work Log:
+- Built src/components/site/command-palette.tsx on shadcn/cmdk primitives: 3 groups (Quick actions incl. book/symptoms/chat/lab-test; Products incl. new Labs; Resources incl. pricing/compliance/founder), hash-aware go() helper (scrolls same-page anchors, cross-page router.push with hash), floating "Search Nexura" pill trigger (sm+, z-40, print:hidden)
+- globals.css: .nx-cmdk Liquid Gold skin — champagne top gradient, #3A3428 border + gold ring shadow, gold uppercase group headings, gold-wash selected state, reduced-motion guarded
+- layout.tsx: mounted once inside ThemeProvider after SonnerToaster → site-wide availability
+- Verified: tsc EXIT:0; build OK (45/45 pages); statics rsynced; server restarted via port-owner pid kill; / and /labs 200; agent-browser E2E: trigger visible, palette opens, Labs option click → pathname=/labs, 0 console errors; 10-page sweep (/, pricing, labs, predictive, hospital, connect, portal/login, founder, diy, investors) all errors=0 trigger=Y; /api/ready green
+- Note: synthetic .value typing doesn't drive React controlled inputs in eval-based tests — keyboard filtering is native cmdk behavior with real focus; pointer path fully verified
+- Committed (3 files, +213)
+
+Stage Summary:
+- Every Nexura page now has one-keystroke navigation — premium power-user interaction matching Linear/Vercel-grade polish
