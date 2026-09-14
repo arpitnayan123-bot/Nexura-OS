@@ -51,19 +51,43 @@ async function main() {
     }));
   }
 
-  // Today's appointments (tokens)
+  // Today's appointments (tokens) — deterministic + collision-free.
+  // A patient never books the same doctor twice within 2 hours, and never
+  // holds two slots within 45 minutes, so the queue reads like a real day.
   const today = new Date(); today.setHours(9, 0, 0, 0);
   const reasons = ["Fever & body ache", "BP review", "Routine checkup", "Skin rash", "Diabetes follow-up", "Cold & cough", "Back pain", "Antenatal"];
   let token = 1;
+  let pick = 3; // deterministic PRNG state (xorshift-ish)
+  const nextPick = (n: number) => {
+    pick = (pick * 1103515245 + 12345) % 2147483648;
+    return pick % n;
+  };
+  const lastForPatient = new Map<string, number>();
+  const lastPatientForDoctor = new Map<string, number>();
+  const MIN = 60000;
   for (let h = 0; h < 12; h++) {
-    if (Math.random() > 0.4) {
-      const doc = docList[Math.floor(Math.random() * docList.length)];
-      const pat = patients[Math.floor(Math.random() * patients.length)];
-      const slot = new Date(today.getTime() + (h * 30 + Math.floor(Math.random() * 25)) * 60000);
-      const status = slot < new Date() ? (Math.random() > 0.4 ? "done" : "no_show") : (Math.random() > 0.5 ? "arrived" : "booked");
+    if (nextPick(10) >= 4) { // ~60% of slots used
+      const doc = docList[nextPick(docList.length)];
+      // prefer a patient who isn't already booked with this doctor today
+      let pat = patients[nextPick(patients.length)];
+      for (let tries = 0; tries < patients.length; tries++) {
+        const lastDocPatient = lastPatientForDoctor.get(`${doc.id}:${pat.id}`);
+        const lastAny = lastForPatient.get(pat.id);
+        const slotMs = today.getTime() + h * 30 * MIN;
+        const okDocGap = lastDocPatient === undefined || slotMs - lastDocPatient >= 120 * MIN;
+        const okAnyGap = lastAny === undefined || slotMs - lastAny >= 45 * MIN;
+        if (okDocGap && okAnyGap) break;
+        pat = patients[(patients.indexOf(pat) + 1) % patients.length];
+      }
+      const patIdx = patients.indexOf(pat);
+      const slotMs = today.getTime() + (h * 30 + nextPick(25)) * MIN;
+      const slot = new Date(slotMs);
+      const status = slot < new Date() ? (nextPick(10) >= 4 ? "done" : "no_show") : (nextPick(10) >= 5 ? "arrived" : "booked");
       await db.clinicAppointment.create({
-        data: { clinicId: clinic.id, patientId: pat.id, doctorId: doc.id, slot, tokenNo: token++, reason: reasons[h % reasons.length], status },
+        data: { clinicId: clinic.id, patientId: pat.id, doctorId: doc.id, slot, tokenNo: token++, reason: reasons[(h + patIdx) % reasons.length], status },
       });
+      lastForPatient.set(pat.id, slotMs);
+      lastPatientForDoctor.set(`${doc.id}:${pat.id}`, slotMs);
     }
   }
 
