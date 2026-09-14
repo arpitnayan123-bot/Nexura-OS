@@ -79,7 +79,7 @@ export function FeaturesShowcase() {
   };
 
   return (
-    <section id="products" className="relative scroll-mt-24 py-20 lg:py-28">
+    <section id="products" className="relative scroll-mt-24 overflow-hidden py-20 lg:py-28">
       {/* material aurora ambience behind the grid */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-24 -z-10 h-[420px] opacity-[0.45] [mask-image:radial-gradient(60%_60%_at_50%_40%,black,transparent)]">
         <div

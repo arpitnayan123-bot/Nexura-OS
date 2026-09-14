@@ -4094,3 +4094,21 @@ Stage Summary:
 - Material Atelier 2.0 is live and BETTER: 5 material systems, 13 per-product material identities, real CTA buttons where none existed
 - LESSON LEARNED encoded: bundles must be refreshed IMMEDIATELY after every milestone (this restore was needed because the post-milestone bundle refresh never captured the material work)
 - Locked with tag material-restored-final + dual bundles
+
+---
+Task ID: HOME-POLISH-1
+Agent: Super Z (main)
+Task: Remove Search pill from homepage · homepage design pass · Founder Story premium showpiece
+
+Work Log:
+- command-palette.tsx: floating "Search Nexura" pill now hidden on / via usePathname (⌘K keyboard works site-wide incl. homepage; pill remains on all other pages) — user request
+- hero.tsx: primary CTA "Start your health scan" upgraded from btn-gold to MATERIAL ATELIER textured gold (mat-btn--textured, #A16207/#C88A1F) inside Magnetic; removed unused Button import; secondary stays glass-lux
+- founder-badge.tsx FULL REBUILD as premium showpiece: whole card is a Link → /founder; claymorphic card + inner aurora wash + mineral grain + specular sheen; portrait 160px w/ double gold rings, gold bloom on hover, floating "FOUNDER & CEO" chip; editorial headline "Built by someone who walked the ward."; pull-quote w/ oversized gold quote mark; 3 credibility chips (13 products one founder / From Bihar for the world / Physician-grade founder-led); textured gold "Read the story →" CTA on vertical gold divider rail + "5 min read" microcopy; hover: card lift, photo scale, glow deepen, gold hairline draw
+- features-showcase.tsx: added overflow-hidden to #products section — anim-aurora ambience was leaking past viewport on mobile (intermittent, phase-dependent) → mobile horizontal overflow FIXED
+- VERIFY: tsc EXIT:0; two deploys (bRDjYenSy0DTbYJN8CiXW → Avf6WkuePWVCh1RGjRPb5); deploy check /predictive SSR marker = flaky curl under load (verified 200 + marker present manually, 3x); home-verify.mjs: PILL_ON_HOME removed OK, PILL_ON_PRICING present OK, hero textured btn OK, founder card (photo+3 chips+CTA) OK, card click → /founder OK, mobile overflow OK (was FAIL, fixed), 0 console/page errors
+- Screenshots: logs/home-hero-v2.png, logs/home-founder-v2.png
+
+Stage Summary:
+- Homepage: cleaner (no search pill), hero wears the material system, Founder Story is now the premium emotional peak of the page — irresistible to click
+- Mobile overflow regression (aurora transform leak) caught + fixed with overflow-hidden
+- Committed + tagged home-polish-1-final + dual bundles refreshed
