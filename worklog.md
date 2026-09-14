@@ -4209,3 +4209,46 @@ Work Log:
 Stage Summary:
 - New tag: label-clean-1-final; dual bundles refreshed
 - UI now shows product name + Explore button only — no material jargon visible
+
+---
+Task ID: prod-audit-1
+Agent: main (Super Z)
+Task: 24-point production launch & security audit + P0 fixes
+
+ INCIDENT FIRST — WORKSPACE ROLLBACK: between the previous turn and this one the
+ sandbox was restored to the 09:44 auto-checkpoint. backend-hardening-1-final
+ (Postgres migration, NxJob queue, Redis rate-limits, AV scan, 61 tests) and
+ server-fix-1-final (self-healing queue) are GONE from this workspace: tags,
+ commits, source files, worklog entries, db/pgdata — all reverted to pre-
+ hardening state. Recovery exhausted: git fsck (0 dangling), fresh repo.bundle
+ (only up to label-clean-1-final), .next rebuilt from rolled-back source. The
+ only possible external copy is a repo.bundle the user downloaded before the
+ rollback. Current tree = label-clean state; THIS audit + fixes apply to it.
+
+Work Log:
+- Phase 1-2: 4 parallel deep-inspection agents (auth/IDOR, AI gateway/PHI, public-site/SEO/a11y, validation/uploads/errors) + own verification of every load-bearing claim (agents proved fallible: several "missing file" claims were right due to the rollback, others checked verbatim)
+- Live non-destructive tests: /api/clinic/patients returns patient PII with NO auth (IDOR confirmed); robots.txt allow-all; sitemap.xml 404; headers live (nosniff/HSTS/CSP ok); tokens logged in plaintext verified in code
+- Delivered full 14-section report + 24-point table (chat)
+- P0 fixes implemented:
+  1. redact.ts SENSITIVE_KEYS unanchored — verifyToken/resetToken now redacted
+  2. password/verify-email routes: live tokens OUT of structured log; demo console delivery kept via explicit [DEMO EMAIL DELIVERY] channel + TODO(otp-delivery)
+  3. JWT_SECRET fail-fast in nx/auth/route.ts + stepup.ts (mirrors lib; .env has JWT_SECRET — verified before change)
+  4. Staff token expiry 15m→12h aligned with cookie/session-record (revocation remains the real control; legacy 15m+refresh pair untouched)
+  5. openrouter.ts: AbortSignal.timeout(45s) + dead retry loop removed
+  6. Webhook SSRF guard: isSafeWebhookUrl (https-only + private/loopback/metadata blocklist) enforced at registration (zod refine) AND at delivery
+  7. prescription-ocr: 8MB/base64/MIME guards (was unbounded) + @ts-nocheck removed + typed vision call (SDK auto-selects model at runtime)
+  8. Public error leaks closed: appointments, clinic/booking GET+POST, /api/ready (detail→redacting logger / generic)
+  9. next.config.ts ignoreBuildErrors REMOVED; tsc clean (one real masked error surfaced + fixed)
+  10. robots.txt hardened (Disallow /portal /connect /global/dashboard /api) + src/app/sitemap.ts (public only) + noindex on /portal, /portal/login, /global/dashboard, /connect (server layout)
+  11. layout.tsx: metadataBase + OG/twitter images + SkipLink global + HydrationWatchdog double-mount deduped
+  12. scripts/make-og.py → public/og.png (1200x630 branded share image)
+  13. foresight form autosave localStorage→sessionStorage (PHI residency)
+  14. "Powered by Gemini / Gemini 2.0 Flash" claims corrected to neutral "AI" (7 spots: KYH app/ui, product-showcase, how-it-works ×4) — real backend is OpenRouter/GLM
+  15. vitals-experience: stale eslint-disable removed → fixed real React 19 violations (refs-during-render → useSyncExternalStore; manual useMemo removed for React Compiler)
+- Verification: tsc 0, eslint 0 problems, 238/238 tests (14 files), DEPLOY VERIFIED, 16/16 routes 200, og.png+sitemap.xml 200, portal serves noindex
+
+Stage Summary:
+- Tag: prod-audit-1-final; dual bundles refreshed; 6 missing tags restored from bundle
+- NOT fixed (needs design, plan delivered in report): clinic/pharmacy route auth model (38 routes), PIE engine hospitalId scoping, portal/family verified invites, bio/[deviceId] device HMAC, connect party check, Privacy/Terms pages (content + legal review), Postgres migration (lost with rollback — must be redone)
+- Dependency audit: nothing to change; npm audit blocked (no package-lock; bun.lock only) — generate lockfile in CI
+- Assumption: nexura-os.app used as placeholder canonical domain (NEXT_PUBLIC_SITE_URL overrides) — confirm at launch
