@@ -88,23 +88,22 @@ export function PatientView() {
   const [consultStatus, setConsultStatus] = useState<{ call: CallLog | null; waiting: boolean }>({ call: null, waiting: false });
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Discover demo patient from hospital EHR API
+  // Resolve this viewer's patient identity (portal session or demo posture)
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/hospital/ehr?take=1");
+        const res = await fetch("/api/connect/patient-identity");
         if (!res.ok) throw new Error();
         const d = await res.json();
-        const firstPatient = (d.patients || [])[0];
         if (cancelled) return;
-        if (firstPatient) {
-          setPatientId(firstPatient.id);
-          setPatientName(firstPatient.fullName);
+        if (d.patientId) {
+          setPatientId(d.patientId);
+          setPatientName(d.patientName || null);
         }
       } catch {
-        // ignored
+        // ignored — view renders its signed-out state
       } finally {
         if (!cancelled) setLoading(false);
       }

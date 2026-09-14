@@ -15,7 +15,7 @@ export function OnlineOrdersModule() {
         <div className="rounded-2xl border border-[#1E2228] bg-[#111418] p-5">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#9DB89E]/10 text-[#9DB89E]"><Sparkles className="h-5 w-5" /></span>
           <h3 className="mt-3 font-serif text-base font-semibold text-white">AI reads prescription</h3>
-          <p className="mt-1 text-xs text-[#6B7280]">Claude Vision reads the Rx → extracts medicines → checks Schedule H compliance → matches to inventory → creates bill draft</p>
+          <p className="mt-1 text-xs text-[#6B7280]">Server-side AI reads the Rx → extracts medicines → checks Schedule H compliance → matches to inventory → creates bill draft</p>
         </div>
       </div>
       <div className="grid place-items-center rounded-2xl border border-dashed border-[#1E2228] py-12 text-center"><ScanLine className="mb-2 h-10 w-10 text-[#1E2228]" /><p className="text-sm text-[#6B7280]">No online orders yet. Patients can order via the public link.</p></div>

@@ -541,7 +541,7 @@ function PrescriptionModal({ open, onClose, onMapped, inventory }: { open: boole
             <div className="flex items-center justify-between border-b border-[#1E2228] bg-[#F59E0B]/5 px-5 py-4">
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#F59E0B]/15 text-[#F59E0B]"><Camera className="h-4 w-4" /></span>
-                <div><h3 className="font-serif text-base font-semibold text-white">AI Prescription Camera</h3><p className="text-[0.65rem] text-[#6B7280]">Powered by Claude Vision — reads handwriting</p></div>
+                <div><h3 className="font-serif text-base font-semibold text-white">AI Prescription Camera</h3><p className="text-[0.65rem] text-[#6B7280]">Nexura AI Vision — reads handwriting</p></div>
               </div>
               <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-[#6B7280] hover:bg-[#1E2228]"><X className="h-4 w-4" /></button>
             </div>

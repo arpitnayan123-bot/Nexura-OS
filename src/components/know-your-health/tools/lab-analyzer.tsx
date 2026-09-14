@@ -152,7 +152,7 @@ export function LabAnalyzer() {
           )}
           <div className="flex items-center gap-3">
             <RunButton onClick={run} loading={loading} disabled={mode === "photo" ? !image : !tests.some((t) => t.name && t.value)} accent={accent} label={mode === "photo" ? "Read report & interpret" : "Interpret against ICMR ranges"} />
-            <span className="text-[0.65rem] text-[#9A8F84]">Powered by Gemini · Indian reference ranges</span>
+            <span className="text-[0.65rem] text-[#9A8F84]">AI-processed · Indian reference ranges</span>
           </div>
           <QuickReference />
           <Disclaimer />

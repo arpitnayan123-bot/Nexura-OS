@@ -107,7 +107,7 @@ export function XrayReader() {
           </div>
           <div className="flex items-center gap-3">
             <RunButton onClick={run} loading={loading} disabled={!image || !bodyPart} accent={accent} label="Analyze X-ray with AI" />
-            <span className="text-[0.65rem] text-[#9A8F84]">Powered by Gemini Vision · Educational use</span>
+            <span className="text-[0.65rem] text-[#9A8F84]">AI-processed · Educational use</span>
           </div>
           <Disclaimer />
         </motion.div>

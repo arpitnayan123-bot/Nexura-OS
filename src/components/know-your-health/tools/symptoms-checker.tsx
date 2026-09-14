@@ -107,7 +107,7 @@ export function SymptomsChecker() {
           </div>
           <div className="flex items-center gap-3">
             <RunButton onClick={run} loading={loading} disabled={!symptoms.trim()} accent={accent} label="Triage with AI" />
-            <span className="text-[0.65rem] text-[#9A8F84]">Powered by Gemini · Indian clinical context</span>
+            <span className="text-[0.65rem] text-[#9A8F84]">AI-processed · Indian clinical context</span>
           </div>
           <Disclaimer />
         </motion.div>
