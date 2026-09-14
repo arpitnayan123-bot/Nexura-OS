@@ -17,7 +17,7 @@ import { AnimatedNumber } from "./animated-number";
 const FACTS = [
   {
     icon: Boxes,
-    value: 22,
+    value: 25,
     label: "Apps, one OS",
     pill: "one registry",
     baseline: "Every app ships from a single product registry",
