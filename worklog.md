@@ -4155,3 +4155,20 @@ Stage Summary:
 - Hero girl photo is a full showpiece: spectrum halo, orbital satellites, sheen sweep, DPDP seal, material chips — all looping, all reduced-motion safe
 - Two cascade bugs fixed (unlayered position vs Tailwind utilities) — documented to prevent recurrence
 - Committed + tagged menu-hero-1-final + dual bundles refreshed immediately
+
+---
+Task ID: MENU-HERO-2
+Agent: Super Z (main)
+Task: User reported menu "still opening on the opposite side" — anchor drawer to the RIGHT (same side as the trigger) and re-lock
+
+Work Log:
+- INTERPRETATION CORRECTED: user wants the drawer on the SAME side as the hamburger button (top-right, beside "Book a visit"); the MENU-HERO-1 flip-to-left was the wrong read — flipped back to RIGHT edge (x:"100%" slide, rounded-l, border-l, shadow flipped). This is also the spatially-correct design (panel anchored to its trigger)
+- ROOT-CAUSED A SECOND CASCADE BUG (same family as MENU-HERO-1's .mat-chip): .menu-drawer had unlayered `position: relative` → beat Tailwind's `absolute` utility → `right-0` was dead and the panel rendered at static x=0. The earlier LEFT version had masked the bug (left-0 coincided with static position) — which is exactly why the side seemed to "never change" for the user. Removed the position declaration; aside keeps Tailwind `absolute`; ::before/::after still anchor correctly since the element remains positioned via the utility. LESSON: never declare `position` in unlayered custom classes for elements whose anchoring comes from Tailwind utilities
+- verify script updated: desktop expects drawer x ≈ vw−416 (RIGHT edge); mobile full-width
+- VERIFY: tsc EXIT:0; deploy MYw1YzcgmWME0-1XNhS55 fully verified (first post-edit run had a startup-time FAIL on the known-flaky check; re-run + manual curls clean, /predictive marker 200); menu-hero-verify.mjs ALL PASS incl. "drawer anchored to RIGHT edge — x=1024 vw=1440"; 18/18 routes 200; /api/ready green
+- Screenshot: logs/menu-open-right.png (drawer under the button, rounded inner corners, ABDM/DPDP/NABH footer chips visible)
+
+Stage Summary:
+- Drawer now opens from the right edge — directly beneath the trigger — wearing the full material spectrum
+- Second unlayered-position cascade bug fixed and documented; side now provably measured (x=1024/1440) not assumed
+- Committed + tagged menu-hero-2-final + dual bundles refreshed immediately
