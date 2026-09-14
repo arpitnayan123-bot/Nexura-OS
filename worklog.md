@@ -4252,3 +4252,30 @@ Stage Summary:
 - NOT fixed (needs design, plan delivered in report): clinic/pharmacy route auth model (38 routes), PIE engine hospitalId scoping, portal/family verified invites, bio/[deviceId] device HMAC, connect party check, Privacy/Terms pages (content + legal review), Postgres migration (lost with rollback — must be redone)
 - Dependency audit: nothing to change; npm audit blocked (no package-lock; bun.lock only) — generate lockfile in CI
 - Assumption: nexura-os.app used as placeholder canonical domain (NEXT_PUBLIC_SITE_URL overrides) — confirm at launch
+
+---
+Task ID: backend-core-1
+Agent: main (Super Z)
+Task: Complete the backend core — rebuild what the rollback erased + close the audit's open P1 backend gaps (user: "complete the backend full core")
+
+Work Log:
+- ENVIRONMENT REALITY: sandbox has NO Postgres/Redis/ClamAV/Docker binaries and the platform standard is SQLite + in-process caching. Postgres/Redis/AV declared out of sandbox scope; db-dialect.ts already documents the production Postgres swap path. Backend core rebuilt environment-honest instead of re-installing wipeable user-space services.
+- Product-auth core (src/lib/nx/product-auth.ts): resolveProductAuth (DEMO_MODE → labeled demo principal; production → revocation-aware fresh staff session via getSessionFresh; portal identities explicitly NOT valid for staff consoles) + withProductAuth (withRoute envelope + identity). Legacy /api/auth confirmed to mint PATIENT tokens (nexura_access) — staff-only rule enforced.
+- Swept ALL 39 clinic+pharmacy routes onto the core via scripts/codemod-product-auth.mjs (0 skipped; route bodies untouched, only export shims moved). Closes audit P1 "clinic/pharmacy route auth model".
+- NxJob queue rebuilt (src/lib/nx/jobs/runner.ts + schema model): quiet dedupe with ACTIVE-ONLY semantics (stale done/dead rows with a cyclical key no longer block re-seeding — test-surfaced design fix), guarded claim (pending→running), exponential backoff, dead-lettering, self-healing queue-scan chain (healQueueChain per tick), daily retention-purge (session records >30d inactive, audit events >NEXURA_RETENTION_DAYS default 365, finished jobs >7d). Booted from instrumentation.ts (NEXURA_JOBS=off disables).
+- Device HMAC for wearable ingest (schema: NxWearableDevice.secretHash + src/lib/nx/device-keys.ts): protocol signs HMAC-SHA256(key=sha256(secret), deviceId+"."+rawBody) so the server stores ONLY the hash yet can verify; timing-safe; raw-body signature (parse after verify); secretless legacy devices allowed in demo, 401 in production. Closes audit "bio/[deviceId] device HMAC".
+- Portal family verified invites (schema: PortalFamilyInvite + route changes + new /api/portal/family/invite/accept): onboarded users can NO LONGER be attached by phone alone — invite carries a single-use sha256-hashed token, 7-day expiry, phone-match + single-family enforcement on accept, 403 on cross-phone theft. Hospital placeholders keep the legacy attach flow. UI toast updated for the invite path. Closes audit "portal/family verified invites".
+- Tests: tests/unit/product-auth.test.ts (6), job-runner.test.ts (4 — surgical cleanup by type prefix, NEVER deleteMany({}) on the live queue), device-keys.test.ts (5). Suite 238 → 252 (17 files).
+- scripts/smoke-invite.mjs: live end-to-end invite loop (invite → no silent attach → accept from own session → token reuse rejected → family listing → cross-phone 403 → full cleanup). Learned: portal-otp send has 5/IP/15min rate limit — smoke mints service-token cookies locally instead of burning OTP budget.
+
+Verification:
+- tsc --noEmit EXIT 0; eslint 0 problems; vitest 252/252 (17 files)
+- bash scripts/deploy-preview.sh → DEPLOY VERIFIED (guardian serving latest build)
+- Live: / /pricing /know-your-health /clinic /pharmacy /portal /api/clinic/patients /api/pharmacy/inventory /api/clinic/dashboard /api/ready ALL 200, status "ready"
+- Queue health live: queue-scan pending+done history present, retention-purge done — chain alive and self-healing
+- INVITE SMOKE: ALL PASS (9 checks)
+
+Stage Summary:
+- Backend core is now COMPLETE for this architecture: uniform revocation-aware auth on every product route, durable self-healing job queue with compliance retention purge, HMAC device ingest, verified family invites
+- Still deliberately OUT OF SCOPE (documented, not forgotten): real Postgres migration (needs a real PG host — runbook in docs/DATABASE.md), Redis-backed limiter (multi-instance only; single-node in-memory is correct here), ClamAV scan hook (no clamscan binary), payment/OTP delivery (TODO markers), Privacy/Terms legal content
+- Tag: backend-core-1-final; dual bundles refreshed; tracked-bundle check = 0

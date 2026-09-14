@@ -234,7 +234,17 @@ function AddMemberModal({
       });
       const d = await res.json();
       if (!res.ok) throw new Error(d.error || "Failed to add member");
-      toast.success(`${fullName} added to family`);
+      if (d.invite) {
+        // Verified invite (backend-core-1): the member must accept from
+        // their own account — show the one-time token for demo delivery.
+        toast.success(`Invitation sent to ${fullName} — they must accept it from their own account`, {
+          description: "Demo delivery: share this one-time token with them to accept.",
+          duration: 10000,
+          action: d.invite.token ? { label: "Copy token", onClick: () => navigator.clipboard?.writeText(d.invite.token).catch(() => {}) } : undefined,
+        });
+      } else {
+        toast.success(`${fullName} added to family`);
+      }
       reset();
       onAdded();
     } catch (e) {

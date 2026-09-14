@@ -36,16 +36,21 @@ export interface NxJobRecord {
   maxAttempts: number;
 }
 
-/** Enqueue with quiet dedupe: pre-check the key first (a failed
- *  INSERT still logs server-side even when the client swallows
- *  P2002), then fall back to the constraint for racing callers. */
+/** Enqueue with quiet dedupe. Dedupe semantics: an ACTIVE job
+ *  (pending/running) with the same key blocks creation; a stale
+ *  done/dead row is replaced (otherwise a finished job with a
+ *  cyclical key — e.g. a heal seed — would block re-seeding
+ *  forever). The UNIQUE constraint stays as the race backstop. */
 export async function enqueueJob(input: NxJobInput): Promise<string | null> {
-  const existing = await db.nxJob
-    .findUnique({ where: { dedupeKey: input.dedupeKey }, select: { id: true } })
+  const active = await db.nxJob
+    .findFirst({
+      where: { dedupeKey: input.dedupeKey, status: { in: ["pending", "running"] } },
+      select: { id: true },
+    })
     .catch(() => null);
-  if (existing) return null;
-  try {
-    const job = await db.nxJob.create({
+  if (active) return null;
+  const create = () =>
+    db.nxJob.create({
       data: {
         type: input.type,
         dedupeKey: input.dedupeKey,
@@ -55,10 +60,23 @@ export async function enqueueJob(input: NxJobInput): Promise<string | null> {
       },
       select: { id: true },
     });
+  try {
+    const job = await create();
     return job.id;
   } catch (err) {
-    if ((err as { code?: string }).code === "P2002") return null; // raced — dedupe hit
-    throw err;
+    if ((err as { code?: string }).code !== "P2002") throw err;
+    // Constraint hit: a row with this key exists. If it is stale
+    // (done/dead), replace it once; if active, we raced a live job.
+    const stale = await db.nxJob
+      .deleteMany({ where: { dedupeKey: input.dedupeKey, status: { in: ["done", "dead"] } } })
+      .catch(() => ({ count: 0 }));
+    if (!stale.count) return null;
+    try {
+      const job = await create();
+      return job.id;
+    } catch {
+      return null; // lost a genuine race — dedupe hit
+    }
   }
 }
 
@@ -126,7 +144,7 @@ registerJob("retention-purge", async () => {
     db.nxSessionRecord.deleteMany({
       where: {
         OR: [{ revokedAt: { not: null } }, { expiresAt: { lt: new Date() } }],
-        updatedAt: { lt: sessionCutoff },
+        lastSeenAt: { lt: sessionCutoff },
       },
     }),
     db.nxAuditEvent.deleteMany({ where: { createdAt: { lt: auditCutoff } } }),

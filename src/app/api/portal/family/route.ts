@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash, randomBytes } from "crypto";
 import { db } from "@/lib/db";
 import { getPortalCaller } from "@/lib/portal-session";
 
@@ -9,8 +10,13 @@ async function getUser() {
   return getPortalCaller();
 }
 
+function hashToken(token: string): string {
+  return createHash("sha256").update(token, "utf8").digest("hex");
+}
+
 /**
  * GET /api/portal/family — list family members (self + members under my head)
+ * plus this head's pending invites.
  */
 export async function GET() {
   const user = await getUser();
@@ -18,7 +24,7 @@ export async function GET() {
 
   // Self + family members where I am head OR I belong to a head
   const headId = user.familyHeadId ?? user.id;
-  const [self, members] = await Promise.all([
+  const [self, members, invites] = await Promise.all([
     db.portalUser.findUnique({
       where: { id: headId },
       select: {
@@ -50,14 +56,31 @@ export async function GET() {
         abhaId: true,
       },
     }),
+    // Pending invites I (as head) sent — visible until accepted/expired.
+    db.portalFamilyInvite.findMany({
+      where: { headId, acceptedAt: null, revokedAt: null, expiresAt: { gt: new Date() } },
+      select: { id: true, phone: true, fullName: true, relation: true, createdAt: true, expiresAt: true },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
-  return NextResponse.json({ self, members });
+  return NextResponse.json({ self, members, invites });
 }
 
 /**
  * POST /api/portal/family
  *   { fullName, phone, relation, dob, gender, bloodGroup }
+ *
+ * backend-core-1 verified-invite policy:
+ * - Phone matches NO user            → placeholder member created and
+ *   attached (pre-registration flow, unchanged).
+ * - Phone matches a hospital-created placeholder (isOnboarded=false)
+ *   → attached as today.
+ * - Phone matches an ONBOARDED user outside this family → a
+ *   PortalFamilyInvite is created; the person must accept it from their
+ *   own account with a one-time token. Their profile is NEVER modified
+ *   by the requester. (Delivery channel in production: SMS/WhatsApp —
+ *   TODO(otp-delivery); the demo returns the token to the inviting UI.)
  */
 export async function POST(req: NextRequest) {
   try {
@@ -74,7 +97,31 @@ export async function POST(req: NextRequest) {
     const headId = user.familyHeadId ?? user.id;
 
     const existing = await db.portalUser.findUnique({ where: { phone } });
+
+    if (existing && existing.isOnboarded && existing.familyHeadId !== headId) {
+      // Verified invite path — never touch another user's profile directly.
+      const token = randomBytes(24).toString("base64url");
+      const invite = await db.portalFamilyInvite.create({
+        data: {
+          headId,
+          phone,
+          fullName: String(fullName).trim(),
+          relation: String(relation).trim(),
+          tokenHash: hashToken(token),
+          expiresAt: new Date(Date.now() + 7 * 24 * 3600_000),
+        },
+        select: { id: true, phone: true, fullName: true, relation: true, expiresAt: true },
+      });
+      // TODO(otp-delivery): production sends this link by SMS/WhatsApp.
+      return NextResponse.json({
+        ok: true,
+        invite: { ...invite, token },
+        message: "Invitation created — the member must accept it from their own account.",
+      });
+    }
+
     if (existing) {
+      // Own member (already under this head) or hospital-created placeholder.
       const updated = await db.portalUser.update({
         where: { id: existing.id },
         data: {
@@ -104,7 +151,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ ok: true, member: created });
   } catch (err) {
-    console.error("[portal/family] POST error", err);
+    console.error("[portal/family] POST error", err instanceof Error ? err.message : err);
     return NextResponse.json({ error: "Failed to add family member" }, { status: 500 });
   }
 }
