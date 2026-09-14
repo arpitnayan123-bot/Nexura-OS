@@ -1422,14 +1422,28 @@ input[type="range"].nxf-range { accent-color: #FCD34D; width: 100%; }
   height: 2.75rem;
   padding-inline: 1.25rem;
   border-radius: 9999px;
-  background: #fff4ec;
+  border: 1px solid transparent;
+  --mat-accent: #E11D48;
+  background:
+    linear-gradient(#fff4ec, #fff4ec) padding-box,
+    linear-gradient(135deg, #E11D48, #B91C1C 55%, #F43F5E) border-box;
   color: #a53228;
   font-weight: 600;
-  transition: transform 150ms ease-out, background-color 150ms ease-out;
+  box-shadow:
+    0 0 16px -4px rgba(225, 29, 72, 0.45),
+    0 0 0 1px rgba(225, 29, 72, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  animation: mat-neon-breathe 3.2s ease-in-out infinite;
+  transition: transform 150ms ease-out, box-shadow 200ms ease-out;
 }
 .nx-crisis-cta:hover {
-  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 26px -4px rgba(225, 29, 72, 0.6),
+    0 0 0 1px rgba(225, 29, 72, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
+.nx-crisis-cta:active { transform: translateY(0.5px) scale(0.99); }
 .nx-crisis-ghost {
   display: inline-flex;
   align-items: center;

@@ -73,16 +73,16 @@ export function Navbar() {
               <BrainCircuit className="h-4 w-4" />
               <span className="hidden lg:inline">Predictive</span>
             </Link>
-            <Button
+            <button
+              type="button"
               onClick={() => openBooking()}
-              className="btn-gold group rounded-full"
+              className="mat-btn mat-btn--clay group h-10 px-5 text-sm"
+              style={{ "--mat-accent": "#A16207", "--mat-accent-2": "#C88A1F" } as React.CSSProperties}
             >
-              <span className="flex items-center gap-1.5">
-                <span className="sm:hidden">Book</span>
-                <span className="hidden sm:inline">Book a visit</span>
-                <ChevronRight className="hidden h-4 w-4 transition-transform group-hover:translate-x-0.5 sm:inline" />
-              </span>
-            </Button>
+              <span className="sm:hidden">Book</span>
+              <span className="hidden sm:inline">Book a visit</span>
+              <ChevronRight className="hidden h-4 w-4 transition-transform group-hover:translate-x-0.5 sm:inline" />
+            </button>
             <HamburgerMenu />
           </div>
         </nav>

@@ -29,8 +29,10 @@ export function Hero() {
       id="top"
       className="relative overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24 lg:pt-44 lg:pb-28"
     >
-      {/* Background layers — Liquid Gold spec: calm stone canvas,
-          breathing champagne aurora, ≤2% fine grain */}
+      {/* Background layers — Liquid Gold spec + MATERIAL SPECTRUM:
+          champagne auroras plus a masked multi-color mesh
+          (violet / teal / rose / sage) so the hero breathes in
+          every material hue without losing the warm canvas */}
       <div
         aria-hidden
         className="aurora-gold -top-40 right-[-10%] h-[30rem] w-[46rem] opacity-70"
@@ -39,6 +41,14 @@ export function Hero() {
         aria-hidden
         className="aurora-gold top-1/3 left-[-12%] h-[22rem] w-[30rem] opacity-40"
         style={{ animationDelay: "-6s" }}
+      />
+      <div
+        aria-hidden
+        className="anim-aurora pointer-events-none absolute -top-24 left-1/2 h-[34rem] w-[64rem] -translate-x-1/2 opacity-[0.5] [mask-image:radial-gradient(58%_58%_at_50%_38%,black,transparent)]"
+        style={{
+          background:
+            "radial-gradient(at 18% 30%, color-mix(in srgb, #6D28D9 16%, transparent) 0%, transparent 44%), radial-gradient(at 78% 18%, color-mix(in srgb, #0E7490 15%, transparent) 0%, transparent 42%), radial-gradient(at 88% 68%, color-mix(in srgb, #BE123C 11%, transparent) 0%, transparent 40%), radial-gradient(at 12% 74%, color-mix(in srgb, #4D7C0F 12%, transparent) 0%, transparent 42%), radial-gradient(at 50% 50%, color-mix(in srgb, #C88A1F 13%, transparent) 0%, transparent 46%)",
+        }}
       />
       <GrainOverlay className="opacity-[0.02]" />
 
@@ -118,19 +128,25 @@ export function Hero() {
               <div className="mt-5 flex flex-wrap gap-2">
                 <Link
                   href="/know-your-health"
-                  className="group flex items-center gap-1.5 rounded-full glass-chip px-3.5 py-2 text-xs font-medium text-foreground transition-all hover:scale-105"
+                  className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border px-3.5 py-2 text-xs font-medium text-foreground transition-all hover:scale-105"
+                  style={{
+                    borderColor: "color-mix(in srgb, #C2410C 32%, transparent)",
+                    background: "linear-gradient(120deg, color-mix(in srgb, #C2410C 8%, white 82%), color-mix(in srgb, #EA580C 6%, white 88%))",
+                    backgroundSize: "220% 220%",
+                    animation: "mat-aurora-shift 6s ease-in-out infinite",
+                  }}
                 >
-                  <Sparkles className="h-3.5 w-3.5 text-[#A16207]" />
+                  <Sparkles className="h-3.5 w-3.5 text-[#C2410C]" />
                   Know Your Health
-                  <span className="rounded-full bg-[#A16207]/10 px-1.5 py-0.5 text-[0.5rem] font-bold text-[#8A5A04]">15 AI tools</span>
+                  <span className="rounded-full bg-[#C2410C]/12 px-1.5 py-0.5 text-[0.5rem] font-bold text-[#9A3412]">15 AI tools</span>
                 </Link>
                 <Link
                   href="/connect"
-                  className="group flex items-center gap-1.5 rounded-full glass-chip px-3.5 py-2 text-xs font-medium text-foreground transition-all hover:scale-105"
+                  className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border border-transparent bg-[linear-gradient(var(--card),var(--card))_padding-box,linear-gradient(135deg,#D97706,#B45309_55%,#F59E0B)_border-box] px-3.5 py-2 text-xs font-medium text-foreground shadow-[0_0_14px_-4px_color-mix(in_srgb,#B45309_45%,transparent)] transition-all hover:scale-105 hover:shadow-[0_0_22px_-4px_color-mix(in_srgb,#B45309_60%,transparent)]"
                 >
-                  <MessageCircle className="h-3.5 w-3.5 text-[#A16207]" />
+                  <MessageCircle className="h-3.5 w-3.5 text-[#B45309]" />
                   Nexura Connect
-                  <span className="rounded-full bg-[#A16207] px-1.5 py-0.5 text-[0.5rem] font-bold text-white">NEW</span>
+                  <span className="rounded-full bg-[#B45309] px-1.5 py-0.5 text-[0.5rem] font-bold text-white">NEW</span>
                 </Link>
               </div>
             </Reveal>

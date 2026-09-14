@@ -24,6 +24,8 @@ type TrustRow = {
   desc: string;
   chips: string[];
   meta: string;
+  accent: string;
+  accent2: string;
 };
 
 const ROWS: TrustRow[] = [
@@ -33,6 +35,8 @@ const ROWS: TrustRow[] = [
     desc: "Consent artifacts, purpose limitation and data-rights flows mapped across every product that touches patient data.",
     chips: ["alignment tracked", "since launch"],
     meta: "Digital Personal Data Protection Act",
+    accent: "#0F766E",
+    accent2: "#14B8A6",
   },
   {
     icon: FileCheck2,
@@ -40,6 +44,8 @@ const ROWS: TrustRow[] = [
     desc: "ABHA-linked record flows are designed to the ABDM milestone structure, with integration wording kept honest per surface.",
     chips: ["sandbox aligned", "ABHA-ready"],
     meta: "Ayushman Bharat Digital Mission",
+    accent: "#A16207",
+    accent2: "#C88A1F",
   },
   {
     icon: ShieldCheck,
@@ -47,6 +53,8 @@ const ROWS: TrustRow[] = [
     desc: "Schedule H register, near-expiry returns and prescription guardrails follow the Drugs & Cosmetics Rules 1945 structure.",
     chips: ["Schedule H live", "e-register"],
     meta: "Central Drugs Standard Control Org.",
+    accent: "#6D28D9",
+    accent2: "#8B5CF6",
   },
   {
     icon: Landmark,
@@ -54,6 +62,8 @@ const ROWS: TrustRow[] = [
     desc: "Insurance claim shapes, NABH-aligned clinical workflows and GST e-invoice structure live in the typed data model.",
     chips: ["typed models", "145 tables"],
     meta: "Insurance & clinical governance",
+    accent: "#B45309",
+    accent2: "#D97706",
   },
 ];
 
@@ -101,18 +111,39 @@ export function TrustRail() {
                 <li key={row.title}>
                   <Reveal delay={0.06 * i}>
                     <div className="relative flex gap-4">
-                      {/* icon circle riding the rail */}
+                      {/* icon circle riding the rail — glass disc, per-row neon hue */}
                       <span
-                        className="relative z-10 mt-4 grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#E3DAD0] bg-white shadow-sm"
-                        style={{ color: "#7A9A7B" }}
+                        className="relative z-10 mt-4 grid h-11 w-11 shrink-0 place-items-center rounded-full border bg-white/70 shadow-sm backdrop-blur"
+                        style={{
+                          color: row.accent,
+                          borderColor: `color-mix(in srgb, ${row.accent} 30%, transparent)`,
+                          boxShadow: `0 0 14px -5px color-mix(in srgb, ${row.accent} 55%, transparent), inset 0 1px 1px color-mix(in srgb, white 70%, transparent)`,
+                        }}
                         aria-hidden="true"
                       >
                         <Icon className="h-[1.15rem] w-[1.15rem]" strokeWidth={2} />
                       </span>
 
-                      <div className="nx-inset-glass flex-1 rounded-2xl p-4 sm:p-5">
+                      <div
+                        className="flex-1 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5 sm:p-5"
+                        style={{
+                          background: "color-mix(in srgb, white 62%, transparent)",
+                          backdropFilter: "blur(14px) saturate(140%)",
+                          WebkitBackdropFilter: "blur(14px) saturate(140%)",
+                          border: `1px solid color-mix(in srgb, ${row.accent} 16%, #EFE9E0 84%)`,
+                          boxShadow: `inset 0 1px 0 color-mix(in srgb, white 65%, transparent), 0 6px 20px -12px color-mix(in srgb, ${row.accent} 26%, transparent)`,
+                        }}
+                      >
                         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                          <h3 className="text-[0.95rem] font-semibold text-[#2E2A26]">
+                          <h3
+                            className="text-[0.95rem] font-semibold"
+                            style={{
+                              background: `linear-gradient(100deg, #2E2A26 30%, ${row.accent})`,
+                              WebkitBackgroundClip: "text",
+                              backgroundClip: "text",
+                              color: "transparent",
+                            }}
+                          >
                             {row.title}
                           </h3>
                           <span className="text-xs text-[#8A8479]">{row.meta}</span>
@@ -122,7 +153,15 @@ export function TrustRail() {
                         </p>
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           {row.chips.map((chip) => (
-                            <span key={chip} className="nx-chip-outline">
+                            <span
+                              key={chip}
+                              className="inline-flex items-center rounded-full px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.1em]"
+                              style={{
+                                color: `color-mix(in srgb, ${row.accent} 88%, black 12%)`,
+                                background: `color-mix(in srgb, ${row.accent} 8%, white 92%)`,
+                                border: `1px solid color-mix(in srgb, ${row.accent} 24%, transparent)`,
+                              }}
+                            >
                               {chip}
                             </span>
                           ))}

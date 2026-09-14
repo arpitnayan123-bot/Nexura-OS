@@ -30,7 +30,7 @@ export function FounderBadge() {
           className="absolute inset-x-0 top-8 bottom-8 opacity-60 anim-aurora [mask-image:radial-gradient(70%_70%_at_50%_50%,black,transparent)]"
           style={{
             background:
-              "radial-gradient(at 14% 30%, color-mix(in srgb, #C88A1F 14%, transparent) 0%, transparent 46%), radial-gradient(at 86% 22%, color-mix(in srgb, #A16207 12%, transparent) 0%, transparent 44%), radial-gradient(at 74% 82%, color-mix(in srgb, #E0A93E 10%, transparent) 0%, transparent 44%), radial-gradient(at 22% 78%, color-mix(in srgb, #9F5B6B 8%, transparent) 0%, transparent 40%)",
+              "radial-gradient(at 14% 30%, color-mix(in srgb, #C88A1F 14%, transparent) 0%, transparent 46%), radial-gradient(at 86% 22%, color-mix(in srgb, #6D28D9 8%, transparent) 0%, transparent 42%), radial-gradient(at 74% 82%, color-mix(in srgb, #E0A93E 10%, transparent) 0%, transparent 44%), radial-gradient(at 22% 78%, color-mix(in srgb, #0F766E 7%, transparent) 0%, transparent 40%), radial-gradient(at 50% 8%, color-mix(in srgb, #BE123C 6%, transparent) 0%, transparent 38%)",
           }}
         />
       </div>
@@ -67,7 +67,7 @@ export function FounderBadge() {
                 className="pointer-events-none absolute inset-0 opacity-70 transition-opacity duration-500 group-hover:opacity-100"
                 style={{
                   background:
-                    "radial-gradient(at 12% 18%, color-mix(in srgb, #C88A1F 16%, transparent) 0%, transparent 42%), radial-gradient(at 88% 12%, color-mix(in srgb, #A16207 13%, transparent) 0%, transparent 40%), radial-gradient(at 80% 88%, color-mix(in srgb, #E0A93E 12%, transparent) 0%, transparent 42%), radial-gradient(at 16% 84%, color-mix(in srgb, #9F5B6B 9%, transparent) 0%, transparent 38%)",
+                    "radial-gradient(at 12% 18%, color-mix(in srgb, #C88A1F 16%, transparent) 0%, transparent 42%), radial-gradient(at 88% 12%, color-mix(in srgb, #6D28D9 8%, transparent) 0%, transparent 40%), radial-gradient(at 80% 88%, color-mix(in srgb, #E0A93E 12%, transparent) 0%, transparent 42%), radial-gradient(at 16% 84%, color-mix(in srgb, #0F766E 7%, transparent) 0%, transparent 38%), radial-gradient(at 46% 6%, color-mix(in srgb, #BE123C 6%, transparent) 0%, transparent 36%)",
                 }}
               />
               {/* mineral grain */}
