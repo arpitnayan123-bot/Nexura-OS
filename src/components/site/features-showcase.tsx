@@ -59,14 +59,6 @@ const ACTIONS: Feature[] = [
   { id: "compliance", name: "Compliance", sub: "Regulatory", desc: "ABDM, DPDP, NABH, CDSCO, IRDAI", icon: Shield, accent: "#A16207", accent2: "#C88A1F", material: "glass", href: "/compliance", isAction: true },
 ];
 
-const MATERIAL_LABEL: Record<Material, string> = {
-  clay: "Claymorphism",
-  glass: "Glassmorphism",
-  textured: "Textured",
-  neon: "Neon",
-  aurora: "Aurora",
-};
-
 export function FeaturesShowcase() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
@@ -108,7 +100,7 @@ export function FeaturesShowcase() {
             <span className="text-gold-gradient">Every feature.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            13 products and 6 quick actions, built for Indian healthcare — each rendered in its own premium material: clay, glass, mineral, neon and aurora.
+            13 products and 6 quick actions, built for Indian healthcare — each crafted with its own premium finish.
           </p>
         </motion.div>
 
@@ -253,9 +245,6 @@ function FeatureCard({ feature, index, compact, featured, onClick }: { feature: 
           <MatButton material={feature.material} accent={feature.accent} accent2={feature.accent2}>
             Explore
           </MatButton>
-          <span className="text-[0.5rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground/40">
-            {MATERIAL_LABEL[feature.material]}
-          </span>
         </div>
       )}
 
@@ -314,9 +303,6 @@ function FeatureCard({ feature, index, compact, featured, onClick }: { feature: 
             <MatButton material={feature.material} accent={feature.accent} accent2={feature.accent2}>
               Explore {feature.name}
             </MatButton>
-            <span className="text-[0.5rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground/40">
-              {MATERIAL_LABEL[feature.material]}
-            </span>
           </div>
         </SpotlightCard>
       ) : (
