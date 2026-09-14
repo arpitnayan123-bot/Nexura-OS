@@ -85,7 +85,7 @@ async function buildDeskPayload() {
     db.tourismProcedure.findMany({ where: { active: true }, orderBy: { priceUSD: "asc" } }),
     db.tourismCoordinator.findMany({ where: { active: true } }),
     db.tourismTestimonial.findMany({ where: { verified: true }, orderBy: { createdAt: "desc" }, take: 6 }),
-    db.tourismSetting.findFirst({ include: { hospital: { select: { id: true, name: true, city: true } } } }),
+    db.tourismSetting.findFirst({ include: { hospital: { select: { id: true, name: true, district: true } } } }),
   ]);
 
   const kanban: Record<string, unknown[]> = {};

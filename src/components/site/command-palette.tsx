@@ -65,6 +65,11 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  // Platform-honest shortcut hint: ⌘K on Apple, Ctrl K everywhere else.
+  const [kbdHint, setKbdHint] = useState("Ctrl K");
+  useEffect(() => {
+    if (/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)) setKbdHint("⌘K");
+  }, []);
 
   // The floating pill stays OFF the homepage — the landing page reads
   // cleaner without it; ⌘K still works everywhere, and the pill remains
@@ -119,7 +124,7 @@ export function CommandPalette() {
           <Search className="h-3.5 w-3.5 text-[#C8A55B]" aria-hidden="true" />
           <span>Search Nexura</span>
           <kbd className="rounded border border-[#3A3428] bg-[#241F16] px-1.5 py-0.5 font-mono text-[10px] text-[#8A8070] group-hover:text-[#B3A892]">
-            ⌘K
+            {kbdHint}
           </kbd>
         </button>
       )}

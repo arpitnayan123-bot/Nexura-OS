@@ -145,7 +145,7 @@ export function ClinicApp() {
           ) : (
             <AnimatePresence mode="wait">
               <motion.div key={tab + (doctorFilter || "")} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
-                {pending ? <div className="grid h-40 place-items-center"><Loader2 className="h-5 w-5 animate-spin text-[#9A8F84]" /></div> : tab === "today" ? <TodayTab data={data} doctorFilter={doctorFilter} onConsult={(a) => setConsult({ appointmentId: a.id, patient: a.patient, doctor: a.doctor, doctorFee: data.doctors.find((d) => d.id === a.doctor.id)?.feeConsult ?? 0 })} onReload={load} onClearFilter={() => setDoctorFilter(null)} /> : tab === "patients" ? <PatientsTab /> : tab === "appointments" ? <AppointmentsTab /> : tab === "prescriptions" ? <PrescriptionsTab /> : tab === "billing" ? <BillingTab /> : <ReportsTab data={data} />}
+                {pending ? <div className="grid h-40 place-items-center"><Loader2 className="h-5 w-5 animate-spin text-[#9A8F84]" /></div> : tab === "today" ? <TodayTab data={data} doctorFilter={doctorFilter} onConsult={(a) => setConsult({ appointmentId: a.id, patient: a.patient, doctor: a.doctor, doctorFee: data.doctors.find((d) => d.id === a.doctor.id)?.feeConsult ?? 0 })} onReload={load} onClearFilter={() => setDoctorFilter(null)} /> : tab === "patients" ? <PatientsTab /> : tab === "appointments" ? <AppointmentsTab doctors={data?.doctors ?? []} /> : tab === "prescriptions" ? <PrescriptionsTab /> : tab === "billing" ? <BillingTab /> : <ReportsTab data={data} />}
               </motion.div>
             </AnimatePresence>
           )}
@@ -504,15 +504,236 @@ function In({ label, value, onChange, type = "text", cls }: { label: string; val
 
 /* ============== OTHER TABS (simplified) ============== */
 
-function AppointmentsTab() {
-  return <div className="space-y-4"><h1 className="font-serif text-2xl font-semibold">Appointments</h1><p className="text-sm text-[#9A8F84]">Manage upcoming and past appointments</p><div className="grid place-items-center rounded-2xl border border-dashed border-[#EFE9E0] py-16 text-sm text-[#9A8F84]">Appointment calendar coming soon</div></div>;
+function AppointmentsTab({ doctors }: { doctors: DashboardData["doctors"] }) {
+  const [range, setRange] = useState<"today" | "upcoming" | "past">("today");
+  const [appts, setAppts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showBook, setShowBook] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = async (r: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/clinic/appointments?range=${r}`);
+      const d = await res.json();
+      setAppts(d.appointments || []);
+    } catch {} finally { setLoading(false); }
+  };
+  useEffect(() => { load(range); }, [range]);
+
+  const setStatus = async (id: string, status: string) => {
+    setBusyId(id);
+    try {
+      const res = await fetch("/api/clinic/appointments", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ appointmentId: id, status }) });
+      if (!res.ok) throw new Error();
+      toast.success(`Marked ${STATUS[status]?.label || status}`);
+      await load(range);
+    } catch { toast.error("Could not update appointment"); } finally { setBusyId(null); }
+  };
+
+  const ranges = [
+    { id: "today" as const, label: "Today" },
+    { id: "upcoming" as const, label: "Upcoming" },
+    { id: "past" as const, label: "Past" },
+  ];
+  const emptyText = { today: "No appointments today — book one to fill the day.", upcoming: "Nothing booked ahead — the next 30 days are open.", past: "No past appointments in the record yet." };
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div><h1 className="font-serif text-[1.75rem] font-semibold tracking-tight">Appointments</h1><p className="text-sm text-[#9A8F84]">Book, check in, and close the day&apos;s tokens</p></div>
+        <button onClick={() => setShowBook((v) => !v)} className="flex items-center gap-1.5 rounded-full bg-[#2A2622] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#3D352E]">
+          <Plus className={cn("h-3.5 w-3.5 transition-transform", showBook && "rotate-45")} />{showBook ? "Close" : "New appointment"}
+        </button>
+      </div>
+
+      <AnimatePresence>{showBook && <BookForm doctors={doctors} onBooked={() => { setShowBook(false); load(range); }} />}</AnimatePresence>
+
+      <div className="flex items-center gap-1 rounded-full bg-white p-1 shadow-sm ring-1 ring-[#EFE9E0] sm:w-fit">
+        {ranges.map((r) => (
+          <button key={r.id} onClick={() => setRange(r.id)} className={cn("flex-1 rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-all sm:flex-none", range === r.id ? "bg-[#2A2622] text-white shadow-sm" : "text-[#9A8F84] hover:text-[#5C544D]")}>{r.label}</button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="grid h-40 place-items-center"><Loader2 className="h-5 w-5 animate-spin text-[#9A8F84]" /></div>
+      ) : appts.length === 0 ? (
+        <div className="grid place-items-center rounded-2xl border border-dashed border-[#EFE9E0] bg-white/50 py-14 text-center">
+          <CalendarDays className="mb-2 h-7 w-7 text-[#D8D0C4]" />
+          <p className="text-sm text-[#9A8F84]">{emptyText[range]}</p>
+          {range !== "past" && <button onClick={() => setShowBook(true)} className="mt-3 rounded-full bg-[#2A2622] px-4 py-1.5 text-xs font-semibold text-white">Book an appointment</button>}
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#EFE9E0]">
+          {appts.map((a) => {
+            const s = STATUS[a.status] || STATUS.booked;
+            const d = new Date(a.slot);
+            const time = d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+            const day = d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+            const active = a.status === "booked" || a.status === "arrived";
+            return (
+              <div key={a.id} className="flex flex-wrap items-center gap-3 border-b border-[#EFE9E0] px-4 py-3 last:border-0 transition-colors hover:bg-[#FAF7F2]">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#FAF7F2] font-serif text-xs font-bold text-[#5C544D]">#{a.tokenNo}</span>
+                <div className="w-16 shrink-0">
+                  <p className="text-sm font-semibold leading-tight">{time}</p>
+                  {range !== "today" && <p className="text-[0.6rem] text-[#9A8F84]">{day}</p>}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{a.patient?.name || "Unknown"} <span className="ml-1 text-[0.6rem] font-normal text-[#9A8F84]">{a.patient?.mrn}</span></p>
+                  <p className="truncate text-[0.65rem] text-[#9A8F84]">{a.reason || "Consultation"} · {a.doctor?.name}</p>
+                </div>
+                <span className={cn("flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[0.6rem] font-medium", s.bg, s.text)}>
+                  <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} />{s.label}
+                </span>
+                {active && (
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    {busyId === a.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-[#9A8F84]" />
+                    ) : (
+                      <>
+                        {a.status === "booked" && <button onClick={() => setStatus(a.id, "arrived")} className="rounded-full bg-[#A16207]/10 px-2.5 py-1 text-[0.6rem] font-semibold text-[#8A5A04] hover:bg-[#A16207]/20">Check in</button>}
+                        {a.status === "arrived" && <button onClick={() => setStatus(a.id, "done")} className="rounded-full bg-[#9DB89E]/15 px-2.5 py-1 text-[0.6rem] font-semibold text-[#5A7A5B] hover:bg-[#9DB89E]/30">Done</button>}
+                        <button onClick={() => setStatus(a.id, "no_show")} className="rounded-full bg-[#F3EEE6] px-2.5 py-1 text-[0.6rem] font-semibold text-[#9A8F84] hover:bg-[#E5DFD4]">No show</button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BookForm({ doctors, onBooked }: { doctors: DashboardData["doctors"]; onBooked: () => void }) {
+  const [patients, setPatients] = useState<any[]>([]);
+  const [patientId, setPatientId] = useState("");
+  const [doctorId, setDoctorId] = useState("");
+  const [date, setDate] = useState(() => { const d = new Date(); return d.toISOString().slice(0, 10); });
+  const [time, setTime] = useState("10:00");
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/clinic/patients?take=50").then((r) => r.json()).then((d) => setPatients(d.patients || [])).catch(() => {});
+  }, []);
+
+  const submit = async () => {
+    if (!patientId || !doctorId || !date || !time) { toast.error("Pick a patient, doctor, date, and time"); return; }
+    setBusy(true);
+    try {
+      const res = await fetch("/api/clinic/appointments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ patientId, doctorId, reason, slot: `${date}T${time}:00` }) });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d?.detail || "book_failed");
+      toast.success(`Booked — token #${d.appointment?.tokenNo ?? "?"}`);
+      onBooked();
+    } catch { toast.error("Could not book the appointment"); } finally { setBusy(false); }
+  };
+
+  const inputCls = "h-10 w-full rounded-xl bg-white px-3 text-sm shadow-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#A16207]/40";
+  const labelCls = "mb-1 block text-[0.6rem] font-semibold uppercase tracking-wider text-[#9A8F84]";
+
+  return (
+    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+      <div className="grid gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#EFE9E0] sm:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <label className={labelCls}>Patient</label>
+          <select value={patientId} onChange={(e) => setPatientId(e.target.value)} className={inputCls}>
+            <option value="">Select patient…</option>
+            {patients.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.mrn}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className={labelCls}>Doctor</label>
+          <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)} className={inputCls}>
+            <option value="">Select doctor…</option>
+            {doctors.map((d) => <option key={d.id} value={d.id}>{d.name}{d.specialization ? ` · ${d.specialization}` : ""}</option>)}
+          </select>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelCls}>Date</label>
+            <input type="date" value={date} min={new Date().toISOString().slice(0, 10)} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Time</label>
+            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className={inputCls} />
+          </div>
+        </div>
+        <div className="sm:col-span-2">
+          <label className={labelCls}>Reason</label>
+          <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Fever & body ache, BP review…" className={inputCls} />
+        </div>
+        <div className="flex items-end">
+          <button onClick={submit} disabled={busy} className="flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-[#2A2622] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#3D352E] disabled:opacity-60">
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}Book appointment
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 
 function PrescriptionsTab() {
   const [visits, setVisits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  useEffect(() => { fetch("/api/clinic/billing").then((r) => r.json()).then(() => {}).catch(() => {}).finally(() => setLoading(false)); }, []);
-  return <div className="space-y-4"><h1 className="font-serif text-2xl font-semibold">Prescriptions</h1><p className="text-sm text-[#9A8F84]">Recent prescriptions are recorded with each visit — open a patient to review or print them</p><div className="grid place-items-center rounded-2xl border border-dashed border-[#EFE9E0] py-16 text-sm text-[#9A8F84]">Prescription history loads with saved visits</div></div>;
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    fetch("/api/clinic/visit?recent=1").then((r) => r.json()).then((d) => setVisits(d.visits || [])).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  const filtered = q
+    ? visits.filter((v) =>
+        [v.patient?.name, v.patient?.mrn, v.diagnosis, ...(v.meds || []).map((m: any) => m.medicine)]
+          .join(" ").toLowerCase().includes(q.toLowerCase()))
+    : visits;
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div><h1 className="font-serif text-[1.75rem] font-semibold tracking-tight">Prescriptions</h1><p className="text-sm text-[#9A8F84]">{filtered.length} recent{q ? " matching" : ""} · recorded with each visit</p></div>
+      </div>
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9A8F84]" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search patient, diagnosis, or medicine…" className="h-11 w-full rounded-xl bg-white pl-10 pr-4 text-sm shadow-sm ring-1 ring-[#EFE9E0] outline-none focus:ring-2 focus:ring-[#A16207]/40" />
+      </div>
+      {loading ? (
+        <div className="grid h-40 place-items-center"><Loader2 className="h-5 w-5 animate-spin text-[#9A8F84]" /></div>
+      ) : filtered.length === 0 ? (
+        <div className="grid place-items-center rounded-2xl border border-dashed border-[#EFE9E0] bg-white/50 py-14 text-center">
+          <Pill className="mb-2 h-7 w-7 text-[#D8D0C4]" />
+          <p className="text-sm text-[#9A8F84]">{q ? "No prescriptions match that search." : "Prescriptions appear here after visits are saved with medicines."}</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((v) => (
+            <div key={v.id} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#EFE9E0]">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#F3EEE6] to-[#E5DFD4] text-xs font-bold text-[#5C544D]">{(v.patient?.name || "?").split(" ").map((x: string) => x[0]).join("").slice(0, 2)}</span>
+                  <div>
+                    <p className="text-sm font-semibold leading-tight">{v.patient?.name || "Unknown"} <span className="ml-1 text-[0.6rem] font-normal text-[#9A8F84]">{v.patient?.mrn}</span></p>
+                    <p className="text-[0.65rem] text-[#9A8F84]">{v.diagnosis || v.chiefComplaint || "Consultation"} · {v.doctor?.name || "—"} · {new Date(v.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
+                  </div>
+                </div>
+                {v.followUp && <span className="rounded-full bg-[#C9962E]/10 px-2 py-0.5 text-[0.6rem] font-medium text-[#B8893D]">Follow-up: {v.followUp}</span>}
+              </div>
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {(v.meds || []).map((m: any) => (
+                  <span key={m.id} className="rounded-lg bg-[#FAF7F2] px-2 py-1 text-[0.65rem] text-[#5C544D] ring-1 ring-[#EFE9E0]">
+                    <span className="font-semibold">{m.medicine}</span>{m.dosage ? ` · ${m.dosage}` : ""}{m.duration ? ` · ${m.duration}` : ""}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function BillingTab() {

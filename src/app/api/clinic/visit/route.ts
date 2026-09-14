@@ -6,13 +6,30 @@ import { withProductAuth } from "@/lib/nx/product-auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// GET /api/clinic/visit?patientId=
+// GET /api/clinic/visit?patientId=   — one patient's visits
+// GET /api/clinic/visit?recent=1     — clinic-wide recent prescriptions feed
 async function GET_impl(req: NextRequest) {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
     const { searchParams } = new URL(req.url);
     const patientId = searchParams.get("patientId");
+
+    if (searchParams.get("recent")) {
+      const recent = await db.clinicVisit.findMany({
+        where: { clinicId: ctx.clinic.id, meds: { some: {} } },
+        orderBy: { createdAt: "desc" },
+        take: 30,
+        select: {
+          id: true, createdAt: true, diagnosis: true, chiefComplaint: true, followUp: true,
+          doctor: { select: { id: true, name: true, specialization: true } },
+          patient: { select: { id: true, mrn: true, name: true, age: true, gender: true } },
+          meds: { select: { id: true, medicine: true, dosage: true, duration: true, notes: true } },
+        },
+      });
+      return NextResponse.json({ visits: recent });
+    }
+
     if (!patientId) return NextResponse.json({ error: "no_patient" }, { status: 400 });
     const visits = await db.clinicVisit.findMany({ where: { patientId }, orderBy: { createdAt: "desc" }, take: 20, include: { doctor: { select: { id: true, name: true, specialization: true } }, meds: true, invoices: { select: { id: true, invoiceNo: true, total: true, status: true } } } });
     return NextResponse.json({ visits });
