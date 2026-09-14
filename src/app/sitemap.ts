@@ -23,6 +23,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/pharmacy",
     "/global",
     "/compliance",
+    "/privacy",
+    "/terms",
   ];
   return routes.map((r) => ({
     url: `${SITE}${r}`,
