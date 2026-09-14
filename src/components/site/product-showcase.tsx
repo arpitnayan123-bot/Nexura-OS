@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  HeartPulse,
   Building2,
   ArrowUpRight,
   MessageCircle,
   Sparkles,
   Globe,
+  FlaskConical,
 } from "lucide-react";
 import { Reveal } from "./ambient";
 
@@ -54,13 +54,14 @@ const PRODUCTS = [
     badge: "New",
   },
   {
-    icon: HeartPulse,
-    name: "Hospital OS",
-    tagline: "Hospital operating system",
-    desc: "AI diagnostics, continuous monitoring & living care plans for patients.",
-    href: "#top",
+    icon: FlaskConical,
+    name: "Nexura Labs",
+    tagline: "Diagnostics, Decoded",
+    desc: "400+ tests collected at home in 30-minute windows, run in NABL-certified labs, decoded by AI into plain language — reports in 4–12 hours.",
+    href: "/labs",
     accent: "#A16207",
     gradient: "from-[#8F5E06] to-[#D9B87C]",
+    badge: "New",
   },
 ];
 
