@@ -15,7 +15,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Reveal, AuroraBackground, FloatingParticles, BreathingOrb } from "./ambient";
-import { Button } from "@/components/ui/button";
 
 const MODULES = [
   { icon: Activity, label: "Live Dashboard", desc: "Bed occupancy, OPD, revenue KPIs" },
@@ -60,16 +59,14 @@ export function HospitalPromo() {
 
             <Reveal delay={0.18}>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button
-                  asChild
-                  size="lg"
-                  className="group h-12 rounded-full bg-primary px-6 text-primary-foreground shadow-[0_14px_40px_-10px_oklch(0.70_0.145_45/0.7)]"
+                <Link
+                  href="/hospital"
+                  className="mat-btn mat-btn--lg mat-btn--textured group"
+                  style={{ "--mat-accent": "#A16207", "--mat-accent-2": "#C88A1F" } as React.CSSProperties}
                 >
-                  <Link href="/hospital" className="flex items-center gap-2">
-                    Launch Hospital OS
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
+                  Launch Hospital OS
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
                 <span className="text-xs text-muted-foreground">
                   8 modules · real-time · no install
                 </span>

@@ -13,7 +13,6 @@ import {
   FileJson,
 } from "lucide-react";
 import { Reveal, AuroraBackground, FloatingParticles, BreathingOrb } from "./ambient";
-import { Button } from "@/components/ui/button";
 
 const FEATURES = [
   { icon: Mic, label: "Voice-to-bill", desc: "Speak the bill — AI parses & fills the cart" },
@@ -57,16 +56,14 @@ export function PharmacyPromo() {
 
             <Reveal delay={0.18}>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button
-                  asChild
-                  size="lg"
-                  className="group h-12 rounded-full bg-primary px-6 text-primary-foreground shadow-[0_14px_40px_-10px_oklch(0.70_0.145_45/0.7)]"
+                <Link
+                  href="/pharmacy"
+                  className="mat-btn mat-btn--lg mat-btn--clay group"
+                  style={{ "--mat-accent": "#3F6C51", "--mat-accent-2": "#5A8F6B" } as React.CSSProperties}
                 >
-                  <Link href="/pharmacy" className="flex items-center gap-2">
-                    Launch the POS
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
+                  Launch the POS
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
                 <span className="text-xs text-muted-foreground">
                   No install · works offline · keyboard-first
                 </span>
