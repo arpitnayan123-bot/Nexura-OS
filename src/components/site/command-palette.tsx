@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import {
   Building2, Stethoscope, Pill, HeartPulse, MessageCircle, Sparkles,
   Globe, BrainCircuit, FlaskConical, Sprout, Clock, TrendingUp, Shield,
-  Search, ArrowRight, CornerDownLeft, User,
+  Search, ArrowRight, CornerDownLeft, User, Siren,
 } from "lucide-react";
 import {
   CommandDialog,
@@ -35,6 +35,7 @@ type Entry = { id: string; name: string; hint: string; icon: React.ElementType; 
 const PRODUCTS: Entry[] = [
   { id: "hospital", name: "Hospital OS", hint: "Flagship · 22-module HMS", icon: Building2, href: "/hospital" },
   { id: "labs", name: "Nexura Labs", hint: "Diagnostics, decoded · home collection", icon: FlaskConical, href: "/labs" },
+  { id: "emergency", name: "Nexura Emergency", hint: "SOS dispatch · live ER beds", icon: Siren, href: "/emergency" },
   { id: "predictive", name: "Nexura Predictive", hint: "Health foresight engine", icon: BrainCircuit, href: "/predictive" },
   { id: "clinic", name: "Clinic OS", hint: "EMR · SOAP · drug guard", icon: Stethoscope, href: "/clinic" },
   { id: "pharmacy", name: "Pharmacia", hint: "AI pharmacy POS", icon: Pill, href: "/pharmacy" },
