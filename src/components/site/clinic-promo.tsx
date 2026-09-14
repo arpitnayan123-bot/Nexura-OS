@@ -15,7 +15,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Reveal, AuroraBackground, FloatingParticles, BreathingOrb } from "./ambient";
-import { Button } from "@/components/ui/button";
 
 const STEPS = [
   { icon: CalendarDays, label: "Patient arrives", desc: "Token booked in one tap" },
@@ -54,12 +53,14 @@ export function ClinicPromo() {
 
             <Reveal delay={0.18}>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button asChild size="lg" className="group h-12 rounded-full bg-primary px-6 text-primary-foreground shadow-[0_14px_40px_-10px_oklch(0.70_0.145_45/0.7)]">
-                  <Link href="/clinic" className="flex items-center gap-2">
-                    Launch Clinic OS
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
+                <Link
+                  href="/clinic"
+                  className="mat-btn mat-btn--lg mat-btn--glass group"
+                  style={{ "--mat-accent": "#0F766E", "--mat-accent-2": "#14B8A6" } as React.CSSProperties}
+                >
+                  Launch Clinic OS
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
                 <span className="text-xs text-muted-foreground">
                   3 tabs · one screen · zero learning curve
                 </span>
