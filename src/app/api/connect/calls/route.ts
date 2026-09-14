@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { connectGate } from "@/lib/nx/connect-auth";
+import { connectGate, connectPartyDenied, connectCallsListDenied, doctorOnly } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +21,10 @@ export async function GET(req: NextRequest) {
     const where: any = {};
     if (connectionId) where.connectionId = connectionId;
     if (doctorId) where.connection = { doctorId };
+
+    // p2-hardening-1: caller must be a party to the threads they read.
+    const listDenied = await connectCallsListDenied(req, { connectionId, doctorId });
+    if (listDenied) return listDenied;
 
     const calls = await db.connectCall.findMany({
       where,
@@ -51,6 +55,9 @@ export async function POST(req: NextRequest) {
 
     const connection = await db.connectConnection.findUnique({ where: { id: connectionId } });
     if (!connection) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    // p2-hardening-1: caller must be a party to THIS thread.
+    const party = await connectPartyDenied(req, connection);
+    if (party) return party;
 
     const call = await db.connectCall.create({
       data: {
@@ -71,10 +78,13 @@ export async function POST(req: NextRequest) {
 
 // PATCH /api/connect/calls
 // Body: {callId, status, durationSec?, callSummary?, prescriptionJson?}
-// Sets answeredAt/endedAt based on status.
+// Sets answeredAt/endedAt based on status. Clinician-only: summaries
+// and prescription payloads are clinician-authored clinical records.
 export async function PATCH(req: NextRequest) {
   const __gate = connectGate(req);
   if (__gate) return __gate;
+  const denied = doctorOnly(req);
+  if (denied) return denied;
   try {
     const body = await req.json().catch(() => ({}));
     const { callId, status, durationSec, callSummary, prescriptionJson } = body as any;

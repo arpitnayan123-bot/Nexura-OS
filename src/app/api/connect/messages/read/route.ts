@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { connectGate } from "@/lib/nx/connect-auth";
+import { connectGate, connectPartyDenied } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +17,15 @@ export async function PATCH(req: NextRequest) {
     if (!connectionId || !["doctor", "patient"].includes(readByRole)) {
       return NextResponse.json({ error: "invalid_input" }, { status: 400 });
     }
+
+    // p2-hardening-1: only a party to this thread may mark it read.
+    const connection = await db.connectConnection.findUnique({
+      where: { id: connectionId },
+      select: { doctorId: true, patientId: true },
+    });
+    if (!connection) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    const party = await connectPartyDenied(req, connection);
+    if (party) return party;
 
     // If doctor is reading, mark patient messages as read. And vice-versa.
     const oppositeRole = readByRole === "doctor" ? "patient" : "doctor";

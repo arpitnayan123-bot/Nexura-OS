@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { guard, ok, withRoute } from "@/lib/nx/api";
 import { db } from "@/lib/db";
 import { explain, attributionBars } from "@/modules/pi-engine/governance/explain";
+import { patientInScope } from "@/lib/nx/patient-scope";
 
 /* GET /api/nx/predict/explain/[assessmentId] — the "Why" button.
    Returns the human explanation + normalized attribution bars for
@@ -14,6 +15,9 @@ export const GET = withRoute<{ assessmentId: string }>(
     const { assessmentId } = await ctx.params;
     const a = await db.pieRiskAssessment.findUnique({ where: { id: assessmentId } });
     if (!a) return ok({ error: "not_found" }, { requestId: g.requestId, status: 404 });
+    if (!(await patientInScope(a.patientId, g.session))) {
+      return ok({ error: "not_found" }, { requestId: g.requestId, status: 404 });
+    }
     const patient = await db.hospitalPatient.findUnique({ where: { id: a.patientId }, select: { fullName: true } });
     const drivers = JSON.parse(a.driversJson || "[]") as Parameters<typeof explain>[0]["drivers"];
     const assessment = {

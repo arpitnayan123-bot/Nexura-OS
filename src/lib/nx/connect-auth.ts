@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
 import { rateLimit, ipOf, fail, newRequestId } from "./api";
 import { isDemoMode } from "@/lib/env";
 import { getSession } from "./session";
@@ -66,4 +67,45 @@ export function canActAsDoctor(req: NextRequest): boolean {
 export function doctorOnly(req: NextRequest): NextResponse | null {
   if (canActAsDoctor(req)) return null;
   return fail("forbidden", 403, "Only clinicians can perform this action.", newRequestId());
+}
+
+/* ---------- Party check (p2-hardening-1) ----------
+   Authenticating the caller is not enough: a signed-in user must
+   also BE a party to the specific thread (its doctor or its
+   patient) before reading or writing its messages/calls. Demo
+   mode keeps its documented posture (UI picks demo participants
+   client-side); production enforces strictly. */
+export async function connectPartyDenied(
+  req: NextRequest,
+  connection: { doctorId: string; patientId: string }
+): Promise<NextResponse | null> {
+  if (isDemoMode()) return null;
+  const session = getSession(req);
+  const legacy = getAuthUser(req);
+  const callerId = session?.userId ?? legacy?.id ?? null;
+  if (!callerId) return fail("unauthenticated", 401, "Sign in to use this surface.", newRequestId());
+  if (callerId === connection.doctorId || callerId === connection.patientId) return null;
+  return fail("forbidden", 403, "You are not a party to this conversation.", newRequestId());
+}
+
+/** Party check for the calls list: by connectionId the caller must be a
+ *  party to that thread; by doctorId the caller must BE that doctor. */
+export async function connectCallsListDenied(
+  req: NextRequest,
+  filter: { connectionId?: string | null; doctorId?: string | null }
+): Promise<NextResponse | null> {
+  if (isDemoMode()) return null;
+  const session = getSession(req);
+  const legacy = getAuthUser(req);
+  const callerId = session?.userId ?? legacy?.id ?? null;
+  if (!callerId) return fail("unauthenticated", 401, "Sign in to use this surface.", newRequestId());
+  if (filter.doctorId && callerId === filter.doctorId) return null;
+  if (filter.connectionId) {
+    const conn = await db.connectConnection
+      .findUnique({ where: { id: filter.connectionId }, select: { doctorId: true, patientId: true } })
+      .catch(() => null);
+    if (!conn) return fail("not_found", 404, undefined, newRequestId());
+    if (callerId === conn.doctorId || callerId === conn.patientId) return null;
+  }
+  return fail("forbidden", 403, "You are not a party to these calls.", newRequestId());
 }
