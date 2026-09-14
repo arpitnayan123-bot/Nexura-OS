@@ -4,10 +4,10 @@ import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 
 const CREDITS = [
-  { text: "Medicine database powered by DrugSetu (drugsetu.com) — CDSCO-aligned India medicine data", link: "https://drugsetu.com" },
-  { text: "Indian Medicine MCP Server by nowitsidb on GitHub — open-source fuzzy medicine search", link: "https://github.com/nowitsidb/INDIAN_MEDICINE_MCP_SERVER" },
-  { text: "AI prescription reading powered by Claude (Anthropic)", link: "https://anthropic.com" },
-  { text: "AI features and platform built on Supabase, Next.js, and Vercel", link: null },
+  { text: "Curated India medicine reference — brand, salt, HSN and Schedule H data maintained in-platform", link: null },
+  { text: "CDSCO Schedule H & Schedule X compliance checks applied at billing time", link: null },
+  { text: "AI prescription reading — server-side AI vision; images are processed, not stored", link: null },
+  { text: "Built on Next.js — DPDP-aligned, self-hostable, works offline-first on shop networks", link: null },
 ];
 
 export function CreditsFooter() {

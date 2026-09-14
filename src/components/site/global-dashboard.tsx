@@ -522,7 +522,7 @@ function DashboardShell({
   // Async load — setState happens after await, mirroring hospital dashboard pattern
   const load = async () => {
     try {
-      const res = await fetch("/api/global", { cache: "no-store" });
+      const res = await fetch("/api/global?scope=desk", { cache: "no-store" });
       const d = await res.json();
       if (d && !d.error) setData(d);
     } catch {} finally {

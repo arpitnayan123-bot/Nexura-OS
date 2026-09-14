@@ -87,7 +87,7 @@ export function HealthQuiz() {
           </ResultCard>
           <div className="flex items-center gap-3">
             <RunButton onClick={start} loading={loading} disabled={loading} accent={accent} label="Start the quiz" />
-            <span className="text-[0.65rem] text-[#9A8F84]">Fresh questions every time · powered by Gemini</span>
+            <span className="text-[0.65rem] text-[#9A8F84]">Fresh questions every time · AI-generated</span>
           </div>
           <Disclaimer />
         </motion.div>

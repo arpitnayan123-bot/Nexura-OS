@@ -89,7 +89,7 @@ export function DermaScan() {
           </div>
           <div className="flex items-center gap-3">
             <RunButton onClick={run} loading={loading} disabled={!image} accent={accent} label="Analyze skin with AI" />
-            <span className="text-[0.65rem] text-[#9A8F84]">Powered by Gemini Vision · Not a diagnosis</span>
+            <span className="text-[0.65rem] text-[#9A8F84]">AI-processed, not a diagnosis</span>
           </div>
           <Disclaimer />
         </motion.div>

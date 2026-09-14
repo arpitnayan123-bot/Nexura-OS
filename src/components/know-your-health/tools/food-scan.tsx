@@ -96,7 +96,7 @@ export function FoodScan() {
           </div>
           <div className="flex items-center gap-3">
             <RunButton onClick={run} loading={loading} disabled={!image} accent={accent} label="Identify & analyze macros" />
-            <span className="text-[0.65rem] text-[#9A8F84]">Powered by Gemini Vision · Indian dish aware</span>
+            <span className="text-[0.65rem] text-[#9A8F84]">AI-processed · Indian dish aware</span>
           </div>
           <Disclaimer />
         </motion.div>
