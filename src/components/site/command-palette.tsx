@@ -13,7 +13,7 @@
    print, below the back-to-top button, aria-labelled.
    ============================================================ */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Building2, Stethoscope, Pill, HeartPulse, MessageCircle, Sparkles,
@@ -66,10 +66,14 @@ export function CommandPalette() {
   const router = useRouter();
   const pathname = usePathname();
   // Platform-honest shortcut hint: ⌘K on Apple, Ctrl K everywhere else.
-  const [kbdHint, setKbdHint] = useState("Ctrl K");
-  useEffect(() => {
-    if (/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)) setKbdHint("⌘K");
-  }, []);
+  // useSyncExternalStore keeps SSR ("Ctrl K") and post-hydration client
+  // value consistent without setState-in-effect.
+  const subscribeNoop = useCallback(() => () => {}, []);
+  const kbdHint = useSyncExternalStore(
+    subscribeNoop,
+    () => (/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "⌘K" : "Ctrl K"),
+    () => "Ctrl K",
+  );
 
   // The floating pill stays OFF the homepage — the landing page reads
   // cleaner without it; ⌘K still works everywhere, and the pill remains
