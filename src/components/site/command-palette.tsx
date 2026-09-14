@@ -14,7 +14,7 @@
    ============================================================ */
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Building2, Stethoscope, Pill, HeartPulse, MessageCircle, Sparkles,
   Globe, BrainCircuit, FlaskConical, Sprout, Clock, TrendingUp, Shield,
@@ -64,6 +64,12 @@ const RESOURCES: Entry[] = [
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+
+  // The floating pill stays OFF the homepage — the landing page reads
+  // cleaner without it; ⌘K still works everywhere, and the pill remains
+  // discoverable on every other page.
+  const showTrigger = pathname !== "/";
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -102,19 +108,21 @@ export function CommandPalette() {
 
   return (
     <>
-      {/* floating trigger — quiet gold ring, bottom-right */}
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Open command palette (Ctrl+K)"
-        className="nx-cmdk-trigger group fixed bottom-5 right-5 z-40 hidden items-center gap-2 rounded-full border border-[#3A3428] bg-[#1D1810]/90 py-2 pl-3 pr-4 text-xs font-medium text-[#C9BFAE] shadow-[0_12px_40px_-12px_rgba(0,0,0,0.7)] backdrop-blur transition-all hover:border-[#A16207]/70 hover:text-[#F5EDD8] sm:inline-flex print:hidden"
-      >
-        <Search className="h-3.5 w-3.5 text-[#C8A55B]" aria-hidden="true" />
-        <span>Search Nexura</span>
-        <kbd className="rounded border border-[#3A3428] bg-[#241F16] px-1.5 py-0.5 font-mono text-[10px] text-[#8A8070] group-hover:text-[#B3A892]">
-          ⌘K
-        </kbd>
-      </button>
+      {/* floating trigger — quiet gold ring, bottom-right (hidden on homepage) */}
+      {showTrigger && (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Open command palette (Ctrl+K)"
+          className="nx-cmdk-trigger group fixed bottom-5 right-5 z-40 hidden items-center gap-2 rounded-full border border-[#3A3428] bg-[#1D1810]/90 py-2 pl-3 pr-4 text-xs font-medium text-[#C9BFAE] shadow-[0_12px_40px_-12px_rgba(0,0,0,0.7)] backdrop-blur transition-all hover:border-[#A16207]/70 hover:text-[#F5EDD8] sm:inline-flex print:hidden"
+        >
+          <Search className="h-3.5 w-3.5 text-[#C8A55B]" aria-hidden="true" />
+          <span>Search Nexura</span>
+          <kbd className="rounded border border-[#3A3428] bg-[#241F16] px-1.5 py-0.5 font-mono text-[10px] text-[#8A8070] group-hover:text-[#B3A892]">
+            ⌘K
+          </kbd>
+        </button>
+      )}
 
       <CommandDialog open={open} onOpenChange={setOpen} className="nx-cmdk">
         <CommandInput placeholder="Type a product, action or page…" className="nx-cmdk-input" />
