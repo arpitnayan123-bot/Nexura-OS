@@ -207,6 +207,17 @@ function HeroVisual() {
 
   return (
     <div className="relative mx-auto aspect-[5/6] w-full max-w-md sm:max-w-lg">
+      {/* rotating spectrum halo — gold → violet → teal → crimson, forever */}
+      <div aria-hidden className="hero-halo" />
+
+      {/* counter-rotating orbit rings, each carrying a glowing satellite */}
+      <div aria-hidden className="hero-orbit">
+        <span className="hero-sat hero-sat--gold" />
+      </div>
+      <div aria-hidden className="hero-orbit hero-orbit--b">
+        <span className="hero-sat hero-sat--teal" />
+      </div>
+
       {/* big breathing orb behind */}
       <BreathingOrb
         size={300}
@@ -214,9 +225,16 @@ function HeroVisual() {
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60"
       />
 
-      {/* main doctor card */}
+      {/* twinkling sparks — tiny gold stars scattered around the frame */}
+      <span aria-hidden className="hero-spark left-[10%] top-[4%]" />
+      <span aria-hidden className="hero-spark right-[6%] top-[15%]" style={{ animationDelay: "-1.2s" }} />
+      <span aria-hidden className="hero-spark bottom-[14%] left-[4%]" style={{ animationDelay: "-2.1s" }} />
+      <span aria-hidden className="hero-spark bottom-[4%] right-[15%]" style={{ animationDelay: "-3s" }} />
+      <span aria-hidden className="hero-spark left-[24%] top-[47%] h-1 w-1" style={{ animationDelay: "-0.6s" }} />
+
+      {/* main doctor card — gold-ringed, sheen-swept */}
       <motion.div
-        className="absolute inset-0 m-auto h-[88%] w-[80%] overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-[0_30px_80px_-30px_oklch(0.4_0.05_45/0.4)]"
+        className="absolute inset-0 m-auto h-[88%] w-[80%] overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-[0_34px_90px_-30px_oklch(0.4_0.06_45/0.45),0_0_0_1px_color-mix(in_srgb,#C88A1F_22%,transparent)]"
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       >
@@ -239,11 +257,16 @@ function HeroVisual() {
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.31_0.02_55_0.55)] via-transparent to-transparent" />
+        {/* gold inset hairline + soft top light */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-[#C88A1F]/30" />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/30 to-transparent" />
+        {/* endless specular sheen sweep */}
+        <div aria-hidden className="hero-sheen" />
 
-        {/* name plate — Liquid Glass */}
-        <div className="glass-lux absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
+        {/* name plate — Liquid Glass w/ gold ring */}
+        <div className="glass-lux absolute inset-x-4 bottom-4 z-[3] flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
           <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-sage/30 text-foreground">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-sage/30 text-foreground ring-1 ring-[#C88A1F]/40">
               <Stethoscope className="h-4 w-4" />
             </span>
             <div className="leading-tight">
@@ -257,14 +280,30 @@ function HeroVisual() {
         </div>
       </motion.div>
 
-      {/* floating chip: AI diagnosis */}
+      {/* DPDP privacy seal — glass disc inside a rotating gold dashed ring */}
       <motion.div
-        className="glass-lux absolute -left-3 top-6 w-44 rounded-2xl p-3 sm:-left-6"
+        className="absolute right-[3%] top-[1%] grid h-16 w-16 place-items-center"
+        animate={{ y: [0, -8, 0] }}
+        transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut", delay: 1.4 }}
+      >
+        <span aria-hidden className="hero-seal-ring" />
+        <span
+          title="Privacy-first · DPDP aligned"
+          className="grid h-12 w-12 place-items-center rounded-full border border-[#C88A1F]/30 bg-white/70 text-[#A16207] shadow-[0_10px_22px_-10px_rgba(161,98,7,0.55)] backdrop-blur-md dark:bg-[#241E14]/70 dark:text-[#E3C77E]"
+        >
+          <ShieldCheck className="h-5 w-5" strokeWidth={2.2} />
+        </span>
+      </motion.div>
+
+      {/* floating chip: AI diagnosis — neon amber */}
+      <motion.div
+        className="mat-chip mat-chip--neon absolute -left-3 top-6 w-44 rounded-2xl p-3 sm:-left-6"
+        style={{ "--mat-accent": "#B45309", "--mat-accent-2": "#F59E0B" } as React.CSSProperties}
         animate={{ y: [0, 12, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
       >
         <div className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#A16207]/12 text-[#A16207]">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-[#F59E0B] to-[#B45309] text-white shadow-[0_6px_14px_-6px_rgba(180,83,9,0.7)] ring-1 ring-white/30">
             <Sparkles className="h-4 w-4" />
           </span>
           <div className="leading-tight">
@@ -276,7 +315,7 @@ function HeroVisual() {
         </div>
         <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-coral to-honey"
+            className="h-full rounded-full bg-gradient-to-r from-[#F59E0B] to-[#B45309]"
             initial={{ width: "10%" }}
             animate={{ width: ["10%", "96%", "96%", "10%"] }}
             transition={{
@@ -289,9 +328,10 @@ function HeroVisual() {
         </div>
       </motion.div>
 
-      {/* floating chip: live vitals */}
+      {/* floating chip: live vitals — crimson glass */}
       <motion.div
-        className="glass-lux absolute -right-2 top-1/3 w-52 rounded-2xl p-3.5 sm:-right-6"
+        className="mat-chip mat-chip--glass absolute -right-2 top-1/3 w-52 rounded-2xl p-3.5 sm:-right-6"
+        style={{ "--mat-accent": "#BE123C", "--mat-accent-2": "#F43F5E" } as React.CSSProperties}
         animate={{ y: [0, -14, 0] }}
         transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
       >
@@ -299,8 +339,8 @@ function HeroVisual() {
           <span className="text-[0.7rem] font-medium text-muted-foreground">
             Heart rate
           </span>
-          <span className="flex items-center gap-1 text-[0.65rem] font-medium text-coral">
-            <span className="h-1.5 w-1.5 rounded-full bg-coral anim-breathe" />
+          <span className="flex items-center gap-1 text-[0.65rem] font-medium text-[#BE123C]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#BE123C] anim-breathe" />
             streaming
           </span>
         </div>
@@ -313,9 +353,10 @@ function HeroVisual() {
         <EcgLine className="mt-1" width={180} height={36} />
       </motion.div>
 
-      {/* floating chip: care score */}
+      {/* floating chip: care score — rose clay */}
       <motion.div
-        className="glass-lux absolute -bottom-3 left-4 w-40 rounded-2xl p-3 sm:left-8"
+        className="mat-chip mat-chip--clay absolute -bottom-3 left-4 w-40 rounded-2xl p-3 sm:left-8"
+        style={{ "--mat-accent": "#9F5B6B", "--mat-accent-2": "#C48B9F" } as React.CSSProperties}
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
       >
@@ -330,7 +371,7 @@ function HeroVisual() {
             {[6, 9, 5, 11, 7].map((h, i) => (
               <motion.span
                 key={i}
-                className="w-1 rounded-full bg-sage"
+                className="w-1 rounded-full bg-[#9F5B6B]"
                 animate={{ height: [h, h + 6, h] }}
                 transition={{
                   duration: 1.6 + i * 0.2,
