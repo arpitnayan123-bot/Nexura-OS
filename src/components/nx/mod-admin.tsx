@@ -1,11 +1,12 @@
 "use client";
 
-import { Lock, Server, ShieldCheck, Workflow } from "lucide-react";
+import { useState } from "react";
+import { KeyRound, Lock, Server, ShieldCheck, Workflow } from "lucide-react";
 import { useNx, timeAgo } from "./client";
 import { Empty, ErrorState, Loading, OkBadge, Panel, Pill } from "./bits";
 
 /* ============================================================
-   ADMINISTRATION — config center, audit trail, integrations
+   ADMINISTRATION — config center, device pairing, audit trail
    ============================================================ */
 
 const INTEGRATIONS = [
@@ -22,6 +23,88 @@ const INTEGRATIONS = [
 const AUDIT_ACTIONS = [
   "auth", "order", "result", "incident", "bed", "task", "medication", "appointment", "automation", "encounter",
 ];
+
+/* ---------- Device pairing (p2-hardening-1) ---------- */
+
+function DevicePairingPanel() {
+  const [deviceId, setDeviceId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Shown-once secret: lives in component state only; never persisted.
+  const [issued, setIssued] = useState<{ deviceId: string; secret: string; protocol: string } | null>(null);
+
+  const pair = async (action: "pair" | "rotate") => {
+    setBusy(true);
+    setError(null);
+    setIssued(null);
+    try {
+      const res = await fetch("/api/nx/wearables/pair", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deviceId: deviceId.trim(), action }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d?.detail || d?.error || "Pairing failed");
+      setIssued({ deviceId: d.deviceId, secret: d.secret, protocol: d.protocol });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Pairing failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Panel
+      title="Wearable device pairing"
+      subtitle="Mint the ingest secret — shown exactly once, stored only as a SHA-256 hash"
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          value={deviceId}
+          onChange={(e) => setDeviceId(e.target.value)}
+          placeholder="Device id (NxWearableDevice)"
+          className="min-w-0 flex-1 rounded-md border border-line bg-panel px-2.5 py-1.5 font-mono text-[11px] text-ink outline-none placeholder:text-ink-4 focus:border-accent"
+        />
+        <button
+          disabled={busy || deviceId.trim().length < 6}
+          onClick={() => pair("pair")}
+          className="rounded-md border border-line px-2.5 py-1.5 text-[11px] font-medium text-ink-2 hover:text-ink disabled:opacity-40"
+        >
+          <KeyRound className="mr-1 inline h-3 w-3" /> Pair
+        </button>
+        <button
+          disabled={busy || deviceId.trim().length < 6}
+          onClick={() => pair("rotate")}
+          className="rounded-md border border-line px-2.5 py-1.5 text-[11px] font-medium text-ink-2 hover:text-ink disabled:opacity-40"
+        >
+          Rotate
+        </button>
+      </div>
+
+      {error && <p className="mt-2 text-[11px] text-danger">{error}</p>}
+
+      {issued && (
+        <div className="mt-3 space-y-2 rounded-lg border border-warn/40 bg-warn/10 p-3">
+          <p className="text-[11px] font-medium text-ink">
+            Secret for <span className="font-mono">{issued.deviceId}</span> — copy it now; it will not be shown again:
+          </p>
+          <div className="flex items-center gap-2">
+            <code className="nx-scroll flex-1 overflow-x-auto rounded-md border border-line bg-panel px-2 py-1.5 font-mono text-[11px] text-ink">
+              {issued.secret}
+            </code>
+            <button
+              onClick={() => navigator.clipboard?.writeText(issued.secret).catch(() => {})}
+              className="shrink-0 rounded-md border border-line px-2 py-1.5 text-[11px] text-ink-2 hover:text-ink"
+            >
+              Copy
+            </button>
+          </div>
+          <p className="break-all font-mono text-[10px] text-ink-3">{issued.protocol}</p>
+        </div>
+      )}
+    </Panel>
+  );
+}
 
 export function AdminCenter({ view }: { view: "audit" | "admin" }) {
   const { data, error, loading, refresh } = useNx<{
@@ -100,6 +183,8 @@ export function AdminCenter({ view }: { view: "audit" | "admin" }) {
           </div>
         </Panel>
       </div>
+
+      <DevicePairingPanel />
 
       <Panel title="Integration monitoring" subtitle="Standards-based gateway — legacy systems included">
         <div className="grid gap-2 md:grid-cols-2">

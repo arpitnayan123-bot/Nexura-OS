@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { guard, ok, withRoute } from "@/lib/nx/api";
 import { db } from "@/lib/db";
+import { patientInScope } from "@/lib/nx/patient-scope";
 
 /* GET /api/nx/predict/lifestream/[patientId] — the unified Patient
    Life Stream: vitals, labs, meds, notes, bio-signals, SDoH and
@@ -11,6 +12,9 @@ export const GET = withRoute<{ patientId: string }>(
     const g = await guard(req, "patient.clinical.view");
     if ("response" in g) return g.response;
     const { patientId } = await ctx.params;
+    if (!(await patientInScope(patientId, g.session))) {
+      return ok({ error: "patient_not_found" }, { requestId: g.requestId, status: 404 });
+    }
     const since = new Date(Date.now() - 30 * 86_400_000);
     const [events, bios] = await Promise.all([
       db.pieLifeStreamEvent.findMany({ where: { patientId, ts: { gte: since } }, orderBy: { ts: "desc" }, take: 200 }),

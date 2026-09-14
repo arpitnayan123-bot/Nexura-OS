@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { connectGate, doctorOnly } from "@/lib/nx/connect-auth";
+import { connectGate, connectPartyDenied, doctorOnly } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,6 +25,9 @@ export async function GET(req: NextRequest) {
     ]);
 
     if (!connection) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    // p2-hardening-1: caller must be a party to THIS thread.
+    const party = await connectPartyDenied(req, connection);
+    if (party) return party;
 
     return NextResponse.json({ connection, messages });
   } catch (err) {
@@ -57,6 +60,9 @@ export async function POST(req: NextRequest) {
 
     const connection = await db.connectConnection.findUnique({ where: { id: connectionId } });
     if (!connection) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    // p2-hardening-1: caller must be a party to THIS thread.
+    const party = await connectPartyDenied(req, connection);
+    if (party) return party;
 
     const message = await db.connectMessage.create({
       data: {
