@@ -28,15 +28,16 @@ ok("3-line custom mark (not lucide Menu)", lines === 3, `lines=${lines}`);
 const dot = await page.locator(".menu-trigger__dot").count();
 ok("live pulse dot on trigger", dot === 1);
 
-/* 2 · drawer opens from LEFT edge */
+/* 2 · drawer opens from RIGHT edge (same side as the trigger) */
 await trigger.click();
 await page.waitForTimeout(900);
 const drawer = page.locator(".menu-drawer");
 ok("drawer present", (await drawer.count()) === 1);
 const box = await drawer.boundingBox();
-ok("drawer anchored to LEFT edge (x ≈ 0)", box && box.x < 8, `x=${box?.x}`);
+const vw = page.viewportSize().width;
+ok("drawer anchored to RIGHT edge (same side as button)", box && Math.abs(box.x + box.width - vw) < 8, `x=${box?.x} vw=${vw}`);
 ok("drawer width ≈ 26rem", box && Math.abs(box.width - 416) < 4, `w=${box?.width}`);
-await page.screenshot({ path: "logs/menu-open-left.png" });
+await page.screenshot({ path: "logs/menu-open-right.png" });
 
 /* 3 · rows: 14 products + 6 actions, per-row accents */
 const rows = await page.locator(".menu-row").count();
@@ -99,7 +100,7 @@ ok("mobile 390: no horizontal overflow", overflow.sw <= overflow.iw + 1, `scroll
 await mob.locator(".menu-trigger").click();
 await mob.waitForTimeout(800);
 const mbox = await mob.locator(".menu-drawer").boundingBox();
-ok("mobile drawer full-width from left", mbox && mbox.x <= 2 && mbox.width >= 388, `x=${mbox?.x} w=${mbox?.width}`);
+ok("mobile drawer full-width from right", mbox && mbox.x <= 2 && mbox.width >= 388, `x=${mbox?.x} w=${mbox?.width}`);
 await mob.screenshot({ path: "logs/menu-open-mobile.png" });
 ok("mobile zero console errors", merr.length === 0, merr.slice(0, 3).join(" | "));
 await mob.close();
