@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET /api/clinic/dashboard — one aggregated call
-export async function GET() {
+async function GET_impl() {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
@@ -78,3 +79,5 @@ export async function GET() {
     return NextResponse.json({ error: "clinic_dashboard_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("clinic.dashboard.GET", GET_impl);

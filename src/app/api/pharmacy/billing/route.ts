@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,7 +14,7 @@ type BillingItem = {
 };
 
 // POST /api/pharmacy/billing
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -203,7 +204,7 @@ export async function POST(req: NextRequest) {
 }
 
 // GET /api/pharmacy/billing — recent invoices
-export async function GET() {
+async function GET_impl() {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -219,3 +220,6 @@ export async function GET() {
     return NextResponse.json({ error: "billing_list_failed", detail: message }, { status: 500 });
   }
 }
+
+export const POST = withProductAuth("pharmacy.billing.POST", POST_impl);
+export const GET = withProductAuth("pharmacy.billing.GET", GET_impl);

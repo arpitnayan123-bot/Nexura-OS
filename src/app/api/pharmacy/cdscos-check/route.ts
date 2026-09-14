@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,7 +48,7 @@ const BANNED_DRUGS: { drug: string; reason: string }[] = [
 ];
 
 // GET /api/pharmacy/cdscos-check?q=medicine+salt — check if drug is banned
-export async function GET(req: NextRequest) {
+async function GET_impl(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim().toLowerCase();
@@ -92,3 +93,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "cdsco_check_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("pharmacy.cdscos-check.GET", GET_impl);

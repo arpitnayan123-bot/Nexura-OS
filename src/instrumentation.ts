@@ -1,8 +1,11 @@
 /* ============================================================
- * Next.js instrumentation — PIE background jobs
- * Boots the 5-minute Patient Graph sync exactly once per
- * server process (Node runtime only). Failure-tolerant: PIE
- * must never take the server down.
+ * Next.js instrumentation — background job boot
+ * 1. PIE 5-minute Patient Graph sync (must never take the
+ *    server down).
+ * 2. NxJob durable queue worker (backend-core-1): self-healing
+ *    queue-scan chain + daily retention purge. Disabled with
+ *    NEXURA_JOBS=off.
+ * Both boot exactly once per process (Node runtime only).
  * ============================================================ */
 
 export async function register() {
@@ -12,5 +15,11 @@ export async function register() {
     startGraphSyncJob();
   } catch (err) {
     console.error("[pie] instrumentation boot failed:", err instanceof Error ? err.message : err);
+  }
+  try {
+    const { startJobWorker } = await import("@/lib/nx/jobs/runner");
+    startJobWorker();
+  } catch (err) {
+    console.error("[nxjobs] instrumentation boot failed:", err instanceof Error ? err.message : err);
   }
 }

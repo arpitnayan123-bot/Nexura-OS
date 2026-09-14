@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET /api/clinic/drugs?q= — autocomplete from Indian drug DB
-export async function GET(req: NextRequest) {
+async function GET_impl(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim().toLowerCase();
@@ -26,3 +27,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "drugs_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("clinic.drugs.GET", GET_impl);

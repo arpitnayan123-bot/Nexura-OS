@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,7 +39,7 @@ const CHRONIC_MED_MAP: { salts: string[]; disease: string; weight: number; sourc
 ];
 
 // GET /api/pharmacy/risk-score — all customers with risk scores
-export async function GET(req: NextRequest) {
+async function GET_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -143,3 +144,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "risk_score_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("pharmacy.risk-score.GET", GET_impl);

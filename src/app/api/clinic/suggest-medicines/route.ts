@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -151,7 +152,7 @@ const NPPA_PRICES: Record<string, { pricePerStrip: number; controlled: boolean; 
 const BANNED_FDCS = ["Nimesulide+Paracetamol", "Nimesulide+Cetirizine", "Paracetamol+Phenylephrine+Caffeine", "Amoxicillin+Diclofenac", "Levocetirizine+Ambroxol", "Ofloxacin+Ornidazole+Aceclofenac"];
 
 // POST /api/clinic/suggest-medicines
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const diagnosis = (body?.diagnosis || "").trim();
@@ -224,3 +225,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "suggest_failed", detail: message }, { status: 500 });
   }
 }
+
+export const POST = withProductAuth("clinic.suggest-medicines.POST", POST_impl);

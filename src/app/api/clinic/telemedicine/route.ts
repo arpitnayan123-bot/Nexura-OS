@@ -2,12 +2,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET /api/clinic/telemedicine — list telemedicine consults
-export async function GET(req: NextRequest) {
+async function GET_impl(req: NextRequest) {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST — create a telemedicine consult (NMC Telemedicine Guidelines 2020 compliant)
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
 }
 
 // PATCH — update status
-export async function PATCH(req: NextRequest) {
+async function PATCH_impl(req: NextRequest) {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
@@ -83,3 +84,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "telemedicine_update_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("clinic.telemedicine.GET", GET_impl);
+export const POST = withProductAuth("clinic.telemedicine.POST", POST_impl);
+export const PATCH = withProductAuth("clinic.telemedicine.PATCH", PATCH_impl);

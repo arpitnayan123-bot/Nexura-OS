@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET /api/pharmacy/returns — near-expiry batches (<=90 days) + existing returns
-export async function GET() {
+async function GET_impl() {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -42,7 +43,7 @@ export async function GET() {
 }
 
 // POST — create a return memo + credit note (decrements stock)
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -78,3 +79,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "return_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("pharmacy.returns.GET", GET_impl);
+export const POST = withProductAuth("pharmacy.returns.POST", POST_impl);

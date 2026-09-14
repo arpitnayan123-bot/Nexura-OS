@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { aiGate } from "@/lib/nx/ai-guard";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,7 +24,7 @@ Return STRICT JSON only: {"items":[...],"raw":"<cleaned transcript>"}. No prose.
 
 // POST /api/pharmacy/voice-bill
 // body: { transcript?: string, audio?: "<base64>" }
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   const __ai = aiGate(req);
   if (__ai) return __ai;
   try {
@@ -158,3 +159,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "voice_bill_failed", detail: message }, { status: 500 });
   }
 }
+
+export const POST = withProductAuth("pharmacy.voice-bill.POST", POST_impl);

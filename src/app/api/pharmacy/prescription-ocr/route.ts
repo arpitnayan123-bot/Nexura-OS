@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { isValidImageBase64 } from "@/lib/gemini";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,7 +19,7 @@ const MAX_BASE64_LEN = Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 1024;
 
 // POST /api/pharmacy/prescription-ocr
 // body: { image: "<base64 or dataURL>" }
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   const __ai = aiGate(req);
   if (__ai) return __ai;
   try {
@@ -121,3 +122,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "ocr_failed", detail: message }, { status: 500 });
   }
 }
+
+export const POST = withProductAuth("pharmacy.prescription-ocr.POST", POST_impl);

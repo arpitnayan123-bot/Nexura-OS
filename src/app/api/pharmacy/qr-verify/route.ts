@@ -2,12 +2,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // POST /api/pharmacy/qr-verify — verify Schedule H2 QR code on medicine packaging
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest) {
 }
 
 // GET — list H2 verifications
-export async function GET() {
+async function GET_impl() {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -78,3 +79,6 @@ function detectCategory(name: string): string {
   if (lower.includes("morphine") || lower.includes("codeine") || lower.includes("tramadol")) return "ndps";
   return "antimicrobial"; // default
 }
+
+export const POST = withProductAuth("pharmacy.qr-verify.POST", POST_impl);
+export const GET = withProductAuth("pharmacy.qr-verify.GET", GET_impl);

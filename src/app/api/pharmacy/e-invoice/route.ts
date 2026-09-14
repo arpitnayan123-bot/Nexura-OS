@@ -2,13 +2,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // POST /api/pharmacy/e-invoice  { saleId }
 // Returns an Indian e-invoice JSON (IRN-ready) + e-way bill structure.
-export async function POST(req: NextRequest) {
+async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
@@ -167,3 +168,5 @@ function stateCode(state?: string | null): string {
   };
   return map[state || ""] || "27";
 }
+
+export const POST = withProductAuth("pharmacy.e-invoice.POST", POST_impl);

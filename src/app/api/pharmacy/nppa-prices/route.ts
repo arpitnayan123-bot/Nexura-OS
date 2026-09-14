@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -42,7 +43,7 @@ const NPPA_DATA: Record<string, {
 };
 
 // GET /api/pharmacy/nppa-prices?q=&name=
-export async function GET(req: NextRequest) {
+async function GET_impl(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim().toLowerCase();
@@ -80,3 +81,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "nppa_failed", detail: message }, { status: 500 });
   }
 }
+
+export const GET = withProductAuth("pharmacy.nppa-prices.GET", GET_impl);
