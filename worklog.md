@@ -4279,3 +4279,24 @@ Stage Summary:
 - Backend core is now COMPLETE for this architecture: uniform revocation-aware auth on every product route, durable self-healing job queue with compliance retention purge, HMAC device ingest, verified family invites
 - Still deliberately OUT OF SCOPE (documented, not forgotten): real Postgres migration (needs a real PG host — runbook in docs/DATABASE.md), Redis-backed limiter (multi-instance only; single-node in-memory is correct here), ClamAV scan hook (no clamscan binary), payment/OTP delivery (TODO markers), Privacy/Terms legal content
 - Tag: backend-core-1-final; dual bundles refreshed; tracked-bundle check = 0
+
+---
+Task ID: p2-hardening-1
+Agent: main (Super Z)
+Task: "Yes proceed... make it better" — close remaining audit P1/P2 gaps: connect party checks, PIE hospital scoping, device pairing surface, Privacy/Terms pages
+
+Work Log:
+- Connect PARTY CHECKS (audit: "connect party check"): connectPartyDenied() + connectCallsListDenied() in connect-auth.ts — an authenticated caller must BE the thread's doctor or patient to read/write messages, mark-read, or list/initiate calls; demo mode keeps documented posture. PATCH /api/connect/calls is now doctorOnly (call summaries + prescription payloads are clinician-authored records). Closes the cross-thread IDOR (any signed-in staff could read any thread by id).
+- PIE hospitalId SCOPING (audit P1): src/lib/nx/patient-scope.ts — patientInScope(patientId, session): platform roles (super_admin/org_admin) bypass; everyone else requires session.hospitalId match on hospitalPatient, FAILS CLOSED without hospitalId. Applied to predict/risk, predict/twin (GET+POST), predict/lifestream, predict/explain (via assessment.patientId) — 404 (not 403) to avoid confirming out-of-hospital patient existence.
+- Device pairing surface: POST /api/nx/wearables/pair (security.manage) — pair/rotate mints the device secret, stores ONLY sha256, returns plaintext exactly once, writes hash-chained audit event (device.pair/rotate, no secret in detail). Admin UI: DevicePairingPanel in mod-admin (shown-once secret, copy button, protocol line). Completes the backend-core-1 HMAC story end-to-end.
+- Privacy Policy (/privacy) + Terms of Service (/terms): substantive DPDP-2023-oriented content incl. AI limits + no-diagnosis framing, family-invite accuracy, retention honesty (maps to the NxJob retention-purge), emergency 108/112 banners. Prominent "template pending professional legal review — not legal advice / not a compliance certification" notice per absolute rules.
+- Footers: clean-footer + cta-footer now link /privacy /terms (cta-footer dead href="#" links fixed); sitemap.xml includes both pages (public, indexable).
+
+Verification:
+- tsc 0, eslint 0, vitest 252/252 (17 files), DEPLOY VERIFIED
+- Live: /privacy /terms / /clinic /pharmacy /api/clinic/patients /api/nx/wearables/pair /api/ready ALL 200; sitemap.xml lists privacy+terms; homepage footer links live
+- Queue chain healthy (queue-scan: 30 done + 1 pending — heartbeat cycling)
+
+Stage Summary:
+- Audit open list after this: payment + OTP delivery (TODO by design), Postgres/Redis/ClamAV (needs real infra host), legal review of the new pages (professional counsel), dependency lockfile for CI
+- Tag: p2-hardening-1-final; dual bundles refreshed; tracked-bundle check = 0

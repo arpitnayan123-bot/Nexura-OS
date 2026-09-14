@@ -217,9 +217,9 @@ function Footer() {
               <span className="h-1.5 w-1.5 rounded-full bg-sage anim-breathe" />
               All systems calm
             </span>
-            <a href="#" className="hover:text-foreground">Privacy</a>
-            <a href="#" className="hover:text-foreground">Terms</a>
-            <a href="#" className="hover:text-foreground">Cookies</a>
+            <a href="/privacy" className="hover:text-foreground">Privacy</a>
+            <a href="/terms" className="hover:text-foreground">Terms</a>
+            <a href="/privacy" className="hover:text-foreground">Cookies</a>
           </div>
         </div>
       </div>

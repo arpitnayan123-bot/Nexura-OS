@@ -74,6 +74,9 @@ export function CleanFooter() {
             <Link href="/connect" className="hover:text-foreground">Connect</Link>
             <Link href="/hospital" className="hover:text-foreground">Nexura Hospital OS</Link>
             <span className="text-muted-foreground/40">·</span>
+            <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
+            <Link href="/terms" className="hover:text-foreground">Terms</Link>
+            <span className="text-muted-foreground/40">·</span>
             <span className="text-muted-foreground/60">© {new Date().getFullYear()} Nexura</span>
           </div>
         </div>
