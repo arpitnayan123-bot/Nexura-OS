@@ -28,8 +28,11 @@ export const POST = withRoute("auth.email.verify.request", async (req: NextReque
     await db.nxEmailVerificationToken.create({
       data: { userId: user.id, tokenHash: crypto.createHash("sha256").update(token).digest("hex"), expiresAt: new Date(Date.now() + 24 * 3600_000) },
     });
+    // TODO(otp-delivery): console is the demo delivery channel — see password/route.ts.
+    // Keep the live token OUT of the structured log (persists to server.log).
     if (env().values.EMAIL_TRANSPORT === "console") {
-      log.info("auth", "email_verification.issued", { to: user.email, verifyToken: token });
+      log.info("auth", "email_verification.issued", { to: user.email, expiresInHours: 24 });
+      console.log(`[DEMO EMAIL DELIVERY] email verification token for ${user.email}: ${token}`);
     }
   }
   return NextResponse.json({ data: { requested: true, message: "If that email exists and is unverified, a verification link has been sent." } });

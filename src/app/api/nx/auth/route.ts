@@ -13,7 +13,16 @@ import { env } from "@/lib/env";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const JWT_SECRET = process.env.JWT_SECRET || "nexura-os-dev-secret-change-in-prod";
+// Fail fast in production, mirroring src/lib/auth/jwt.ts — a silently
+// forgeable token secret is unacceptable on a healthcare platform.
+const JWT_SECRET = (() => {
+  const s = process.env.JWT_SECRET;
+  if (s && s.length >= 16) return s;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET must be set (>=16 chars) in production — refusing to sign tokens with a fallback.");
+  }
+  return "nexura-os-dev-secret-change-in-prod";
+})();
 const SESSION_HOURS = 12;
 const REMEMBER_DAYS = 30;
 const MAX_ATTEMPTS = 5;
@@ -88,7 +97,11 @@ async function issueSession(
       hospitalId: user.hospitalId,
       breakGlass: opts.breakGlass,
       linkedPatientId: user.linkedPatientId ?? undefined,
-    }
+    },
+    // Aligned with the 12h cookie/session-record promise. Real controls are
+    // server-side: revocable NxSessionRecord, idle timeout, lockout. The old
+    // 15m exp silently logged staff out while cookies/records said 12h.
+    "12h"
   );
   const roleKey = user.role as NxRole;
   // Backward-compatible envelope: OS shell + login UI read top-level user/modules
