@@ -269,11 +269,18 @@ export function PatientView() {
       <div className="mesh-bg grid min-h-screen place-items-center px-4">
         <div className="max-w-md rounded-3xl glass-soft p-6 text-center shadow-depth">
           <Stethoscope className="mx-auto h-10 w-10 text-[#A16207]" />
-          <h2 className="mt-3 font-serif text-xl font-semibold text-[#1F1B17]">No patient profile found</h2>
-          <p className="mt-1 text-sm text-[#9A8F84]">Please run the clinic seed first to set up a demo patient.</p>
-          <Link href="/" className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#2A2622] px-4 py-2 text-sm font-semibold text-white">
-            <ArrowLeft className="h-4 w-4" /> Homepage
-          </Link>
+          <h2 className="mt-3 font-serif text-xl font-semibold text-[#1F1B17]">Connect with your care team</h2>
+          <p className="mt-1 text-sm text-[#9A8F84]">
+            Sign in to the patient portal to securely message your doctors, share updates, and join consultations.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <Link href="/portal/login" className="inline-flex items-center gap-1.5 rounded-full bg-[#2A2622] px-4 py-2 text-sm font-semibold text-white">
+              Sign in to Portal
+            </Link>
+            <Link href="/" className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-[#5C544D] ring-1 ring-[#E5DFD4]">
+              <ArrowLeft className="h-4 w-4" /> Homepage
+            </Link>
+          </div>
         </div>
       </div>
     );

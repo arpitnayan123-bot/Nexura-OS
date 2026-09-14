@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft, Search, Inbox, Users, PhoneCall, Send, Paperclip,
+  ArrowLeft, Search, Inbox, Users, PhoneCall, Send,
   Video, Phone, Mic, MicOff, VideoOff, PhoneOff, X, Plus,
   CheckCheck, Check, Clock, Loader2, Stethoscope, Activity,
   ChevronRight, Pill, MessageCircle, Sparkles, User,
@@ -551,9 +551,6 @@ export function ConnectApp() {
             {/* Input */}
             <div className="border-t border-[#E5DFD4] bg-white/80 px-5 py-3 backdrop-blur-md">
               <div className="flex items-end gap-2">
-                <button className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]" title="Attach (coming soon)" aria-label="Attach file (coming soon)">
-                  <Paperclip className="h-4 w-4" />
-                </button>
                 <textarea
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
