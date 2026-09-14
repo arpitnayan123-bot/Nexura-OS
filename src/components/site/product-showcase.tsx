@@ -47,7 +47,7 @@ const PRODUCTS = [
     icon: Sparkles,
     name: "Know Your Health",
     tagline: "AI Health Tools",
-    desc: "15 AI tools — symptom checker, lab analyzer, derma scan, X-ray reader, diet planner & more. Powered by Gemini.",
+    desc: "15 AI tools — symptom checker, lab analyzer, derma scan, X-ray reader, diet planner & more. Powered by AI.",
     href: "/know-your-health",
     accent: "#A16207",
     gradient: "from-[#8F5E06] to-[#D9B87C]",

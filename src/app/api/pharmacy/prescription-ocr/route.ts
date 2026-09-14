@@ -1,14 +1,20 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { aiGate } from "@/lib/nx/ai-guard";
+import { isValidImageBase64 } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const SYSTEM_PROMPT = `Read this doctor's prescription image. List every medicine name you can see.
 Return STRICT JSON only: {"items":[{"name":"medicine name","dosage":"if visible","duration":"if visible"}],"notes":"any instructions"}. No prose.`;
+
+// Same upload contract as the Know-Your-Health image routes: bounded size,
+// validated base64, image mime only. (Previously unbounded — relied solely on
+// the proxy's 13 MB body cap.)
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB original file
+const MAX_BASE64_LEN = Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 1024;
 
 // POST /api/pharmacy/prescription-ocr
 // body: { image: "<base64 or dataURL>" }
@@ -25,25 +31,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "no_image" }, { status: 400 });
     }
 
+    const raw = image.replace(/^data:[^;]+;base64,/, "").trim();
+    if (!raw || !isValidImageBase64(raw)) {
+      return NextResponse.json({ error: "invalid_image", detail: "Upload a prescription photo (JPG or PNG, max 8MB)." }, { status: 400 });
+    }
+    if (raw.length > MAX_BASE64_LEN) {
+      return NextResponse.json({ error: "image_too_large" }, { status: 413 });
+    }
+
     const ZAI = (await import("z-ai-web-dev-sdk")).default;
     const zai = await ZAI.create();
 
-    // Build a clean data URL. If the client sent a data URL, normalize its mime.
-    // If raw base64, detect PNG (starts with iVBOR) vs JPEG (/9j/).
+    // Build a clean data URL from validated base64 — mime derived from magic
+    // bytes, never trusted from the client.
     let dataUrl: string;
-    const raw = image.replace(/^data:[^;]+;base64,/, "");
-    if (image.startsWith("data:")) {
-      // keep as-is (client FileReader produces correct mime)
-      dataUrl = image;
-    } else if (raw.startsWith("iVBOR")) {
+    if (raw.startsWith("iVBOR")) {
       dataUrl = `data:image/png;base64,${raw}`;
     } else if (raw.startsWith("/9j/")) {
       dataUrl = `data:image/jpeg;base64,${raw}`;
     } else {
-      dataUrl = `data:image/png;base64,${raw}`;
+      return NextResponse.json({ error: "unsupported_mime", detail: "Only JPG and PNG prescriptions are supported." }, { status: 415 });
     }
 
-    const completion = await zai.chat.completions.createVision({
+    // The SDK auto-selects its VLM model at runtime when `model` is omitted —
+    // the same proven shape as src/lib/openrouter.ts callZAI. Its published
+    // types over-constrain (`model` "required"), so use a precise local type.
+    type VisionBody = { messages: Array<{ role: string; content: Array<{ type: string; text?: string } | { type: string; image_url: { url: string } }> }>; thinking?: { type: "enabled" | "disabled" } };
+    type VisionResult = { choices?: Array<{ message?: { content?: string } }> };
+    const completion = await (zai.chat.completions.createVision as (b: VisionBody) => Promise<VisionResult>)({
       messages: [
         {
           role: "user",

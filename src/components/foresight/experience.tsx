@@ -52,7 +52,7 @@ const RUNNING_LINES = [
 function loadForm(): FsForm {
   if (typeof window === "undefined") return EMPTY_FORM;
   try {
-    const raw = window.localStorage.getItem(FORM_KEY);
+    const raw = window.sessionStorage.getItem(FORM_KEY);
     if (!raw) return EMPTY_FORM;
     const parsed = JSON.parse(raw) as Partial<FsForm>;
     return {
@@ -142,7 +142,11 @@ export function ForesightExperience() {
   const setForm = useCallback((patch: Partial<FsForm>) => {
     setFormState((prev) => {
       const next = { ...prev, ...patch };
-      try { window.localStorage.setItem(FORM_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      // sessionStorage, not localStorage: this form carries health data
+      // (vitals, labs, symptoms, family history). Session-scoped storage
+      // keeps the autosave UX but clears it when the tab closes, instead of
+      // leaving PHI resident in the browser indefinitely.
+      try { window.sessionStorage.setItem(FORM_KEY, JSON.stringify(next)); } catch { /* ignore */ }
       return next;
     });
   }, []);

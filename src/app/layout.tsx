@@ -8,6 +8,7 @@ import { BookingModalLazy } from "@/components/site/booking-modal-lazy";
 import { PwaRegister } from "@/components/pwa-register";
 import { ErrorSentinel } from "@/components/nx/error-sentinel";
 import { HydrationWatchdog } from "@/components/site/hydration-watchdog";
+import { SkipLink } from "@/components/site/skip-link";
 import { CommandPalette } from "@/components/site/command-palette";
 
 // Preview freshness guarantee: without this, fully static pages emit
@@ -39,6 +40,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  // Anchor for OG/canonical URLs — without it relative OG images resolve
+  // broken on share. Override with NEXT_PUBLIC_SITE_URL in production.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://nexura-os.app"),
   title: "Nexura — A Calmer Operating System for Health",
   description:
     "Nexura unifies AI diagnostics, continuous monitoring, and human care into one warm, intelligent health platform. Home of Hospital OS. Care that listens, learns, and breathes with you.",
@@ -62,12 +66,14 @@ export const metadata: Metadata = {
       "AI diagnostics, continuous monitoring, and human care — unified in one warm, intelligent platform.",
     siteName: "Nexura",
     type: "website",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Nexura — A Calmer Operating System for Health" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Nexura — A Calmer Operating System for Health",
     description:
       "AI diagnostics, continuous monitoring, and human care — unified in one warm, intelligent platform.",
+    images: ["/og.png"],
   },
 };
 
@@ -94,13 +100,17 @@ export default function RootLayout({
               "try{setTimeout(function(){if(!window.__nxHydrated){document.documentElement.classList.add('nx-force-visible');}},4000);}catch(e){}",
           }}
         />
-        <HydrationWatchdog />
+        {/* HydrationWatchdog is mounted ONCE (inside ThemeProvider). A second
+            mount here ran duplicate error/reload logic on every page. */}
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
+          {/* Skip-to-content for keyboard/screen-reader users on every route
+              (was previously mounted on the homepage only). */}
+          <SkipLink />
           <BookingProvider>
             {children}
             <BookingModalLazy />
