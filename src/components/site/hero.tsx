@@ -263,8 +263,14 @@ function HeroVisual() {
         {/* endless specular sheen sweep */}
         <div aria-hidden className="hero-sheen" />
 
-        {/* name plate — Liquid Glass w/ gold ring */}
-        <div className="glass-lux absolute inset-x-4 bottom-4 z-[3] flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
+        {/* name plate — Liquid Glass w/ gold ring
+            (inline position beats .glass-lux's unlayered `position: relative`,
+             which would otherwise cancel the `absolute` utility and clip
+             the plate below the card's overflow edge) */}
+        <div
+          className="glass-lux absolute inset-x-4 bottom-4 z-[3] flex items-center justify-between gap-3 rounded-2xl px-4 py-3"
+          style={{ position: "absolute" }}
+        >
           <div className="flex items-center gap-3">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-sage/30 text-foreground ring-1 ring-[#C88A1F]/40">
               <Stethoscope className="h-4 w-4" />
