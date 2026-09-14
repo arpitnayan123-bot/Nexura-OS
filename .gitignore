@@ -82,3 +82,7 @@ upload/
 download/
 backups/
 .autocommit-last
+
+# Git bundles (workspace lock files — never commit)
+repo.bundle
+*.bundle
