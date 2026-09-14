@@ -139,13 +139,13 @@ export function HamburgerMenu() {
               className="absolute inset-0 h-full w-full cursor-default bg-[rgba(46,32,12,0.45)] backdrop-blur-md"
             />
 
-            {/* Drawer — aurora glass over mineral grain */}
+            {/* Drawer — aurora glass over mineral grain, anchored LEFT edge */}
             <motion.aside
-              initial={{ x: "100%" }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: "100%" }}
+              exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 32, stiffness: 330 }}
-              className="menu-drawer absolute inset-y-0 right-0 flex w-full max-w-[26rem] flex-col rounded-l-[1.75rem] border-l border-[#C88A1F]/25 shadow-[-36px_0_90px_-36px_rgba(60,40,10,0.5)]"
+              className="menu-drawer absolute inset-y-0 left-0 flex w-full max-w-[26rem] flex-col rounded-r-[1.75rem] border-r border-[#C88A1F]/25 shadow-[36px_0_90px_-36px_rgba(60,40,10,0.5)]"
             >
               {/* Header */}
               <div className="relative flex items-center justify-between gap-3 border-b border-[#C88A1F]/15 px-5 py-4">
