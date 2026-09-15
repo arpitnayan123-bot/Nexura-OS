@@ -106,7 +106,7 @@ export function SettingsApp() {
                 ))}
               </div>
             </Group>
-            <Group title="Desktop" icon={WallpaperIcon} hint="The ambient wallpaper behind your windows. Right-click the desktop to switch quickly.">
+            <Group title="Ambient backdrop" icon={WallpaperIcon} hint="The ambient wash behind the console — a quiet backdrop, it never affects data colors.">
               <div className="flex flex-wrap gap-3">
                 {WALLPAPERS.map((w) => (
                   <button
@@ -165,17 +165,10 @@ export function SettingsApp() {
             <Group title="Keyboard" icon={Type}>
               <dl className="space-y-2 text-sm">
                 {[
-                  ["⌘ K / Ctrl K", "Command palette"],
-                  ["⌘ / Ctrl J", "Open launcher"],
-                  ["⌘ / Ctrl M", "Minimize focused window"],
-                  ["⌘ / Ctrl W", "Close focused window"],
+                  ["⌘ K / Ctrl K", "Command palette — search patients, modules, commands"],
                   ["⌘ / Ctrl L", "Lock the screen"],
-                  ["Ctrl ` or Alt Tab", "Switch between windows"],
-                  ["F9", "Overview — see every window"],
-                  ["Ctrl Alt ← / →", "Previous / next workspace"],
-                  ["Ctrl Alt 1–3", "Jump to a workspace"],
                   ["?", "Keyboard shortcuts (this list)"],
-                  ["Esc", "Dismiss overlays"],
+                  ["Esc", "Step back — dismiss overlays, then previous module"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex items-center justify-between gap-4">
                     <dt className="text-ink-2">{v}</dt>
