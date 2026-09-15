@@ -75,10 +75,10 @@ export function CommandPalette() {
     () => "Ctrl K",
   );
 
-  // The floating pill stays OFF the homepage — the landing page reads
-  // cleaner without it; ⌘K still works everywhere, and the pill remains
-  // discoverable on every other page.
-  const showTrigger = pathname !== "/";
+  // The floating pill stays OFF the homepage and OFF Hospital OS — the
+  // landing reads cleaner without it, and the console ships its own
+  // search affordance (⌘K); a second floating trigger read as clutter.
+  const showTrigger = pathname !== "/" && pathname !== "/hospital";
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
