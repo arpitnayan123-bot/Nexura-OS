@@ -4323,3 +4323,19 @@ Stage Summary:
 - Every product surface now passes: works end-to-end, no dead controls, no false third-party claims, honest states.
 - Deliberately left for later (design-level, not tonight's scope): real payment capture (TODO(payment)), OTP delivery (TODO(otp-delivery)), Postgres/Redis/ClamAV host swap (documented runbooks), legal review of privacy/terms.
 - Tag: improve-all-1-final; dual bundles refreshed; tracked-bundle check = 0
+
+---
+Task ID: verify-restart-1
+Agent: main (Super Z)
+Task: User request — "everything is integrated, check once no files missing or rollback, restart the dev server"
+
+Work Log:
+- Full integrity sweep: HEAD f06bf88 (improve-all-1) matches backups/repo.bundle list-heads; all 15 tags present (backend-core-1-final, p2-hardening-1-final, improve-all-1-final, prod-audit-1-final, ...); git status clean
+- Rollback signature check: git ls-files -d = 0 tracked files missing from disk — NO rollback
+- Key artifacts verified on disk: model NxJob in schema, src/lib/nx/jobs/runner.ts, 187 API routes, 25 pages, 17 test files (~253 cases)
+- Found + fixed: root repo.bundle was missing (only backups/ copy survived) — regenerated via git bundle create --all, verified, dual-bundle refreshed, tracked-bundle check = 0
+- Canonical restart: bash scripts/deploy-preview.sh — fresh build (BUILD_ID OQlQ9YZjp46Ll1dQAamG8, 32.5s), guardian takeover, DEPLOY VERIFIED (zero dev-mode fingerprints, CSS chunks 200, content markers present, cache headers correct)
+- Health: /api/ready ready (database+seed ok, demo:true), / /clinic /pharmacy /portal /know-your-health all 200
+
+Stage Summary:
+- Workspace intact at improve-all-1; no missing files, no rollback; server :3000 serving latest production build via guardian
