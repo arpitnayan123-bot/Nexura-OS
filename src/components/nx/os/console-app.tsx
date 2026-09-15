@@ -5,7 +5,7 @@ import { SquareTerminal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { nx, timeAgo } from "../client";
 import { APPS, appFor, type AppCtx } from "./registry";
-import { WS_COUNT, useOs, type Wallpaper } from "./store";
+import { useOs, type Wallpaper } from "./store";
 
 /* ============================================================
    HOSPITAL OS — Console
@@ -61,7 +61,6 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
             "tasks             active work queue counts",
             "apps              installed applications",
             "open <app>        launch an app (try: open files)",
-            "ws [1-3]          show or switch workspace",
             "theme <mode>      auto | light | dark",
             "wallpaper <name>  aurora | dawn | meadow | mono",
             "lock              lock the screen",
@@ -123,19 +122,6 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
           if (!def) { print(`no app named “${arg}” — try \`apps\``, "err"); break; }
           ctx.open(def.key);
           print(`launching ${def.label}…`, "ok");
-          break;
-        }
-
-        case "ws": {
-          if (!arg) {
-            const s = useOs.getState();
-            print(Array.from({ length: WS_COUNT }, (_, i) => `${i + 1}${s.workspace === i + 1 ? " *" : "  "} ${s.wins.filter((w) => w.ws === i + 1).length} window(s)`).join("\n"));
-            break;
-          }
-          const ws = parseInt(arg, 10);
-          if (!ws || ws < 1 || ws > WS_COUNT) { print(`workspace must be 1–${WS_COUNT}`, "err"); break; }
-          useOs.getState().setWorkspace(ws);
-          print(`switched to workspace ${ws}`, "ok");
           break;
         }
 

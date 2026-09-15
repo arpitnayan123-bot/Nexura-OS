@@ -3,13 +3,13 @@
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
-  ArrowRightLeft, HeartPulse, Keyboard, LayoutGrid, LockKeyhole, Moon, MoonStar,
-  PersonStanding, Settings, Signpost, SquareStack, Sun, Type,
+  HeartPulse, Keyboard, LockKeyhole, LogOut, Moon, MoonStar,
+  PersonStanding, Settings, Sun, Type,
 } from "lucide-react";
 import { useState } from "react";
 import { useNx, useDebounced } from "../client";
 import { APPS } from "./registry";
-import { WS_COUNT, useOs } from "./store";
+import { useOs } from "./store";
 
 /* ============================================================
    HOSPITAL OS — command palette (⌘K)
@@ -27,9 +27,8 @@ export function NxPalette({ allowed, onSignOut }: { allowed: Set<string>; onSign
   const night = useOs((s) => s.night);
   const motion = useOs((s) => s.motion);
   const density = useOs((s) => s.density);
-  const workspace = useOs((s) => s.workspace);
-  const wins = useOs((s) => s.wins);
-  const focused = useOs((s) => s.focused);
+  const recents = useOs((s) => s.recents);
+  const active = useOs((s) => s.active);
   const setTheme = useOs((s) => s.setTheme);
   const setFocus = useOs((s) => s.setFocus);
   const setNight = useOs((s) => s.setNight);
@@ -44,8 +43,6 @@ export function NxPalette({ allowed, onSignOut }: { allowed: Set<string>; onSign
 
   const run = (fn: () => void) => () => { fn(); setPalette(false); };
 
-  const focusedWin = wins.find((w) => w.key === focused);
-
   const commands = [
     resolvedTheme === "dark"
       ? { icon: Sun, label: "Switch to Light appearance", kbd: "", fn: () => setTheme("light") }
@@ -54,30 +51,10 @@ export function NxPalette({ allowed, onSignOut }: { allowed: Set<string>; onSign
     { icon: Sun, label: night ? "Turn off Night shift" : "Turn on Night shift", kbd: "", fn: () => setNight(!night) },
     { icon: PersonStanding, label: motion === "reduced" ? "Enable full motion" : "Reduce motion", kbd: "", fn: () => setMotion(motion === "reduced" ? "full" : "reduced") },
     { icon: Type, label: density === "compact" ? "Use comfortable density" : "Use compact density", kbd: "", fn: () => setDensity(density === "compact" ? "comfortable" : "compact") },
-    { icon: LayoutGrid, label: "Show all windows (Overview)", kbd: "F9", fn: () => useOs.getState().setOverview(true) },
     { icon: LockKeyhole, label: "Lock screen", kbd: "⌘L", fn: () => useOs.getState().lock() },
-    ...Array.from({ length: WS_COUNT }, (_, i) => i + 1)
-      .filter((ws) => ws !== workspace)
-      .map((ws) => ({
-        icon: SquareStack,
-        label: `Switch to Workspace ${ws}`,
-        kbd: `Ctrl+Alt+${ws}`,
-        fn: () => useOs.getState().setWorkspace(ws),
-      })),
-    ...(focusedWin
-      ? Array.from({ length: WS_COUNT }, (_, i) => i + 1)
-          .filter((ws) => ws !== focusedWin.ws)
-          .map((ws) => ({
-            icon: ArrowRightLeft,
-            label: `Move ${focusedWin.key === "settings" ? "Settings" : "focused window"} to Workspace ${ws}`,
-            kbd: "",
-            fn: () => useOs.getState().moveWinToWorkspace(focusedWin.key, ws),
-          }))
-      : []),
     { icon: Keyboard, label: "Show keyboard shortcuts", kbd: "?", fn: () => useOs.getState().openApp("settings") },
     { icon: Settings, label: "Open System Settings", kbd: "", fn: () => useOs.getState().openApp("settings") },
-    { icon: Signpost, label: "Open Launchpad", kbd: "⌘J", fn: () => useOs.getState().setLauncher(true) },
-    { icon: Signpost, label: "Sign out", kbd: "", fn: onSignOut },
+    { icon: LogOut, label: "Sign out", kbd: "", fn: onSignOut },
   ];
 
   const apps = APPS.filter((a) => a.system || allowed.has(a.key));
@@ -110,6 +87,24 @@ export function NxPalette({ allowed, onSignOut }: { allowed: Set<string>; onSign
             </CommandGroup>
 
             <CommandSeparator className="bg-line" />
+
+            {recents.filter((k) => k !== active).length > 0 && (
+              <>
+                <CommandGroup heading="Recent modules">
+                  {recents.filter((k) => k !== active).slice(0, 4).map((k) => {
+                    const a = APPS.find((x) => x.key === k);
+                    if (!a) return null;
+                    return (
+                      <CommandItem key={k} value={`recent-${a.label}`} onSelect={run(() => useOs.getState().openApp(k))} className="gap-2.5">
+                        <a.icon className="h-4 w-4 text-ink-3" />
+                        <span className="text-ink">{a.label}</span>
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+                <CommandSeparator className="bg-line" />
+              </>
+            )}
 
             <CommandGroup heading="Open app">
               {apps.map((a) => (

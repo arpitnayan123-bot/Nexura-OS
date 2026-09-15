@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import {
-  Bell, ChevronLeft, ChevronRight, LockKeyhole, LogOut, Menu, PanelLeftClose,
+  Bell, LockKeyhole, LogOut, Menu, PanelLeftClose,
   PanelLeftOpen, Search, TriangleAlert, WifiOff, X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,17 @@ export function useIsMobile() {
     return () => mq.removeEventListener("change", on);
   }, []);
   return m;
+}
+
+/* device-local rail preference — hydration-safe via useSyncExternalStore:
+   server snapshot = expanded, client snapshot reads localStorage directly */
+const railListeners = new Set<() => void>();
+function railSubscribe(fn: () => void) {
+  railListeners.add(fn);
+  return () => { railListeners.delete(fn); };
+}
+function railSnapshot(): boolean {
+  try { return localStorage.getItem("nx-rail") === "1"; } catch { return false; }
 }
 
 const GROUP_ORDER = ["Overview", "Clinical", "Operations", "System"] as const;
@@ -106,7 +117,7 @@ function RailContent({
                     )}
                   >
                     {isActive && <span className="absolute left-0 top-1/2 h-4.5 w-0.5 -translate-y-1/2 rounded-full bg-accent" aria-hidden />}
-                    <a.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-accent" : "text-ink-3 group-hover:text-ink-2")} strokeWidth={2} />
+                    <a.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-accent" : "text-ink-3 group-hover:text-ink-2")} />
                     {!collapsed && <span className="truncate">{a.label}</span>}
                     {!collapsed && badge > 0 && (
                       <span className="ml-auto rounded-full bg-crit-soft px-1.5 py-0.5 text-[10px] font-semibold text-crit">{badge}</span>
@@ -146,13 +157,6 @@ function RailContent({
             </>
           )}
         </div>
-        {!collapsed && (
-          <button
-            onClick={() => useOs.setState({ railCollapsed: false } as never)}
-            className="hidden"
-            aria-hidden
-          />
-        )}
       </div>
     </div>
   );
@@ -163,13 +167,14 @@ function RailContent({
 /* ------------------------------------------------------------------ */
 
 export function ConsoleShell({
-  user, allowed, demoMode, banner, alertCount, offline, onSignOut, onCaptureTriage,
+  user, allowed, demoMode, banner, taskCount, incidentCount, offline, onSignOut, onCaptureTriage,
 }: {
   user: NxUser;
   allowed: Set<string>;
   demoMode: boolean;
   banner: { tone: string; text: string } | null;
-  alertCount: number;
+  taskCount: number;
+  incidentCount: number;
   offline: boolean;
   onSignOut: () => void;
   onCaptureTriage: () => void;
@@ -184,15 +189,11 @@ export function ConsoleShell({
   const notices = useOs((s) => s.notices);
 
   /* rail collapse is a device-local preference */
-  const [railCollapsed, setRailCollapsed] = useState(false);
-  useEffect(() => {
-    try { setRailCollapsed(localStorage.getItem("nx-rail") === "1"); } catch { /* private mode */ }
-  }, []);
+  const railCollapsed = useSyncExternalStore(railSubscribe, railSnapshot, () => false);
   const toggleRail = () => {
-    setRailCollapsed((v) => {
-      try { localStorage.setItem("nx-rail", v ? "0" : "1"); } catch { /* private mode */ }
-      return !v;
-    });
+    const next = !railCollapsed;
+    try { localStorage.setItem("nx-rail", next ? "1" : "0"); } catch { /* private mode */ }
+    railListeners.forEach((fn) => fn());
   };
 
   const [drawer, setDrawer] = useState(false);
@@ -203,7 +204,7 @@ export function ConsoleShell({
 
   const app = appFor(effectiveActive)!;
   const unreadLocal = notices.filter((n: NxNotice) => !n.read).length;
-  const bellCount = alertCount + unreadLocal;
+  const bellCount = taskCount + incidentCount + unreadLocal;
 
   const openPatient = (id: string) => {
     window.dispatchEvent(new CustomEvent("nx-open-patient", { detail: id }));
@@ -224,7 +225,7 @@ export function ConsoleShell({
           )}
         >
           <RailContent
-            allowed={allowed} active={effectiveActive} taskCount={alertCount} incidentCount={0}
+            allowed={allowed} active={effectiveActive} taskCount={taskCount} incidentCount={incidentCount}
             collapsed={railCollapsed} onNavigate={navigate} user={user} onSignOut={onSignOut}
             onLock={() => useOs.getState().lock()}
           />
@@ -244,7 +245,7 @@ export function ConsoleShell({
               <X className="h-4 w-4" />
             </button>
             <RailContent
-              allowed={allowed} active={effectiveActive} taskCount={alertCount} incidentCount={0}
+              allowed={allowed} active={effectiveActive} taskCount={taskCount} incidentCount={incidentCount}
               collapsed={false} onNavigate={navigate} user={user} onSignOut={onSignOut}
               onLock={() => { useOs.getState().lock(); setDrawer(false); }}
             />
@@ -349,7 +350,6 @@ export function ConsoleShell({
       {notifOpen && <NxNotificationCenter />}
       {isMobile && <NxBackFab />}
       <NxBackSync enabled />
-      <span className="hidden"><ChevronLeft /><ChevronRight /></span>
     </div>
   );
 }
