@@ -4356,3 +4356,26 @@ Work Log:
 Stage Summary:
 - Preview "Application error" eliminated at its root; public booking page now fails soft and honestly on bad links
 - Tag: booking-fix-1-final; dual bundles refreshed; tracked-bundle check = 0
+
+---
+Task ID: hospital-console-1
+Agent: main (Super Z)
+Task: User: "improve hospital os, its too messy, people will get confused — design everything yourself, do as you wish"
+
+Work Log:
+- Diagnosed the mess: Hospital OS was a simulated desktop OS (boot splash theater, floating traffic-light windows, fake workspaces 1/2/3, battery %/wifi chrome, wallpaper picker, unlabeled dock, ⌘J launcher, Alt-Tab switcher, F9 overview, desktop right-click menus) wrapped around 24 working hospital modules — 4 layers of metaphor before any clinical work
+- First-principles redesign: a hospital worker should never have to learn an operating system to operate a hospital → replaced the fake desktop with a focused console shell
+- NEW os/console.tsx: labeled left rail (Overview/Clinical/Operations/System groups, icons, critical-count badges on Work Queue + Incidents, active = gold bar + soft-gold pill, collapsible 240→64px, device-local via hydration-safe useSyncExternalStore), quiet top bar (module title + one-line desc, demo chip, search ⌘K, bell with unread count), single full-height content pane, mobile: hamburger drawer + back FAB
+- REWROTE os/store.ts: window/workspace/switcher/launcher/overview/geometry machinery removed; kernel now = prefs + active module + recents + overlays + lock + notices; openApp = navigate (closes overlays, back-stack step so Esc/device-back returns to previous module)
+- REWROTE nx-app.tsx: boot theater → 1-beat branded splash; kept session/RBAC, SSE live alerts, offline triage buffer, platform banners, ⌘K/⌘L/?/Esc keyboard, deep links; role-based landing (doctor/nurse/lab/pharmacist/leadership → their module)
+- Fixed deep links: #m=key now also responds to hashchange (same-document nav never re-ran mount effect)
+- TOKEN FIX: globals.css @theme shadowed nx accent mapping — text-accent resolved to the site's dark hover wash inside the console (invisible gold-on-dark); remapped --accent/--accent-foreground to nx tokens inside .nx-root (dark + light blocks) — fixes palette icons and all gold text platform-wide in OS context
+- Housekeeping: deleted 8 retired shell files (boot/desktop/wm/dock/launcher/switcher/system-bar/ctx); palette → removed workspace/window commands + added Recent modules group + real Sign out icon; back-ui → overlay sync + mobile FAB only; settings → "Ambient backdrop" copy + real keyboard-shortcut list; terminal help → dropped ws command; site "Search Nexura" floating pill hidden on /hospital (duplicate search affordance)
+- All 24 modules untouched (they render via registry render(ctx) — zero window coupling found except one openApp call)
+- Verification: tsc 0, eslint 0, vitest 252/252, api-smoke 58/58, DEPLOY VERIFIED; browser walkthrough: all rail modules render (RBAC correctly falls back for disallowed keys — command demo role), palette/gold icons/recents, notifications, lock engage+release, light "Mineral Paper" + dark "Graphite Night" themes, mobile 390px drawer + KPI layout, deep links #m=beds/#m=settings
+- Screenshots deleted after review (kept repo clean)
+
+Stage Summary:
+- Hospital OS: fake desktop → calm labeled console; same data layer, same 24 modules, one obvious way to navigate
+- Deliberately kept: lock screen (workstation hygiene), ⌘K palette, live SSE alerts, offline triage, RBAC module gating
+- Tag: hospital-console-1-final; dual bundles refreshed; tracked-bundle check = 0
