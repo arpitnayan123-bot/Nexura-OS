@@ -25,7 +25,17 @@ export default function BookingPage({ params }: { params: Promise<{ slug: string
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/clinic/booking?slug=${slug}`).then((r) => r.json()).then((d) => { setData(d); }).catch(() => {}).finally(() => setLoading(false));
+    fetch(`/api/clinic/booking?slug=${slug}`)
+      .then((r) => r.json())
+      .then((d: unknown) => {
+        // Only accept a well-formed payload — API error bodies ({error:...}) must
+        // never be stored as data, or rendering crashes on data.clinic.name.
+        const shape = d as Partial<ClinicData> | null;
+        if (shape && shape.clinic?.id && shape.clinic.name && Array.isArray(shape.doctors)) setData(d as ClinicData);
+        else setData(null);
+      })
+      .catch(() => setData(null))
+      .finally(() => setLoading(false));
   }, [slug]);
 
   // generate 7 days
@@ -57,7 +67,16 @@ export default function BookingPage({ params }: { params: Promise<{ slug: string
   };
 
   if (loading) return <div className="grid min-h-screen place-items-center bg-[#FAF7F2]"><Loader2 className="h-6 w-6 animate-spin text-[#A16207]" /></div>;
-  if (!data) return <div className="grid min-h-screen place-items-center bg-[#FAF7F2] text-sm text-[#9A8F84]">Clinic not found.</div>;
+  if (!data) return (
+    <div className="grid min-h-screen place-items-center bg-[#FAF7F2] px-4 text-center">
+      <div>
+        <Stethoscope className="mx-auto h-10 w-10 text-[#D6CDBF]" />
+        <h1 className="mt-4 font-serif text-xl font-semibold text-[#2A2622]">This booking link isn&apos;t active</h1>
+        <p className="mx-auto mt-2 max-w-sm text-sm text-[#9A8F84]">The clinic page you&apos;re looking for doesn&apos;t exist or its online booking has been paused. Please check the link, or call the clinic directly to book your visit.</p>
+        <Link href="/" className="mt-6 inline-block rounded-full bg-[#2A2622] px-5 py-2 text-xs font-semibold text-white hover:bg-[#2A2622]/90">Go to homepage</Link>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#2A2622]">
