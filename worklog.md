@@ -4339,3 +4339,20 @@ Work Log:
 
 Stage Summary:
 - Workspace intact at improve-all-1; no missing files, no rollback; server :3000 serving latest production build via guardian
+
+---
+Task ID: booking-fix-1
+Agent: main (Super Z)
+Task: User reported "Application error" in the preview window — diagnose and fix
+
+Work Log:
+- Origin sweep: 25/25 pages browser-tested zero client errors; all static chunks 200 on 10 key pages; server log clean — origin fully healthy
+- Root cause found via logs/client-errors.jsonl: fresh entry 02:29:44 at /clinic/book/[slug] — "Cannot read properties of undefined (reading 'name')"
+- Bug: page stored ANY API response as data — error payloads ({error:"not_found"} 404 / {error:"no_slug"} 400) are truthy → data.clinic.name crashed past hydration. Triggered by any invalid/expired booking slug (public visitor with a broken link)
+- Fix (src/app/clinic/book/[slug]/page.tsx): (1) shape-validate response — only well-formed {clinic:{id,name},doctors:[]} payloads accepted, everything else → null; (2) dead "Clinic not found." text → proper failure state: explanation ("link isn't active / booking paused / call the clinic") + Go to homepage CTA
+- Verified: tsc 0, eslint 0, vitest 252/252; DEPLOY VERIFIED (fresh build); browser E2E — bad slug → graceful state (no crash, no errors), valid slug rao-clinic → full page, real booking submitted end-to-end ("Booking request received!", zero errors); E2E row cleaned from onlineBooking
+- Anti-pattern scan: this was the only unvalidated setData(fetch-json) site in src/
+
+Stage Summary:
+- Preview "Application error" eliminated at its root; public booking page now fails soft and honestly on bad links
+- Tag: booking-fix-1-final; dual bundles refreshed; tracked-bundle check = 0
