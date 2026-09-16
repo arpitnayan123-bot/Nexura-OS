@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
@@ -33,8 +32,18 @@ async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
-    const body = await req.json().catch(() => ({}));
-    const { patientId, doctorName, doctorRegNo, consultMode, chiefComplaint, diagnosis, prescription, followUpDate, patientConsent } = body as any;
+    const body = (await req.json().catch(() => ({}))) as {
+      patientId?: string;
+      doctorName?: string;
+      doctorRegNo?: string;
+      consultMode?: string;
+      chiefComplaint?: string;
+      diagnosis?: string;
+      prescription?: string;
+      followUpDate?: string;
+      patientConsent?: boolean;
+    };
+    const { patientId, doctorName, doctorRegNo, consultMode, chiefComplaint, diagnosis, prescription, followUpDate, patientConsent } = body;
 
     if (!doctorName || !doctorRegNo) return NextResponse.json({ error: "doctor_reg_required" }, { status: 400 });
     // NMC Guideline: doctor must have valid MCI/NMC registration
@@ -70,11 +79,23 @@ async function PATCH_impl(req: NextRequest) {
   try {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
-    const body = await req.json().catch(() => ({}));
-    const { consultId, status } = body as { consultId?: string; status?: string };
+    const body = (await req.json().catch(() => ({}))) as { consultId?: string; status?: string };
+    const { consultId, status } = body;
     if (!consultId || !status) return NextResponse.json({ error: "missing" }, { status: 400 });
 
-    const data: any = { status };
+    // Clinic scoping (mirrors /api/clinic/appointments PATCH): the consult
+    // must belong to the caller's clinic — a missing and a foreign consult
+    // are indistinguishable, both 404. The old update-by-id touched any
+    // clinic's consult.
+    const existing = await db.telemedicineConsult.findUnique({
+      where: { id: consultId },
+      select: { id: true, clinicId: true },
+    });
+    if (!existing || existing.clinicId !== ctx.clinic.id) {
+      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+
+    const data: { status: string; endedAt?: Date } = { status };
     if (status === "completed") data.endedAt = new Date();
 
     const consult = await db.telemedicineConsult.update({ where: { id: consultId }, data });
