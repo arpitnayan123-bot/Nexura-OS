@@ -163,8 +163,8 @@ model ProductBatch {
   barcode      String?
   mfgDate      String // ISO "2024-03"
   expDate      String // ISO "2026-03"
-  mrp          Float // max retail price per strip/unit
-  purchaseRate Float        @default(0)
+  mrp          Int // paise — max retail price per strip/unit
+  purchaseRate Int          @default(0) // paise
   stockStrips  Int          @default(0)
   stockLoose   Int          @default(0) // loose tablets
   createdAt    DateTime     @default(now())
@@ -187,13 +187,13 @@ model Sale {
   branchId    String
   staffId     String?
   customerId  String?
-  subtotal    Float        @default(0)
-  discountPct Float        @default(0)
-  discount    Float        @default(0)
-  cgst        Float        @default(0)
-  sgst        Float        @default(0)
-  roundOff    Float        @default(0)
-  total       Float        @default(0)
+  subtotal    Int          @default(0) // paise
+  discountPct Float        @default(0) // % (rate, not money)
+  discount    Int          @default(0) // paise
+  cgst        Int          @default(0) // paise
+  sgst        Int          @default(0) // paise
+  roundOff    Int          @default(0) // paise
+  total       Int          @default(0) // paise
   payMode     String       @default("cash") // cash | upi | card | credit
   status      String       @default("billed") // draft | billed | cancelled | returned
   createdAt   DateTime     @default(now())
@@ -216,11 +216,11 @@ model SaleItem {
   batchId     String
   qtyStrips   Int          @default(0)
   qtyLoose    Int          @default(0)
-  mrpPerStrip Float
-  discount    Float        @default(0)
-  cgstRate    Float        @default(0)
-  sgstRate    Float        @default(0)
-  lineTotal   Float        @default(0)
+  mrpPerStrip Int // paise
+  discount    Int          @default(0) // paise
+  cgstRate    Float        @default(0) // % (rate, not money)
+  sgstRate    Float        @default(0) // % (rate, not money)
+  lineTotal   Int          @default(0) // paise
   sale        Sale         @relation(fields: [saleId], references: [id], onDelete: Cascade)
   product     Product      @relation(fields: [productId], references: [id])
   batch       ProductBatch @relation(fields: [batchId], references: [id])
@@ -238,8 +238,8 @@ model Purchase {
   branchId          String
   supplierId        String
   status            String            @default("draft") // draft | ordered | received | cancelled
-  total             Float             @default(0)
-  paidAmount        Float             @default(0)
+  total             Int               @default(0) // paise
+  paidAmount        Int               @default(0) // paise
   createdAt         DateTime          @default(now())
   branch            PharmaBranch      @relation(fields: [branchId], references: [id])
   supplier          Supplier          @relation(fields: [supplierId], references: [id])
@@ -257,10 +257,10 @@ model PurchaseItem {
   batchNo      String
   mfgDate      String
   expDate      String
-  mrp          Float
-  purchaseRate Float
+  mrp          Int // paise
+  purchaseRate Int // paise
   qtyStrips    Int
-  lineTotal    Float
+  lineTotal    Int // paise
   purchase     Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
   product      Product  @relation(fields: [productId], references: [id])
 
@@ -411,7 +411,7 @@ model HospitalDoctor {
   regNo           String? // MCI/SMC registration
   specialty       String // Cardiologist|General Physician|Pediatrician|etc
   department      String?
-  consultationFee Float                  @default(500)
+  consultationFee Int                    @default(50000) // paise (₹500)
   availableDays   String? // JSON array
   availableHours  String? // JSON {start,end}
   languagesSpoken String? // JSON array
@@ -707,7 +707,7 @@ model HospitalMedicine {
   packType         String?
   gstRate          Float    @default(12)
   nppaControlled   Boolean  @default(false)
-  nppaCeilingPrice Float?
+  nppaCeilingPrice Int? // paise
   cdscoBanned      Boolean  @default(false)
   schedule         String   @default("otc") // otc|schedule_h|schedule_h1|ndps
   stockQuantity    Int      @default(0)
@@ -749,11 +749,11 @@ model HospitalBill {
   appointmentId    String?
   billDate         DateTime             @default(now())
   itemizedCharges  String // JSON array
-  subtotal         Float                @default(0)
-  discount         Float                @default(0)
-  cgst             Float                @default(0)
-  sgst             Float                @default(0)
-  totalPayable     Float                @default(0)
+  subtotal         Int                  @default(0) // paise
+  discount         Int                  @default(0) // paise
+  cgst             Int                  @default(0) // paise
+  sgst             Int                  @default(0) // paise
+  totalPayable     Int                  @default(0) // paise
   paymentMode      String               @default("cash") // cash|upi|card|insurance|credit
   insuranceClaimId String?
   paymentStatus    String               @default("unpaid") // unpaid|paid|partial|refunded
@@ -782,10 +782,10 @@ model InsuranceClaim {
   icd10Primary      String?
   icd10Secondary    String? // JSON array
   plannedProcedures String? // JSON array
-  estimatedCost     Float              @default(0)
+  estimatedCost     Int                @default(0) // paise
   preAuthStatus     String             @default("draft") // draft|submitted|query_raised|approved|partially_approved|rejected
-  approvedAmount    Float              @default(0)
-  patientCopay      Float              @default(0)
+  approvedAmount    Int                @default(0) // paise
+  patientCopay      Int                @default(0) // paise
   cashless          Boolean            @default(false)
   submittedAt       DateTime?
   approvedAt        DateTime?
@@ -882,7 +882,7 @@ model ClinicDoctor {
   specialization String?
   qualification  String?
   phone          String?
-  feeConsult     Float               @default(500)
+  feeConsult     Int                 @default(50000) // paise (₹500)
   shiftStart     String? // "09:00"
   shiftEnd       String? // "17:00"
   active         Boolean             @default(true)
@@ -1023,9 +1023,9 @@ model ClinicInvoice {
   visitId     String?
   invoiceNo   String        @unique
   description String
-  amount      Float
-  discount    Float         @default(0)
-  total       Float
+  amount      Int // paise
+  discount    Int           @default(0) // paise
+  total       Int // paise
   payMode     String        @default("cash")
   status      String        @default("unpaid") // unpaid | paid
   createdAt   DateTime      @default(now())
@@ -1049,7 +1049,7 @@ model SupplierPayment {
   id         String    @id @default(cuid())
   supplierId String
   purchaseId String?
-  amount     Float
+  amount     Int // paise
   payMode    String    @default("cash") // cash | upi | bank | cheque
   refNo      String? // cheque / utr
   notes      String?
@@ -1065,7 +1065,7 @@ model SupplierPayment {
 model CustomerAccount {
   id          String   @id @default(cuid())
   customerId  String   @unique
-  creditLimit Float    @default(0)
+  creditLimit Int      @default(0) // paise
   createdAt   DateTime @default(now())
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
@@ -1076,7 +1076,7 @@ model CustomerPayment {
   id         String   @id @default(cuid())
   customerId String
   saleId     String?
-  amount     Float
+  amount     Int // paise
   payMode    String   @default("cash")
   refNo      String?
   notes      String?
@@ -1127,9 +1127,9 @@ model NearExpiryReturn {
   supplier   Supplier               @relation(fields: [supplierId], references: [id])
   reason     String                 @default("Near expiry")
   status     String                 @default("initiated") // initiated | dispatched | credited
-  cgst       Float                  @default(0)
-  sgst       Float                  @default(0)
-  total      Float                  @default(0)
+  cgst       Int                    @default(0) // paise
+  sgst       Int                    @default(0) // paise
+  total      Int                    @default(0) // paise
   createdAt  DateTime               @default(now())
   branch     PharmaBranch           @relation(fields: [branchId], references: [id])
   items      NearExpiryReturnItem[]
@@ -1147,10 +1147,10 @@ model NearExpiryReturnItem {
   medicineName String
   expDate      String
   qtyStrips    Int
-  mrp          Float
-  cgstRate     Float            @default(0)
-  sgstRate     Float            @default(0)
-  lineTotal    Float            @default(0)
+  mrp          Int // paise
+  cgstRate     Float            @default(0) // % (rate, not money)
+  sgstRate     Float            @default(0) // % (rate, not money)
+  lineTotal    Int              @default(0) // paise
   return_      NearExpiryReturn @relation(fields: [returnId], references: [id], onDelete: Cascade)
 
   @@index([returnId])
@@ -1161,17 +1161,17 @@ model DayClosing {
   id             String       @id @default(cuid())
   branchId       String
   closingDate    String // YYYY-MM-DD
-  cashSales      Float        @default(0)
-  upiSales       Float        @default(0)
-  cardSales      Float        @default(0)
-  creditSales    Float        @default(0)
-  totalSales     Float        @default(0)
-  cgstCollected  Float        @default(0)
-  sgstCollected  Float        @default(0)
-  totalGst       Float        @default(0)
-  totalPurchases Float        @default(0)
-  totalDiscount  Float        @default(0)
-  netProfit      Float        @default(0)
+  cashSales      Int          @default(0) // paise
+  upiSales       Int          @default(0) // paise
+  cardSales      Int          @default(0) // paise
+  creditSales    Int          @default(0) // paise
+  totalSales     Int          @default(0) // paise
+  cgstCollected  Int          @default(0) // paise
+  sgstCollected  Int          @default(0) // paise
+  totalGst       Int          @default(0) // paise
+  totalPurchases Int          @default(0) // paise
+  totalDiscount  Int          @default(0) // paise
+  netProfit      Int          @default(0) // paise
   invoiceCount   Int          @default(0)
   closedBy       String?
   closedAt       DateTime     @default(now())
@@ -2579,8 +2579,8 @@ model NxInsuranceContract {
   policyNo       String
   milestonesJson String // JSON [{id,title,amount,condition,met,metAt}]
   state          String   @default("draft") // draft|active|milestone_met|submitted|settled|disputed
-  payoutTotal    Float    @default(0)
-  settledAmount  Float    @default(0)
+  payoutTotal    Int      @default(0) // paise
+  settledAmount  Int      @default(0) // paise
   historyJson    String? // JSON [{at,state,actor,note}]
   claimId        String?
   createdAt      DateTime @default(now())
