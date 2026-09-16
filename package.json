@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "bash scripts/nx-guardian.sh 2>&1 | tee dev.log",
     "dev:real": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
+    "build": "prisma generate && next build",
+    "build:standalone": "prisma generate && next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
     "start": "bash scripts/nx-guardian.sh",
     "start:raw": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "eslint .",
+    "postinstall": "prisma generate",
     "smoke": "bash scripts/api-smoke.sh",
     "db:push": "prisma db push --accept-data-loss",
     "db:generate": "prisma generate",
