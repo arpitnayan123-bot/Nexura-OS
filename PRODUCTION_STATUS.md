@@ -40,7 +40,7 @@ the following verified changes; each commit carries the details:
 | Concern | State |
 |---|---|
 | Provider | **PostgreSQL only** — `prisma/schema.prisma` `provider = "postgresql"`; SQLite is retired from the runtime path |
-| Migrations | `prisma/migrations/20260916000000_baseline` (160 tables) + `migration_lock.toml`; apply with `npx prisma migrate deploy` |
+| Migrations | `prisma/migrations/`: `20260916000000_baseline` (160 tables), `20260917000000_add_telemedicine_consults`, `20260918000000_integrity_indexes_batch_identity` (batch identity unique + dedupe, 30 FK indexes, NxEventLog seq unique, audit chains RESTRICT, partial appointment-slot index); apply with `npx prisma migrate deploy` |
 | Redis | Required in production — distributed rate limiting, SSE event-bus fan-out, background-sync leases (`src/lib/redis.ts`) |
 | JSON columns | Stored as `String` columns by design (portable, documented in schema header); jsonb promotion is a deliberate future decision, not an accident |
 | Search semantics | Every user-facing `contains` filter carries `mode: "insensitive"` (27 sites) — SQLite-era case behavior preserved on Postgres |
