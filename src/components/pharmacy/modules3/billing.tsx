@@ -525,7 +525,14 @@ function PrescriptionModal({ open, onClose, onMapped, inventory }: { open: boole
         const spoken = (m.name || "").toLowerCase();
         const product = inventory.find(p => p.name.toLowerCase().includes(spoken) || spoken.includes(p.name.toLowerCase()) || (p.genericName && spoken.includes(p.genericName.toLowerCase())) || (p.genericName && p.genericName.toLowerCase().includes(spoken)));
         const batch = product?.batches[0];
-        const confidence = product ? Math.round(80 + Math.random() * 18) : Math.round(40 + Math.random() * 30);
+        /* Deterministic MATCH score (not "AI confidence"): how strongly the
+           OCR'd name matched an inventory product. The previous value was
+           Math.random() — a fabricated metric rendered next to medicines. */
+        const confidence = product
+          ? (product.name.toLowerCase() === spoken ? 98
+            : product.name.toLowerCase().includes(spoken) || spoken.includes(product.name.toLowerCase()) ? 92
+            : 84)
+          : 40;
         return { requestedName: m.name, matched: !!product, productId: product?.id || "", name: product?.name || m.name, batchId: batch?.id || "", mrp: batch?.mrp || 0, confidence };
       });
       setItems(mapped);

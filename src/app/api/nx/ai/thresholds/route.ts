@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { guard, ok, fail, parseBody, withRoute } from "@/lib/nx/api";
-import { PROMPT_VERSIONS, MODEL_VERSION } from "@/lib/nx/ai-governance";
+import { PROMPT_VERSIONS, modelVersion } from "@/lib/nx/ai-governance";
 
 /* AI confidence thresholds per feature (governance config). */
 
@@ -25,7 +25,7 @@ export const GET = withRoute("ai.thresholds", async (req: NextRequest, { request
     defaults: { minConfidence: 0.6, requireReview: true },
     supportedFeatures: Object.keys(PROMPT_VERSIONS),
     promptVersions: PROMPT_VERSIONS,
-    modelVersion: MODEL_VERSION,
+    modelVersion: modelVersion(),
   }, { requestId });
 });
 

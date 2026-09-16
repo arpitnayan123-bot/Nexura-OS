@@ -6,6 +6,7 @@ import { runText } from "@/lib/gemini";
 import { audit } from "@/lib/nx/audit";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { confidenceHeuristic, checkAiConsent, enforceThreshold, logAiInteraction } from "@/lib/nx/ai-governance";
+import { isDemoMode } from "@/lib/env";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -56,19 +57,27 @@ export const POST = withRoute("nx.ai.run", async (req: NextRequest) => {
       });
       if (!patient) return NextResponse.json({ error: "not_found" }, { status: 404 });
       const a = patient.admissions[0];
-      const compact = {
+      const patientBlock = {
         patient: { name: patient.fullName, age: patient.age, gender: patient.gender, allergies: patient.allergy, chronic: patient.chronicConditions, bloodGroup: patient.bloodGroup },
         admission: a ? { diagnosis: a.admissionDiagnosis, type: a.admissionType, since: a.admissionDate, doctor: a.admittingDoctor?.name, bed: a.bed ? `${a.bed.ward?.name} ${a.bed.bedNumber}` : null } : "no active admission",
         recentOrders: a?.orders.map((o) => ({ type: o.orderType, test: o.orderDetails, status: o.status, results: o.labResults.map((r) => `${r.testName}: ${r.resultValue} ${r.unit} [${r.abnormalFlag}]`) })),
         vitals: a?.vitals.map((v) => ({ at: v.recordedAt, bp: `${v.bpSystolic}/${v.bpDiastolic}`, pulse: v.pulseRate, spo2: v.spo2, temp: v.temperatureC, news2: v.news2Score })),
         notes: a?.clinicalNotes.map((n) => ({ type: n.noteType, excerpt: (n.fullText || n.assessment || n.subjective || "")?.slice(0, 300) })),
       };
+      /* CONSENT IS ENFORCED, not just displayed (arch-ai-1): AI processing of
+         an identified patient requires a granted ai_assist/data_share
+         consent. Production blocks; DEMO_MODE keeps the documented
+         permissive posture (synthetic patients carry no consent records). */
+      const consentFlag = await checkAiConsent(hospitalId, patient.id);
+      if (consentFlag === false && !isDemoMode()) {
+        await logAiInteraction({ hospitalId, userName: session.name, userRole: session.role, feature: "patient_summary", status: "consent_blocked", output: null, confidence: 0, consentFlag, thresholdAction: "blocked" });
+        return NextResponse.json({ error: "ai_consent_required", detail: "This patient has not consented to AI-assisted processing. Obtain consent or use manual workflow.", aiConsent: false }, { status: 403 });
+      }
       const out = await runText(
-        `Summarize this inpatient for a busy clinician. JSON: {"oneLine": str, "currentStatus": str, "activeProblems": str[], "medications": str[], "watchItems": str[], "dataGaps": str[], "suggestedNextSteps": str[]}. SuggestedNextSteps are coordination suggestions only, NOT clinical orders.\n${JSON.stringify(compact)}`,
+        `Summarize this inpatient for a busy clinician. JSON: {"oneLine": str, "currentStatus": str, "activeProblems": str[], "medications": str[], "watchItems": str[], "dataGaps": str[], "suggestedNextSteps": str[]}. SuggestedNextSteps are coordination suggestions only, NOT clinical orders.\n${JSON.stringify(patientBlock)}`,
         SYSTEM
       );
       const confidence = confidenceHeuristic(out);
-      const consentFlag = await checkAiConsent(hospitalId, patient.id);
       const gate = await enforceThreshold(hospitalId, "patient_summary", confidence);
       await logAiInteraction({ hospitalId, userName: session.name, userRole: session.role, feature: "patient_summary", status: gate.action === "blocked" ? "review_required" : "completed", output: out, confidence, consentFlag, thresholdAction: gate.action });
       if (gate.action === "blocked") {
@@ -116,19 +125,25 @@ export const POST = withRoute("nx.ai.run", async (req: NextRequest) => {
         include: { patient: true, admittingDoctor: true, orders: { include: { labResults: true }, take: 10 }, clinicalNotes: { take: 5, orderBy: { createdAt: "desc" } }, vitals: { orderBy: { recordedAt: "desc" }, take: 3 } },
       });
       if (!admission) return NextResponse.json({ error: "not_found" }, { status: 404 });
-      const compact = {
+      const dischargeBlock = {
         patient: { name: admission.patient.fullName, age: admission.patient.age, gender: admission.patient.gender, allergies: admission.patient.allergy },
         admission: { diagnosis: admission.admissionDiagnosis, type: admission.admissionType, since: admission.admissionDate, doctor: admission.admittingDoctor?.name },
         keyResults: admission.orders.flatMap((o) => o.labResults.map((r) => `${r.testName}: ${r.resultValue} ${r.unit} [${r.abnormalFlag}]`)),
         notes: admission.clinicalNotes.map((n) => (n.fullText || n.assessment || n.subjective || "")?.slice(0, 200)),
         vitals: admission.vitals.map((v) => ({ bp: `${v.bpSystolic}/${v.bpDiastolic}`, spo2: v.spo2, temp: v.temperatureC })),
       };
+      /* Consent enforced before any AI processing (arch-ai-1) — see the
+         patient_summary block for the boundary rationale. */
+      const consentFlag = await checkAiConsent(hospitalId, admission.patientId);
+      if (consentFlag === false && !isDemoMode()) {
+        await logAiInteraction({ hospitalId, userName: session.name, userRole: session.role, feature: "discharge_draft", status: "consent_blocked", output: null, confidence: 0, consentFlag, thresholdAction: "blocked" });
+        return NextResponse.json({ error: "ai_consent_required", detail: "This patient has not consented to AI-assisted processing. Obtain consent or draft manually.", aiConsent: false }, { status: 403 });
+      }
       const out = await runText(
-        `Draft a discharge summary for clinician review. JSON: {"courseInHospital": str, "conditionAtDischarge": str (factual only), "dischargeMedicationsNote": str (say 'per final prescription — clinician to confirm'), "followUpPlan": str, "patientInstructions": str (simple language), "redFlags": str[]}. Do NOT invent medication names or doses.\n${JSON.stringify(compact)}`,
+        `Draft a discharge summary for clinician review. JSON: {"courseInHospital": str, "conditionAtDischarge": str (factual only), "dischargeMedicationsNote": str (say 'per final prescription — clinician to confirm'), "followUpPlan": str, "patientInstructions": str (simple language), "redFlags": str[]}. Do NOT invent medication names or doses.\n${JSON.stringify(dischargeBlock)}`,
         SYSTEM
       );
       const confidence = confidenceHeuristic(out);
-      const consentFlag = await checkAiConsent(hospitalId, admission.patientId);
       const gate = await enforceThreshold(hospitalId, "discharge_draft", confidence);
       await logAiInteraction({ hospitalId, userName: session.name, userRole: session.role, feature: "discharge_draft", status: "review_required", output: out, confidence, consentFlag, thresholdAction: gate.action });
       return NextResponse.json({ draft: out, generated: true, confidence, aiConsent: consentFlag, thresholdAction: gate.action, humanReviewRequired: true, disclaimer: "AI DRAFT — must be reviewed, edited and signed by the treating clinician before entering the official record.", at: new Date() });

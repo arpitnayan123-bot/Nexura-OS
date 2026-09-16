@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       )
       .join("\n");
 
-    const userPrompt = `Patient: 35-year-old Indian male
+    const userPrompt = `Interpret these lab results for a general adult population. Do NOT assume the patient's age, sex, or history — the report carries no demographics. Mark clearly anything that depends on patient-specific context.
 Panel: ${report.panelName}
 Tests:
 ${testsBlock}

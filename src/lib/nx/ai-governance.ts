@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { redactDeep } from "./redact";
+import { activeModelId } from "@/lib/gemini";
 
 /* ============================================================
    NEXURA OS v5 — AI GOVERNANCE CORE
@@ -18,7 +19,11 @@ export const PROMPT_VERSIONS: Record<string, string> = {
   ops_recommend: "ops_recommend@3",
 };
 
-export const MODEL_VERSION = process.env.NX_AI_MODEL_VERSION || "glm-4.6-air (z-ai sdk fallback: openrouter)";
+/** The model id recorded on every AI interaction — the REAL provider path
+ *  that will serve the call (env-dependent), not a hardcoded label. */
+export function modelVersion(): string {
+  return process.env.NX_AI_MODEL_VERSION || activeModelId();
+}
 
 /**
  * Deterministic confidence heuristic — structured-output completeness.
@@ -95,7 +100,7 @@ export async function logAiInteraction(args: {
       confidence: args.confidence,
       consentFlag: args.consentFlag ?? undefined,
       promptVersion: PROMPT_VERSIONS[args.feature],
-      modelVersion: MODEL_VERSION,
+      modelVersion: modelVersion(),
       thresholdAction: args.thresholdAction,
     },
   }).catch((err) => log.warn("ai", "telemetry_log_failed", { err: String(err) }));
