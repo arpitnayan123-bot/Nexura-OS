@@ -488,6 +488,11 @@ model HospitalBed {
   @@index([status])
 }
 
+// Double-booking guard: a PARTIAL unique index on ("doctorId","date") WHERE
+// status NOT IN ('cancelled','no_show') enforces one active appointment per
+// doctor + exact timeslot timestamp. Prisma cannot express partial indexes,
+// so it is created as raw SQL in migration integrity_indexes_batch_identity
+// (with a deterministic dedupe that cancels newer duplicates first).
 model HospitalAppointment {
   id                String                 @id @default(cuid())
   hospitalId        String
@@ -555,6 +560,8 @@ model HospitalAdmission {
   @@index([hospitalId])
   @@index([patientId])
   @@index([bedId])
+  @@index([admittingDoctorId])
+  @@index([wardId])
   @@index([dischargeStatus])
 }
 
@@ -586,6 +593,8 @@ model HospitalVital {
 
   @@index([patientId])
   @@index([admissionId])
+  @@index([appointmentId])
+  @@index([recordedByStaffId])
   @@index([recordedAt])
   @@index([hospitalId])
 }
@@ -624,6 +633,8 @@ model ClinicalNote {
 
   @@index([patientId])
   @@index([admissionId])
+  @@index([appointmentId])
+  @@index([doctorId])
   @@index([noteType])
   @@index([status])
   @@index([hospitalId])
@@ -651,6 +662,9 @@ model HospitalOrder {
   nxOrderEvents    NxOrderEvent[]
 
   @@index([patientId])
+  @@index([admissionId])
+  @@index([appointmentId])
+  @@index([orderingDoctorId])
   @@index([orderType])
   @@index([status])
   @@index([priority])
@@ -681,6 +695,7 @@ model LabResult {
   @@index([orderId])
   @@index([abnormalFlag])
   @@index([verificationStatus])
+  @@index([reportedByStaffId])
 }
 
 model HospitalMedicine {
@@ -721,6 +736,7 @@ model HospitalPrescription {
 
   @@index([patientId])
   @@index([consultationId])
+  @@index([prescribingDoctorId])
   @@index([hospitalId])
 }
 
@@ -748,6 +764,8 @@ model HospitalBill {
   admission        HospitalAdmission?   @relation(fields: [admissionId], references: [id])
 
   @@index([patientId])
+  @@index([admissionId])
+  @@index([appointmentId])
   @@index([billDate])
   @@index([paymentStatus])
   @@index([hospitalId])
@@ -777,6 +795,7 @@ model InsuranceClaim {
   admission         HospitalAdmission? @relation(fields: [admissionId], references: [id])
 
   @@index([patientId])
+  @@index([admissionId])
   @@index([tpaCompany])
   @@index([preAuthStatus])
   @@index([hospitalId])
@@ -821,6 +840,10 @@ model OTSurgery {
   admission            HospitalAdmission? @relation(fields: [admissionId], references: [id])
 
   @@index([hospitalId])
+  @@index([patientId])
+  @@index([admissionId])
+  @@index([surgeonId])
+  @@index([anesthetistId])
   @@index([status])
   @@index([plannedStartTime])
 }
@@ -1475,6 +1498,7 @@ model PortalUser {
 
   @@index([phone])
   @@index([abhaId])
+  @@index([familyHeadId])
 }
 
 model BloodBooking {
@@ -1652,7 +1676,8 @@ model NxAuditEvent {
   prevHash   String?
   hash       String? // tamper-evident chain
   createdAt  DateTime @default(now())
-  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  // append-only compliance chain — a hospital can never cascade-delete its audit trail
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Restrict)
 
   @@index([hospitalId, createdAt])
   @@index([entityType, entityId])
@@ -2263,6 +2288,7 @@ model NxShiftAssignment {
   hospital    Hospital    @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([hospitalId, date])
+  @@index([staffUserId])
 }
 
 model NxAppointmentWaitlist {
@@ -2508,6 +2534,7 @@ model NxPathwayRun {
   definition  NxPathwayDef @relation(fields: [defId], references: [id])
 
   @@index([hospitalId, status])
+  @@index([defId])
 }
 
 model NxTimestampBlock {
@@ -2519,7 +2546,8 @@ model NxTimestampBlock {
   prevHash   String?
   blockHash  String
   anchoredAt DateTime @default(now())
-  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  // append-only compliance chain — a hospital can never cascade-delete its audit trail
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Restrict)
 
   @@unique([hospitalId, index])
 }
@@ -2539,6 +2567,7 @@ model NxVerifiableCredential {
   hospital   Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
+  @@index([hospitalId])
 }
 
 model NxInsuranceContract {
@@ -2574,6 +2603,7 @@ model NxWearableDevice {
   samples    NxWearableSample[]
 
   @@index([patientId])
+  @@index([hospitalId])
 }
 
 model NxWearableSample {
@@ -2602,6 +2632,7 @@ model NxGenomicProfile {
   hospital     Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
+  @@index([hospitalId])
 }
 
 model NxSimulationScenario {
@@ -2700,6 +2731,7 @@ model NxAiFeedback {
   hospital      Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([interactionId])
+  @@index([hospitalId])
 }
 
 model NxDicomStudy {
@@ -2719,6 +2751,7 @@ model NxDicomStudy {
   hospital    Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
+  @@index([hospitalId])
 }
 
 model NxDocVersion {
@@ -2751,6 +2784,7 @@ model NxJourneyAnnotation {
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([patientId, createdAt])
+  @@index([hospitalId])
 }
 
 model NxEventLog {
@@ -2763,9 +2797,12 @@ model NxEventLog {
   payloadJson   String?
   actorName     String?
   createdAt     DateTime @default(now())
-  hospital      Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  // append-only compliance chain — a hospital can never cascade-delete its audit trail
+  hospital      Hospital @relation(fields: [hospitalId], references: [id], onDelete: Restrict)
 
-  @@index([hospitalId, aggregateType, aggregateId, seq])
+  // Per-aggregate sequence integrity: one row per (hospital, aggregate, seq).
+  // The unique index also serves the read path that previously used the plain index.
+  @@unique([hospitalId, aggregateType, aggregateId, seq], map: "nxeventlog_aggregate_seq_key")
 }
 
 // ============================================================
