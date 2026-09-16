@@ -3,6 +3,7 @@ import { z, ZodSchema } from "zod";
 import { db } from "@/lib/db";
 import { createHash, randomUUID } from "crypto";
 import { log } from "@/lib/logger";
+import { isDemoMode } from "@/lib/env";
 import type { EffectivePermissions, NxPermission, NxSession } from "./session";
 import { requirePermission } from "./session";
 
@@ -52,7 +53,10 @@ export function withRoute<P = Record<string, string>>(
     try {
       const limit = opts?.rateLimit ?? DEFAULT_ROUTE_RATE_LIMIT;
       {
-        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+        // ipOf() takes the RIGHTMOST X-Forwarded-For entry — the only one a
+        // client cannot spoof behind our single trusted proxy. Keying on the
+        // first entry let attackers rotate fake IPs to bypass every limit.
+        const ip = ipOf(req);
         const rl = rateLimit(`${name}:${ip}`, limit.max, limit.windowMs);
         if (!rl.allowed) {
           return fail("rate_limited", 429, "Too many requests — slow down.", requestId, {
@@ -69,6 +73,33 @@ export function withRoute<P = Record<string, string>>(
       // Never leak stack traces or internal errors to clients
       return fail("internal", 500, "Something went wrong. The incident has been logged.", requestId);
     }
+  };
+}
+
+/**
+ * Resolve the hospital context for a staff session — WITHOUT the historical
+ * `session.hospitalId || db.hospital.findFirst()` fallback, which silently
+ * granted the first hospital in the database to any session missing its
+ * hospital claim (cross-tenant read/write on multi-hospital data).
+ *
+ * Production fails closed (403); DEMO_MODE keeps the documented single-hospital
+ * fallback so synthetic/demo logins keep working. Every hospital-scoped route
+ * resolves its hospitalId through this helper — no exceptions.
+ */
+export async function requireHospitalContext(
+  session: NxSession
+): Promise<{ hospitalId: string } | { response: NextResponse }> {
+  if (session.hospitalId) return { hospitalId: session.hospitalId };
+  if (isDemoMode()) {
+    const hospital = await db.hospital.findFirst({ select: { id: true } }).catch(() => null);
+    if (hospital?.id) return { hospitalId: hospital.id };
+  }
+  return {
+    response: fail(
+      "no_hospital_context",
+      403,
+      "Session has no hospital context — re-authenticate to continue."
+    ),
   };
 }
 
@@ -200,7 +231,7 @@ export async function withIdempotency<T>(
   req: NextRequest,
   scope: string,
   fn: () => Promise<{ status: number; body: T }>,
-  opts?: { ttlHours?: number; bodyForHash?: unknown }
+  opts?: { ttlHours?: number; bodyForHash?: unknown; callerId?: string }
 ): Promise<NextResponse> {
   const key = req.headers.get("x-idempotency-key");
   if (!key) {
@@ -211,27 +242,59 @@ export async function withIdempotency<T>(
   // Hash the already-parsed body (the request stream may be consumed by the handler)
   const requestHash = createHash("sha256").update(JSON.stringify(opts?.bodyForHash ?? "")).digest("hex");
   // Scope the key to the caller so one tenant's replayed key can never return
-  // another caller's cached response (or 409-DoS them).
-  const sessionHint = req.headers.get("cookie")?.match(/nexura_access=([^;]+)/)?.[1] ?? "";
-  const callerScope = createHash("sha256").update(sessionHint).digest("hex").slice(0, 16);
+  // another caller's cached response (or 409-DoS them). Routes with an
+  // authenticated identity pass opts.callerId (preferred); the cookie-hint
+  // fallback keeps anonymous integrations working but hashes ALL session
+  // cookie families so nx and portal callers never share a scope bucket.
+  const cookieHint =
+    req.headers.get("cookie")?.match(/(?:nx_access|portal_session|nexura_access)=([^;]+)/)?.[1] ?? "";
+  const callerScope = createHash("sha256")
+    .update(opts?.callerId ? `user:${opts.callerId}` : `cookie:${cookieHint}`)
+    .digest("hex")
+    .slice(0, 16);
   const scopedKey = `${callerScope}:${key}`;
-  const existing = await db.nxIdempotency.findUnique({ where: { key: scopedKey } }).catch(() => null);
-  if (existing && existing.requestHash === requestHash && existing.responseBody && existing.expiresAt > new Date()) {
-    return NextResponse.json(JSON.parse(existing.responseBody), { status: existing.responseStatus ?? 200 });
-  }
-  if (existing && existing.requestHash !== requestHash) {
-    return fail("idempotency_key_reuse", 409, "This idempotency key was used with a different payload.");
-  }
-  const r = await fn();
-  await db.nxIdempotency
+
+  // Claim-then-execute: the idempotency row is inserted BEFORE the handler
+  // runs, so two concurrent requests with the same key cannot both execute
+  // (the historical check-then-create raced and double-charged payments).
+  // The unique constraint on NxIdempotency.key is the serialization point.
+  const insert = await db.nxIdempotency
     .create({
       data: {
         key: scopedKey,
         endpoint,
         requestHash,
+        userId: opts?.callerId ?? null,
+        responseStatus: null,
+        responseBody: null,
+        expiresAt: new Date(Date.now() + (opts?.ttlHours ?? 24) * 3600_000),
+      },
+    })
+    .catch(() => null);
+
+  if (!insert) {
+    // We lost the insert race — this key is already claimed. Replay the
+    // winner's response when the payload matches; 409 otherwise.
+    const existing = await db.nxIdempotency.findUnique({ where: { key: scopedKey } }).catch(() => null);
+    if (existing && existing.requestHash !== requestHash) {
+      return fail("idempotency_key_reuse", 409, "This idempotency key was used with a different payload.");
+    }
+    if (existing?.responseBody && existing.expiresAt > new Date()) {
+      return NextResponse.json(JSON.parse(existing.responseBody), { status: existing.responseStatus ?? 200 });
+    }
+    // Claimed but not finished yet (concurrent in-flight request): refuse to
+    // double-execute and ask the client to retry.
+    return fail("idempotency_in_progress", 409, "A request with this idempotency key is already in progress.");
+  }
+
+  const r = await fn();
+  await db.nxIdempotency
+    .update({
+      where: { key: scopedKey },
+      data: {
+        requestHash,
         responseStatus: r.status,
         responseBody: JSON.stringify(r.body),
-        expiresAt: new Date(Date.now() + (opts?.ttlHours ?? 24) * 3600_000),
       },
     })
     .catch(() => {});

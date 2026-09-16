@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/lib/auth/jwt";
 import { db } from "@/lib/db";
+import { patientInScope } from "./patient-scope";
 
 /* ============================================================
    NEXURA HOSPITAL OS — PERMISSIONS AS DATA
@@ -461,7 +462,27 @@ export async function requirePermission(
   }
   const denies = await deniedPermissions(session.userId);
   if (denies.has(permission)) return { error: "forbidden", status: 403, detail: "explicit_deny" };
-  void ctx;
+  // Context scoping — enforced here (this signature advertised it but the
+  // historical implementation silently discarded ctx via `void ctx`).
+  //   patientId → patient-role sessions may only touch their own linked
+  //   record; every other role goes through patientInScope (hospital
+  //   scoping, platform roles bypass, fail closed without hospitalId).
+  //   departmentId → the session's department claim must match.
+  if (ctx?.patientId) {
+    if (session.role === "patient") {
+      if (session.linkedPatientId !== ctx.patientId) {
+        return { error: "forbidden", status: 403, detail: "patient_scoped_only" };
+      }
+    } else if (!(await patientInScope(ctx.patientId, session))) {
+      return { error: "forbidden", status: 403, detail: "patient_out_of_scope" };
+    }
+  }
+  if (ctx?.departmentId) {
+    const platform = session.role === "super_admin" || session.role === "org_admin";
+    if (!platform && session.department && session.department !== ctx.departmentId) {
+      return { error: "forbidden", status: 403, detail: "department_out_of_scope" };
+    }
+  }
   return { session, perms };
 }
 
