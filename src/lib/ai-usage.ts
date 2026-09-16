@@ -16,6 +16,7 @@
 
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
+import { getAiActor } from "@/lib/ai-actor";
 
 /* ---------- Pricing configuration (micro-USD per MILLION tokens) ----------
  * Approximate glm-flash-class reference rates. Tune against the OpenRouter
@@ -88,6 +89,11 @@ export interface AiUsageRecord {
   fallbackUsed: boolean;
   errorCode?: string | null;
   requestId?: string | null;
+  /** Explicit identity override — normally captured automatically from
+   *  the request's verified session via ai-actor.ts. Tests may pass it
+   *  directly; production code should let the context carry it. */
+  userId?: string | null;
+  userRole?: string | null;
 }
 
 /** Fire-and-forget ledger write — never throws, never blocks the caller. */
@@ -97,6 +103,12 @@ export function recordAiUsage(rec: AiUsageRecord): void {
     (rec.tokensPrompt !== null || rec.tokensCompletion !== null
       ? (rec.tokensPrompt ?? 0) + (rec.tokensCompletion ?? 0)
       : null);
+  // Per-request identity: captured from the verified session context when
+  // the caller did not pass it explicitly. `undefined` = not specified
+  // (fall through to the ambient actor); explicit `null` = force no
+  // identity on the row. No session at all → null columns (honestly
+  // unattributed — system/cron AI calls, never a guess).
+  const actor = getAiActor();
   void db.aiUsageLog
     .create({
       data: {
@@ -114,6 +126,8 @@ export function recordAiUsage(rec: AiUsageRecord): void {
         fallbackUsed: rec.fallbackUsed,
         errorCode: rec.errorCode ? String(rec.errorCode).slice(0, 200) : null,
         requestId: rec.requestId ?? null,
+        userId: rec.userId !== undefined ? rec.userId : (actor?.userId ?? null),
+        userRole: rec.userRole !== undefined ? rec.userRole : (actor?.role ?? null),
       },
     })
     .catch((e: unknown) =>
@@ -137,10 +151,15 @@ export interface AiUsageSummary {
   totals: AiUsageBucket;
   byCapability: AiUsageBucket[];
   byProvider: AiUsageBucket[];
+  /** Top identities by cost in the window (verified-session rows only;
+   *  system/cron rows carry null identity and are excluded honestly). */
+  byUser: (AiUsageBucket & { userRole: string | null })[];
   /** Rows whose cost came from the provider itself (not our price table). */
   providerReportedCostRows: number;
   /** Rows with no token or cost information at all (e.g. failed calls). */
   unknownRows: number;
+  /** Rows with no verified-session identity (system/background calls). */
+  unattributedRows: number;
 }
 
 function sumBuckets(map: Map<string, AiUsageBucket>, key: string, row: { calls: number; failures: number; tokens: number | null; cost: number | null }): void {
@@ -174,6 +193,17 @@ export async function aiUsageSummary(windowDays = 30): Promise<AiUsageSummary> {
       _sum: { tokensTotal: true, costMicroUsd: true },
     }),
     db.aiUsageLog.count({ where: { ...base, success: false } }),
+  ]);
+
+  // Per-identity rollup — only rows that carry a verified-session userId.
+  const [userRows, unattributedRows] = await Promise.all([
+    db.aiUsageLog.groupBy({
+      by: ["userId", "userRole"],
+      where: { ...base, userId: { not: null } },
+      _count: { _all: true },
+      _sum: { tokensTotal: true, costMicroUsd: true },
+    }),
+    db.aiUsageLog.count({ where: { ...base, userId: null } }),
   ]);
 
   // Provider-reported-cost and fully-unknown row counts (single scan each).
@@ -214,12 +244,26 @@ export async function aiUsageSummary(windowDays = 30): Promise<AiUsageSummary> {
     { key: "all", calls: 0, failures: 0, tokensTotal: 0, costMicroUsd: 0 }
   );
 
+  const byUser = userRows
+    .map((r) => ({
+      key: r.userId ?? "unknown",
+      userRole: r.userRole,
+      calls: r._count._all,
+      failures: 0,
+      tokensTotal: r._sum.tokensTotal ?? 0,
+      costMicroUsd: r._sum.costMicroUsd ?? 0,
+    }))
+    .sort((a, b) => b.costMicroUsd - a.costMicroUsd || b.calls - a.calls)
+    .slice(0, 10);
+
   return {
     windowDays: days,
     totals,
     byCapability: byCapability.sort((a, b) => b.costMicroUsd - a.costMicroUsd || b.calls - a.calls),
     byProvider: [...provs.values()].sort((a, b) => b.calls - a.calls),
+    byUser,
     providerReportedCostRows: provCostRows,
     unknownRows,
+    unattributedRows,
   };
 }

@@ -103,7 +103,10 @@ src/lib/ai-usage.ts — cost/token accounting (ai-cost-metering-1)
    │  table) vs "unknown" (failed calls)
    ├─ price table is CONFIGURATION (approx glm-flash rates) — estimates stay
    │  labelled; no prompt/completion content is ever stored, metadata only
-   └─ aiUsageSummary(): per-capability/provider rollup for /api/nx/ai/usage
+   ├─ per-request identity (ai-identity-1): guard() / portal session set the
+   │  verified actor via AsyncLocalStorage (src/lib/ai-actor.ts); rows carry
+   │  userId/userRole — null = system/background call, honestly unattributed
+   └─ aiUsageSummary(): per-capability/provider/user rollup for /api/nx/ai/usage
    ▼
 src/lib/nx/ai-governance.ts — governance for identified-patient AI
    ├─ consent ENFORCED (403 ai_consent_required when not granted; demo posture)
@@ -129,8 +132,10 @@ HITL loop: NxAiFeedback + /api/nx/ai/report (override rate, fallbacks, blocks)
 accounting exists as an OPERATIONAL ESTIMATE ledger (`AiUsageLog` +
 `/api/nx/ai/usage`, audit.view-gated) — provider-reported where OpenRouter
 serves the call, char-heuristic estimates otherwise, and not yet a billing
-feed. Per-request USER identity is not yet attributed (requestId threading
-via AsyncLocalStorage is future work); ASR/TTS are only available via the
+feed. Per-request USER identity IS attributed at request granularity
+(verified staff guard or portal token → `userId`/`userRole` on every row;
+system/cron rows stay null — attribution is per request, not per human,
+and shared logins share identity). ASR/TTS are only available via the
 z-ai SDK (documented gap, `pharmacy/voice-bill`); prompt versions are
 hand-maintained in `PROMPT_VERSIONS`. The former `src/lib/ai/gateway.ts`
 (494-line zero-caller scaffold implying otherwise) was deleted.
