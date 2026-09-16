@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { getSessionFresh, hasPermission, requirePermission } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { publish } from "@/lib/nx/bus";
-import { fail, withRoute } from "@/lib/nx/api";
+import { fail, requireHospitalContext, withRoute } from "@/lib/nx/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,7 +22,9 @@ export const GET = withRoute("messages.list", async (req: NextRequest) => {
   const g = await requirePermission(req, "communication.send");
   if ("error" in g) return NextResponse.json({ error: g.error, detail: g.detail }, { status: g.status });
   const session = g.session;
-  const hospitalId = session.hospitalId || (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
   if (!hospitalId) return fail("no_hospital", 400);
 
   const { searchParams } = new URL(req.url);
@@ -103,7 +105,9 @@ export const POST = withRoute("messages.post", async (req: NextRequest) => {
   const g = await requirePermission(req, "communication.send");
   if ("error" in g) return NextResponse.json({ error: g.error, detail: g.detail }, { status: g.status });
   const session = g.session;
-  const hospitalId = session.hospitalId || (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
   if (!hospitalId) return fail("no_hospital", 400);
 
   const parsed = PostSchema.safeParse(await req.json().catch(() => ({})));

@@ -109,9 +109,15 @@ export async function POST(req: NextRequest) {
 /**
  * PATCH /api/portal/blood-bookings
  *   { bookingId, status }
- * Cascade: sample_collected sets sampleCollectedAt; report_ready sets reportReadyAt;
- *          cancelled frees phlebotomist (currentBookingId = null).
+ * Patient-side status changes are closed-set: a booking owner may only CANCEL
+ * (`cancelled` — frees the phlebotomist and records the reason). Workflow
+ * statuses (`sample_collected`, `report_ready`, `in_lab`, `en_route`, …)
+ * belong to the phlebotomist/lab side and are rejected, so a portal account
+ * can never fast-track its own booking through the collection workflow.
+ * Cascade: cancelled frees phlebotomist (currentBookingId = null).
  */
+const PATIENT_BOOKING_STATUSES = new Set(["cancelled"]);
+
 export async function PATCH(req: NextRequest) {
   try {
     const user = await getUser();
@@ -122,13 +128,14 @@ export async function PATCH(req: NextRequest) {
     if (!bookingId || !status) {
       return NextResponse.json({ error: "bookingId and status are required" }, { status: 400 });
     }
+    if (typeof status !== "string" || !PATIENT_BOOKING_STATUSES.has(status)) {
+      return NextResponse.json({ error: "Invalid status — bookings can only be cancelled here" }, { status: 400 });
+    }
 
     const existing = await db.bloodBooking.findFirst({ where: { id: bookingId, userId: user.id } });
     if (!existing) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
 
-    const updates: Record<string, unknown> = { status };
-    if (status === "sample_collected") updates.sampleCollectedAt = new Date();
-    if (status === "report_ready") updates.reportReadyAt = new Date();
+    const updates: { status: string; cancellationReason?: string } = { status };
     if (status === "cancelled") {
       updates.cancellationReason = body.cancellationReason || "Cancelled by patient";
       if (existing.phlebotomistId) {

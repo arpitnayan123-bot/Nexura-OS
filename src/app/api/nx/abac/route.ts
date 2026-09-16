@@ -61,9 +61,18 @@ export const POST = withRoute("abac.upsert", async (req: NextRequest, { requestI
     active: d.active ?? true,
     note: d.note,
   };
-  const row = d.id
-    ? await db.nxAbacPolicy.update({ where: { id: d.id }, data })
-    : await db.nxAbacPolicy.create({ data: { ...data, hospitalId } });
+  // Tenant boundary: an UPDATE by id must never touch another hospital's
+  // policy — the where-clause carries hospitalId exactly like DELETE, and a
+  // zero-count match (missing OR cross-hospital) returns 404.
+  let row: Awaited<ReturnType<typeof db.nxAbacPolicy.findFirst>>;
+  if (d.id) {
+    const updated = await db.nxAbacPolicy.updateMany({ where: { id: d.id, hospitalId }, data });
+    if (updated.count === 0) return fail("not_found", 404, undefined, requestId);
+    row = await db.nxAbacPolicy.findFirst({ where: { id: d.id, hospitalId } });
+  } else {
+    row = await db.nxAbacPolicy.create({ data: { ...data, hospitalId } });
+  }
+  if (!row) return fail("not_found", 404, undefined, requestId);
   return ok(row, { requestId });
 });
 

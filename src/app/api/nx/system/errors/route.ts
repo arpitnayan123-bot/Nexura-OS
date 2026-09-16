@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { promises as fs } from "fs";
 import path from "path";
+import { ipOf } from "@/lib/nx/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -86,10 +87,10 @@ const ReportSchema = z.object({
 });
 
 export const POST = withOk(async (req: NextRequest) => {
-  const ip =
-    req.headers.get("x-real-ip") ||
-    (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
-    "local";
+  // Spoof-resistant caller IP: ipOf() takes the RIGHTMOST x-forwarded-for
+  // entry (the one our trusted proxy appended) — keying on the first entry
+  // let clients rotate fake IPs to sidestep this local throttle.
+  const ip = ipOf(req);
   if (rateLimited(ip)) {
     return NextResponse.json({ data: { ok: true, throttled: true } });
   }

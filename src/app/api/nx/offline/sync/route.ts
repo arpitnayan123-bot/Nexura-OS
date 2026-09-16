@@ -3,6 +3,8 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { guard, ok, fail, parseBody, withRoute } from "@/lib/nx/api";
 import { appendEvent } from "@/lib/nx/eventlog";
+import { hasPermission, type NxPermission } from "@/lib/nx/session";
+import { patientInScope } from "@/lib/nx/patient-scope";
 
 /* Offline write-buffer flush (PWA companion).
    The client queues triage captures / prescription drafts in IndexedDB while
@@ -27,12 +29,31 @@ export const POST = withRoute("offline.sync", async (req: NextRequest, { request
   const body = await parseBody(req, SyncSchema);
   if ("response" in body) return body.response;
   const receipts: { clientId: string; status: string; refId?: string; reason?: string }[] = [];
+  // Write boundary: this flush route is gated by a READ permission, so every
+  // op carries its own WRITE check — task-creating ops need tasks.manage,
+  // doc-version ops need note.edit — and any patient referenced by UHID must
+  // resolve inside the caller's hospital AND pass patientInScope. Failures
+  // are per-op (rejected receipt); authenticated staff in DEMO_MODE pass both.
   for (const op of body.data.ops) {
     // idempotent replay protection via NxIdempotency
     const existing = await db.nxIdempotency.findUnique({ where: { key: `offline:${op.clientId}` } });
     if (existing) {
       receipts.push({ clientId: op.clientId, status: "duplicate_ignored", refId: existing.endpoint });
       continue;
+    }
+    const requiredPermission: NxPermission = op.type === "triage" ? "tasks.manage" : "note.edit";
+    if (!hasPermission(g.perms, requiredPermission)) {
+      receipts.push({ clientId: op.clientId, status: "rejected", reason: `missing_permission:${requiredPermission}` });
+      continue;
+    }
+    if (op.patientUhid) {
+      const patient = await db.hospitalPatient
+        .findFirst({ where: { hospitalId, uhid: op.patientUhid }, select: { id: true } })
+        .catch(() => null);
+      if (!patient || !(await patientInScope(patient.id, g.session))) {
+        receipts.push({ clientId: op.clientId, status: "rejected", reason: "patient_out_of_scope" });
+        continue;
+      }
     }
     let refId: string | undefined;
     let status = "accepted";

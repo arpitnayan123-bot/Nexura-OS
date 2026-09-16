@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireModule } from "@/lib/nx/session";
-import { toCsv } from "@/lib/nx/api";
+import { requireHospitalContext, toCsv } from "@/lib/nx/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   const gate = await requireModule(req, "analytics");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
-  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(gate.session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
   if (!hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 404 });
 
   const days = Math.min(180, Math.max(1, Number(new URL(req.url).searchParams.get("days") || 30) || 30));

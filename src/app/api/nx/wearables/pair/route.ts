@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { fail, guard, ok, parseBody, withRoute } from "@/lib/nx/api";
+import { fail, guard, ok, parseBody, requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { db } from "@/lib/db";
 import { audit } from "@/lib/nx/audit";
 import { generateDeviceSecret, hashDeviceSecret } from "@/lib/nx/device-keys";
@@ -21,11 +21,20 @@ const PairSchema = z.object({
 export const POST = withRoute("nx.wearables.pair", async (req: NextRequest, ctx) => {
   const g = await guard(req, "security.manage");
   if ("response" in g) return g.response;
+  // Hospital boundary: pairing/rotation is scoped to the caller's hospital —
+  // no session hospital claim → fail closed (demo keeps its single-hospital
+  // fallback via the canonical helper).
+  const hctx = await requireHospitalContext(g.session);
+  if ("response" in hctx) return hctx.response;
   const body = await parseBody(req, PairSchema);
   if ("response" in body) return body.response;
 
   const device = await db.nxWearableDevice.findUnique({ where: { id: body.data.deviceId } });
-  if (!device) return fail("unknown_device", 404, "No such device id.", ctx.requestId);
+  // Ownership check: a device of ANOTHER hospital is indistinguishable from a
+  // nonexistent one — rotating its secret would be a cross-tenant takeover.
+  if (!device || device.hospitalId !== hctx.hospitalId) {
+    return fail("unknown_device", 404, "No such device id.", ctx.requestId);
+  }
   if (device.secretHash && body.data.action === "pair") {
     return fail(
       "already_paired",

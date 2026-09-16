@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireHospitalContext } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 
@@ -12,7 +13,9 @@ export async function GET(req: NextRequest) {
   const eqGate = await requireModule(req, "equipment");
   const gate = "session" in inv ? inv : eqGate;
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
-  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(gate.session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
 
   const [supplies, equipment] = await Promise.all([
     db.nxSupplyItem.findMany({ where: { hospitalId }, orderBy: [{ onHand: "asc" }] }),
@@ -47,13 +50,21 @@ export async function PATCH(req: NextRequest) {
   const gate = "session" in inv ? inv : eqGate;
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
-  const hospitalId = (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(gate.session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
 
   if (body.kind === "equipment") {
-    const asset = await db.nxEquipment.findUnique({ where: { id: body.id } });
+    // Tenant-scoped: assets from other hospitals are unreachable.
+    const asset = await db.nxEquipment.findFirst({ where: { id: body.id, hospitalId } });
     if (!asset) return NextResponse.json({ error: "not_found" }, { status: 404 });
     const status = ["in_service", "maintenance", "fault", "retired"].includes(body.status) ? body.status : asset.status;
-    const updated = await db.nxEquipment.update({ where: { id: asset.id }, data: { status, nextMaintenance: body.nextMaintenance ? new Date(body.nextMaintenance) : asset.nextMaintenance } });
+    // Scoped updateMany + re-fetch: the response body below stays identical to
+    // the historical `update()` payload while the write itself can never cross
+    // a hospital boundary.
+    const upd = await db.nxEquipment.updateMany({ where: { id: asset.id, hospitalId }, data: { status, nextMaintenance: body.nextMaintenance ? new Date(body.nextMaintenance) : asset.nextMaintenance } });
+    if (upd.count === 0) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    const updated = await db.nxEquipment.findFirst({ where: { id: asset.id, hospitalId } });
     await audit({
       hospitalId: asset.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
       action: "equipment.status", entityType: "NxEquipment", entityId: asset.id,
@@ -62,11 +73,14 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ equipment: updated });
   }
 
-  const item = await db.nxSupplyItem.findUnique({ where: { id: body.id } });
+  // Tenant-scoped: stock from other hospitals is unreachable.
+  const item = await db.nxSupplyItem.findFirst({ where: { id: body.id, hospitalId } });
   if (!item) return NextResponse.json({ error: "not_found" }, { status: 404 });
   const delta = Number(body.delta || 0);
   const onHand = Math.max(0, item.onHand + delta);
-  const updated = await db.nxSupplyItem.update({ where: { id: item.id }, data: { onHand } });
+  const upd = await db.nxSupplyItem.updateMany({ where: { id: item.id, hospitalId }, data: { onHand } });
+  if (upd.count === 0) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  const updated = await db.nxSupplyItem.findFirst({ where: { id: item.id, hospitalId } });
   await audit({
     hospitalId: item.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
     action: "inventory.adjust", entityType: "NxSupplyItem", entityId: item.id,

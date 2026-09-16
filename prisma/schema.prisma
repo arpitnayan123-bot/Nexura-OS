@@ -844,6 +844,7 @@ model Clinic {
   visits         ClinicVisit[]
   invoices       ClinicInvoice[]
   onlineBookings OnlineBooking[]
+  telemedicineConsults TelemedicineConsult[]
 }
 
 model ClinicDoctor {
@@ -915,6 +916,34 @@ model ClinicAppointment {
   @@index([doctorId])
   @@index([slot])
   @@index([status])
+}
+
+// Clinic telemedicine consults (NMC Telemedicine Guidelines 2020 compliant) —
+// consumed by /api/clinic/telemedicine. Scalar patient reference: the client
+// may carry a ClinicPatient id or a walk-in identifier.
+model TelemedicineConsult {
+  id              String    @id @default(cuid())
+  clinicId        String
+  patientId       String?
+  patientType     String    @default("clinic") // clinic | walkin
+  doctorName      String
+  doctorRegNo     String // NMC/MCI registration — mandatory for teleconsults
+  consultMode     String    @default("video") // video | audio | chat
+  chiefComplaint  String?
+  diagnosis       String?
+  prescription    String?
+  followUpDate    DateTime?
+  patientConsent  Boolean   @default(true)
+  consentText     String?
+  status          String    @default("scheduled") // scheduled | in_progress | completed | cancelled
+  startedAt       DateTime?
+  endedAt         DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  clinic          Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@index([clinicId, status])
+  @@index([clinicId, startedAt])
 }
 
 model ClinicVisit {

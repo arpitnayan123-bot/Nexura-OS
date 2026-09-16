@@ -4,7 +4,7 @@ import { createHmac, timingSafeEqual } from "crypto";
    Used by privileged actions: billing approval, medication verification,
    prescription signing. See /api/nx/auth/stepup for issuance. */
 
-export const STEPUP_ACTIONS = ["billing.approve", "medication.verify", "prescription.sign"] as const;
+export const STEPUP_ACTIONS = ["billing.approve", "medication.verify", "prescription.sign", "mfa.disable"] as const;
 export type StepUpAction = (typeof STEPUP_ACTIONS)[number];
 
 function stepUpSecret(): string {

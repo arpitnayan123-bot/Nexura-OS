@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
-import { guard, ok, fail, parseBody, withRoute } from "@/lib/nx/api";
+import { guard, ok, fail, parseBody, rateLimit, withRoute } from "@/lib/nx/api";
 import { verifyTotp } from "@/lib/nx/totp";
 
 /* ============================================================
@@ -27,6 +27,13 @@ import { STEPUP_ACTIONS } from "@/lib/nx/stepup";
 export const POST = withRoute("auth.stepup", async (req: NextRequest, { requestId }) => {
   const g = await guard(req, "patient.demographics.view");
   if ("response" in g) return g.response;
+  // Brute-force damper: a hijacked session gets 5 verification attempts per
+  // 15 minutes — PIN/TOTP guessing cannot be iterated online. Success and
+  // token issuance behavior are unchanged.
+  const attempts = rateLimit(`stepup:${g.session.userId}`, 5, 15 * 60_000);
+  if (!attempts.allowed) {
+    return fail("rate_limited", 429, "Too many verification attempts — try again later.", requestId);
+  }
   const body = await parseBody(req, ReqSchema);
   if ("response" in body) return body.response;
   const user = await db.nxStaffUser.findUnique({ where: { id: g.session.userId } });

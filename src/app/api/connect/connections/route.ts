@@ -1,12 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { connectGate } from "@/lib/nx/connect-auth";
+import { connectGate, doctorOnly } from "@/lib/nx/connect-auth";
+import { getSession } from "@/lib/nx/session";
+import { getAuthUser } from "@/lib/auth/jwt";
+import { isDemoMode } from "@/lib/env";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET /api/connect/connections?doctorId=xxx OR ?patientId=xxx
 // Returns connections with lastMessage + unreadCount.
+//
+// Party boundary (production): listing a party's threads requires BEING that
+// party — the doctorId/patientId filters would otherwise let any signed-in
+// user enumerate arbitrary inboxes. Mirrors connectCallsListDenied's
+// callerId resolution (session?.userId ?? legacy?.id). DEMO_MODE keeps its
+// documented posture: the UI picks demo doctor/patient client-side.
+function listPartyDenied(req: NextRequest, filter: { doctorId?: string | null; patientId?: string | null }): NextResponse | null {
+  if (isDemoMode()) return null;
+  const session = getSession(req);
+  const legacy = getAuthUser(req);
+  const callerId = session?.userId ?? legacy?.id ?? null;
+  if (!callerId) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  if (filter.doctorId && callerId !== filter.doctorId) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+  if (filter.patientId && callerId !== filter.patientId) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+  return null;
+}
+
 export async function GET(req: NextRequest) {
   const gate = connectGate(req);
   if (gate) return gate;
@@ -17,6 +41,8 @@ export async function GET(req: NextRequest) {
     if (!doctorId && !patientId) {
       return NextResponse.json({ error: "no_filter" }, { status: 400 });
     }
+    const party = listPartyDenied(req, { doctorId, patientId });
+    if (party) return party;
 
     const where: any = { active: true };
     if (doctorId) where.doctorId = doctorId;
@@ -64,6 +90,12 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const gate = connectGate(req);
   if (gate) return gate;
+  // Write boundary (mirrors /api/connect/prescriptions/sync): creating or
+  // updating a thread is a doctor-side action — a patient/pharmacy/reception
+  // account can never open a follow-up channel. DEMO_MODE keeps its
+  // documented permissive posture via canActAsDoctor.
+  const denied = doctorOnly(req);
+  if (denied) return denied;
   try {
     const body = await req.json().catch(() => ({}));
     const {

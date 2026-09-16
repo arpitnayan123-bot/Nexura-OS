@@ -56,7 +56,10 @@ export async function ensureGuestSession(): Promise<{ userId: string; created: b
   store.set(DIY_GUEST_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: true,
+    // Secure only in production: an unconditional secure flag breaks plain-
+    // http local dev (the cookie is silently dropped, so guests churn on
+    // every request). Matches the other cookie helpers' pattern.
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: GUEST_TTL_S,
   });
