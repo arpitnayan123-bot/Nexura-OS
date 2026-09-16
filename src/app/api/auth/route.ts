@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { generateAccessToken, generateRefreshToken, setSessionCookies, clearSessionCookies, verifyToken } from "@/lib/auth/jwt";
 import { generateOTP, validatePhone, sanitizeInput, addSecurityHeaders } from "@/lib/auth/middleware";
-import { rateLimit } from "@/lib/auth/jwt";
+import { consumeRateLimit } from "@/lib/rate-limit";
 import { cookies } from "next/headers";
 
 export const runtime = "nodejs";
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
         return res;
       }
 
-      const { allowed } = rateLimit(`otp-send:${phone}`, 3, 5 * 60 * 1000);
+      const { allowed } = await consumeRateLimit(`otp-send:${phone}`, 3, 5 * 60 * 1000);
       if (!allowed) {
         const res = NextResponse.json({ error: "Rate limit", message: "Wait 5 minutes before requesting another OTP" }, { status: 429 });
         addSecurityHeaders(res);

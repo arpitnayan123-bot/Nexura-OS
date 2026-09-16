@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { NextResponse } from "next/server";
-import { rateLimit, getRateLimitHeaders } from "./jwt";
+import { consumeRateLimit } from "@/lib/rate-limit";
+import { getRateLimitHeaders } from "./jwt";
 
 /* ============================================================
    NEXURA OS — SECURITY MIDDLEWARE
@@ -41,7 +42,7 @@ export function withRateLimit(
     const ip = forwarded?.split(",")[0]?.trim() || "unknown";
 
     // Apply rate limit
-    const { allowed, remaining, resetAt } = rateLimit(ip, maxRequests, windowMs);
+    const { allowed, remaining, resetAt } = await consumeRateLimit(ip, maxRequests, windowMs);
 
     if (!allowed) {
       const res = NextResponse.json(
