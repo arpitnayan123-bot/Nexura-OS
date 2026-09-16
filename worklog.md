@@ -22,3 +22,19 @@ Work Log:
 Stage Summary:
 - Repo root now reads clean for a technical reviewer: code + docs + config, no stray gigabytes, no contradictory claims
 - Tag: repo-hygiene-2-final (name repo-hygiene-1-final was already taken by a 2026-09-14 worklog chore — see git tag); dual bundles refreshed after commit
+
+---
+Task ID: test-coverage-1
+Agent: main (Super Z)
+Task: Extend coverage to the Postgres/Redis-hardened surfaces + CI gets real services (backend-hardening item 5)
+
+Work Log:
+- 4 new test files (252 → 268 tests): schema-postgres.test.ts (provider guard + migrations-history ship check + no-enum/Json design pin), env-validation.test.ts (assertProductionEnv: dev no-op, lists all missing vars, rejects sqlite URLs + short secrets, passes complete env), rate-limit.test.ts (shared-window drawdown across consumers, peek non-consuming, fallback contract without REDIS_URL), bus-signature.test.ts (HMAC sign/verify, tamper+seq+missing-sig rejection, cross-instance round-trip, per-hospital key determinism, tenant isolation under Redis mode)
+- CI (.github/workflows/ci.yml): postgres:17 + redis:7 SERVICE CONTAINERS; verify job runs prisma migrate deploy (replacing sqlite db:push) + vitest + seeds + API smoke against the REAL services; build job uses a postgres dummy URL; REDIS_URL set job-wide
+- Live-tuning caught by the new tests: ioredis enableOfflineQueue:false threw "Stream isn't writeable" for commands issued during the initial CONNECT window (this also explains the PIE boot-race error seen in stateless-1) → offline queue enabled with maxRetriesPerRequest:2 + connectTimeout 5s: commands during CONNECT wait for ready; a truly dead Redis still rejects fast
+- package.json: db:migrate:deploy added (non-interactive migration gate for CI/release)
+- Verify: tsc 0, eslint 0, vitest 268/268 (21 files), DEPLOY VERIFIED
+
+Stage Summary:
+- The migration surfaces (Postgres semantics, Redis limiter, bus signatures, env gate, schema provider) are all under test; CI now proves them against real Postgres+Redis on every push
+- Tag: test-coverage-1-final; dual bundles refreshed after commit
