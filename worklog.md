@@ -437,3 +437,17 @@ Work Log:
 Stage Summary:
 - The last Float money domain is closed: every money column in the schema is now an integer minor unit (paise or cents), with conversions only at the money.ts boundary
 - Remaining deferred items: none of the original three — this branch closes limiter-distributed-1, ai-identity-1 and tourism-money-1
+
+---
+Task ID: deferred-closeouts-1
+Agent: main (Super Z)
+Task: Final closeout — all three remaining deferred items implemented, gated and merged (limiter-distributed-1 + ai-identity-1 + tourism-money-1)
+
+Work Log:
+- Full-gate re-run at HEAD 1e5332b: prisma validate OK; tsc 0; eslint 0; vitest 317/317 (27 files = 302 base + 3 limiter + 6 identity + 6 tourism); smoke 49/49; deploy-preview DEPLOY VERIFIED
+- LIVE PROOF (identity attribution): real staff login → POST /api/pharmacy/ai-query → ledger row {capability pharmacy.ai-query, userId demo, userRole pharmacist, success, 119 tokens} — demo posture resolves first per product-auth contract; production resolves the real staff session on the same code path. Wire proof (tourism): /api/global hospitals returns priceUSD 800 major units with no priceUSDCents field leaking
+- Note: platform auto-checkpoint fast-forwarded main to the branch tip mid-session (documented behavior) — merge was a no-op; deferred-closeouts-1 and main share tip 1e5332b
+
+Stage Summary:
+- The original deferred list is EMPTY: default route limiter is distributed when Redis backs the deployment; every authenticated AI call carries verified identity (or honest null); every money column schema-wide is an integer minor unit
+- Collaborator surfaces untouched throughout: src/app/api/portal/auth/route.ts, payment/billing-gateway integration
