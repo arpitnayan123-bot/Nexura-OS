@@ -4,6 +4,7 @@ import { log } from "@/lib/logger";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { runText } from "@/lib/openrouter";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,6 +40,7 @@ async function POST_impl(req: NextRequest) {
     // If audio (base64) provided and no transcript, run ASR
     if (!transcript && typeof body?.audio === "string" && body.audio.length > 0) {
       try {
+        // ASR: only the z-ai SDK provides speech-to-text today (documented capability gap)
         const ZAI = (await import("z-ai-web-dev-sdk")).default;
         const zai = await ZAI.create();
         const base64 = body.audio.replace(/^data:[^;]+;base64,/, "");
@@ -60,22 +62,9 @@ async function POST_impl(req: NextRequest) {
     // Use LLM to parse transcript → cart JSON
     let parsed: { items: unknown[]; raw?: string } = { items: [] };
     try {
-      const ZAI = (await import("z-ai-web-dev-sdk")).default;
-      const zai = await ZAI.create();
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: "assistant", content: SYSTEM_PROMPT },
-          { role: "user", content: transcript },
-        ],
-        thinking: { type: "disabled" },
-      });
-      const content = completion.choices?.[0]?.message?.content?.trim() || "";
-      // extract JSON object
-      const start = content.indexOf("{");
-      const end = content.lastIndexOf("}");
-      if (start >= 0 && end > start) {
-        parsed = JSON.parse(content.slice(start, end + 1));
-      }
+      // Canonical AI client — its robust parse replaces the old brace-slicing;
+      // any provider or parse failure lands in the same graceful fallback below.
+      parsed = await runText<{ items: unknown[]; raw?: string }>(transcript, SYSTEM_PROMPT);
     } catch (e) {
       // graceful fallback: word-level number map
       log.warn("pharmacy", "voice_bill_parse_fallback", { err: e instanceof Error ? e.message : String(e) });

@@ -1,6 +1,7 @@
 /** OpenRouter AI client — SERVER-SIDE ONLY.
  *  Falls back to the pre-configured z-ai-web-dev-sdk (GLM) when no
- *  OPENROUTER_API_KEY is present, so AI features work in any environment. */
+ *  OPENROUTER_API_KEY is present, so AI features work in any environment.
+ *  ASR: only the z-ai SDK provides speech-to-text today (documented capability gap) */
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const MODEL = "z-ai/glm-5.3-flash";
 let _key: string | null = null;
@@ -117,6 +118,24 @@ export async function runText<T = any>(prompt: string, systemInstruction?: strin
 export async function runVision<T = any>(imageBase64: string, mimeType: string, prompt: string): Promise<T> {
   const dataUrl = `data:${mimeType};base64,${imageBase64}`;
   return parseJson<T>(await callOR([{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: dataUrl } }] }], 8192));
+}
+
+/** Multi-turn chat — raw text out (no JSON parsing). Same provider order,
+ *  one-shot fallback, and 45s timeout as every call here; on the z-ai path
+ *  "system" roles are mapped exactly as callZAI does. */
+export async function runChatText(
+  messages: { role: "user" | "assistant" | "system"; content: string }[]
+): Promise<string> {
+  return callOR(messages, 8192);
+}
+
+/** Single-prompt raw-text call — like runText but returns the model output
+ *  verbatim (no parseJson) for routes whose output is prose/markdown. */
+export async function runTextRaw(prompt: string, systemInstruction?: string): Promise<string> {
+  const msgs: ORMsg[] = [];
+  if (systemInstruction) msgs.push({ role: "system", content: systemInstruction });
+  msgs.push({ role: "user", content: prompt });
+  return callOR(msgs, 8192);
 }
 
 export function isValidImageBase64(s: string): boolean {

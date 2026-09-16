@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { log } from "@/lib/logger";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { runText } from "@/lib/openrouter";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -55,41 +56,12 @@ async function POST_impl(req: NextRequest) {
       return NextResponse.json({ error: "no_transcript" }, { status: 400 });
     }
 
-    // Use LLM to structure the transcript into SOAP
-    const ZAI = (await import("z-ai-web-dev-sdk")).default;
-    const zai = await ZAI.create();
-
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: "assistant", content: SYSTEM_PROMPT },
-        { role: "user", content: transcript },
-      ],
-      thinking: { type: "disabled" },
-    });
-
-    const content = completion.choices?.[0]?.message?.content?.trim() || "";
-
-    // Extract JSON from response
-    const start = content.indexOf("{");
-    const end = content.lastIndexOf("}");
-    if (start < 0 || end <= start) {
-      return NextResponse.json({
-        error: "parse_failed",
-        raw: content.slice(0, 500),
-        message: "AI could not structure the input. Please speak more clearly.",
-      });
-    }
-
-    let soap;
-    try {
-      soap = JSON.parse(content.slice(start, end + 1));
-    } catch {
-      return NextResponse.json({
-        error: "json_parse_failed",
-        raw: content.slice(0, 500),
-        message: "AI response was not valid JSON. Please try again.",
-      });
-    }
+    // Canonical AI client — the output is STRICT JSON, so runText's shared
+    // robust parse (fence/prose-wrapped/trailing-comma tolerant) replaces the
+    // route's old brace-slicing. An unparseable model reply throws and lands
+    // in the route's 500 voice_soap_failed handler (the old 200
+    // parse_failed/json_parse_failed branches have no remaining client).
+    const soap = await runText<Record<string, unknown>>(transcript, SYSTEM_PROMPT);
 
     return NextResponse.json({
       ok: true,
