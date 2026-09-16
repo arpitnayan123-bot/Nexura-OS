@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
-import { PHASE_PRODUCTION_BUILD } from "next/constants";
 
 /* ============================================================
    NEXURA OS — AUTH LIBRARY
@@ -17,25 +16,31 @@ import { PHASE_PRODUCTION_BUILD } from "next/constants";
    ============================================================ */
 
 /**
- * Signing secret: env-configured, >=16 chars. In production a missing/short
- * secret refuses to boot instead of silently signing forgeable tokens with a
- * well-known fallback.
+ * Signing secret: env-configured, >=16 chars — resolved LAZILY on the first
+ * sign/verify call, never at module evaluation (vercel-deploy-2).
  *
- * Build-phase carve-out (vercel-deploy-2): `next build` imports every route
- * module in production mode to collect page data — WITHOUT runtime secrets.
- * The throw is skipped only during that phase (NEXT_PHASE=phase-production-
- * build). Nothing is ever signed during a build; the gate still fires at
- * full strength when a real server process boots and evaluates this module
- * with the deployment's actual env (instrumentation + runtime both enforce).
+ * Why lazy: `next build` imports every route module in production mode to
+ * collect page data — WITHOUT runtime secrets — so a module-eval throw killed
+ * builds that were actually fine. Nothing is ever signed during a build, so
+ * deferring resolution to first use loses no security: in production the
+ * first sign/verify still refuses to run without a real secret (same error,
+ * same fail-fast), and instrumentation's assertProductionEnv aborts a
+ * misconfigured production boot before any traffic is served.
  */
-const JWT_SECRET = (() => {
+let cachedSecret: string | null = null;
+export function jwtSecret(): string {
+  if (cachedSecret) return cachedSecret;
   const s = process.env.JWT_SECRET;
-  if (s && s.length >= 16) return s;
-  if (process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD) {
+  if (s && s.length >= 16) {
+    cachedSecret = s;
+    return s;
+  }
+  if (process.env.NODE_ENV === "production") {
     throw new Error("JWT_SECRET must be set (>=16 chars) in production — refusing to sign tokens with a fallback.");
   }
-  return "nexura-os-dev-secret-change-in-prod";
-})();
+  cachedSecret = "nexura-os-dev-secret-change-in-prod";
+  return cachedSecret;
+}
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "30d";
 
@@ -80,7 +85,7 @@ export function generateAccessToken(user: AuthUser, claims?: { jti?: string; sta
       name: user.name,
       ...(claims || {}),
     },
-    JWT_SECRET,
+    jwtSecret(),
     { expiresIn: expiresIn as jwt.SignOptions["expiresIn"] }
   );
 }
@@ -91,7 +96,7 @@ export function generateRefreshToken(user: AuthUser): string {
       userId: user.id,
       type: "refresh",
     },
-    JWT_SECRET,
+    jwtSecret(),
     { expiresIn: REFRESH_TOKEN_EXPIRY }
   );
 }
@@ -99,7 +104,7 @@ export function generateRefreshToken(user: AuthUser): string {
 /* ---------- Service / product tokens (portal sessions, integrations) ---------- */
 /** Sign a scoped service token (e.g. `scope:"portal"`) — never accepted as an nx session. */
 export function signServiceToken(payload: Record<string, unknown>, expiresIn: string | number): string {
-  return jwt.sign({ ...payload, scope: "service" }, JWT_SECRET, {
+  return jwt.sign({ ...payload, scope: "service" }, jwtSecret(), {
     expiresIn: expiresIn as jwt.SignOptions["expiresIn"],
   });
 }
@@ -107,7 +112,7 @@ export function signServiceToken(payload: Record<string, unknown>, expiresIn: st
 /** Verify a service token; rejects tokens without the service scope (cannot be an access token). */
 export function verifyServiceToken<T extends object>(token: string): (T & { scope: string }) | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as (T & { scope?: string });
+    const decoded = jwt.verify(token, jwtSecret()) as (T & { scope?: string });
     return decoded && decoded.scope === "service" ? (decoded as T & { scope: string }) : null;
   } catch {
     return null;
@@ -120,7 +125,7 @@ export function verifyServiceToken<T extends object>(token: string): (T & { scop
  *  must never authenticate as an access identity (historically they did). */
 export function verifyToken(token: string): DecodedToken | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as DecodedToken & { type?: string; scope?: string };
+    const decoded = jwt.verify(token, jwtSecret()) as DecodedToken & { type?: string; scope?: string };
     if (decoded.type === "refresh" || decoded.scope === "service") return null;
     return decoded;
   } catch {
