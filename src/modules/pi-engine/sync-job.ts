@@ -76,12 +76,17 @@ export function startGraphSyncJob(): void {
     try {
       const { isRedisConfigured, redis } = await import("@/lib/redis");
       if (isRedisConfigured()) {
-        const client = redis();
-        // 4-minute lease (shorter than the 5-min cadence): the lock always
-        // expires before the next tick even if an instance crashes mid-sync.
-        const lockKey = "nx:lock:pie-graph-sync";
-        const got = client ? await client.set(lockKey, "1", "PX", 4 * 60_000, "NX") : null;
-        if (got !== "OK") return; // another instance holds this window
+        try {
+          const client = redis();
+          // 4-minute lease (shorter than the 5-min cadence): the lock always
+          // expires before the next tick even if an instance crashes mid-sync.
+          const lockKey = "nx:lock:pie-graph-sync";
+          const got = client ? await client.set(lockKey, "1", "PX", 4 * 60_000, "NX") : null;
+          if (got !== "OK") return; // another instance holds this window
+        } catch {
+          // Redis unavailable: sync UNLOCKED rather than skipping windows —
+          // the upserts are idempotent, so a duplicated sync is harmless.
+        }
       }
       await seedKnowledgeGraph();
       const res = await syncGraphFromPrisma();
