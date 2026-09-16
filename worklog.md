@@ -237,3 +237,19 @@ Work Log:
 Stage Summary:
 - The 20-phase program is complete AND survives environment loss: recovery tooling + docs now reproduce a fully green state in minutes
 - Report at download/Nexura-OS-Architecture-Hardening-Report.docx; honest residual gaps unchanged (legacy Float rupees documented, per-instance withRoute default limiter, AI cost accounting absent, consent UI queued, OTP/payment = collaborator surface)
+
+---
+Task ID: lock-1
+Agent: main (Super Z)
+Task: User request — "Everything done, now commit it and lock it"
+
+Work Log:
+- Verified tree state: git status clean, no stash, HEAD efb5253 on main (hardening state already committed via 2ebe70b worklog commit + checkpoint/auto commits)
+- Re-ran the FULL CI gate on the exact HEAD before locking (no assumptions): prisma validate OK; tsc --noEmit 0 errors; eslint 0 errors; vitest 280/280 (22 files); tests/api-smoke.sh 46/46 (0 fail); scripts/deploy-preview.sh DEPLOY VERIFIED — :3000 serves latest production build via guardian
+- Confirmed excluded collaborator surfaces untouched: src/app/api/portal/auth/route.ts (OTP) and payment/billing-gateway integrations read-only as mandated
+- Appended this worklog entry and committed it as the lock commit
+- Created annotated tag hardening-locked-final at the lock commit capturing all gate evidence in the tag message
+
+Stage Summary:
+- The 20-phase Principal Architect program is committed, gate-verified green on HEAD, and locked under tag hardening-locked-final — the exact tree that passed 280/280 + 46/46 + DEPLOY VERIFIED is now immutably addressable
+- Residual honest gaps (documented, intentionally deferred): legacy Float rupees in pharmacy/clinic, per-instance withRoute default limiter, AI cost/token accounting absent, consent self-service UI queued
