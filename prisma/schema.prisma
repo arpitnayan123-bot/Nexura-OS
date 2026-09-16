@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -708,8 +708,11 @@ model HospitalPrescription {
   createdAt           DateTime             @default(now())
   patient             HospitalPatient      @relation(fields: [patientId], references: [id], onDelete: Cascade)
   doctor              HospitalDoctor?      @relation(fields: [prescribingDoctorId], references: [id])
-  appointment         HospitalAppointment? @relation(fields: [consultationId], references: [id])
-  admission           HospitalAdmission?   @relation(fields: [consultationId], references: [id])
+  // Two FKs share one column (consultationId may point at an appointment OR an
+  // admission). SQLite tolerated the auto-generated constraint-name collision;
+  // Postgres requires unique names — explicit `map` keeps both installable.
+  appointment         HospitalAppointment? @relation(fields: [consultationId], references: [id], map: "HospitalPrescription_consultation_appointment_fkey")
+  admission           HospitalAdmission?   @relation(fields: [consultationId], references: [id], map: "HospitalPrescription_consultation_admission_fkey")
 
   @@index([patientId])
   @@index([consultationId])

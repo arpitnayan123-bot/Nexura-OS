@@ -114,10 +114,17 @@ heal_env() {
   cd "$ROOT" || return 1
   if [ ! -f .env ]; then : > .env; fi
   local need_write=0
-  # DATABASE_URL must exist
+  # DATABASE_URL must exist — Postgres is the production datastore; the
+  # loopback default matches docker-compose.yml for single-node installs.
   if ! grep -q "^DATABASE_URL=" .env; then
-    echo "DATABASE_URL=file:$ROOT/db/custom.db" >> .env
-    log "env: restored missing DATABASE_URL"
+    echo "DATABASE_URL=postgresql://nexura@127.0.0.1:5432/nexura" >> .env
+    log "env: restored missing DATABASE_URL (local Postgres default)"
+    need_write=1
+  fi
+  # REDIS_URL must exist — cross-instance event bus + rate limiting.
+  if ! grep -q "^REDIS_URL=" .env; then
+    echo "REDIS_URL=redis://127.0.0.1:6379" >> .env
+    log "env: set REDIS_URL (local Redis default)"
     need_write=1
   fi
   # JWT_SECRET must exist and be >= 16 chars
@@ -293,6 +300,13 @@ log "guardian: boot (pid $$)"
 # main supervise loop
 while true; do
   heal_env || { log "env heal failed; retry in 5s"; sleep 5; continue; }
+  # The sandbox boot chain injects a stale DATABASE_URL into the process
+  # environment; process env beats .env for every child we spawn, so
+  # re-export .env over any inherited values before seeds/server boot.
+  set -a; . "$ROOT/.env"; set +a
+  # Postgres/Redis are the runtime datastores — make sure loopback
+  # daemons are up before heal_db probes them (no-op for managed hosts).
+  bash "$ROOT/scripts/ensure-datastores.sh" >> "$LOG" 2>&1 || log "datastore ensure reported a failure (continuing)"
   heal_db
 
   # ROLLBACK INSURANCE: checkpoint uncommitted work + refresh git
