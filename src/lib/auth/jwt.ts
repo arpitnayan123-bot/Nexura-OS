@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
 
 /* ============================================================
    NEXURA OS — AUTH LIBRARY
@@ -19,11 +20,18 @@ import { NextRequest, NextResponse } from "next/server";
  * Signing secret: env-configured, >=16 chars. In production a missing/short
  * secret refuses to boot instead of silently signing forgeable tokens with a
  * well-known fallback.
+ *
+ * Build-phase carve-out (vercel-deploy-2): `next build` imports every route
+ * module in production mode to collect page data — WITHOUT runtime secrets.
+ * The throw is skipped only during that phase (NEXT_PHASE=phase-production-
+ * build). Nothing is ever signed during a build; the gate still fires at
+ * full strength when a real server process boots and evaluates this module
+ * with the deployment's actual env (instrumentation + runtime both enforce).
  */
 const JWT_SECRET = (() => {
   const s = process.env.JWT_SECRET;
   if (s && s.length >= 16) return s;
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD) {
     throw new Error("JWT_SECRET must be set (>=16 chars) in production — refusing to sign tokens with a fallback.");
   }
   return "nexura-os-dev-secret-change-in-prod";
