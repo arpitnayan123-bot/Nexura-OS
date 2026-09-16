@@ -3,7 +3,6 @@ import { Hero } from "@/components/site/hero";
 import { ScrollProgress } from "@/components/premium/kit";
 import { FeaturesShowcase } from "@/components/site/features-showcase";
 import { DiyStrip } from "@/components/site/diy-strip";
-import { OsGlance } from "@/components/site/os-glance";
 import { AiStrip } from "@/components/site/ai-strip";
 import { GlobeCard } from "@/components/site/globe-card";
 import { TrustRail } from "@/components/site/trust-rail";
@@ -37,7 +36,6 @@ export default function Home() {
 
       <main id="main" className="flex-1">
         <Hero />
-        <OsGlance />
         <FeaturesShowcase />
         <DiyStrip />
         <AiStrip />
