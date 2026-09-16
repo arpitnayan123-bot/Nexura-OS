@@ -4435,3 +4435,24 @@ Work Log:
 Stage Summary:
 - Postgres behavior parity locked: searches case-insensitive everywhere, ops tooling (backup/restore-validate) pg-native and live-tested
 - Tag: pg-semantics-1-final; dual bundles refreshed after commit
+
+---
+Task ID: stateless-1
+Agent: main (Super Z)
+Task: Eliminate in-memory process state outside the excluded auth/OTP surface (backend-hardening item 2)
+
+Work Log:
+- NEW src/lib/redis.ts: lazy ioredis singleton (NO connection at import — next build module-evals routes), command + dedicated subscriber connections, bounded retry, redacted-url logging, redisClose() for tests
+- NEW src/lib/rate-limit.ts: distributed limiter — Redis INCR + PEXPIRE(NX-on-first) fixed window, keyspaced nx:rl:*, async API. Migrated jwt.ts rateLimit (Map deleted) + its 2 consumers (api/auth OTP-send gate, auth/middleware withRateLimit) with await
+- bus.ts REWRITTEN: Redis pub/sub fan-out on nx:bus channel — publish() signs, delivers locally, fire-and-forget over the COMMAND connection (a subscribed connection cannot PUBLISH — caught before it shipped); per-process relay re-verifies HMAC signatures and drops own-instance events via boot-random `from` tag (no loops, no double delivery). Vestigial __nxBus EventEmitter removed (never actually wired); signingKeys Map replaced by pure deterministic derivation from JWT_SECRET; per-process conns Map deliberately kept — SSE handles are sockets on one machine (state like an OS fd), Redis carries events not sockets; per-process seq is sufficient since each client stream is served by exactly one instance
+- runner.ts: claim is now ONE transaction — SELECT ... FOR UPDATE SKIP LOCKED → updateMany → select (correct across any number of instances; guarded updateMany kept as belt-and-braces). __nxJobWorker timer guard documented as per-process lifecycle (each instance SHOULD run the loop; DB is the only coordination point)
+- sync-job.ts (PIE): 4-min Redis lease (SET NX PX) so exactly one instance syncs per 5-min window; Redis-unavailable degrades to UNLOCKED sync (idempotent upserts) instead of skipping — caught live ("Stream isn't writeable" transient during boot race)
+- src/lib/nexura/ DELETED (types.ts + local.ts): the prompt's types.ts globalThis (__nexuraProviders) resolved by deletion — entire module had ZERO imports (verified twice); this also removes the dead SearchProvider contains site
+- Documented as deliberate per-instance (with reasons in-code): db.ts PrismaClient connection cache (Prisma-recommended pattern — connection cache, not state), proxy.ts edge buckets (edge runtime cannot run TCP clients — burst pre-filter; the Redis limiter at the Node layer is authoritative), nx/api.ts sync limiter + portal/auth OTP store (EXCLUDED collaborator surface — converting rateLimit to async would silently disable OTP rate limiting; documented for handoff)
+- Live proof: OTP send created nx:rl:otp-send:9876543210=1 in Redis; redis connected log; PIE lease acquired; /api/ready db+seed ok
+- Verify: tsc 0, eslint 0, vitest 252/252 (job-runner tests now exercise SKIP LOCKED against live Postgres), DEPLOY VERIFIED
+
+Stage Summary:
+- Cross-instance safe: jobs (PG SKIP LOCKED), event bus (Redis pub/sub), rate limiting (Redis INCR), PIE sync (Redis lease)
+- Excluded auth/OTP surface untouched; its state documented for the collaborator
+- Tag: stateless-1-final; dual bundles refreshed after commit
