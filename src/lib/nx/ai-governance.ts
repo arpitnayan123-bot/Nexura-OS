@@ -53,18 +53,26 @@ export function confidenceHeuristic(output: unknown): number {
   return Math.max(0, Math.min(1, Number(score.toFixed(2))));
 }
 
-/** Has this patient consented to AI-assisted processing (DPDP/GDPR)? */
+/** Has this patient consented to AI-assisted processing (DPDP/GDPR)?
+ *  LATEST-EVENT-WINS (consent-selfservice-1): the most recent ai_assist /
+ *  data_share consent row decides. The previous "latest GRANTED wins" read
+ *  never looked at withdrawn/denied rows, so revoking a consent was a no-op —
+ *  the old granted row kept authorizing AI forever. Withdrawal must mean
+ *  something, especially now that patients revoke from the portal. */
 export async function checkAiConsent(hospitalId: string, patientId?: string): Promise<boolean | null> {
   if (!patientId) return null; // no specific patient (e.g. ops analytics) — not applicable
-  const consent = await db.nxConsent.findFirst({
+  const latest = await db.nxConsent.findFirst({
     where: {
       hospitalId, patientId,
       type: { in: ["ai_assist", "data_share"] },
-      status: "granted",
     },
-    orderBy: { grantedAt: "desc" },
+    orderBy: [{ grantedAt: "desc" }, { createdAt: "desc" }],
   });
-  return Boolean(consent);
+  if (!latest) return false;
+  if (latest.status !== "granted") return false; // withdrawn | denied | expired
+  if (latest.withdrawnAt) return false; // staff may edit rows in place
+  if (latest.expiresAt && latest.expiresAt.getTime() <= Date.now()) return false;
+  return true;
 }
 
 export type ThresholdAction = "allowed" | "human_fallback" | "blocked";
