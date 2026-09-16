@@ -106,10 +106,20 @@ src/lib/ai-usage.ts — cost/token accounting (ai-cost-metering-1)
    ▼
 src/lib/nx/ai-governance.ts — governance for identified-patient AI
    ├─ consent ENFORCED (403 ai_consent_required when not granted; demo posture)
+   │    └─ checkAiConsent resolves LATEST-EVENT-WINS over ai_assist/data_share
+   │       rows — withdrawal (including portal self-service) revokes immediately
+   │       (the pre-selfservice read ignored withdrawn rows: revocation was a no-op)
    ├─ confidenceHeuristic — structured-output completeness, NOT clinical accuracy
    ├─ enforceThreshold — per-hospital ladder: allowed / human_fallback / blocked
    └─ logAiInteraction → NxAIInteraction (redacted output, modelVersion,
       promptVersion, thresholdAction)
+   ▼
+Consent SELF-SERVICE (consent-selfservice-1): patients view/grant/withdraw
+ai_assist, data_share, telemedicine, research consents in the portal
+(`GET/POST /api/portal/consent` + the Privacy tab). Append-only NxConsent
+ledger rows attributed `self-service:portal (<name>)`; every action audited.
+Clinical/financial types (treatment, financial, dhir, genomics) stay
+staff-recorded with evidence.
    ▼
 HITL loop: NxAiFeedback + /api/nx/ai/report (override rate, fallbacks, blocks)
 ```

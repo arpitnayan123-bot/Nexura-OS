@@ -98,6 +98,7 @@ say "posture requires security.manage";   [ "$(curl -s -o /dev/null -w '%{http_c
 say "AI report shape";                    curl -s -b "$JAR3" $BASE/api/nx/ai/report --max-time 30 | grep -q '"governance"' && ok || bad "ai report"
 say "AI usage ledger (doctor) → 403";     [ "$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" $BASE/api/nx/ai/usage --max-time 20)" = "403" ] && ok || bad "ai usage guard"
 say "AI usage ledger (admin) → rollup";   json -b "$JAR3" $BASE/api/nx/ai/usage --max-time 30 | grep -q '"byCapability"' && ok || bad "ai usage rollup"
+say "portal consent (no session) → 401";  [ "$(curl -s -o /dev/null -w '%{http_code}' $BASE/api/portal/consent --max-time 20)" = "401" ] && ok || bad "portal consent guard"
 say "pathways list → defs present";       json $BASE/api/nx/pathways | grep -q '"definitions"' && ok || bad "pathways"
 say "escalations list → policies";        json $BASE/api/nx/escalations | grep -q '"policies"' && ok || bad "escalations"
 say "compliance metrics → frameworks";    json -b "$JAR3" $BASE/api/nx/compliance | grep -q '"frameworks"' && ok || bad "compliance"
