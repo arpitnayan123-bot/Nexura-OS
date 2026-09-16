@@ -57,7 +57,7 @@ Rules:
 - Extract test name, numeric value and unit exactly as printed (value may keep arrows like "+" if printed).
 - Include all visible tests (CBC, LFT, KFT, thyroid, lipids, glucose, HbA1c, vitamins, urine, etc.).
 - If a value is unreadable, skip that test. No markdown. JSON only.`;
-      const extracted = await runVision<any>(base64, mimeType, extractPrompt);
+      const extracted = await runVision<any>(base64, mimeType, extractPrompt, "kyh.lab-analyzer");
       if (!extracted || !Array.isArray(extracted.tests) || extracted.tests.length === 0) {
         return NextResponse.json(
           { error: "extraction_failed", detail: "We couldn't read any test values from that photo. Try better lighting, or enter the values manually." },
@@ -103,7 +103,7 @@ Rules:
 - recommendations max 6. requiresDoctorFollowUp true if any "high" severity or 2+ abnormal.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.lab-analyzer");
     if (!result || !Array.isArray(result.tests)) throw new Error("invalid_response");
     if (extractedFromImage) result.extractedFromImage = true;
     return NextResponse.json(result);

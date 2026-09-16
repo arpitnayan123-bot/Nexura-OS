@@ -43,7 +43,7 @@ Rules:
 - Do not invent diagnoses; if uncertain say so in summary.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.symptoms-checker");
     if (!result || !result.urgency) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {

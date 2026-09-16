@@ -65,7 +65,7 @@ async function POST_impl(req: NextRequest) {
     try {
       // Canonical AI client — its robust parse replaces the old brace-slicing;
       // any provider or parse failure lands in the same graceful fallback below.
-      parsed = await runText<{ items: unknown[]; raw?: string }>(transcript, SYSTEM_PROMPT);
+      parsed = await runText<{ items: unknown[]; raw?: string }>(transcript, SYSTEM_PROMPT, "pharmacy.voice-bill");
     } catch (e) {
       // graceful fallback: word-level number map
       log.warn("pharmacy", "voice_bill_parse_fallback", { err: e instanceof Error ? e.message : String(e) });

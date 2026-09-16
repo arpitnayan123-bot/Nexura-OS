@@ -3304,3 +3304,32 @@ model PortalFamilyInvite {
   @@index([phone])
   @@index([headId])
 }
+
+// AI cost/token ledger — every canonical-client AI call (src/lib/openrouter.ts)
+// records what it consumed: which feature (capability), which provider path,
+// token counts, and cost in integer micro-USD (never float money).
+// tokenSource/costSource are separate on purpose: a provider may report exact
+// tokens while cost still comes from our local price table (estimated).
+// No prompt or completion CONTENT is ever stored here — metadata only.
+model AiUsageLog {
+  id               String   @id @default(cuid())
+  capability       String // feature label, e.g. "kyh.food-scan", "nx.ai.patient_summary"
+  provider         String // openrouter | z-ai
+  model            String // canonical requested model id
+  tokensPrompt     Int?
+  tokensCompletion Int?
+  tokensTotal      Int?
+  costMicroUsd     Int? // integer millionths of USD
+  tokenSource      String // provider | estimated | unknown
+  costSource       String // provider | estimated | unknown
+  latencyMs        Int
+  success          Boolean
+  fallbackUsed     Boolean // openrouter attempted, z-ai SDK served the call
+  errorCode        String? // truncated failure reason; null on success
+  requestId        String?
+  createdAt        DateTime @default(now())
+
+  @@index([capability, createdAt])
+  @@index([provider, createdAt])
+  @@index([createdAt])
+}

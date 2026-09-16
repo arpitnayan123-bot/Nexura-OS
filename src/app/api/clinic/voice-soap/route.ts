@@ -61,7 +61,7 @@ async function POST_impl(req: NextRequest) {
     // route's old brace-slicing. An unparseable model reply throws and lands
     // in the route's 500 voice_soap_failed handler (the old 200
     // parse_failed/json_parse_failed branches have no remaining client).
-    const soap = await runText<Record<string, unknown>>(transcript, SYSTEM_PROMPT);
+    const soap = await runText<Record<string, unknown>>(transcript, SYSTEM_PROMPT, "clinic.voice-soap");
 
     return NextResponse.json({
       ok: true,

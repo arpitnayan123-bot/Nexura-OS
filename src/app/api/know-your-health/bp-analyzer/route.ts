@@ -59,7 +59,7 @@ Rules:
 - recommendations max 6.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.bp-analyzer");
     // override with computed values for reliability
     result.averageSystolic = avgSys;
     result.averageDiastolic = avgDia;

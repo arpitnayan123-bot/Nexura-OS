@@ -1,7 +1,17 @@
 /** OpenRouter AI client — SERVER-SIDE ONLY.
  *  Falls back to the pre-configured z-ai-web-dev-sdk (GLM) when no
  *  OPENROUTER_API_KEY is present, so AI features work in any environment.
- *  ASR: only the z-ai SDK provides speech-to-text today (documented capability gap) */
+ *  ASR: only the z-ai SDK provides speech-to-text today (documented capability gap)
+ *  Every call is recorded into the AiUsageLog ledger (src/lib/ai-usage.ts) —
+ *  capability, provider, tokens, integer-micro-USD cost, latency, fallback. */
+import {
+  estimateCostMicroUsd,
+  estimateTokens,
+  estimateTokensFromChars,
+  normalizeProviderUsage,
+  recordAiUsage,
+} from "@/lib/ai-usage";
+
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const MODEL = "z-ai/glm-5.3-flash";
 let _key: string | null = null;
@@ -21,7 +31,9 @@ async function getZAI(): Promise<any> {
   return _zai;
 }
 
-async function callZAI(messages: ORMsg[]): Promise<string> {
+/** z-ai SDK call. Returns the text plus whatever usage object the SDK
+ *  happened to include (its types are `any` — normalizeProviderUsage sorts it out). */
+async function callZAI(messages: ORMsg[]): Promise<{ text: string; usage: unknown }> {
   const zai = await getZAI();
   const hasImage = messages.some(
     (m) => Array.isArray(m.content) && m.content.some((p: any) => p?.type === "image_url")
@@ -35,16 +47,94 @@ async function callZAI(messages: ORMsg[]): Promise<string> {
     : await zai.chat.completions.create({ messages: converted, thinking: { type: "disabled" } });
   const text = completion?.choices?.[0]?.message?.content || "";
   if (!text) throw new Error("Empty response from model");
-  return text;
+  return { text, usage: completion?.usage ?? null };
 }
 
 interface ORMsg { role: "user"|"system"|"assistant"; content: string | Array<{type:"text";text:string}|{type:"image_url";image_url:{url:string}}>; }
 
 const OPENROUTER_TIMEOUT_MS = 45_000; // bound every AI call — a hung provider must never hold the route open
 
-async function callOR(messages: ORMsg[], maxTokens = 8192): Promise<string> {
+/** Approximate the prompt size for token estimation (chars across all parts). */
+function promptCharCount(messages: ORMsg[]): number {
+  return messages.reduce((n, m) => {
+    if (typeof m.content === "string") return n + m.content.length;
+    return n + m.content.reduce((k, p) => k + ("text" in p ? (p.text?.length ?? 0) : 0), 0);
+  }, 0);
+}
+
+/** Build and fire the ledger row for one AI call. Tokens/cost are estimated
+ *  from the char heuristic when the provider did not report usage; cost from
+ *  the provider's own `cost` field when OpenRouter reports it. Every derived
+ *  number is honestly labelled via tokenSource/costSource — never guessed
+ *  silently. A failed call records source="unknown" with the truncated error. */
+function recordCall(
+  capability: string,
+  started: number,
+  promptChars: number,
+  provider: "openrouter" | "z-ai",
+  fallbackUsed: boolean,
+  out: { ok: boolean; text?: string; usage?: unknown; costUsd?: number | null; error?: unknown }
+): void {
+  const latencyMs = Date.now() - started;
+  const u = out.ok ? normalizeProviderUsage(out.usage) : null;
+  let tokensPrompt: number | null = u?.prompt ?? null;
+  let tokensCompletion: number | null = u?.completion ?? null;
+  let tokensTotal: number | null = u?.total ?? null;
+  let tokenSource: "provider" | "estimated" | "unknown" = u ? "provider" : "unknown";
+  let costMicroUsd: number | null = null;
+  let costSource: "provider" | "estimated" | "unknown" = "unknown";
+
+  if (out.ok && u === null) {
+    // Provider reported nothing usable — estimate from char counts.
+    tokensPrompt = estimateTokensFromChars(promptChars);
+    tokensCompletion = estimateTokens(out.text ?? "");
+    tokensTotal = tokensPrompt + tokensCompletion;
+    tokenSource = "estimated";
+  }
+  if (out.costUsd != null && Number.isFinite(out.costUsd) && out.costUsd >= 0) {
+    costMicroUsd = Math.round(out.costUsd * 1_000_000);
+    costSource = "provider";
+  } else if (out.ok && tokensTotal !== null) {
+    if (tokensPrompt === null && tokensCompletion === null) {
+      // Total-only shape (z-ai { tokens }) — price the whole at completion rate (conservative).
+      costMicroUsd = estimateCostMicroUsd(MODEL, 0, tokensTotal);
+    } else {
+      costMicroUsd = estimateCostMicroUsd(MODEL, tokensPrompt ?? 0, tokensCompletion ?? 0);
+    }
+    costSource = "estimated";
+  }
+
+  recordAiUsage({
+    capability,
+    provider,
+    model: MODEL,
+    tokensPrompt,
+    tokensCompletion,
+    tokensTotal,
+    costMicroUsd,
+    tokenSource,
+    costSource,
+    latencyMs,
+    success: out.ok,
+    fallbackUsed,
+    errorCode: out.ok ? null : out.error instanceof Error ? out.error.message : String(out.error ?? "unknown"),
+  });
+}
+
+async function callOR(messages: ORMsg[], maxTokens = 8192, capability = "unattributed"): Promise<string> {
+  const started = Date.now();
+  const promptChars = promptCharCount(messages);
   // No OpenRouter key → use the built-in z-ai SDK path directly.
-  if (!getKey()) return callZAI(messages);
+  if (!getKey()) {
+    try {
+      const r = await callZAI(messages);
+      recordCall(capability, started, promptChars, "z-ai", false, { ok: true, text: r.text, usage: r.usage });
+      return r.text;
+    } catch (e) {
+      recordCall(capability, started, promptChars, "z-ai", false, { ok: false, error: e });
+      throw e;
+    }
+  }
   try {
     const res = await fetch(OPENROUTER_URL, {
       method: "POST",
@@ -59,6 +149,9 @@ async function callOR(messages: ORMsg[], maxTokens = 8192): Promise<string> {
         messages,
         max_tokens: maxTokens,
         temperature: 0.4,
+        // Ask OpenRouter to report token usage + cost for this generation
+        // (accounting honesty: prefer provider-reported numbers over estimates).
+        usage: { include: true },
       }),
       signal: AbortSignal.timeout(OPENROUTER_TIMEOUT_MS),
     });
@@ -71,11 +164,24 @@ async function callOR(messages: ORMsg[], maxTokens = 8192): Promise<string> {
     const d = await res.json();
     const c = d.choices?.[0]?.message?.content || "";
     if (!c) throw new Error("Empty response from model");
+    recordCall(capability, started, promptChars, "openrouter", false, {
+      ok: true,
+      text: c,
+      usage: d.usage,
+      costUsd: d.usage?.cost ?? d.usage?.total_cost ?? null,
+    });
     return c;
   } catch (e) {
     // One OpenRouter attempt, then the z-ai SDK fallback. No retry loop —
     // the previous loop's second iteration was unreachable dead code.
-    try { return await callZAI(messages); } catch { throw e; }
+    try {
+      const r = await callZAI(messages);
+      recordCall(capability, started, promptChars, "z-ai", true, { ok: true, text: r.text, usage: r.usage });
+      return r.text;
+    } catch {
+      recordCall(capability, started, promptChars, "z-ai", true, { ok: false, error: e });
+      throw e;
+    }
   }
 }
 
@@ -108,34 +214,37 @@ function parseJson<T>(text: string): T {
   }
 }
 
-export async function runText<T = any>(prompt: string, systemInstruction?: string): Promise<T> {
+/** capability: feature label recorded in the AiUsageLog ledger (e.g. "kyh.food-scan") —
+ *  optional for backward compatibility; unlabeled calls land under "unattributed". */
+export async function runText<T = any>(prompt: string, systemInstruction?: string, capability?: string): Promise<T> {
   const msgs: ORMsg[] = [];
   if (systemInstruction) msgs.push({ role: "system", content: systemInstruction });
   msgs.push({ role: "user", content: prompt });
-  return parseJson<T>(await callOR(msgs, 8192));
+  return parseJson<T>(await callOR(msgs, 8192, capability));
 }
 
-export async function runVision<T = any>(imageBase64: string, mimeType: string, prompt: string): Promise<T> {
+export async function runVision<T = any>(imageBase64: string, mimeType: string, prompt: string, capability?: string): Promise<T> {
   const dataUrl = `data:${mimeType};base64,${imageBase64}`;
-  return parseJson<T>(await callOR([{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: dataUrl } }] }], 8192));
+  return parseJson<T>(await callOR([{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: dataUrl } }] }], 8192, capability));
 }
 
 /** Multi-turn chat — raw text out (no JSON parsing). Same provider order,
  *  one-shot fallback, and 45s timeout as every call here; on the z-ai path
  *  "system" roles are mapped exactly as callZAI does. */
 export async function runChatText(
-  messages: { role: "user" | "assistant" | "system"; content: string }[]
+  messages: { role: "user" | "assistant" | "system"; content: string }[],
+  capability?: string
 ): Promise<string> {
-  return callOR(messages, 8192);
+  return callOR(messages, 8192, capability);
 }
 
 /** Single-prompt raw-text call — like runText but returns the model output
  *  verbatim (no parseJson) for routes whose output is prose/markdown. */
-export async function runTextRaw(prompt: string, systemInstruction?: string): Promise<string> {
+export async function runTextRaw(prompt: string, systemInstruction?: string, capability?: string): Promise<string> {
   const msgs: ORMsg[] = [];
   if (systemInstruction) msgs.push({ role: "system", content: systemInstruction });
   msgs.push({ role: "user", content: prompt });
-  return callOR(msgs, 8192);
+  return callOR(msgs, 8192, capability);
 }
 
 export function isValidImageBase64(s: string): boolean {

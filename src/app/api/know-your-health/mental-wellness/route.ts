@@ -57,7 +57,7 @@ Rules:
 - Be culturally appropriate and respectful.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.mental-wellness");
     // ensure crisis resources are always present even if model omits
     if (!result?.crisisResources || !Array.isArray(result.crisisResources) || result.crisisResources.length === 0) {
       result.crisisResources = [

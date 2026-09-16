@@ -62,7 +62,7 @@ Rules:
 - If no interactions found, return empty arrays and safeSummary saying so.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.med-interaction");
     if (!result || !Array.isArray(result.interactions)) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {

@@ -66,7 +66,7 @@ async function POST_impl(req: NextRequest) {
     };
     let rawOutput = "";
     try {
-      extracted = await runVision<OcrExtraction>(raw, mimeType, SYSTEM_PROMPT);
+      extracted = await runVision<OcrExtraction>(raw, mimeType, SYSTEM_PROMPT, "pharmacy.prescription-ocr");
       rawOutput = JSON.stringify(extracted);
     } catch (e) {
       if (e instanceof SyntaxError) {

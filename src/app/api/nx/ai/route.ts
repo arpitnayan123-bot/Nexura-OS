@@ -75,7 +75,7 @@ export const POST = withRoute("nx.ai.run", async (req: NextRequest) => {
       }
       const out = await runText(
         `Summarize this inpatient for a busy clinician. JSON: {"oneLine": str, "currentStatus": str, "activeProblems": str[], "medications": str[], "watchItems": str[], "dataGaps": str[], "suggestedNextSteps": str[]}. SuggestedNextSteps are coordination suggestions only, NOT clinical orders.\n${JSON.stringify(patientBlock)}`,
-        SYSTEM
+        SYSTEM, `nx.ai.${feature}`
       );
       const confidence = confidenceHeuristic(out);
       const gate = await enforceThreshold(hospitalId, "patient_summary", confidence);
@@ -105,7 +105,7 @@ export const POST = withRoute("nx.ai.run", async (req: NextRequest) => {
       };
       const out = await runText(
         `Prepare an SBAR shift handover brief. JSON: {"headline": str, "stable": str[], "needsAttention": str[], "pendingTasks": str[], "handoverNotes": str[]}. Be concise; max 1 line per patient.\n${JSON.stringify(compact)}`,
-        SYSTEM
+        SYSTEM, `nx.ai.${feature}`
       );
       const confidence = confidenceHeuristic(out);
       const gate = await enforceThreshold(hospitalId, "handover", confidence);
@@ -141,7 +141,7 @@ export const POST = withRoute("nx.ai.run", async (req: NextRequest) => {
       }
       const out = await runText(
         `Draft a discharge summary for clinician review. JSON: {"courseInHospital": str, "conditionAtDischarge": str (factual only), "dischargeMedicationsNote": str (say 'per final prescription — clinician to confirm'), "followUpPlan": str, "patientInstructions": str (simple language), "redFlags": str[]}. Do NOT invent medication names or doses.\n${JSON.stringify(dischargeBlock)}`,
-        SYSTEM
+        SYSTEM, `nx.ai.${feature}`
       );
       const confidence = confidenceHeuristic(out);
       const gate = await enforceThreshold(hospitalId, "discharge_draft", confidence);
@@ -167,7 +167,7 @@ export const POST = withRoute("nx.ai.run", async (req: NextRequest) => {
       };
       const out = await runText(
         `Act as a hospital operations analyst. From this snapshot, produce coordination recommendations (operational only — no clinical advice). JSON: {"headline": str, "actions": [{"area": str, "recommendation": str, "why": str}], "watchlist": str[]}.\n${JSON.stringify(compact)}`,
-        SYSTEM
+        SYSTEM, `nx.ai.${feature}`
       );
       const confidence = confidenceHeuristic(out);
       const gate = await enforceThreshold(hospitalId, "ops_recommend", confidence);

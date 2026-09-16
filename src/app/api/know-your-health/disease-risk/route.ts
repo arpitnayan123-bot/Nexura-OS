@@ -57,7 +57,7 @@ Rules:
 - Do not diagnose; speak probabilistically.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.disease-risk");
     if (!result?.diabetesRisk) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {

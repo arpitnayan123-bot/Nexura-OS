@@ -69,7 +69,7 @@ Rules:
 - Use Indian English and Indian dietary context.
 - No markdown. JSON only.`;
 
-    const result = await runVision<any>(base64, mimeType, prompt);
+    const result = await runVision<any>(base64, mimeType, prompt, "kyh.food-scan");
     if (!result || typeof result.calories !== "number" || !result.macros) {
       throw new Error("invalid_response");
     }

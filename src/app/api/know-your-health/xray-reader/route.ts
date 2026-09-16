@@ -76,7 +76,7 @@ Rules:
 - Max 6 findings, 5 possibleAbnormalities, 5 recommendations.
 - Use Indian English. No markdown. JSON only.`;
 
-    const result = await runVision<any>(base64, mimeType, prompt);
+    const result = await runVision<any>(base64, mimeType, prompt, "kyh.xray-reader");
     if (!result || !Array.isArray(result.findings) || !result.imageQuality) {
       throw new Error("invalid_response");
     }

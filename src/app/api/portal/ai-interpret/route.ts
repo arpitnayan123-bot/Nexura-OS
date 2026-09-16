@@ -81,7 +81,7 @@ Provide a clear, empathetic clinical interpretation in markdown. Under 300 words
     let interpretation = "";
     let source: "llm" | "rule-based" = "llm";
     try {
-      interpretation = await runTextRaw(userPrompt, SYSTEM_PROMPT);
+      interpretation = await runTextRaw(userPrompt, SYSTEM_PROMPT, "portal.ai-interpret");
     } catch (llmErr) {
       log.warn("portal", "ai_interpret_llm_fallback", { err: llmErr instanceof Error ? llmErr.message : String(llmErr) });
       source = "rule-based";

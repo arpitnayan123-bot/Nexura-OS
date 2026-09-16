@@ -81,7 +81,7 @@ Rules:
 - patternsDetected max 4, issues max 4, recommendations max 6.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.sleep-quality");
     if (totalSleepMin !== null) result.totalSleepHours = Math.round((totalSleepMin / 60) * 10) / 10;
     if (sleepEfficiency !== null) result.sleepEfficiencyPercent = sleepEfficiency;
     if (!result?.sleepEfficiencyCategory) throw new Error("invalid_response");

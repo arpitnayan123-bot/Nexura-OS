@@ -41,7 +41,7 @@ Rules:
 - Be warm and respectful of Ayurvedic tradition.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.ayurveda");
     if (!result?.dominantDosha) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {

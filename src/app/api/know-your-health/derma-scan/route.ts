@@ -59,7 +59,7 @@ Rules:
 - Use plain English; avoid rare or alarming diagnoses when a common explanation fits.
 - No markdown. JSON only.`;
 
-    const result = await runVision<any>(base64, mimeType, prompt);
+    const result = await runVision<any>(base64, mimeType, prompt, "kyh.derma-scan");
     if (!result || !Array.isArray(result.possibleConditions) || !result.urgency) {
       throw new Error("invalid_response");
     }
