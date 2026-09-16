@@ -24,7 +24,7 @@ export const GET = withRoute("journey.predicted", async (req: NextRequest, { req
   let projectedLosDays: number | null = null;
   if (admission?.admissionDiagnosis) {
     const sameDx = await db.hospitalAdmission.findMany({
-      where: { hospitalId, admissionDiagnosis: { contains: admission.admissionDiagnosis.split(" ")[0] }, actualDischargeDate: { not: null } },
+      where: { hospitalId, admissionDiagnosis: { contains: admission.admissionDiagnosis.split(" ")[0], mode: "insensitive" as const }, actualDischargeDate: { not: null } },
       select: { admissionDate: true, actualDischargeDate: true },
       orderBy: { admissionDate: "desc" },
       take: 10,

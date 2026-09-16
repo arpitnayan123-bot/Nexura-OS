@@ -14,8 +14,8 @@ async function GET_impl(req: NextRequest) {
     const drugs = await db.indianDrug.findMany({
       where: {
         OR: [
-          { brandName: { contains: q } },
-          { saltName: { contains: q } },
+          { brandName: { contains: q, mode: "insensitive" as const } },
+          { saltName: { contains: q, mode: "insensitive" as const } },
         ],
       },
       take: 12,

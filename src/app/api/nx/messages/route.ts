@@ -33,7 +33,7 @@ export const GET = withRoute("messages.list", async (req: NextRequest) => {
   const canClinical = hasPermission(perms, "patient.clinical.view");
 
   const messages = await db.nxMessage.findMany({
-    where: { hospitalId, channelKey: channel, ...(q ? { body: { contains: q } } : {}) },
+    where: { hospitalId, channelKey: channel, ...(q ? { body: { contains: q, mode: "insensitive" as const } } : {}) },
     orderBy: { createdAt: "asc" },
     take: 120,
     include: { reads: { select: { userId: true, readAt: true } } },

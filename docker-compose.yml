@@ -1,36 +1,36 @@
 # Nexura Hospital OS — local production-like stack
 # Usage: docker compose up --build
+# Postgres is the primary datastore (pg-migration-1); Redis backs the
+# cross-instance event bus + rate limiting. Point DATABASE_URL/REDIS_URL
+# at managed services in real deployments (.env.docker overrides these).
 services:
   app:
     build: .
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "3000:3000"
     env_file:
       - path: .env.docker
       required: false
     environment:
-      DATABASE_URL: file:/app/db/custom.db
-      # Deployments MUST override via .env.docker or the environment —
-      # this placeholder only exists so a local smoke stack can boot.
+      DATABASE_URL: postgresql://nexura:${POSTGRES_PASSWORD:-nexura-local-only}@db:5432/nexura
+      REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:-change-me-in-real-deployments-please}
       NEXURA_MODE: local
       EMAIL_TRANSPORT: console
       DEMO_MODE: "true"
-    volumes:
-      - app-db:/app/db
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 5s
       retries: 3
-  # ---------- Postgres profile (HaaS / enterprise deployments) ----------
-  # Usage: DATABASE_URL=postgres://nexura:nexura@db:5432/nexura docker compose --profile postgres up
-  # The app image is dialect-agnostic (Prisma + src/lib/nx/db-dialect.ts):
-  # switching provider is an env change, not a code change.
   db:
-    image: postgres:16-alpine
-    profiles: ["postgres"]
+    image: postgres:17-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: nexura
@@ -44,7 +44,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  app-db:
   pg-data:

@@ -44,7 +44,7 @@ export const GET = withRoute("fhir.get", async (req: NextRequest, { requestId })
       where: {
         hospitalId,
         ...(identifier ? { uhid: identifier } : {}),
-        ...(name ? { fullName: { contains: name } } : {}),
+        ...(name ? { fullName: { contains: name, mode: "insensitive" as const } } : {}),
       },
       take: 50,
       orderBy: { createdAt: "desc" },

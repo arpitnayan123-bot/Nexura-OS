@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     if (feature === "handover") {
       const ward = String(body.ward || "");
       const admissions = await db.hospitalAdmission.findMany({
-        where: { hospitalId, dischargeStatus: "active", ...(ward ? { bed: { ward: { name: { contains: ward } } } } : {}) },
+        where: { hospitalId, dischargeStatus: "active", ...(ward ? { bed: { ward: { name: { contains: ward, mode: "insensitive" as const } } } } : {}) },
         include: { patient: true, bed: { include: { ward: true } }, vitals: { orderBy: { recordedAt: "desc" }, take: 1 }, orders: { where: { status: { in: ["ordered", "acknowledged", "in_progress"] } }, take: 4 } },
         take: 14,
       });

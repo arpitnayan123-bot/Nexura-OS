@@ -77,10 +77,10 @@ export async function POST(req: NextRequest) {
       const product = await db.product.findFirst({
         where: {
           OR: [
-            { name: { contains: name } },
-            { genericName: { contains: name } },
-            { brand: { contains: name } },
-            { salts: { contains: name } },
+            { name: { contains: name, mode: "insensitive" as const } },
+            { genericName: { contains: name, mode: "insensitive" as const } },
+            { brand: { contains: name, mode: "insensitive" as const } },
+            { salts: { contains: name, mode: "insensitive" as const } },
           ],
         },
         include: {
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
         product ||
         (item.salt
           ? await db.product.findFirst({
-              where: { OR: [{ salts: { contains: item.salt } }, { genericName: { contains: item.salt } }] },
+              where: { OR: [{ salts: { contains: item.salt, mode: "insensitive" as const } }, { genericName: { contains: item.salt, mode: "insensitive" as const } }] },
               include: {
                 batches: {
                   where: { branchId: ctx.branch.id, OR: [{ stockStrips: { gt: 0 } }, { stockLoose: { gt: 0 } }] },

@@ -12,7 +12,7 @@ ENV NODE_ENV=production
 # Prisma client generation for the target platform
 RUN bunx prisma generate
 # DATABASE_URL is required at build-time only for typegen — a dummy is fine
-ENV DATABASE_URL=file:/tmp/build.db
+ENV DATABASE_URL=postgresql://build:nobuild@127.0.0.1:5432/nobuild
 # Fail the image build when the app build fails — no silent fallback that can
 # pull a different toolchain mid-build and mask a broken bun pipeline.
 RUN bun run build
@@ -26,10 +26,10 @@ ENV HOSTNAME=0.0.0.0
 RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs -m nextjs
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/prisma ./prisma
-# runtime data volume for SQLite
-RUN mkdir -p /app/db && chown -R nextjs:nodejs /app
+# prisma/migrations ships with the image: `npx prisma migrate deploy` is the
+# release-gate step (run as a job or entrypoint pre-step against DATABASE_URL).
+RUN chown -R nextjs:nodejs /app
 USER nextjs
-VOLUME ["/app/db"]
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
