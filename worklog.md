@@ -466,3 +466,18 @@ Work Log:
 Stage Summary:
 - Lock-4 closes the entire deferred backlog: rate limiting, AI attribution and money integrity are now locked tree state
 - No remaining deferred items; collaborator surfaces (portal/auth, payment/billing-gateway) remain untouched
+
+---
+Task ID: readme-platform-1
+Agent: main (Super Z)
+Task: Rewrite README.md — full multi-product platform inventory, every product and feature, verified against the tree (post-lock docs commit)
+
+Work Log:
+- Inventory pass: 19 page surfaces under src/app (7 staff products, 8 consumer surfaces, 4+ site pages), all src/app/api groups, src/lib platform libs, 162 Prisma models, 27 test files / 317 tests, scripts dir, docs set (all 13 README-referenced docs verified to exist in docs/)
+- Rewrote README: product tables (Hospital OS with 23 apps, Clinic, Pharmacia, Portal with consent self-service, Connect, KYH with all 14 AI tools, Global tourism desk), consumer surfaces (Care Circle, Vitals, DIY with safety guardrails, Predictive/Foresight, Labs, Emergency, Pi engine, site pages), platform layer (auth suite, RBAC 20x36, AI governance with metering+attribution+consent enforcement, money integrity, distributed rate limiting, SSE, observability, audit, ops)
+- Fixed staleness: bun->npm commands per package.json, test count 252->317, added lock-chain table (4 tags with commits), documentation table now covers every existing doc incl. WHITEPAPER/GAP-ASSESSMENT/ROADMAP-5-PHASES/DATABASE-OPERATIONS, repo layout map, compliance section updated (DPDP + AI estimate honesty)
+- Docs-only change: no src/ or prisma/ touched, no gate-affecting delta (markdown)
+
+Stage Summary:
+- README now states the true platform surface; nothing claimed that is not in the tree
+- Post-lock docs commit on main; lock tags untouched
