@@ -400,3 +400,22 @@ Work Log:
 Stage Summary:
 - The default route limiter is now shared across instances whenever Redis backs the deployment; single-node behavior unchanged
 - Note: explicit per-route limiter keys used inside auth/webhook routes (login-ip-fail etc.) stay as-is — they are keyed counters, out of this task's scope
+
+---
+Task ID: ai-identity-1
+Agent: main (Super Z)
+Task: Deferred closeout B — per-request user-identity attribution on AiUsageLog rows (branch deferred-closeouts-1)
+
+Work Log:
+- New src/lib/ai-actor.ts: AsyncLocalStorage context — setAiActor (enterWith) called from session resolvers, getAiActor read by the ledger write, resetAiActor for long-lived chain reuse (test runners/queue workers)
+- Capture points: guard() (staff routes — every permission-checked request) and getPortalUser() (portal routes — captured from the SIGNED token sub before DB resolution). portal/auth/route.ts untouched (collaborator surface)
+- Schema: AiUsageLog += userId/userRole (nullable, migration 20260916201545_ai_usage_identity); null = system/background call, honestly unattributed, never guessed
+- recordAiUsage: ambient actor auto-captured; explicit record fields win; explicit null FORCES no-identity (undefined vs null semantics — the ?? fall-through bug was caught by test before commit)
+- aiUsageSummary: byUser top-10 rollup (verified rows only) + unattributedRows count; /api/nx/ai/usage passes the summary through unchanged
+- Tests tests/unit/ai-identity.test.ts (6, real DB, self-cleaning): actor capture, null identity without session, explicit-override precedence incl. forced-null, byUser aggregation
+- Bug caught during development: actor field mismatch (role vs userRole) + ?? null fall-through — both fixed before commit; debug script removed
+- Docs: ARCHITECTURE.md §3 flow + honest capability statement updated (attribution is per REQUEST, not per human — shared logins share identity)
+
+Stage Summary:
+- Every AI call made during an authenticated request is now attributed to the verified caller in the ledger; admin rollup answers "who spent what" per user
+- Remaining deferred items: tourism Float display money (in progress next on this branch)

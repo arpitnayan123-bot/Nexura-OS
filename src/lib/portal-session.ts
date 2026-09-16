@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { verifyServiceToken } from "@/lib/auth/jwt";
 import { db } from "@/lib/db";
+import { setAiActor } from "@/lib/ai-actor";
 
 /* ============================================================
    NEXURA — PORTAL SESSION RESOLVER (single source of truth)
@@ -19,6 +20,10 @@ export async function getPortalUser(select?: Record<string, boolean>) {
   if (!token) return null;
   const payload = verifyServiceToken<{ sub: string }>(token);
   if (!payload?.sub) return null;
+  // Attribute every AI call this request makes to the verified portal
+  // identity (AiUsageLog per-request attribution — ai-actor context).
+  // Captured from the SIGNED token, before any DB resolution.
+  setAiActor({ userId: payload.sub, role: "patient" });
   return db.portalUser.findUnique({
     where: { id: payload.sub },
     ...(select ? { select } : {}),

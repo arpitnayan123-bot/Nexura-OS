@@ -22,7 +22,7 @@ export interface AiActor {
   role: string;
 }
 
-const storage = new AsyncLocalStorage<AiActor>();
+const storage = new AsyncLocalStorage<AiActor | undefined>();
 
 /** Set the actor for the remainder of the current async chain.
  *  Call from session resolvers (guard(), portal session) right
@@ -35,4 +35,12 @@ export function setAiActor(actor: AiActor): void {
  *  call did not originate from an authenticated session. */
 export function getAiActor(): AiActor | null {
   return storage.getStore() ?? null;
+}
+
+/** Clear the actor for the remainder of the current chain. Used by
+ *  long-lived execution contexts (test runners, queue workers) that
+ *  reuse one async chain across units of work — never leaks identity
+ *  from one request into the next. */
+export function resetAiActor(): void {
+  storage.enterWith(undefined);
 }

@@ -8,6 +8,7 @@ import type { EffectivePermissions, NxPermission, NxSession } from "./session";
 import { requirePermission } from "./session";
 import { isRedisConfigured } from "@/lib/redis";
 import { consumeRateLimit } from "@/lib/rate-limit";
+import { setAiActor } from "@/lib/ai-actor";
 
 /* ============================================================
    NEXURA HOSPITAL OS — API FOUNDATIONS
@@ -135,6 +136,9 @@ export async function guard(
       response: fail(result.error, result.status, result.detail, requestId),
     };
   }
+  // Attribute every AI call this request makes to the verified staff
+  // identity (AiUsageLog per-request attribution — ai-actor context).
+  setAiActor({ userId: result.session.userId, role: result.session.role });
   return { session: result.session, perms: result.perms, requestId };
 }
 

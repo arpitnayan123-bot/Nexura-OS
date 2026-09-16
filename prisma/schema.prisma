@@ -3327,6 +3327,11 @@ model AiUsageLog {
   fallbackUsed     Boolean // openrouter attempted, z-ai SDK served the call
   errorCode        String? // truncated failure reason; null on success
   requestId        String?
+  // Per-request identity — captured from the VERIFIED session (staff guard
+  // or portal session token) at call time. Null = system/background call,
+  // honestly unattributed; never guessed.
+  userId           String?
+  userRole         String?
   createdAt        DateTime @default(now())
 
   @@index([capability, createdAt])
