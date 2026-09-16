@@ -4,6 +4,7 @@ import { getDemoContext } from "@/lib/pharmacy-context";
 import { log } from "@/lib/logger";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { isValidImageBase64 } from "@/lib/gemini";
+import { runVision } from "@/lib/openrouter";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -41,49 +42,37 @@ async function POST_impl(req: NextRequest) {
       return NextResponse.json({ error: "image_too_large" }, { status: 413 });
     }
 
-    const ZAI = (await import("z-ai-web-dev-sdk")).default;
-    const zai = await ZAI.create();
-
-    // Build a clean data URL from validated base64 — mime derived from magic
-    // bytes, never trusted from the client.
-    let dataUrl: string;
+    // Mime derived from magic bytes, never trusted from the client — runVision
+    // builds the data URL from the validated base64 + mime itself.
+    let mimeType: string;
     if (raw.startsWith("iVBOR")) {
-      dataUrl = `data:image/png;base64,${raw}`;
+      mimeType = "image/png";
     } else if (raw.startsWith("/9j/")) {
-      dataUrl = `data:image/jpeg;base64,${raw}`;
+      mimeType = "image/jpeg";
     } else {
       return NextResponse.json({ error: "unsupported_mime", detail: "Only JPG and PNG prescriptions are supported." }, { status: 415 });
     }
 
-    // The SDK auto-selects its VLM model at runtime when `model` is omitted —
-    // the same proven shape as src/lib/openrouter.ts callZAI. Its published
-    // types over-constrain (`model` "required"), so use a precise local type.
-    type VisionBody = { messages: Array<{ role: string; content: Array<{ type: string; text?: string } | { type: string; image_url: { url: string } }> }>; thinking?: { type: "enabled" | "disabled" } };
-    type VisionResult = { choices?: Array<{ message?: { content?: string } }> };
-    const completion = await (zai.chat.completions.createVision as (b: VisionBody) => Promise<VisionResult>)({
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: SYSTEM_PROMPT },
-            { type: "image_url", image_url: { url: dataUrl } },
-          ],
-        },
-      ],
-      thinking: { type: "disabled" },
-    });
-
-    const content = completion.choices?.[0]?.message?.content?.trim() || "";
-    const start = content.indexOf("{");
-    const end = content.lastIndexOf("}");
-    let extracted: { items: { name: string; dosage?: string; duration?: string }[]; notes?: string } = {
+    // Canonical AI client: runVision runs the model and parses the STRICT JSON
+    // reply with the shared robust parse (fence/prose-wrapped/trailing-comma
+    // tolerant), replacing this route's old brace-slicing. A JSON.parse
+    // failure surfaces as SyntaxError → graceful empty extraction (same 200
+    // shape as before); provider/timeout/empty failures rethrow → 500
+    // ocr_failed, exactly like the old SDK path.
+    type OcrExtraction = { items: { name: string; dosage?: string; duration?: string }[]; notes?: string };
+    let extracted: OcrExtraction = {
       items: [],
     };
-    if (start >= 0 && end > start) {
-      try {
-        extracted = JSON.parse(content.slice(start, end + 1));
-      } catch {
-        /* keep empty */
+    let rawOutput = "";
+    try {
+      extracted = await runVision<OcrExtraction>(raw, mimeType, SYSTEM_PROMPT);
+      rawOutput = JSON.stringify(extracted);
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        // keep empty — model returned no parseable JSON
+        log.warn("pharmacy", "prescription_ocr_parse_fallback", { err: e.message });
+      } else {
+        throw e;
       }
     }
 
@@ -117,7 +106,7 @@ async function POST_impl(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ items: mapped, notes: extracted.notes || "", raw: content });
+    return NextResponse.json({ items: mapped, notes: extracted.notes || "", raw: rawOutput });
   } catch (err) {
     log.error("pharmacy", "prescription_ocr_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "ocr_failed", detail: "The prescription could not be read. Please retry with a clearer photo." }, { status: 500 });

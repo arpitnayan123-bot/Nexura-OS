@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { log } from "@/lib/logger";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { runTextRaw } from "@/lib/openrouter";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const SYSTEM_PROMPT =
+  "You are a pharmacy BI assistant. The pharmacist asks natural language questions about their pharmacy. Answer concisely (2-3 sentences). If about expiring medicines, say 'Check the Expiry Management section in Settings'. If about outstanding dues, say 'Check the Customers section'. For sales/revenue, give a brief insight.";
 
 // POST /api/pharmacy/ai-query { query }
 async function POST_impl(req: NextRequest) {
@@ -15,16 +19,11 @@ async function POST_impl(req: NextRequest) {
     const query = typeof body?.query === "string" ? body.query.trim() : "";
     if (!query) return NextResponse.json({ error: "no_query" }, { status: 400 });
 
-    const ZAI = (await import("z-ai-web-dev-sdk")).default;
-    const zai = await ZAI.create();
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: "assistant", content: "You are a pharmacy BI assistant. The pharmacist asks natural language questions about their pharmacy. Answer concisely (2-3 sentences). If about expiring medicines, say 'Check the Expiry Management section in Settings'. If about outstanding dues, say 'Check the Customers section'. For sales/revenue, give a brief insight." },
-        { role: "user", content: query },
-      ],
-      thinking: { type: "disabled" },
-    });
-    const text = completion.choices?.[0]?.message?.content?.trim() || "No data found";
+    // Canonical AI client. runText (JSON-parsed) is deliberately NOT used
+    // here: this route returns free-text prose and the client renders
+    // `text` as a string, so a JSON parse would corrupt every answer —
+    // runTextRaw keeps the { text, query } contract byte-identical.
+    const text = (await runTextRaw(query, SYSTEM_PROMPT)).trim() || "No data found";
     return NextResponse.json({ text, query });
   } catch (err) {
     log.error("pharmacy", "ai_query_failed", { err: err instanceof Error ? err.message : String(err) });

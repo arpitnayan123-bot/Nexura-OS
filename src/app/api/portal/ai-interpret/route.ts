@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { getPortalCaller } from "@/lib/portal-session";
+import { runTextRaw } from "@/lib/openrouter";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,7 +23,8 @@ interface LabTest {
 /**
  * POST /api/portal/ai-interpret
  *   { bookingId }
- * Reads booking.reportJson, calls LLM (glm-4-plus via z-ai-web-dev-sdk).
+ * Reads booking.reportJson, calls the LLM via the canonical AI client
+ * (src/lib/openrouter.ts).
  * Caching: if booking.aiInterpretation already exists, returns cached.
  * Fallback: rule-based summary if LLM fails.
  */
@@ -74,28 +76,12 @@ ${abnormals.length > 0 ? abnormals.map((t) => `- ${t.name}: ${t.value} ${t.unit}
 
 Provide a clear, empathetic clinical interpretation in markdown. Under 300 words. End with a disclaimer line starting with "> ⚠️ Disclaimer:".`;
 
-    // ---- Call GLM-4-Plus via z-ai-web-dev-sdk (server-side dynamic import) ----
+    // ---- Call the LLM via the canonical client (markdown prose, NOT JSON —
+    // runText's parseJson would corrupt it, hence runTextRaw) ----
     let interpretation = "";
     let source: "llm" | "rule-based" = "llm";
     try {
-      const ZAIModule = await import("z-ai-web-dev-sdk");
-      const ZAI = ZAIModule.default;
-      const zai = await ZAI.create();
-
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userPrompt },
-        ],
-        // The SDK exposes glm-4-plus; if model param unsupported, it falls back
-        model: "glm-4-plus",
-        temperature: 0.4,
-        max_tokens: 700,
-      });
-
-      interpretation =
-        (completion as { choices?: { message?: { content?: string } }[] })?.choices?.[0]?.message?.content ??
-        "";
+      interpretation = await runTextRaw(userPrompt, SYSTEM_PROMPT);
     } catch (llmErr) {
       log.warn("portal", "ai_interpret_llm_fallback", { err: llmErr instanceof Error ? llmErr.message : String(llmErr) });
       source = "rule-based";

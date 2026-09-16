@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { log } from "@/lib/logger";
 import { aiGate } from "@/lib/nx/ai-guard";
+import { runChatText } from "@/lib/openrouter";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,15 +48,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "message or messages is required" }, { status: 400 });
     }
 
-    const ZAI = (await import("z-ai-web-dev-sdk")).default;
-    const zai = await ZAI.create();
-
-    const completion = await zai.chat.completions.create({
-      messages: [{ role: "assistant", content: SYSTEM_PROMPT }, ...conversation],
-      thinking: { type: "disabled" },
-    });
-
-    const reply = completion.choices?.[0]?.message?.content?.trim();
+    // Canonical AI client. The SDK convention sent the system prompt with the
+    // "assistant" role; runChatText takes it as "system" and callZAI maps it
+    // back for the SDK path, so both providers see the same conversation.
+    const reply = (
+      await runChatText([{ role: "system", content: SYSTEM_PROMPT }, ...conversation])
+    ).trim();
 
     if (!reply) {
       return NextResponse.json({ error: "empty model response" }, { status: 502 });
