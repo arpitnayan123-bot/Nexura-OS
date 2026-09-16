@@ -16,6 +16,15 @@ packaging steps. `build:standalone` is what Docker and self-hosted runs use.
 `postinstall` also runs `prisma generate` so the client exists on any CI
 before the build's page-data collection evaluates route modules.
 
+**Builds require no secrets** (vercel-deploy-2): the JWT signing secret is
+resolved lazily on first sign/verify — not at module evaluation — so
+`next build` completes even with zero environment variables (verified by
+building with every var masked). This changes nothing at runtime: the boot
+gate (`assertProductionEnv`) still refuses to serve a production deployment
+without `DATABASE_URL` / `JWT_SECRET` / `REDIS_URL`, and the first sign/verify
+without a real secret throws the same fail-fast error. A green build is not
+a working app — the three variables below are still mandatory.
+
 ## Docker
 ```bash
 docker compose up --build -d
@@ -46,7 +55,7 @@ without all three):
 | Variable | Value |
 |---|---|
 | `DATABASE_URL` | Hosted Postgres (Vercel Postgres/Neon/Supabase). Local `127.0.0.1` is unreachable from Vercel |
-| `JWT_SECRET` | `openssl rand -hex 32` (>=16 chars; the build-phase module gate also needs it present) |
+| `JWT_SECRET` | `openssl rand -hex 32` (>=16 chars) — runtime-only; the build no longer needs it |
 | `REDIS_URL` | Upstash Redis (Storage tab integration) — rate limiting, SSE event bus, sync leases are Redis-backed |
 
 **Recommended:** `NEXT_PUBLIC_SITE_URL` (your Vercel URL), `DEMO_MODE=true`
