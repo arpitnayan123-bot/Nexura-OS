@@ -66,7 +66,7 @@ Rules:
 - avoid foods that conflict with medicalConditions.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.diet-planner");
     if (!result?.mealPlan) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {

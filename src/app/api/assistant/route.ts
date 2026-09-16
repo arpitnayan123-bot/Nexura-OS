@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     // "assistant" role; runChatText takes it as "system" and callZAI maps it
     // back for the SDK path, so both providers see the same conversation.
     const reply = (
-      await runChatText([{ role: "system", content: SYSTEM_PROMPT }, ...conversation])
+      await runChatText([{ role: "system", content: SYSTEM_PROMPT }, ...conversation], "portal.assistant")
     ).trim();
 
     if (!reply) {

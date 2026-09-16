@@ -53,7 +53,7 @@ Rules:
 - max 6 recommendations, 4 alertFlags, 5 dietTips.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.diabetes-care");
     if (!result?.status) throw new Error("invalid_response");
     // Normalize the status to the 3-value contract the UI renders — a model
     // returning "Controlled" / "Partially controlled" must never crash the view.

@@ -91,7 +91,18 @@ src/lib/openrouter.ts — THE canonical AI client
    ├─ runTextRaw ................. markdown/prose outputs
    ├─ providers: OpenRouter (OPENROUTER_API_KEY) → z-ai SDK fallback
    ├─ 45s abort on the OpenRouter path
-   └─ activeModelId(): the real provider path, reported in telemetry
+   ├─ activeModelId(): the real provider path, reported in telemetry
+   └─ EVERY call records an AiUsageLog row (fire-and-forget, never blocks
+      or fails the AI call): capability label, provider, tokens, integer
+      micro-USD cost, latency, fallback, error
+   ▼
+src/lib/ai-usage.ts — cost/token accounting (ai-cost-metering-1)
+   ├─ tokenSource / costSource tracked SEPARATELY: "provider" (OpenRouter
+   │  usage.include reporting) vs "estimated" (char heuristic + local price
+   │  table) vs "unknown" (failed calls)
+   ├─ price table is CONFIGURATION (approx glm-flash rates) — estimates stay
+   │  labelled; no prompt/completion content is ever stored, metadata only
+   └─ aiUsageSummary(): per-capability/provider rollup for /api/nx/ai/usage
    ▼
 src/lib/nx/ai-governance.ts — governance for identified-patient AI
    ├─ consent ENFORCED (403 ai_consent_required when not granted; demo posture)
@@ -103,8 +114,12 @@ src/lib/nx/ai-governance.ts — governance for identified-patient AI
 HITL loop: NxAiFeedback + /api/nx/ai/report (override rate, fallbacks, blocks)
 ```
 
-**Honest capability statement:** fallback (OR→SDK) exists; cost accounting and
-token-usage accounting do **not** exist; ASR/TTS are only available via the
+**Honest capability statement:** fallback (OR→SDK) exists; cost/token
+accounting exists as an OPERATIONAL ESTIMATE ledger (`AiUsageLog` +
+`/api/nx/ai/usage`, audit.view-gated) — provider-reported where OpenRouter
+serves the call, char-heuristic estimates otherwise, and not yet a billing
+feed. Per-request USER identity is not yet attributed (requestId threading
+via AsyncLocalStorage is future work); ASR/TTS are only available via the
 z-ai SDK (documented gap, `pharmacy/voice-bill`); prompt versions are
 hand-maintained in `PROMPT_VERSIONS`. The former `src/lib/ai/gateway.ts`
 (494-line zero-caller scaffold implying otherwise) was deleted.

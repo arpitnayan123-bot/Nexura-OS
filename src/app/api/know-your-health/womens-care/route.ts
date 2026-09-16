@@ -48,7 +48,7 @@ Rules:
 - For pregnancy-related concerns, always recommend antenatal care.
 - No markdown. JSON only.`;
 
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.womens-care");
     if (!result?.assessment) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {

@@ -33,7 +33,7 @@ Rules:
 - Mix of easy, medium, hard.
 - Use Indian context (ICMR ranges, Indian foods, NFHS-5 stats).
 - No markdown. JSON only.`;
-    const result = await runText<any>(prompt, INDIA_PREAMBLE);
+    const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.health-quiz");
     if (!Array.isArray(result?.questions) || result.questions.length === 0) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
