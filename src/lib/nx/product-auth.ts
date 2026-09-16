@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isDemoMode } from "@/lib/env";
 import { getSessionFresh, type NxSession } from "@/lib/nx/session";
 import { withRoute } from "@/lib/nx/api";
+import { setAiActor } from "@/lib/ai-actor";
 
 /* ============================================================
    NEXURA OS — PRODUCT SURFACE AUTH CORE (backend-core-1)
@@ -101,6 +102,12 @@ export function withProductAuth<P = Record<string, string>>(
     async (req, rctx) => {
       const auth = await resolveProductAuth(req, surface);
       if ("response" in auth) return auth.response;
+      // AI attribution on product surfaces: pharmacy/clinic console calls
+      // record the verified staff identity in AiUsageLog. The demo
+      // principal is labelled honestly as "demo" — synthetic posture, not
+      // a person (production always resolves a real staff session here).
+      const p = auth.principal;
+      setAiActor(p.kind === "staff" ? { userId: p.session.userId, role: p.session.role } : { userId: "demo", role: p.role });
       return handler(req, { ...rctx, principal: auth.principal });
     },
     opts
