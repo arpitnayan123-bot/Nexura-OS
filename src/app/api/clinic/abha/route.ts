@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { log } from "@/lib/logger";
+import { isDemoMode } from "@/lib/env";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -9,6 +10,16 @@ export const dynamic = "force-dynamic";
 // In production this calls the ABDM Health ID API (https://healthids.abdm.gov.in)
 async function POST_impl(req: NextRequest) {
   try {
+    /* Explicit demo boundary: this endpoint FABRICATES a patient identity
+       (name/DOB/phone/blood group) from any ABHA id via a charcode hash. A
+       clinician pulling a real ABHA number must never receive a synthetic
+       human — production returns 501 until the real ABDM integration lands. */
+    if (!isDemoMode()) {
+      return NextResponse.json(
+        { error: "abdm_not_integrated", detail: "ABDM registry integration is not connected. Synthetic ABHA lookup is disabled outside demo mode." },
+        { status: 501 }
+      );
+    }
     const body = await req.json().catch(() => ({}));
     const abhaId = typeof body?.abhaId === "string" ? body.abhaId.trim() : "";
     if (!abhaId || abhaId.length < 8) {

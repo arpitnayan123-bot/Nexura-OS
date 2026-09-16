@@ -1,5 +1,15 @@
 import { db } from "@/lib/db";
 
+/* Demo-seed guard: demo seeds write synthetic patients/staff with known
+   passwords and demo API keys — they must never run against a production
+   database by accident. Override requires an explicit, intentional flag. */
+if (process.env.NODE_ENV === "production" && process.env.SEED_DEMO_OVERRIDE !== "true") {
+  console.error(
+    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true."
+  );
+  process.exit(1);
+}
+
 async function main() {
   // Wipe
   await db.connectQueue.deleteMany();

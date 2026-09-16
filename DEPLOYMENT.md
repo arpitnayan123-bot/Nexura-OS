@@ -67,16 +67,18 @@ Run this as a release-gate step (CI job, deploy hook, or one-off container)
 `node scripts/db-backup.mjs` + `node scripts/db-restore-validate.mjs`
 (pg_dump-based backup/restore validation).
 
-## Step 6: Seed Production Database (Optional)
+## Step 6: DO NOT Seed a Production Database
 
-```bash
-# Full demo chain (base hospital -> OS staff/RBAC -> v4 OS data):
-DATABASE_URL="..." bun scripts/legacy/seed-hospital.ts
-DATABASE_URL="..." bun scripts/seed-nx.ts
-DATABASE_URL="..." bun scripts/seed-nx-v4.ts
-# or simply: bun run seed:all
-# Optional product seeds (legacy paths moved to scripts/legacy/):
-```
+The `scripts/seed-*.ts` files write **demo data**: synthetic patients, staff
+accounts with the published demo password `Demo@12345`, and a demo partner
+API key. Seeding them into production would create known-credential accounts
+with access to real patient records.
+
+Every seed script refuses to run when `NODE_ENV=production` unless
+`SEED_DEMO_OVERRIDE=true` is set explicitly. Production setup ends at Step 5:
+create the first hospital and staff through the onboarding flow (`/api/nx/onboard`)
+or a controlled admin bootstrap — never through the demo seeds.
+
 
 ## Step 7: Deploy
 
