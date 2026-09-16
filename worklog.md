@@ -268,3 +268,25 @@ Work Log:
 Stage Summary:
 - Fresh clones now get the env template showing exactly what the production boot gate requires (DATABASE_URL/JWT_SECRET/REDIS_URL) — .env itself remains untracked
 - Non-code change (2 files + worklog): tsc/eslint/vitest unaffected; lock tag hardening-locked-final still marks the verified hardening tree
+
+---
+Task ID: money-paise-1
+Agent: main (Super Z)
+Task: Float→paise migration — legacy pharmacy/clinic money columns to integer paise (branch money-paise-1, off locked main)
+
+Work Log:
+- Audited all 97 schema Floats: classified 45 money columns across 18 models (pharmacy: ProductBatch/Sale/SaleItem/Purchase+Item/NearExpiryReturn+Item/DayClosing(11)/SupplierPayment/CustomerAccount/CustomerPayment; clinic: HospitalBill/InsuranceClaim/ClinicInvoice/HospitalDoctor/HospitalMedicine/ClinicDoctor; + NxInsuranceContract 2 cols, zero-usage) vs non-money (vitals, lab ranges, ratings, confidence, Pie signals) vs RATES kept Float deliberately (India 0.25% GST slabs — Int rates would corrupt)
+- schema.prisma: 45 columns Float→Int with // paise comments (Nx convention: plain name, Int, unit comment); defaults @default(0) kept; consultationFee/feeConsult defaults 500→50000
+- Migration 20260919000000_money_columns_to_int_paise: hand-written ALTER...USING round(col::numeric*100)::int (Prisma default cast would truncate without ×100); REHEARSED on scratch DB (pg_dump nexura→nexura_scratch, spot values exact: 203→20300, 767→76700, 500→50000) before live prisma migrate deploy; live DB verified integer
+- Canonical src/lib/money.ts: rupeeToPaise/paiseToRupee/gstOnPaise/roundToRupee + per-model field registries + saleWithItemsToRupees — single conversion boundary
+- Boundary convention: wire keeps RUPEES (API contract byte-compatible, product UI untouched); storage+arithmetic integer paise only
+- Rewrote pharmacy billing POST (integer GST, no +x.toFixed(2) hacks, roundToRupee total), GET serialization; purchases (rupees in → paise, integer lineTotals), returns (GET mrp rupees, POST paise math), day-closing (exact integer sums ÷100; POST whitelisted via zod — closes the `data as any` mass-assignment hole; no UI caller), suppliers (payment+paidAmount increment now ONE transaction — closes paid-ledger split risk; zod), customers-accounts (zod, paise), e-invoice (statutory rupee outputs via paiseToRupee; EWAY THRESHOLD FIXED 50000→5_000_000 paise = ₹50k — unit bug would have triggered on every ₹500+ invoice), connect prescriptions/sync (paise math, rupee wire in JSON + response), voice-bill + prescription-ocr (mrp→rupees for POS prefill), clinic billing/dashboard/visit (feeConsult/sums/invoice writes), nx billing v1 (stats/bills/claims ÷100), patients/[id] (billed+paid SAME unit now — was mixed rupee-float vs paise), overview + analytics revenue (÷100; paymentTrend + revenue_collected_paise metric left paise — pre-existing labeled convention), billing/v2 (docs only: summary now same-unit paise; paid>=totalPayable recompute is a TRUE paise-vs-paise comparison for the first time)
+- Seeds: seed-pharmacy-compliance (creditLimit ₹50k, payment ₹500), seed-chronic (integer GST rework), legacy seed-pharmacy (mrp/purchaseRate paise), legacy seed-hospital (8 consultationFees ×100, bills 65000/1150000 + rounded GST, claims paise), legacy seed-clinic (feeConsult ×100 — fixed a sed comment-swallow bug); legacy excluded from tsc but runtime-verified
+- tourism Float money DEFERRED honestly (public marketing site, USD display, no transactional writes) — documented in ARCHITECTURE.md §5
+- Gates: prisma validate OK; tsc 0; eslint 0; vitest 280/280; smoke 46/46 after deploy (26 fails on stale server pre-rebuild, resolved by deploy-preview); DEPLOY VERIFIED
+- End-to-end live proof: real POS sale INV-2026-0004 (2 strips @ mrp 3060 paise) → DB row {6120, 367, 367, 46, 6900} all integer, wire {61.2, 3.67, 3.67, 0.46, 69} rupees identical to pre-migration display, stock 8→6 via transactional decrement
+
+Stage Summary:
+- The last data-engineering gap from the 20-phase report is closed: money is integer paise everywhere, computation is exact, the wire/UI contract is unchanged, and the doc set no longer contradicts itself (KNOWN_LIMITATIONS "integer paise; no floats" now literally true)
+- Two bonus hardening fixes landed with the migration: day-closing mass-assignment hole closed, supplier payment + paidAmount increment made atomic, e-way bill threshold unit bug fixed
+- Honest residuals: tourism display money still Float (documented); NxInsuranceContract Int change is zero-usage schema alignment

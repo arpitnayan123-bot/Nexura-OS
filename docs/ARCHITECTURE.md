@@ -129,9 +129,20 @@ hand-maintained in `PROMPT_VERSIONS`. The former `src/lib/ai/gateway.ts`
 ## 5. Money, invariants, and concurrency
 
 - Nx layer money: integer paise (`NxCharge`, `NxPayment`, `NxPurchaseOrder`).
-  **Legacy pharmacy/clinic money columns are still Float rupees** — the single
-  largest remaining data-engineering item (see PRODUCTION_STATUS.md → Known
-  gaps). Do not mix paise and rupee floats in one aggregate.
+  **All money columns are integer paise** (migration
+  `20260919000000_money_columns_to_int_paise` converted the legacy
+  pharmacy/clinic Float rupee columns; 45 columns across ProductBatch, Sale,
+  SaleItem, Purchase(+Item), NearExpiryReturn(+Item), DayClosing,
+  SupplierPayment, CustomerAccount, CustomerPayment, HospitalBill,
+  InsuranceClaim, ClinicInvoice, HospitalDoctor, ClinicDoctor,
+  HospitalMedicine, NxInsuranceContract). Wire contracts still speak RUPEES:
+  request payloads accept rupees and responses serialize paise→rupees via
+  `src/lib/money.ts` (`rupeeToPaise`/`paiseToRupee`/`gstOnPaise`), so the
+  product UI is unchanged. GST math is `gstOnPaise` — integer base, one
+  nearest-paise rounding. Tax RATES (cgstRate/sgstRate/gstRate/discountPct)
+  remain Float percentages (India has 0.25% slabs; rates are not money).
+  Tourism marketing money (estimatedCostUSD/INR, priceUSD) is still Float —
+  public-site display data, no transactional writes (documented residual).
 - Critical writes are single transactions with in-WHERE guards:
   pharmacy sale (`$transaction` + conditional stock decrement + invoice P2002
   retry), goods receipt (batch-identity upsert), returns, MAR (compare-and-set,
