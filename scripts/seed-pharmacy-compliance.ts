@@ -45,7 +45,7 @@ async function main() {
   // ---- Customer accounts (credit) ----
   // give the non-walk-in customers a credit account
   for (const c of customers.filter((x) => x.name !== "Walk-in")) {
-    await db.customerAccount.create({ data: { customerId: c.id, creditLimit: 50000 } });
+    await db.customerAccount.create({ data: { customerId: c.id, creditLimit: 5_000_000 } }); // ₹50,000 in paise
   }
 
   // mark some sales as credit (to create outstanding balances)
@@ -60,7 +60,7 @@ async function main() {
   // a couple of customer payments (partial)
   const accCustomers = customers.filter((c) => c.name !== "Walk-in");
   if (accCustomers[0]) {
-    await db.customerPayment.create({ data: { customerId: accCustomers[0].id, amount: 500, payMode: "upi", refNo: "PAY-001", notes: "Partial payment" } });
+    await db.customerPayment.create({ data: { customerId: accCustomers[0].id, amount: 50_000, payMode: "upi", refNo: "PAY-001", notes: "Partial payment" } }); // ₹500 in paise
   }
 
   // ---- Schedule H register entries (audit format) ----

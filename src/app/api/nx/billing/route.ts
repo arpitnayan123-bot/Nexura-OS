@@ -29,8 +29,11 @@ export const GET = withRoute("nx.billing.revenue", async (req: NextRequest) => {
     }),
   ]);
 
-  const totalBilled = bills.reduce((s, b) => s + b.totalPayable, 0);
-  const collected = bills.filter((b) => b.paymentStatus === "paid").reduce((s, b) => s + b.totalPayable, 0);
+  /* totalPayable is integer paise — exact integer sums, rupees at the wire. */
+  const totalBilledPaise = bills.reduce((s, b) => s + b.totalPayable, 0);
+  const collectedPaise = bills.filter((b) => b.paymentStatus === "paid").reduce((s, b) => s + b.totalPayable, 0);
+  const totalBilled = totalBilledPaise / 100;
+  const collected = collectedPaise / 100;
   const pending = totalBilled - collected;
 
   return NextResponse.json({
@@ -45,13 +48,13 @@ export const GET = withRoute("nx.billing.revenue", async (req: NextRequest) => {
       claimsRejected: claims.filter((c) => c.preAuthStatus === "rejected").length,
     },
     bills: bills.map((b) => ({
-      id: b.id, patient: b.patient, uhid: b.patientUhid, amount: b.totalPayable,
+      id: b.id, patient: b.patient, uhid: b.patientUhid, amount: b.totalPayable / 100,
       paymentStatus: b.paymentStatus, paymentMode: b.paymentMode,
       createdAt: b.createdAt,
     })),
     claims: claims.map((c) => ({
       id: c.id, patient: c.patient, tpa: c.tpaCompany, policy: c.policyNumber, icd10: c.icd10Primary,
-      estimated: c.estimatedCost, approved: c.approvedAmount, status: c.preAuthStatus,
+      estimated: c.estimatedCost / 100, approved: c.approvedAmount / 100, status: c.preAuthStatus,
       submittedAt: c.submittedAt, createdAt: c.createdAt,
     })),
   });

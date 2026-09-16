@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { AMOUNT_PAISE, CREDIT_LIMIT_PAISE, SALE_PAISE, rupeeToPaise, toRupees, toRupeesAll } from "@/lib/money";
+import { z } from "zod";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,12 +21,15 @@ async function GET_impl() {
         account: true,
       },
     });
+    /* Sale.total, CustomerPayment.amount, CustomerAccount.creditLimit are
+       integer paise — ledger sums are exact; serialize to rupees once here. */
     const withLedger = customers.map((c) => {
-      const creditBills = c.sales;
+      const creditBills = toRupeesAll(c.sales, SALE_PAISE);
+      const payments = toRupeesAll(c.payments, AMOUNT_PAISE);
       const totalBilled = creditBills.reduce((s, b) => s + b.total, 0);
-      const totalPaid = c.payments.reduce((s, p) => s + p.amount, 0);
+      const totalPaid = payments.reduce((s, p) => s + p.amount, 0);
       const outstanding = totalBilled - totalPaid;
-      return { ...c, totalBilled, totalPaid, outstanding, hasAccount: !!c.account };
+      return { ...c, sales: creditBills, payments, totalBilled, totalPaid, outstanding, hasAccount: !!c.account, account: c.account ? toRupees(c.account, CREDIT_LIMIT_PAISE) : null };
     });
     return NextResponse.json({ customers: withLedger.filter((c) => c.name !== "Walk-in") });
   } catch (err) {
@@ -33,18 +38,27 @@ async function GET_impl() {
   }
 }
 
-// POST — record a customer payment (partial/full)
+// POST — record a customer payment (rupees in, paise stored)
+const CustomerPaymentSchema = z.object({
+  customerId: z.string().min(1),
+  saleId: z.string().min(1).optional(),
+  amount: z.number().min(0.01).max(100_000_000),
+  payMode: z.enum(["cash", "upi", "card", "credit"]).default("cash"),
+  refNo: z.string().trim().max(60).optional(),
+  notes: z.string().trim().max(300).optional(),
+});
+
 async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
-    const body = await req.json().catch(() => ({}));
-    const { customerId, saleId, amount, payMode, refNo, notes } = body as { customerId?: string; saleId?: string; amount?: number; payMode?: string; refNo?: string; notes?: string };
-    if (!customerId || !amount || amount <= 0) return NextResponse.json({ error: "missing" }, { status: 400 });
+    const parsed = CustomerPaymentSchema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) return NextResponse.json({ error: "invalid_request", detail: "Invalid customer payment payload." }, { status: 400 });
+    const { customerId, saleId, amount, payMode, refNo, notes } = parsed.data;
     const payment = await db.customerPayment.create({
-      data: { customerId, saleId: saleId || null, amount, payMode: payMode || "cash", refNo: refNo || null, notes: notes || null },
+      data: { customerId, saleId: saleId || null, amount: rupeeToPaise(amount), payMode, refNo: refNo || null, notes: notes || null },
     });
-    return NextResponse.json({ ok: true, payment });
+    return NextResponse.json({ ok: true, payment: toRupees(payment, AMOUNT_PAISE) });
   } catch (err) {
     log.error("pharmacy", "customer_payment_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "customer_payment_failed", detail: "The payment could not be recorded. Please retry." }, { status: 500 });

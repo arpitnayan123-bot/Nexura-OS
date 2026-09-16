@@ -35,14 +35,14 @@ async function main() {
 
   // 2. Doctors (8)
   const doctors = await Promise.all([
-    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Rajesh Kumar Sharma", regNo: "MMC-12345", specialty: "General Physician", department: "General Medicine", consultationFee: 600, availableHours: '{"start":"09:00","end":"17:00"}', languagesSpoken: '["Hindi","English"]', photoUrl: null } }),
-    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Priya Nair", regNo: "MMC-23456", specialty: "Cardiologist", department: "Cardiology", consultationFee: 1200, availableHours: '{"start":"10:00","end":"18:00"}', languagesSpoken: '["Hindi","English","Malayalam"]' } }),
-    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Vikram Patel", regNo: "MMC-34567", specialty: "General Surgeon", department: "Surgery", consultationFee: 1500, availableHours: '{"start":"08:00","end":"16:00"}', languagesSpoken: '["Hindi","English","Gujarati"]' } }),
-    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Anjali Reddy", regNo: "MMC-45678", specialty: "Pediatrician", department: "Pediatrics", consultationFee: 700, availableHours: '{"start":"09:00","end":"17:00"}', languagesSpoken: '["Hindi","English","Telugu"]' } }),
-    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Suresh Iyer", regNo: "MMC-56789", specialty: "Orthopedic Surgeon", department: "Orthopedics", consultationFee: 1000, availableHours: '{"start":"10:00","end":"18:00"}', languagesSpoken: '["Hindi","English","Tamil"]' } }),
-    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Meera Joshi", regNo: "MMC-67890", specialty: "Gynecologist", department: "Gynecology", consultationFee: 800, availableHours: '{"start":"09:00","end":"17:00"}', languagesSpoken: '["Hindi","English","Marathi"]' } }),
-    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Arjun Singh", regNo: "MMC-78901", specialty: "Neurologist", department: "Neurology", consultationFee: 1500, availableHours: '{"start":"11:00","end":"19:00"}', languagesSpoken: '["Hindi","English","Punjabi"]' } }),
-    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Kavya Krishnan", regNo: "MMC-89012", specialty: "Anesthesiologist", department: "Anesthesia", consultationFee: 1000, availableHours: '{"start":"08:00","end":"20:00"}', languagesSpoken: '["Hindi","English","Kannada"]' } }),
+    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Rajesh Kumar Sharma", regNo: "MMC-12345", specialty: "General Physician", department: "General Medicine", consultationFee: 60000, availableHours: '{"start":"09:00","end":"17:00"}', languagesSpoken: '["Hindi","English"]', photoUrl: null } }),
+    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Priya Nair", regNo: "MMC-23456", specialty: "Cardiologist", department: "Cardiology", consultationFee: 120000, availableHours: '{"start":"10:00","end":"18:00"}', languagesSpoken: '["Hindi","English","Malayalam"]' } }),
+    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Vikram Patel", regNo: "MMC-34567", specialty: "General Surgeon", department: "Surgery", consultationFee: 150000, availableHours: '{"start":"08:00","end":"16:00"}', languagesSpoken: '["Hindi","English","Gujarati"]' } }),
+    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Anjali Reddy", regNo: "MMC-45678", specialty: "Pediatrician", department: "Pediatrics", consultationFee: 70000, availableHours: '{"start":"09:00","end":"17:00"}', languagesSpoken: '["Hindi","English","Telugu"]' } }),
+    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Suresh Iyer", regNo: "MMC-56789", specialty: "Orthopedic Surgeon", department: "Orthopedics", consultationFee: 100000, availableHours: '{"start":"10:00","end":"18:00"}', languagesSpoken: '["Hindi","English","Tamil"]' } }),
+    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Meera Joshi", regNo: "MMC-67890", specialty: "Gynecologist", department: "Gynecology", consultationFee: 80000, availableHours: '{"start":"09:00","end":"17:00"}', languagesSpoken: '["Hindi","English","Marathi"]' } }),
+    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Arjun Singh", regNo: "MMC-78901", specialty: "Neurologist", department: "Neurology", consultationFee: 150000, availableHours: '{"start":"11:00","end":"19:00"}', languagesSpoken: '["Hindi","English","Punjabi"]' } }),
+    db.hospitalDoctor.create({ data: { hospitalId: hospital.id, name: "Dr. Kavya Krishnan", regNo: "MMC-89012", specialty: "Anesthesiologist", department: "Anesthesia", consultationFee: 100000, availableHours: '{"start":"08:00","end":"20:00"}', languagesSpoken: '["Hindi","English","Kannada"]' } }),
   ]);
   console.log(`✓ Doctors: ${doctors.length}`);
 
@@ -404,10 +404,10 @@ async function main() {
         tpaCompany: patient.insuranceProvider,
         policyNumber: patient.insurancePolicyNo,
         icd10Primary: "I21.9",
-        estimatedCost: 50000 + Math.random() * 100000,
+        estimatedCost: 5_000_000 + Math.random() * 10_000_000,
         preAuthStatus: claimsCount < 2 ? "approved" : claimsCount < 3 ? "submitted" : "draft",
-        approvedAmount: claimsCount < 2 ? 40000 + Math.random() * 50000 : 0,
-        patientCopay: 5000,
+        approvedAmount: claimsCount < 2 ? 4_000_000 + Math.random() * 5_000_000 : 0,
+        patientCopay: 500_000,
         cashless: true,
         submittedAt: claimsCount < 3 ? new Date(Date.now() - 86400000) : null,
         approvedAt: claimsCount < 2 ? new Date() : null,
@@ -424,9 +424,9 @@ async function main() {
       { service: "Consultation", category: "OPD", quantity: 1, rate: 600, amount: 600 },
       { service: "Registration", category: "Admin", quantity: 1, rate: 50, amount: 50 },
     ];
-    const subtotal = 650;
-    const cgst = subtotal * 0.09;
-    const sgst = subtotal * 0.09;
+    const subtotal = 65000; // paise (₹650)
+    const cgst = Math.round(subtotal * 0.09);
+    const sgst = Math.round(subtotal * 0.09);
     await db.hospitalBill.create({
       data: {
         hospitalId: hospital.id,
@@ -450,9 +450,9 @@ async function main() {
       { service: "Nursing Charges", category: "IPD", quantity: 2, rate: 1500, amount: 3000 },
       { service: "Medicines", category: "Pharmacy", quantity: 1, rate: 2500, amount: 2500 },
     ];
-    const subtotal = 11500;
-    const cgst = subtotal * 0.09;
-    const sgst = subtotal * 0.09;
+    const subtotal = 1150000; // paise (₹11,500)
+    const cgst = Math.round(subtotal * 0.09);
+    const sgst = Math.round(subtotal * 0.09);
     await db.hospitalBill.create({
       data: {
         hospitalId: hospital.id,

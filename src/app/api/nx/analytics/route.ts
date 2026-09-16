@@ -83,8 +83,9 @@ export const GET = withRoute("nx.analytics.metrics", async (req: NextRequest) =>
     const dayBills = bills.filter((b) => b.createdAt >= day && b.createdAt < next);
     revenueTrend.push({
       day: day.toISOString().slice(5, 10),
-      revenue: dayBills.reduce((s, b) => s + b.totalPayable, 0),
-      collected: dayBills.filter((b) => b.paymentStatus === "paid").reduce((s, b) => s + b.totalPayable, 0),
+      /* totalPayable is integer paise — exact sums, rupees at the wire */
+      revenue: dayBills.reduce((s, b) => s + b.totalPayable, 0) / 100,
+      collected: dayBills.filter((b) => b.paymentStatus === "paid").reduce((s, b) => s + b.totalPayable, 0) / 100,
     });
   }
 

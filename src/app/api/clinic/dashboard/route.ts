@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
 import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { FEE_CONSULT_PAISE, toRupeesAll } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -58,7 +59,7 @@ async function GET_impl() {
           const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - i);
           const next = new Date(d); next.setDate(next.getDate() + 1);
           const revenue = bills.filter((b) => b.createdAt >= d && b.createdAt < next).reduce((s, b) => s + b.total, 0);
-          trend.push({ date: d.toISOString().slice(5, 10), revenue: Math.round(revenue) });
+          trend.push({ date: d.toISOString().slice(5, 10), revenue: Math.round(revenue / 100) });
         }
         return trend;
       })(),
@@ -71,10 +72,10 @@ async function GET_impl() {
         appointmentsToday: todaysAppts,
         waiting,
         done,
-        revenueToday: revenueAgg._sum.total ?? 0,
-        outstanding: outstandingAgg._sum.total ?? 0,
+        revenueToday: (revenueAgg._sum.total ?? 0) / 100,
+        outstanding: (outstandingAgg._sum.total ?? 0) / 100,
       },
-      doctors,
+      doctors: toRupeesAll(doctors, FEE_CONSULT_PAISE),
       appointments: appts.map((a) => ({ ...a, source: (a as any).source || "walkin" })),
       pendingOnlineBookings: pendingBookings,
       revenueTrend7d: revTrend,

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { gstOnPaise, paiseToRupee } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,35 +64,40 @@ async function POST_impl(req: NextRequest) {
         Stcd: stateCode(sale.branch.state),
         Pos: stateCode(sale.branch.state),
       },
-      ItemList: sale.items.map((it, i) => ({
+      ItemList: sale.items.map((it, i) => {
+        /* storage is integer paise; the GSTN e-invoice schema wants rupee decimals */
+        const grossPaise = it.qtyStrips * it.mrpPerStrip + it.qtyLoose * Math.round(it.mrpPerStrip / (it.product.tabletsPerStrip || 10));
+        const taxablePaise = it.qtyStrips * it.mrpPerStrip - it.discount;
+        return {
         SlNo: String(i + 1),
         PrdDesc: it.product.name,
         HsnCd: it.product.hsn || "30049099",
         Qty: it.qtyStrips + it.qtyLoose / (it.product.tabletsPerStrip || 10),
         Unit: "BOX",
-        UnitPrice: +it.mrpPerStrip.toFixed(2),
-        TotAmt: +((it.qtyStrips * it.mrpPerStrip + it.qtyLoose * (it.mrpPerStrip / (it.product.tabletsPerStrip || 10)))).toFixed(2),
-        Discount: +it.discount.toFixed(2),
-        AssAmt: +((it.qtyStrips * it.mrpPerStrip) - it.discount).toFixed(2),
+        UnitPrice: paiseToRupee(it.mrpPerStrip),
+        TotAmt: paiseToRupee(grossPaise),
+        Discount: paiseToRupee(it.discount),
+        AssAmt: paiseToRupee(taxablePaise),
         GstRt: it.cgstRate + it.sgstRate,
         IgstAmt: 0,
-        CgstAmt: +(((it.qtyStrips * it.mrpPerStrip - it.discount) * it.cgstRate) / 100).toFixed(2),
-        SgstAmt: +(((it.qtyStrips * it.mrpPerStrip - it.discount) * it.sgstRate) / 100).toFixed(2),
-        TotItemVal: +it.lineTotal.toFixed(2),
+        CgstAmt: paiseToRupee(gstOnPaise(taxablePaise, it.cgstRate)),
+        SgstAmt: paiseToRupee(gstOnPaise(taxablePaise, it.sgstRate)),
+        TotItemVal: paiseToRupee(it.lineTotal),
         BchDtls: {
          Nm: it.batch.batchNo,
          Exp: it.batch.expDate.replace("-", "") + "00",
         },
-      })),
+        };
+      }),
       ValDtls: {
-        AssVal: +sale.subtotal.toFixed(2),
-        CgstVal: +sale.cgst.toFixed(2),
-        SgstVal: +sale.sgst.toFixed(2),
+        AssVal: paiseToRupee(sale.subtotal),
+        CgstVal: paiseToRupee(sale.cgst),
+        SgstVal: paiseToRupee(sale.sgst),
         IgstVal: 0,
-        Discount: +sale.discount.toFixed(2),
+        Discount: paiseToRupee(sale.discount),
         OthChrg: 0,
-       RndOff: +sale.roundOff.toFixed(2),
-        TotInvVal: +sale.total.toFixed(2),
+       RndOff: paiseToRupee(sale.roundOff),
+        TotInvVal: paiseToRupee(sale.total),
       },
       // IRN placeholder (would be returned by IRP after submission)
       irn: null,
@@ -99,9 +105,9 @@ async function POST_impl(req: NextRequest) {
       ackDt: null,
     };
 
-    // ---- E-way bill (if value > ₹50,000) ----
+    // ---- E-way bill (if value > ₹50,000 = 5,000,000 paise) ----
     const ewayBill =
-      sale.total > 50000
+      sale.total > 5_000_000
         ? {
             docType: "INV",
             docNo: sale.invoiceNo,
@@ -121,9 +127,9 @@ async function POST_impl(req: NextRequest) {
             toPincode: sale.branch.pincode || "000000",
             toStateCode: stateCode(sale.branch.state),
             actToStateCode: stateCode(sale.branch.state),
-            totalValue: +sale.subtotal.toFixed(2),
-            cgstValue: +sale.cgst.toFixed(2),
-            sgstValue: +sale.sgst.toFixed(2),
+            totalValue: paiseToRupee(sale.subtotal),
+            cgstValue: paiseToRupee(sale.cgst),
+            sgstValue: paiseToRupee(sale.sgst),
             igstValue: 0,
             nonTaxableValue: 0,
             docDate: sale.createdAt.toISOString().slice(0, 10).replace(/-/g, ""),
@@ -134,7 +140,7 @@ async function POST_impl(req: NextRequest) {
             itemList: sale.items.map((it) => ({
               hsnCode: it.product.hsn || "30049099",
               quantity: it.qtyStrips + it.qtyLoose / (it.product.tabletsPerStrip || 10),
-              taxableAmount: +((it.qtyStrips * it.mrpPerStrip) - it.discount).toFixed(2),
+              taxableAmount: paiseToRupee(it.qtyStrips * it.mrpPerStrip - it.discount),
               cgstRate: it.cgstRate,
               sgstRate: it.sgstRate,
               igstRate: 0,
@@ -145,7 +151,7 @@ async function POST_impl(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       invoiceNo: sale.invoiceNo,
-      total: sale.total,
+      total: paiseToRupee(sale.total),
       eInvoice,
       ewayBill,
       eligibleEwayBill: !!ewayBill,

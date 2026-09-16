@@ -115,8 +115,9 @@ export const GET = withRoute("nx.overview.command-center", async (req: NextReque
       id: i.id, severity: i.severity, status: i.status, category: i.category, title: i.title, location: i.location, createdAt: i.createdAt,
     })),
     revenueToday: {
-      collected: billsToday.filter((b) => b.paymentStatus === "paid").reduce((s, b) => s + b.totalPayable, 0),
-      pending: billsToday.filter((b) => b.paymentStatus !== "paid").reduce((s, b) => s + b.totalPayable, 0),
+      /* totalPayable is integer paise — exact sums, rupees at the wire */
+      collected: billsToday.filter((b) => b.paymentStatus === "paid").reduce((s, b) => s + b.totalPayable, 0) / 100,
+      pending: billsToday.filter((b) => b.paymentStatus !== "paid").reduce((s, b) => s + b.totalPayable, 0) / 100,
     },
     activityFeed: recentAudit.map((a) => ({
       id: a.id, actor: a.actorName, role: a.actorRole, action: a.action, detail: a.detail, at: a.createdAt,

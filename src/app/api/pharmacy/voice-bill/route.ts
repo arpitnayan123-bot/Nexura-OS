@@ -5,6 +5,7 @@ import { getDemoContext } from "@/lib/pharmacy-context";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { withProductAuth } from "@/lib/nx/product-auth";
 import { runText } from "@/lib/openrouter";
+import { paiseToRupee } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -133,7 +134,7 @@ async function POST_impl(req: NextRequest) {
         genericName: product.genericName,
         batchId: batch?.id ?? "",
         batchNo: batch?.batchNo ?? "",
-        mrp: batch?.mrp ?? 0,
+        mrp: batch ? paiseToRupee(batch.mrp) : 0,
         qtyStrips: s.qtyStrips ?? 1,
         qtyLoose: s.qtyLoose ?? 0,
         matched: true,

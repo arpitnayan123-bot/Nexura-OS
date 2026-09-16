@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
 import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { rupeeToPaise } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -57,7 +58,9 @@ async function POST_impl(req: NextRequest) {
     }
     if (fee && fee > 0) {
       const count = await db.clinicInvoice.count({ where: { clinicId: ctx.clinic.id } });
-      await db.clinicInvoice.create({ data: { clinicId: ctx.clinic.id, patientId, visitId: visit.id, invoiceNo: `CLN-INV-${3001 + count}`, description: "Consultation", amount: Number(fee), total: Number(fee), status: "paid", payMode: "cash" } });
+      /* fee arrives in rupees (what the consultation UI shows); stored as paise */
+      const feePaise = rupeeToPaise(Number(fee));
+      await db.clinicInvoice.create({ data: { clinicId: ctx.clinic.id, patientId, visitId: visit.id, invoiceNo: `CLN-INV-${3001 + count}`, description: "Consultation", amount: feePaise, total: feePaise, status: "paid", payMode: "cash" } });
     }
     if (appointmentId) {
       await db.clinicAppointment.update({ where: { id: appointmentId }, data: { status: "done" } });

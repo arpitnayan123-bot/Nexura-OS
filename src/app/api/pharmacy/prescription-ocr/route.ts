@@ -6,6 +6,7 @@ import { aiGate } from "@/lib/nx/ai-guard";
 import { isValidImageBase64 } from "@/lib/gemini";
 import { runVision } from "@/lib/openrouter";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { paiseToRupee } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -101,7 +102,7 @@ async function POST_impl(req: NextRequest) {
         genericName: product?.genericName ?? null,
         batchId: batch?.id ?? "",
         batchNo: batch?.batchNo ?? "",
-        mrp: batch?.mrp ?? 0,
+        mrp: batch ? paiseToRupee(batch.mrp) : 0,
         inStock: product ? product.batches.reduce((s, b) => s + b.stockStrips, 0) > 0 : false,
       };
     });
