@@ -451,3 +451,18 @@ Work Log:
 Stage Summary:
 - The original deferred list is EMPTY: default route limiter is distributed when Redis backs the deployment; every authenticated AI call carries verified identity (or honest null); every money column schema-wide is an integer minor unit
 - Collaborator surfaces untouched throughout: src/app/api/portal/auth/route.ts, payment/billing-gateway integration
+
+---
+Task ID: deferred-lock-1
+Agent: main (Super Z)
+Task: Lock the deferred-closeouts batch — fresh full-gate re-run at main 75a1d3f + lock tag (lock-4)
+
+Work Log:
+- Pre-lock verification: all three deferred items confirmed merged (limiter-distributed-1 e04789f, ai-identity-1 1743f56 + addendum 1e5332b, tourism-money-1 189ec5f); git diff 179912a..HEAD over collaborator surfaces (src/app/api/portal/auth/, payment/billing-gateway) is EMPTY — untouched throughout the batch
+- Fresh full-gate re-run at lock HEAD 75a1d3f (honesty rule: verify at the exact commit being tagged): prisma validate OK; tsc 0; eslint 0; vitest 317/317 (27 files = 302 base + 3 limiter + 6 identity + 6 tourism); smoke 49/49 (live :3000 server reused after health/ready 200); deploy-preview DEPLOY VERIFIED
+- Confirmed lock sequence: lock-1 (hardening e28dfa5) → lock-2 (money ee94cba) → lock-3 (consent 179912a) → this is lock-4
+- Tag deferred-closeouts-locked-final pins: distributed-when-Redis route limiter + per-request AI identity attribution (honest null = system) + schema-wide integer minor-unit money (paise/cents)
+
+Stage Summary:
+- Lock-4 closes the entire deferred backlog: rate limiting, AI attribution and money integrity are now locked tree state
+- No remaining deferred items; collaborator surfaces (portal/auth, payment/billing-gateway) remain untouched
