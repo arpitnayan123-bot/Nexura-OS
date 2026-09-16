@@ -107,9 +107,13 @@ export function verifyServiceToken<T extends object>(token: string): (T & { scop
 }
 
 /* ---------- Token Verification ---------- */
+/** Verify an ACCESS token. Rejects tokens of a different token family —
+ *  a 30-day `type:"refresh"` token or a `scope:"service"` integration token
+ *  must never authenticate as an access identity (historically they did). */
 export function verifyToken(token: string): DecodedToken | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as DecodedToken;
+    const decoded = jwt.verify(token, JWT_SECRET) as DecodedToken & { type?: string; scope?: string };
+    if (decoded.type === "refresh" || decoded.scope === "service") return null;
     return decoded;
   } catch {
     return null;
