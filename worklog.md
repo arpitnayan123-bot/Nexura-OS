@@ -219,3 +219,21 @@ Stage Summary:
 - Real-browser E2E: homepage / hospital demo-doctor console (Command Center + Work Queue live) / pharmacy billing + inventory / clinic booking (doctors + slots) — zero page errors, product behavior preserved
 - Remaining known gaps (honest): legacy pharmacy/clinic money columns still Float rupees (Nx layer is integer-paise) — documented migration path in ARCHITECTURE.md §5; withRoute default limiter is per-instance in front of the Redis limiter; cost/token accounting does not exist in AI telemetry (stated honestly); consent has no self-service granting UI yet (operational step)
 - Tag: architecture-hardening-1-final; dual bundles refreshed after commit
+
+---
+Task ID: final-recheck-1
+Agent: main (Super Z)
+Task: Final recheck of the 20-phase prompt after the 2026-09-16 18:13 platform reset; restore wiped datastores/env; deliver the 13-section engineering report
+
+Work Log:
+- Found 7 vitest failures (job-runner 4, hardening idempotency 3) - ALL PrismaClientInitializationError, zero code regressions (worktree clean at 2ebe70b / tag architecture-hardening-1-final)
+- Root cause: platform reset reset .env to the packaged SQLite file: URL (start.sh DEFAULT_PACKAGED_DATABASE_URL), wiped ~/pg-install + ~/pgdata (rootless PG17/Redis8) and the untracked .env.example; guardian had not rebooted :3000
+- Recovery: wrote scripts/install-datastores.sh (apt download + dpkg -x of postgresql-17 17.11 / postgresql-client-17 / redis-server 8.0.2 into ~/pg-install/rootfs, initdb -U nexura at ~/pgdata, start :5432 + :6379, CREATE DATABASE nexura) - 94 debs, binaries verified
+- Repaired .env (postgresql://nexura@127.0.0.1:5432/nexura + REDIS_URL + JWT_SECRET + DEMO_MODE=true + EMAIL_TRANSPORT=console); recreated .env.example from src/lib/env.ts audit (REQUIRED: DATABASE_URL postgres scheme / JWT_SECRET>=16 / REDIS_URL; recommended + optional sections)
+- Reapplied all 3 migrations (prisma migrate deploy - needed set -a export, the documented env-precedence trap) + full seed chain (seed:all + nx-v5 + hospital-bootstrap + pharmacy x2 + clinic-drugs + clinic + connect + portal + tourism + chronic + pie - all exit 0)
+- Fresh gates: prisma validate OK; tsc 0; eslint 0; vitest 280/280 (22 files); bash scripts/deploy-preview.sh -> DEPLOY VERIFIED; tests/api-smoke.sh 46/46
+- Deliverable: download/Nexura-OS-Architecture-Hardening-Report.docx - 13 mandated sections (architecture / major problems / security / database / AI / API / deployment / testing / refactor executed incl. 20-phase completion matrix / files changed / files deliberately kept / remaining risks / next steps), Exec Summary, R1 cover (MC-1), TOC (Roman) + body (Arabic), 5 tables, postcheck 0 errors (2 benign warnings: TOC PageBreak pattern, table-cell line spacing)
+
+Stage Summary:
+- The 20-phase program is complete AND survives environment loss: recovery tooling + docs now reproduce a fully green state in minutes
+- Report at download/Nexura-OS-Architecture-Hardening-Report.docx; honest residual gaps unchanged (legacy Float rupees documented, per-instance withRoute default limiter, AI cost accounting absent, consent UI queued, OTP/payment = collaborator surface)
