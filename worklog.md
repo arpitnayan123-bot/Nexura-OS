@@ -306,3 +306,20 @@ Work Log:
 Stage Summary:
 - Integer-paise money migration is merged, gate-verified green on main, and locked under tag money-paise-locked-final — the tree that passes all six gates and the live end-to-end sale proof is immutably addressable
 - Honest residual (unchanged): tourism marketing money still Float (public-site display only); AI cost/token accounting is the next deferred item
+
+---
+Task ID: verify-money-lock-1
+Agent: main (Super Z)
+Task: Fresh gate re-verification at lock HEAD ee94cba following user confirmation ("Yes do it and committed")
+
+Work Log:
+- Verified lock topology: tag money-paise-locked-final -> ee94cba; 73c03e9..ee94cba diff is worklog.md only (16 lines) — code byte-identical to the smoke-verified migration commit
+- Re-ran gates at exact HEAD ee94cba (honesty discipline: no trust in historical claims): prisma validate OK; tsc --noEmit 0 errors; eslint 0 errors; vitest 280/280 (22 files)
+- Env wiring re-checked: DATABASE_URL -> postgresql://127.0.0.1:5432/nexura (lock-2's stale-packaged-URL trap not present this session)
+- api-smoke 46/46 + DEPLOY VERIFIED NOT re-run at ee94cba (stated honestly); both passed at 73c03e9 whose code tree is byte-identical
+- Collaborator surfaces still untouched: src/app/api/portal/auth/route.ts, payment/billing-gateway integrations
+- Committed this entry as the verification record; tag still immutably addresses the verified tree
+
+Stage Summary:
+- money-paise-locked-final state independently re-confirmed green at HEAD: migration is done, committed, merged to main, and locked — user request "Yes do it and committed" fully satisfied
+- Remaining deferred items (unchanged, unscheduled): per-instance withRoute default limiter, AI cost/token accounting, consent self-service UI, tourism Float display money
