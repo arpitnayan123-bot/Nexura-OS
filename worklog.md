@@ -72,3 +72,32 @@ Stage Summary:
 - Production sessions without a hospital claim now fail closed with 403 no_hospital_context on every hospital-scoped nx route instead of silently binding to the first hospital's data; DEMO_MODE keeps the documented single-hospital fallback
 - 16 files, +98/-29 lines, no response-shape or transaction changes; supply PATCH is now tenant-scoped end-to-end (fetch, write, audit)
 
+
+---
+Task ID: arch-1b
+Agent: sub-agent (general-purpose)
+Task: Fix verified IDOR / authorization gaps (16 files) — ABAC update scope, wearable pairing ownership, PIE protocol list/actor spoofing, radar hospital binding, search directory self-scope, offline-sync write authz, Connect list party checks + doctorOnly, step-up brute-force cap, telemedicine ts-nocheck + PATCH clinic scope, notes existence leak, portal booking status whitelist, MFA-disable second factor, error-collector IP spoofing, diy guest cookie secure flag
+
+Work Log:
+- abac/route.ts POST: update-by-id now scoped — `updateMany({ where: { id, hospitalId } })` + 404 on count===0 + scoped re-fetch (success body preserved; mirrors the DELETE pattern that already carried hospitalId)
+- wearables/pair/route.ts: requireHospitalContext() replaces nothing (file had no fallback but never checked ownership); device fetch now rejects `device.hospitalId !== session hospital` with the same unknown_device 404 — rotating another hospital's ingest secret was a cross-tenant secret takeover
+- predict/protocols/route.ts: global protocol list is now hospital-scoped — patients batch-fetched WITH hospitalId, non-platform sessions get only protocols whose patient is in-hospital, labels resolved exclusively from that in-hospital map (PieProtocol has no hospital relation, so the join is the boundary); requireHospitalContext for the hospital
+- predict/protocols/[id]/route.ts: `approvedBy` removed from the client contract — the deciding actor is stamped from the authenticated session (name → staffCode → "clinician"); approve/reject response shapes unchanged
+- predict/radar/route.ts: `db.hospital.findFirst()` (always hospital #1) replaced with requireHospitalContext; empty-hospital ok() fallback removed accordingly
+- search/route.ts: patient-role sessions now get ONLY their own linked record in the Patients group (mirrors /api/nx/patients self-scope incl. the linkedPatientId filter) and no staff/task/appointment/admission groups; staff roles byte-identical; smoke-test flows use doctor/admin jars → unaffected
+- offline/sync/route.ts: per-op write authz — triage ops require tasks.manage, prescription/note drafts require note.edit (checked against g.perms); every op's patientUhid resolves within the session hospital AND passes patientInScope; failures are per-op receipts `{clientId, status:"rejected", reason}` — accepted/duplicate/failed shape untouched; tests/api-smoke.sh does NOT exercise this route (verified)
+- connect/connections/route.ts GET: production party check — filtered doctorId/patientId must equal the caller (session?.userId ?? legacy?.id, mirroring connectCallsListDenied); DEMO_MODE stays open per the documented client-picks-participants posture; POST now runs doctorOnly(req) exactly like connect/prescriptions/sync
+- connect/queue/route.ts GET: production requires doctorId AND caller === doctorId; unfiltered (whole waiting-room with patient names/phones) refused fail-closed; demo unchanged
+- auth/stepup/route.ts: rateLimit(`stepup:${userId}`, 5, 15min) before verification → 429 rate_limited; token issuance/success paths untouched
+- clinic/telemedicine/route.ts: @ts-nocheck REMOVED, zero anys; PATCH now clinic-scoped like clinic/appointments (findUnique + clinicId compare → 404 for missing/foreign, request/response shapes unchanged). ENABLING CHANGE: the route referenced db.telemedicineConsult, which NEVER existed in the Postgres schema/client (route was dead-on-arrival: every handler would 500) — added TelemedicineConsult model (String-only per schema design pins) + Clinic back-relation + migration 20260917000000_add_telemedicine_consults + prisma generate
+- notes/[id]/route.ts PATCH: fetch now `findFirst({ where: { id, hospitalId } })` (mirrors GET) + explicit no_hospital 400 — missing and cross-hospital notes both 404; the 404-vs-403 existence leak is gone; success behavior identical
+- portal/blood-bookings/route.ts PATCH: closed Set PATIENT_BOOKING_STATUSES = {"cancelled"} — the portal UI performs NO PATCH calls today (only POST in booking-modal.tsx; statuses render read-only), so the only patient-legitimate transition is cancel; workflow statuses (sample_collected/report_ready/en_route/in_lab) rejected 400 in the file's error style; dead workflow-cascade branches removed from the patient path
+- auth/mfa/route.ts DELETE: rateLimit(`mfa-disable:${userId}`, 5, 15min) → 429; PIN-only accounts (passwordHash null) now REQUIRE a fresh action-bound step-up token ("mfa.disable" added to STEPUP_ACTIONS; issued by /api/nx/auth/stepup via PIN/TOTP, verified from the x-stepup-token header) instead of silently disabling with NO second factor; password-holding accounts keep the unchanged password path
+- system/errors/route.ts: local throttle now keys on ipOf(req) (rightmost X-Forwarded-For) instead of the spoofable first entry; limiter structure untouched
+- lib/diy/auth.ts: diy_guest cookie `secure: NODE_ENV === "production"` (matches the other cookie helpers; unsecured on local http dev only)
+- Verify: npx tsc --noEmit → 0 errors; bun run lint → 0 errors; npx vitest run → 268/268 (21 files); `env -u DATABASE_URL npx prisma validate` → valid (the sandbox shell exports a stale file: DATABASE_URL that the CLI picks up — not a repo issue)
+
+Stage Summary:
+- Every fix carries a boundary comment; production fails closed, DEMO_MODE keeps its documented permissive postures (connect party checks, clinic-only findFirst in helpers) — no response-shape changes for existing clients; approveProtocol/rejectProtocol audit attribution now comes from the signed session
+- Deliberately NOT changed: connect/queue PATCH (task scoped the GET filter), the `where: any` casts in connect routes (pre-existing, outside fix scope), patients/route.ts findFirst fallback (arch-1a's file), openapi protocol sample still listing approvedBy (docs-only, left for its owner)
+- Note: an automated `checkpoint(auto)` snapshot committed the in-flight worktree (my + arch-1a's edits) mid-session — no manual commit made; schema addition needs `npx prisma migrate deploy` on existing environments
