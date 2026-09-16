@@ -28,9 +28,9 @@ export async function GET(req: NextRequest) {
         hospitalId,
         ...selfScope,
         OR: [
-          { fullName: { contains: q } },
-          { uhid: { contains: q } },
-          { phone: { contains: q } },
+          { fullName: { contains: q, mode: "insensitive" as const } },
+          { uhid: { contains: q, mode: "insensitive" as const } },
+          { phone: { contains: q, mode: "insensitive" as const } },
         ],
       }
     : { hospitalId, ...selfScope };

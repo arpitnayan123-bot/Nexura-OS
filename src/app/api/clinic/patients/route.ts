@@ -13,7 +13,7 @@ async function GET_impl(req: NextRequest) {
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim().toLowerCase();
-    const where = q ? { clinicId: ctx.clinic.id, OR: [{ name: { contains: q } }, { mrn: { contains: q } }, { phone: { contains: q } }] } : { clinicId: ctx.clinic.id };
+    const where = q ? { clinicId: ctx.clinic.id, OR: [{ name: { contains: q, mode: "insensitive" as const } }, { mrn: { contains: q, mode: "insensitive" as const } }, { phone: { contains: q, mode: "insensitive" as const } }] } : { clinicId: ctx.clinic.id };
     // `visits` (latest only) is additive — powers last-visit recency in the clinic
     // chronic-care watchlist. No Prisma schema change.
     const patients = await db.clinicPatient.findMany({ where, orderBy: { createdAt: "desc" }, take: 50, select: { id: true, mrn: true, name: true, gender: true, age: true, bloodGroup: true, phone: true, allergy: true, chronicDx: true, abhaId: true, createdAt: true, _count: { select: { visits: true, appointments: true } }, visits: { take: 1, orderBy: { createdAt: "desc" }, select: { createdAt: true, diagnosis: true } } } });

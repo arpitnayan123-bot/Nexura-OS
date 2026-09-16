@@ -15,7 +15,7 @@ export const GET = withRoute("gateway.v1.patients", async (req: NextRequest, { r
   const p = paginate(req, { perPage: 25, maxPerPage: 100 });
   const where = {
     hospitalId: { in: auth.auth.hospitalIds },
-    ...(p.q ? { OR: [{ fullName: { contains: p.q } }, { uhid: { contains: p.q } }] } : {}),
+    ...(p.q ? { OR: [{ fullName: { contains: p.q, mode: "insensitive" as const } }, { uhid: { contains: p.q, mode: "insensitive" as const } }] } : {}),
   };
   const [rows, total] = await Promise.all([
     db.hospitalPatient.findMany({

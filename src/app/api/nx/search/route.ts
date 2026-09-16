@@ -20,7 +20,7 @@ export const GET = withRoute("global.search", async (req: NextRequest) => {
   const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
   if (q.length < 2) return ok({ groups: [] });
 
-  const like = { contains: q };
+  const like = { contains: q, mode: "insensitive" as const };
   const canClinical = true; // demographic view already granted; clinical fields trimmed for non-clinical
 
   const [patients, staff, tasks, appointments, admissions] = await Promise.all([

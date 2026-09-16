@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     // ---- generate booking ref ----
     const year = new Date().getFullYear();
-    const count = await db.bloodBooking.count({ where: { bookingRef: { startsWith: `NX-BLD-${year}-` } } });
+    const count = await db.bloodBooking.count({ where: { bookingRef: { startsWith: `NX-BLD-${year}-`, mode: "insensitive" as const } } });
     const bookingRef = `NX-BLD-${year}-${String(count + 10001).padStart(5, "0")}`;
 
     const created = await db.bloodBooking.create({

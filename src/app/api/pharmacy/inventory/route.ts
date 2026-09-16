@@ -20,11 +20,11 @@ async function GET_impl(req: NextRequest) {
       where: q
         ? {
             OR: [
-              { name: { contains: q } },
-              { genericName: { contains: q } },
-              { salts: { contains: q } },
-              { brand: { contains: q } },
-              { hsn: { contains: q } },
+              { name: { contains: q, mode: "insensitive" as const } },
+              { genericName: { contains: q, mode: "insensitive" as const } },
+              { salts: { contains: q, mode: "insensitive" as const } },
+              { brand: { contains: q, mode: "insensitive" as const } },
+              { hsn: { contains: q, mode: "insensitive" as const } },
             ],
           }
         : undefined,

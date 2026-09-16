@@ -4417,3 +4417,21 @@ Stage Summary:
 - Nexura now runs production build + preview entirely on PostgreSQL 17 (migrations/ baseline committed); SQLite retired from the runtime path
 - env precedence trap documented + defended in scripts and test setup
 - Tag: pg-migration-1-final; dual bundles refreshed after commit
+
+---
+Task ID: pg-semantics-1
+Agent: main (Super Z)
+Task: Postgres semantics deltas — case-sensitivity, ops scripts, docker stack (backend-hardening item 1 continuation)
+
+Work Log:
+- Case-sensitivity: SQLite LIKE was ASCII-case-insensitive; Postgres LIKE is case-sensitive. Added mode:"insensitive" to ALL 31 live contains: sites + 1 startsWith: across 14 route files (pharmacy inventory, clinic patients/drugs, connect prescription auto-matching, nx patients/tasks/messages/search/audit/ai/fhir/gateway, journey LOS analytics, portal blood-booking ref prefix). src/lib/nexura/local.ts deliberately skipped — module is verified dead (deleted in stateless-1)
+- Behavioral proof: seeded brand "Allegra" matches q=ALLEGR/allegr/Allegr via the live API after redeploy; nonsense query returns [] — SQLite-era search parity restored
+- src/lib/nx/db-dialect.ts → Postgres-native: dbProvider() constant, new isPostgresUrl() (accepts postgres://, postgresql://, prisma+postgres:// for pgbouncer), sqlite branches retired; containsInsensitive kept for dynamic fields
+- scripts/db-backup.mjs → pg_dump -Fc rotation (env-resilient URL resolution, no shell interpolation of credentials, size sanity floor); scripts/db-restore-validate.mjs → pg_restore into scratch DB nexura_restore_check + row-count parity vs live (Hospital/patients/staff/tasks/audit) + scratch teardown. Live-tested: dump 593KB, restore validated counts match 1/32/21/12/8
+- Dockerfile: sqlite VOLUME removed, prisma/migrations ships in image for migrate-deploy release gate, build dummy URL now postgres; docker-compose.yml: postgres:17 + redis:7 default services (no more profile split), app depends_on both healthy, DATABASE_URL/REDIS_URL wired
+- Fixed 2 self-inflicted bugs caught by live testing: findBin iterated PATH as string chars (never matched), dropdb/createdb don't take connstring+dbname (URL → -h/-p/-U flags)
+- Verify: tsc 0, eslint 0, vitest 252/252, DEPLOY VERIFIED
+
+Stage Summary:
+- Postgres behavior parity locked: searches case-insensitive everywhere, ops tooling (backup/restore-validate) pg-native and live-tested
+- Tag: pg-semantics-1-final; dual bundles refreshed after commit

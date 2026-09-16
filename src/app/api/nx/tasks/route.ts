@@ -100,7 +100,7 @@ export const GET = withRoute("tasks.list", async (req: NextRequest) => {
   if (mine === "1") where.assignedToUserId = g.session.userId;
   else if (mine) where.ownerRole = mine;
   if (type) where.type = type;
-  if (p.q) where.OR = [{ title: { contains: p.q } }, { patientName: { contains: p.q } }, { patientUhid: { contains: p.q } }];
+  if (p.q) where.OR = [{ title: { contains: p.q, mode: "insensitive" as const } }, { patientName: { contains: p.q, mode: "insensitive" as const } }, { patientUhid: { contains: p.q, mode: "insensitive" as const } }];
 
   const [rows, total] = await Promise.all([
     db.nxTask.findMany({

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const take = Math.min(Number(searchParams.get("take")) || 60, 200);
 
   const where: Record<string, unknown> = { hospitalId };
-  if (action) where.action = { contains: action };
+  if (action) where.action = { contains: action, mode: "insensitive" as const };
 
   const events = await db.nxAuditEvent.findMany({ where, orderBy: { createdAt: "desc" }, take });
 
