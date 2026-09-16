@@ -9,13 +9,18 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NODE_ENV=production
-# Prisma client generation for the target platform
-RUN bunx prisma generate
+# Build-phase module-eval gates (env-config-1 / jwt) require placeholder
+# secrets at BUILD time only. They never sign anything: the runtime boot
+# gate (src/instrumentation.ts -> assertProductionEnv) refuses to start
+# the container unless REAL values are provided via the runtime env.
 # DATABASE_URL is required at build-time only for typegen — a dummy is fine
 ENV DATABASE_URL=postgresql://build:nobuild@127.0.0.1:5432/nobuild
+ENV JWT_SECRET=build-time-placeholder-never-used-to-sign
+# build:standalone = prisma generate (target platform) + next build + copy
+# static/public into .next/standalone — the packaging the runner stage copies.
 # Fail the image build when the app build fails — no silent fallback that can
 # pull a different toolchain mid-build and mask a broken bun pipeline.
-RUN bun run build
+RUN bun run build:standalone
 
 FROM node:24-slim AS runner
 WORKDIR /app
