@@ -498,3 +498,25 @@ Work Log:
 Stage Summary:
 - Vercel redeploy will pass the build once the user sets DATABASE_URL/JWT_SECRET/REDIS_URL in the dashboard; every queued next-error (prisma stub, packaging) is pre-empted in code
 - Docker builds are green again post-hardening; deploy-preview/guardian flows unchanged (they invoke next build directly)
+
+---
+Task ID: vercel-deploy-2
+Agent: Super Z (main)
+Task: Fix recurring Vercel build failure (JWT_SECRET module-eval throw during page-data collection), push to GitHub
+
+Work Log:
+- Diagnosed user's Vercel log: correct commit 6212bc8 cloned, new build script ran, but build failed at "Collecting page data" — jwt.ts threw at module evaluation with NODE_ENV=production and no JWT_SECRET on the build machine
+- Swept src for module-eval throw bombs: found TWO — src/lib/auth/jwt.ts (JWT_SECRET IIFE) and a duplicate IIFE in src/app/api/nx/auth/route.ts; stepup.ts/rate-limit.ts/redis.ts confirmed safe (lazy/function-scoped)
+- First attempt (NEXT_PHASE=phase-production-build carve-out) FAILED under Turbopack — NEXT_PHASE not visible at module-eval during page-data collection
+- Definitive fix: lazy jwtSecret() exported from src/lib/auth/jwt.ts — secret resolved on first sign/verify call, cached; build never calls it; route.ts imports jwtSecret() instead of its own IIFE
+- PROOF: full `bun run build` executed with .env completely masked (zero env vars — exact Vercel scenario) → build PASSED (route table printed)
+- Runtime enforcement unchanged: instrumentation assertProductionEnv still aborts production boots without DATABASE_URL/JWT_SECRET/REDIS_URL; first sign/verify without a real secret still throws the same fail-fast error
+- Gates re-run: prisma validate OK / tsc 0 / eslint 0 / vitest 317/317 (27 files) / smoke PASS=58 FAIL=0 / deploy-preview DEPLOY VERIFIED
+- docs/DEPLOYMENT.md updated: "Builds require no secrets" note + JWT_SECRET row corrected (runtime-only)
+- Committed d15dc89 on vercel-deploy-2 (platform auto-checkpoints f7a1f15, fd3d9cc captured the source files), ff-merged to main
+- Push to GitHub FAILED: token ghp_qBi6... revoked (Invalid username or token) — remote scrubbed, local main = d15dc89 awaiting fresh token
+
+Stage Summary:
+- Env-less builds now pass; security posture unchanged (boot gate + lazy first-use throw)
+- main @ d15dc89 ready to push; needs fresh PAT from user
+- User-side mandatory: set DATABASE_URL / JWT_SECRET / REDIS_URL in Vercel env vars + prisma migrate deploy, then redeploy latest
