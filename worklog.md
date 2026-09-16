@@ -383,3 +383,20 @@ Stage Summary:
 - Consent self-service is locked: patients exercise DPDP rights end-to-end (portal → append-only NxConsent ledger → AI governance 403 on revoke) and revocation is real (latest-event-wins)
 - Tag consent-selfservice-locked-final pins the full tree state incl. AI cost/token metering (ancestor 59cbca3)
 - Remaining deferred items: per-instance withRoute default limiter (distributed), per-request user-identity attribution on AiUsageLog rows, tourism Float display money
+
+---
+Task ID: limiter-distributed-1
+Agent: main (Super Z)
+Task: Deferred closeout A — withRoute default limiter consumes the distributed (Redis) budget when REDIS_URL is configured (branch deferred-closeouts-1)
+
+Work Log:
+- Inspection: src/lib/rate-limit.ts already ships the authoritative distributed limiter (Redis INCR+EXPIRE, in-process fallback, fail-closed error policy) but withRoute's default 300/min/IP limit only consumed the per-instance Map — horizontally scaled instances each got their own budget
+- src/lib/nx/api.ts withRoute: after the in-process pre-filter (unchanged — absorbs bursts, keeps obvious rejects off Redis), when isRedisConfigured() the same max/window is consumed from consumeRateLimit("route:<name>:<ip>") and its rejection wins with Retry-After; without REDIS_URL behavior is byte-identical to before (no double-counting — consumeRateLimit is not called at all)
+- `route:` key namespace keeps these keys disjoint from auth/webhook limiter keys in Redis
+- docs/ARCHITECTURE.md datastores table + boundary rule updated: pre-filter vs authoritative budget is now wired reality, not just documentation
+- New tests/unit/route-default-limiter.test.ts (3): distributed rejection wins with Retry-After + `route:` key shape + handler-not-run; allow passes through; no-Redis path never calls consumeRateLimit
+- Gates (scoped): vitest route-default-limiter + rate-limit + api-helpers 18/18
+
+Stage Summary:
+- The default route limiter is now shared across instances whenever Redis backs the deployment; single-node behavior unchanged
+- Note: explicit per-route limiter keys used inside auth/webhook routes (login-ip-fail etc.) stay as-is — they are keyed counters, out of this task's scope

@@ -6,6 +6,8 @@ import { log } from "@/lib/logger";
 import { isDemoMode } from "@/lib/env";
 import type { EffectivePermissions, NxPermission, NxSession } from "./session";
 import { requirePermission } from "./session";
+import { isRedisConfigured } from "@/lib/redis";
+import { consumeRateLimit } from "@/lib/rate-limit";
 
 /* ============================================================
    NEXURA HOSPITAL OS — API FOUNDATIONS
@@ -38,7 +40,14 @@ export function fail(code: string, status: number, detail?: string, requestId?: 
 
 /** Wrap a route handler: correlation ID, structured logs, uniform 500s, rate limits.
  *  A modest default rate limit applies to every wrapped route (per IP + route);
- *  pass `{ rateLimit }` to tighten it for expensive/sensitive handlers. */
+ *  pass `{ rateLimit }` to tighten it for expensive/sensitive handlers.
+ *
+ *  Limiting is two-layered: the in-process Map is a cheap per-instance
+ *  pre-filter (absorbs bursts, keeps obvious rejects off Redis); when
+ *  REDIS_URL is configured the authoritative budget is consumed from the
+ *  distributed limiter so horizontally scaled instances share one budget
+ *  per IP+route. Without Redis the Map alone is the limit, exactly as
+ *  documented for single-node deployments. */
 export const DEFAULT_ROUTE_RATE_LIMIT = { max: 300, windowMs: 60_000 } as const;
 /** Generic over route params so dynamic segments (e.g. [patientId])
  *  flow through; existing handlers that ignore params are unaffected. */
@@ -52,15 +61,25 @@ export function withRoute<P = Record<string, string>>(
     const started = Date.now();
     try {
       const limit = opts?.rateLimit ?? DEFAULT_ROUTE_RATE_LIMIT;
+      const ip = ipOf(req);
       {
         // ipOf() takes the RIGHTMOST X-Forwarded-For entry — the only one a
         // client cannot spoof behind our single trusted proxy. Keying on the
         // first entry let attackers rotate fake IPs to bypass every limit.
-        const ip = ipOf(req);
         const rl = rateLimit(`${name}:${ip}`, limit.max, limit.windowMs);
         if (!rl.allowed) {
           return fail("rate_limited", 429, "Too many requests — slow down.", requestId, {
             "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+          });
+        }
+      }
+      if (isRedisConfigured()) {
+        // Authoritative shared budget (same max/window) — `route:` namespace
+        // keeps these keys disjoint from auth/webhook limiter keys in Redis.
+        const drl = await consumeRateLimit(`route:${name}:${ip}`, limit.max, limit.windowMs);
+        if (!drl.allowed) {
+          return fail("rate_limited", 429, "Too many requests — slow down.", requestId, {
+            "Retry-After": String(Math.ceil((drl.resetAt - Date.now()) / 1000)),
           });
         }
       }
