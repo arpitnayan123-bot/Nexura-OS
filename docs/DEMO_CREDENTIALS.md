@@ -34,5 +34,5 @@ Every sign-in is real, audited, and can be MFA-protected like production.
 7. Anywhere: ⌘K palette, F9 overview, ⌘L lock screen (PIN 2468).
 8. Watch the notification center while a second browser (lab) verifies a critical result.
 
-**Reset demo data:** `bun run seed:demo` (idempotent) — or as Super Admin via the
-demo reset permission (`demo.reset`).
+**Reset demo data:** Demo data resets by re-running the seed scripts (bun scripts/seed-*.ts)
+in a non-production environment; there is no runtime reset endpoint.

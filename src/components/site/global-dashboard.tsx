@@ -322,7 +322,7 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
       if (!emailOk || !passwordOk) {
         setLoading(false);
         setError(
-          "Invalid credentials. Demo desk: coordinator@nexura.global / nexura123",
+          "This is a simulated demo sign-in — only the demo coordinator identity is accepted. Real operations are gated server-side.",
         );
         return;
       }
