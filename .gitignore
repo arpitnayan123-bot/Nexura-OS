@@ -86,3 +86,8 @@ backups/
 # Git bundles (workspace lock files — never commit)
 repo.bundle
 *.bundle
+
+# runtime artifacts (stateless/hardening pass)
+logs/
+db/backups/
+*.dump
