@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule, permsForSession, hasPermission } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { fire, type NxTrigger } from "@/lib/nx/automations";
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 const TRIGGERS: NxTrigger[] = ["result.critical", "discharge.confirmed", "bed.ready", "order.created", "appointment.created"];
 
 /** GET — automation rules + recent runs (workflow builder data). */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.automations.list", async (req: NextRequest) => {
   const gate = await requireModule(req, "automations");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -40,10 +40,10 @@ export async function GET(req: NextRequest) {
       runs24h: await db.nxWorkflowRun.count({ where: { hospitalId, startedAt: { gte: new Date(Date.now() - 86400000) } } }),
     },
   });
-}
+});
 
 /** PATCH — enable/disable a rule (settings-manage permission, deterministic policy). */
-export async function PATCH(req: NextRequest) {
+export const PATCH = withRoute("nx.automations.toggle", async (req: NextRequest) => {
   const gate = await requireModule(req, "automations");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -65,10 +65,10 @@ export async function PATCH(req: NextRequest) {
     detail: { rule: rule.name },
   });
   return NextResponse.json({ rule: { id: updated.id, enabled: updated.enabled } });
-}
+});
 
 /** POST — test-fire a rule trigger (admin only, creates real coordination artifacts). */
-export async function POST(req: NextRequest) {
+export const POST = withRoute("nx.automations.testfire", async (req: NextRequest) => {
   const gate = await requireModule(req, "automations");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!["admin", "command"].includes(gate.session.role)) {
@@ -93,4 +93,4 @@ export async function POST(req: NextRequest) {
     detail: body.detail || { testRun: true, testName: "Demo critical result (test fire)" },
   });
   return NextResponse.json({ ok: true, trigger });
-}
+});

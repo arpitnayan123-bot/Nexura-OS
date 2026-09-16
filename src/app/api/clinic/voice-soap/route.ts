@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
@@ -97,8 +98,8 @@ async function POST_impl(req: NextRequest) {
       engine: "z-ai-web-dev-sdk LLM",
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "voice_soap_failed", detail: message }, { status: 500 });
+    log.error("clinic", "voice_soap_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "voice_soap_failed", detail: "The SOAP note could not be generated. Please retry." }, { status: 500 });
   }
 }
 

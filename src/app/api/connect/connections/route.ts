@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { connectGate, doctorOnly } from "@/lib/nx/connect-auth";
 import { getSession } from "@/lib/nx/session";
 import { getAuthUser } from "@/lib/auth/jwt";
@@ -79,8 +80,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ connections: withCounts });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "connect_list_failed", detail: message }, { status: 500 });
+    log.error("connect", "connections_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "connect_list_failed", detail: "Connections could not be loaded. Please retry." }, { status: 500 });
   }
 }
 
@@ -179,8 +180,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ connection, whatsappSent, whatsappMessage });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "connect_create_failed", detail: message }, { status: 500 });
+    log.error("connect", "connection_create_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "connect_create_failed", detail: "The connection could not be created. Please retry." }, { status: 500 });
   }
 }
 

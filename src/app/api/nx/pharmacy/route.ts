@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 
@@ -7,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET — pharmacy work queue: medication orders awaiting verification + inventory alerts. */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.pharmacy.queue", async (req: NextRequest) => {
   const gate = await requireModule(req, "pharmacy");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -52,10 +53,10 @@ export async function GET(req: NextRequest) {
     lowStock: stock.filter((s) => s.onHand <= s.reorderLevel),
     expiringSoon: expiringSoon.map((m) => ({ id: m.id, name: m.name, expiryDate: m.expiryDate, batchNo: m.batchNo })),
   });
-}
+});
 
 /** PATCH — verify / dispense a medication order. */
-export async function PATCH(req: NextRequest) {
+export const PATCH = withRoute("nx.pharmacy.dispense", async (req: NextRequest) => {
   const gate = await requireModule(req, "pharmacy");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -84,4 +85,4 @@ export async function PATCH(req: NextRequest) {
     detail: { drug: order.orderDetails, from: order.status, to: body.to },
   });
   return NextResponse.json({ order: updated });
-}
+});

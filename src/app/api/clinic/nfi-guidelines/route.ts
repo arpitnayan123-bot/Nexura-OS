@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -271,8 +272,8 @@ async function GET_impl(req: NextRequest) {
       source: "National Formulary of India — Ministry of Health & Family Welfare",
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "nfi_failed", detail: message }, { status: 500 });
+    log.error("clinic", "nfi_guidelines_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "nfi_failed", detail: "NFI guidelines could not be loaded. Please retry." }, { status: 500 });
   }
 }
 

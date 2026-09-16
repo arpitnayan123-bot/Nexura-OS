@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -77,8 +78,8 @@ async function GET_impl(req: NextRequest) {
       },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "nppa_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "nppa_prices_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "nppa_failed", detail: "Price data could not be loaded. Please retry." }, { status: 500 });
   }
 }
 

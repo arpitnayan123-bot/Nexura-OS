@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { connectGate } from "@/lib/nx/connect-auth";
 import { getSession } from "@/lib/nx/session";
 import { getAuthUser } from "@/lib/auth/jwt";
@@ -69,8 +70,8 @@ export async function GET(req: NextRequest) {
       totalWaiting: entries.length,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "queue_list_failed", detail: message }, { status: 500 });
+    log.error("connect", "queue_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "queue_list_failed", detail: "The queue could not be loaded. Please retry." }, { status: 500 });
   }
 }
 
@@ -102,8 +103,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ queue: entry });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "queue_create_failed", detail: message }, { status: 500 });
+    log.error("connect", "queue_create_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "queue_create_failed", detail: "The queue token could not be created. Please retry." }, { status: 500 });
   }
 }
 
@@ -131,7 +132,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ queue });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "queue_update_failed", detail: message }, { status: 500 });
+    log.error("connect", "queue_update_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "queue_update_failed", detail: "The queue entry could not be updated. Please retry." }, { status: 500 });
   }
 }

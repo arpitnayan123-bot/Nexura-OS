@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -92,8 +93,8 @@ async function GET_impl(req: NextRequest) {
       items: filtered,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "inventory_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "inventory_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "inventory_failed", detail: "Inventory could not be loaded. Please retry." }, { status: 500 });
   }
 }
 

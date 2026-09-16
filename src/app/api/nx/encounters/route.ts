@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { fire } from "@/lib/nx/automations";
@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET — encounters (active admissions with full context). */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.encounters.list", async (req: NextRequest) => {
   const gate = await requireModule(req, "patients");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -43,10 +43,10 @@ export async function GET(req: NextRequest) {
       activeOrders: a.orders.length,
     })),
   });
-}
+});
 
 /** POST — admit patient to a bed (ER handoff / elective admission). */
-export async function POST(req: NextRequest) {
+export const POST = withRoute("nx.encounters.create", async (req: NextRequest) => {
   const gate = await requireModule(req, "patients");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -90,10 +90,10 @@ export async function POST(req: NextRequest) {
     detail: { bed: bed.bedNumber, ward: bed.ward?.name, type: admission.admissionType },
   });
   return NextResponse.json({ admission });
-}
+});
 
 /** PATCH — discharge / transfer (fires the discharge coordination cascade). */
-export async function PATCH(req: NextRequest) {
+export const PATCH = withRoute("nx.encounters.transition", async (req: NextRequest) => {
   const gate = await requireModule(req, "patients");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -150,4 +150,4 @@ export async function PATCH(req: NextRequest) {
   }
 
   return NextResponse.json({ error: "unknown_action" }, { status: 400 });
-}
+});

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -34,8 +35,8 @@ async function GET_impl(req: NextRequest) {
     const visits = await db.clinicVisit.findMany({ where: { patientId }, orderBy: { createdAt: "desc" }, take: 20, include: { doctor: { select: { id: true, name: true, specialization: true } }, meds: true, invoices: { select: { id: true, invoiceNo: true, total: true, status: true } } } });
     return NextResponse.json({ visits });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "clinic_visit_failed", detail: message }, { status: 500 });
+    log.error("clinic", "visit_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "clinic_visit_failed", detail: "Visits could not be loaded. Please retry." }, { status: 500 });
   }
 }
 
@@ -63,8 +64,8 @@ async function POST_impl(req: NextRequest) {
     }
     return NextResponse.json({ ok: true, visitId: visit.id });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "clinic_visit_create_failed", detail: message }, { status: 500 });
+    log.error("clinic", "visit_create_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "clinic_visit_create_failed", detail: "The visit could not be saved. Please retry." }, { status: 500 });
   }
 }
 

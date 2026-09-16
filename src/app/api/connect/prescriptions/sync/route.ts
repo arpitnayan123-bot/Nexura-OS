@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { log } from "@/lib/logger";
 import { connectGate, doctorOnly } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
@@ -214,7 +215,7 @@ export async function POST(req: NextRequest) {
       matched,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "prescription_sync_failed", detail: message }, { status: 500 });
+    log.error("connect", "prescription_sync_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "prescription_sync_failed", detail: "The prescription could not be synced. Please retry." }, { status: 500 });
   }
 }

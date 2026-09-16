@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { getPortalCaller } from "@/lib/portal-session";
 
 export const runtime = "nodejs";
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, booking: created });
   } catch (err) {
-    console.error("[portal/blood-bookings] POST error", err);
+    log.error("portal", "blood_booking_create_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to create booking" }, { status: 500 });
   }
 }
@@ -149,7 +150,7 @@ export async function PATCH(req: NextRequest) {
     const updated = await db.bloodBooking.update({ where: { id: bookingId }, data: updates });
     return NextResponse.json({ ok: true, booking: updated });
   } catch (err) {
-    console.error("[portal/blood-bookings] PATCH error", err);
+    log.error("portal", "blood_booking_update_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to update booking" }, { status: 500 });
   }
 }

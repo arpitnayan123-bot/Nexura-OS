@@ -42,7 +42,8 @@ async function GET_impl() {
       },
     });
     return NextResponse.json({ purchases });
-  } catch {
+  } catch (err) {
+    log.error("pharmacy", "purchases.list_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "purchases_failed", detail: "Purchase history could not be loaded. Please retry." },
       { status: 500 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -105,8 +106,8 @@ async function POST_impl(req: NextRequest) {
 
     return NextResponse.json({ differentials: top, complaint, totalMatched: matchedDx.length, showingTop: top.length, dataSource: "ICMR-INDIAB + NFHS-5 + NVBDCP India", methodology: "Isabel DDx ranking: prevalence-weighted by age/gender" });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "ddx_failed", detail: message }, { status: 500 });
+    log.error("clinic", "differential_diagnosis_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "ddx_failed", detail: "The differential diagnosis could not be generated. Please retry." }, { status: 500 });
   }
 }
 

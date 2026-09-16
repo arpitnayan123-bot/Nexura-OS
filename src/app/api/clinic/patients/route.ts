@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -19,8 +20,8 @@ async function GET_impl(req: NextRequest) {
     const patients = await db.clinicPatient.findMany({ where, orderBy: { createdAt: "desc" }, take: 50, select: { id: true, mrn: true, name: true, gender: true, age: true, bloodGroup: true, phone: true, allergy: true, chronicDx: true, abhaId: true, createdAt: true, _count: { select: { visits: true, appointments: true } }, visits: { take: 1, orderBy: { createdAt: "desc" }, select: { createdAt: true, diagnosis: true } } } });
     return NextResponse.json({ patients });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "clinic_patients_failed", detail: message }, { status: 500 });
+    log.error("clinic", "patients_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "clinic_patients_failed", detail: "Patients could not be loaded. Please retry." }, { status: 500 });
   }
 }
 
@@ -37,8 +38,8 @@ async function POST_impl(req: NextRequest) {
     const patient = await db.clinicPatient.create({ data: { clinicId: ctx.clinic.id, mrn: `CLN-${String(2001 + count)}`, name: String(body.name || "").trim(), gender: body.gender || "male", age: body.age ? Number(body.age) : null, bloodGroup: body.bloodGroup || null, phone: body.phone || null, allergy: body.allergy || null, chronicDx: body.chronicDx || null, abhaId, abhaProfile } });
     return NextResponse.json({ ok: true, patient });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "clinic_patient_create_failed", detail: message }, { status: 500 });
+    log.error("clinic", "patient_create_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "clinic_patient_create_failed", detail: "The patient could not be registered. Please retry." }, { status: 500 });
   }
 }
 

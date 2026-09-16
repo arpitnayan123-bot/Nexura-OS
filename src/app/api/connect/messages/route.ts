@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { connectGate, connectPartyDenied, doctorOnly } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
@@ -31,8 +32,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ connection, messages });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "messages_list_failed", detail: message }, { status: 500 });
+    log.error("connect", "messages_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "messages_list_failed", detail: "Messages could not be loaded. Please retry." }, { status: 500 });
   }
 }
 
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "message_create_failed", detail: message }, { status: 500 });
+    log.error("connect", "message_create_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "message_create_failed", detail: "The message could not be sent. Please retry." }, { status: 500 });
   }
 }

@@ -291,7 +291,8 @@ async function GET_impl() {
       include: { items: { include: { product: true } } },
     });
     return NextResponse.json({ sales });
-  } catch {
+  } catch (err) {
+    log.error("pharmacy", "billing.list_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "billing_list_failed", detail: "Recent invoices could not be loaded. Please retry." },
       { status: 500 }

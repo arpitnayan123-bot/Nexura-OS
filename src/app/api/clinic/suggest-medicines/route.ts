@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -221,8 +222,8 @@ async function POST_impl(req: NextRequest) {
       nfiSource: "National Formulary of India", nppaSource: "NPPA", bannedFdcCheck: "CDSCO banned FDC list checked",
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "suggest_failed", detail: message }, { status: 500 });
+    log.error("clinic", "suggest_medicines_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "suggest_failed", detail: "Medicine suggestions could not be generated. Please retry." }, { status: 500 });
   }
 }
 

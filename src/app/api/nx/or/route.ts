@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 interface PreOpChecklist { consent?: boolean; fasted?: boolean; site_marked?: boolean; allergies_verified?: boolean; blood_arranged?: boolean; equipment_checked?: boolean }
 
 /** GET — operating room schedule + readiness. */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.or.schedule", async (req: NextRequest) => {
   const gate = await requireModule(req, "or");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
       completed: surgeries.filter((s) => s.status === "completed").length,
     },
   });
-}
+});
 
 function computeReadiness(c: PreOpChecklist): { pct: number; missing: string[] } {
   const flags: Array<[string, boolean | undefined]> = [
@@ -63,7 +63,7 @@ function computeReadiness(c: PreOpChecklist): { pct: number; missing: string[] }
 
 /** PATCH — tick checklist item / change surgery status. */
 const CHECKLIST_KEYS = ["patient_verified", "consent_signed", "anesthesia_cleared", "equipment_checked"] as const;
-export async function PATCH(req: NextRequest) {
+export const PATCH = withRoute("nx.or.update", async (req: NextRequest) => {
   const gate = await requireModule(req, "or");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -102,4 +102,4 @@ export async function PATCH(req: NextRequest) {
     detail: body.checklistKey ? { item: body.checklistKey, value: body.value } : { from: surgery.status, to: body.status },
   });
   return NextResponse.json({ surgery: updated });
-}
+});

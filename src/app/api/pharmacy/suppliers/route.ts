@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -26,8 +27,8 @@ async function GET_impl() {
     });
     return NextResponse.json({ suppliers: withLedger });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "suppliers_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "suppliers_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "suppliers_failed", detail: "Suppliers could not be loaded. Please retry." }, { status: 500 });
   }
 }
 
@@ -49,8 +50,8 @@ async function POST_impl(req: NextRequest) {
     }
     return NextResponse.json({ ok: true, payment });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "supplier_payment_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "supplier_payment_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "supplier_payment_failed", detail: "The payment could not be recorded. Please retry." }, { status: 500 });
   }
 }
 

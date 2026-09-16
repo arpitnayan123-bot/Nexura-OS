@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -22,8 +23,8 @@ async function GET_impl(req: NextRequest) {
 
     return NextResponse.json({ consults, count: consults.length });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "telemedicine_failed", detail: message }, { status: 500 });
+    log.error("clinic", "telemedicine_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "telemedicine_failed", detail: "Consultations could not be loaded. Please retry." }, { status: 500 });
   }
 }
 
@@ -69,8 +70,8 @@ async function POST_impl(req: NextRequest) {
 
     return NextResponse.json({ ok: true, consult });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "telemedicine_create_failed", detail: message }, { status: 500 });
+    log.error("clinic", "telemedicine_create_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "telemedicine_create_failed", detail: "The consultation could not be created. Please retry." }, { status: 500 });
   }
 }
 
@@ -101,8 +102,8 @@ async function PATCH_impl(req: NextRequest) {
     const consult = await db.telemedicineConsult.update({ where: { id: consultId }, data });
     return NextResponse.json({ ok: true, consult });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "telemedicine_update_failed", detail: message }, { status: 500 });
+    log.error("clinic", "telemedicine_update_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "telemedicine_update_failed", detail: "The consultation could not be updated. Please retry." }, { status: 500 });
   }
 }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { connectGate, connectPartyDenied, connectCallsListDenied, doctorOnly } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
@@ -35,8 +36,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ calls });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "calls_list_failed", detail: message }, { status: 500 });
+    log.error("connect", "calls_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "calls_list_failed", detail: "Consultations could not be loaded. Please retry." }, { status: 500 });
   }
 }
 
@@ -71,8 +72,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ call });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "call_create_failed", detail: message }, { status: 500 });
+    log.error("connect", "call_create_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "call_create_failed", detail: "The consultation could not be started. Please retry." }, { status: 500 });
   }
 }
 
@@ -105,7 +106,7 @@ export async function PATCH(req: NextRequest) {
     const call = await db.connectCall.update({ where: { id: callId }, data });
     return NextResponse.json({ call });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "call_update_failed", detail: message }, { status: 500 });
+    log.error("connect", "call_update_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "call_update_failed", detail: "The consultation could not be updated. Please retry." }, { status: 500 });
   }
 }

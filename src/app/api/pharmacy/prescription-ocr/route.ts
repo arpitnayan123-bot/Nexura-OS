@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { log } from "@/lib/logger";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { isValidImageBase64 } from "@/lib/gemini";
 import { withProductAuth } from "@/lib/nx/product-auth";
@@ -118,8 +119,8 @@ async function POST_impl(req: NextRequest) {
 
     return NextResponse.json({ items: mapped, notes: extracted.notes || "", raw: content });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "ocr_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "prescription_ocr_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "ocr_failed", detail: "The prescription could not be read. Please retry with a clearer photo." }, { status: 500 });
   }
 }
 

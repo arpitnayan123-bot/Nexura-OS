@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { getPortalUser } from "@/lib/portal-session";
 
 export const runtime = "nodejs";
@@ -273,7 +274,7 @@ export async function GET() {
       fetchedAt: new Date().toISOString(),
     });
   } catch (err) {
-    console.error("[portal/dashboard] GET error", err);
+    log.error("portal", "dashboard_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to load dashboard" }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -48,8 +49,8 @@ async function POST_impl(req: NextRequest) {
       },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "qr_verify_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "qr_verify_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "qr_verify_failed", detail: "The QR code could not be verified. Please retry." }, { status: 500 });
   }
 }
 
@@ -66,8 +67,8 @@ async function GET_impl() {
     const byCategory = await db.h2QRVerification.groupBy({ by: ["category"], where: { branchId: ctx.branch.id }, _count: { _all: true } });
     return NextResponse.json({ logs, byCategory, total: logs.length });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "qr_list_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "qr_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "qr_list_failed", detail: "QR codes could not be loaded. Please retry." }, { status: 500 });
   }
 }
 

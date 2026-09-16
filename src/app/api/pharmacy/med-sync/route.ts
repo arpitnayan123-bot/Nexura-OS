@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -110,8 +111,8 @@ async function GET_impl() {
 
     return NextResponse.json({ patients: chronicPatients, summary });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "med_sync_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "med_sync_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "med_sync_failed", detail: "Medicine sync could not be completed. Please retry." }, { status: 500 });
   }
 }
 
@@ -132,8 +133,8 @@ async function POST_impl(req: any) {
       channel: "WhatsApp Business API (simulated)",
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "reminder_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "reminder_create_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "reminder_failed", detail: "The reminder could not be created. Please retry." }, { status: 500 });
   }
 }
 

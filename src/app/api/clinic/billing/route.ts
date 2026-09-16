@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -18,8 +19,8 @@ async function GET_impl() {
     ]);
     return NextResponse.json({ bills, summary: { collected: paid._sum.total ?? 0, outstanding: unpaid._sum.total ?? 0, count: bills.length } });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "clinic_billing_failed", detail: message }, { status: 500 });
+    log.error("clinic", "billing_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "clinic_billing_failed", detail: "Invoices could not be loaded. Please retry." }, { status: 500 });
   }
 }
 

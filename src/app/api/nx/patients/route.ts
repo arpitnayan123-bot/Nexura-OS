@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET — universal patient search (name / UHID / phone). */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.patients.list", async (req: NextRequest) => {
   const gate = await requireModule(req, "patients");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -58,4 +58,4 @@ export async function GET(req: NextRequest) {
     })),
     count: patients.length,
   });
-}
+});

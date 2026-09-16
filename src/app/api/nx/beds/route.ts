@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { fire } from "@/lib/nx/automations";
@@ -25,7 +25,7 @@ const LIFECYCLE: Record<string, string[]> = {
 };
 
 /** GET — bed board grouped by ward with lifecycle states. */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.beds.board", async (req: NextRequest) => {
   const gate = await requireModule(req, "beds");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -59,10 +59,10 @@ export async function GET(req: NextRequest) {
     total: beds.length,
     occupancyPct: beds.length ? Math.round((beds.filter((b) => ["occupied", "discharge_pending"].includes(b.status)).length / beds.length) * 100) : 0,
   });
-}
+});
 
 /** PATCH — advance bed lifecycle (deterministic state machine + audit + automations). */
-export async function PATCH(req: NextRequest) {
+export const PATCH = withRoute("nx.beds.lifecycle", async (req: NextRequest) => {
   const gate = await requireModule(req, "beds");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -108,10 +108,10 @@ export async function PATCH(req: NextRequest) {
   }
 
   return NextResponse.json({ bed: updated });
-}
+});
 
 /** POST — reserve a ready bed for a patient (admission prep). */
-export async function POST(req: NextRequest) {
+export const POST = withRoute("nx.beds.reserve", async (req: NextRequest) => {
   const gate = await requireModule(req, "beds");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -144,4 +144,4 @@ export async function POST(req: NextRequest) {
     detail: { bed: bed.bedNumber, patient: patient.fullName },
   });
   return NextResponse.json({ bed: updated });
-}
+});

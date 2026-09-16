@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 
@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET — inventory (supplies) + equipment & assets. */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.supply.inventory", async (req: NextRequest) => {
   const inv = await requireModule(req, "inventory");
   const eqGate = await requireModule(req, "equipment");
   const gate = "session" in inv ? inv : eqGate;
@@ -41,10 +41,10 @@ export async function GET(req: NextRequest) {
       avgUtilization: equipment.length ? Math.round(equipment.reduce((s, e) => s + e.utilization, 0) / equipment.length) : 0,
     },
   });
-}
+});
 
 /** PATCH — adjust stock / toggle equipment status. */
-export async function PATCH(req: NextRequest) {
+export const PATCH = withRoute("nx.supply.adjust", async (req: NextRequest) => {
   const inv = await requireModule(req, "inventory");
   const eqGate = await requireModule(req, "equipment");
   const gate = "session" in inv ? inv : eqGate;
@@ -87,4 +87,4 @@ export async function PATCH(req: NextRequest) {
     detail: { item: item.name, delta, newLevel: onHand },
   });
   return NextResponse.json({ item: updated, hospitalId });
-}
+});
