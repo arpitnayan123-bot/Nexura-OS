@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 
@@ -19,7 +19,7 @@ function acuityFromVitals(v: { pulseRate?: number | null; spo2?: number | null; 
 }
 
 /** GET — Emergency department board. */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.ed.board", async (req: NextRequest) => {
   const gate = await requireModule(req, "ed");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -73,10 +73,10 @@ export async function GET(req: NextRequest) {
       longWaits: cases.filter((c) => c.waitMins > 60 && c.disposition === "active").length,
     },
   });
-}
+});
 
 /** PATCH — assign acuity / update disposition note (triage). */
-export async function PATCH(req: NextRequest) {
+export const PATCH = withRoute("nx.ed.triage", async (req: NextRequest) => {
   const gate = await requireModule(req, "ed");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -105,4 +105,4 @@ export async function PATCH(req: NextRequest) {
     detail: { note: body.note || "triage update" },
   });
   return NextResponse.json({ ok: true });
-}
+});

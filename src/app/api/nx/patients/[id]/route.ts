@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { audit } from "@/lib/nx/audit";
 import { requirePermission, hasPermission } from "@/lib/nx/session";
+import { withRoute } from "@/lib/nx/api";
 import { buildPatientJourney } from "@/lib/nx/journey";
 
 export const runtime = "nodejs";
@@ -13,7 +14,7 @@ export const dynamic = "force-dynamic";
  * Patient-role accounts are hard-scoped to their own linked record.
  * Every view is audited (access history powers the "who saw my record" trail).
  */
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const GET = withRoute<{ id: string }>("nx.patients.detail", async (req: NextRequest, { params }) => {
   const gate = await requirePermission(req, "patient.demographics.view", { patientId: (await params).id });
   if ("error" in gate) return NextResponse.json({ error: gate.error, detail: gate.detail }, { status: gate.status });
   const { id } = await params;
@@ -234,7 +235,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       tasks: openTasks.filter((t) => t.createdAt >= cutoff).length,
     },
   });
-}
+});
 
 function maskPhone(phone: string | null): string | null {
   if (!phone) return null;

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
@@ -26,8 +27,8 @@ async function POST_impl(req: NextRequest) {
     const text = completion.choices?.[0]?.message?.content?.trim() || "No data found";
     return NextResponse.json({ text, query });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "ai_query_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "ai_query_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "ai_query_failed", detail: "The AI query could not be processed. Please retry." }, { status: 500 });
   }
 }
 

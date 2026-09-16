@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 
@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET — incident & escalation center. */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.incidents.list", async (req: NextRequest) => {
   const gate = await requireModule(req, "incidents");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -31,10 +31,10 @@ export async function GET(req: NextRequest) {
     resolved30d: await db.nxIncident.count({ where: { hospitalId, resolvedAt: { gte: new Date(Date.now() - 30 * 86400000) } } }),
   };
   return NextResponse.json({ incidents, counts });
-}
+});
 
 /** POST — report incident. */
-export async function POST(req: NextRequest) {
+export const POST = withRoute("nx.incidents.report", async (req: NextRequest) => {
   const gate = await requireModule(req, "incidents");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -61,10 +61,10 @@ export async function POST(req: NextRequest) {
     detail: { severity: incident.severity, category: incident.category },
   });
   return NextResponse.json({ incident });
-}
+});
 
 /** PATCH — acknowledge / investigate / resolve. */
-export async function PATCH(req: NextRequest) {
+export const PATCH = withRoute("nx.incidents.transition", async (req: NextRequest) => {
   const gate = await requireModule(req, "incidents");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -86,4 +86,4 @@ export async function PATCH(req: NextRequest) {
     detail: { from: incident.status, to: updated.status },
   });
   return NextResponse.json({ incident: updated });
-}
+});

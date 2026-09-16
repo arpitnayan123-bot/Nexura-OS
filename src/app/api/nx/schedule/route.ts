@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { fire } from "@/lib/nx/automations";
@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET — appointment & resource scheduling workspace. */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.schedule.list", async (req: NextRequest) => {
   const gate = await requireModule(req, "schedule");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -59,10 +59,10 @@ export async function GET(req: NextRequest) {
       totalAppointments: (d as unknown as { _count: { appointments: number } })._count.appointments,
     })),
   });
-}
+});
 
 /** POST — book appointment (conflict-checked, fires prep automation). */
-export async function POST(req: NextRequest) {
+export const POST = withRoute("nx.schedule.book", async (req: NextRequest) => {
   const gate = await requireModule(req, "schedule");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -132,10 +132,10 @@ export async function POST(req: NextRequest) {
     detail: { doctor: doctor.name, at: when.toISOString() },
   });
   return NextResponse.json({ appointment: appt });
-}
+});
 
 /** PATCH — check-in / complete / cancel / no-show / reschedule. Every transition is event-logged. */
-export async function PATCH(req: NextRequest) {
+export const PATCH = withRoute("nx.schedule.transition", async (req: NextRequest) => {
   const gate = await requireModule(req, "schedule");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const body = await req.json().catch(() => ({}));
@@ -181,4 +181,4 @@ export async function PATCH(req: NextRequest) {
     detail: { from: appt.status, to: body.status, rescheduledTo: newDate?.toISOString() },
   });
   return NextResponse.json({ appointment: updated });
-}
+});

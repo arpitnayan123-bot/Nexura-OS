@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { withProductAuth } from "@/lib/nx/product-auth";
@@ -44,8 +45,9 @@ async function POST_impl(req: NextRequest) {
         const asr = await zai.audio.asr.create({ file_base64: base64 });
         transcript = (asr.text || "").trim();
       } catch (e) {
+        log.error("pharmacy", "voice_bill_asr_failed", { err: e instanceof Error ? e.message : String(e) });
         return NextResponse.json(
-          { error: "asr_failed", detail: e instanceof Error ? e.message : "asr error" },
+          { error: "asr_failed", detail: "Audio could not be transcribed. Please retry or type the bill manually." },
           { status: 502 }
         );
       }
@@ -76,6 +78,7 @@ async function POST_impl(req: NextRequest) {
       }
     } catch (e) {
       // graceful fallback: word-level number map
+      log.warn("pharmacy", "voice_bill_parse_fallback", { err: e instanceof Error ? e.message : String(e) });
       const words = transcript.toLowerCase().split(/\s+/);
       const nums: Record<string, number> = {
         one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
@@ -155,8 +158,8 @@ async function POST_impl(req: NextRequest) {
       cart,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "voice_bill_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "voice_bill_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "voice_bill_failed", detail: "The voice bill could not be created. Please retry." }, { status: 500 });
   }
 }
 

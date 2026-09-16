@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { connectGate, connectPartyDenied } from "@/lib/nx/connect-auth";
 
 export const runtime = "nodejs";
@@ -36,7 +37,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ ok: true, marked: result.count });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "mark_read_failed", detail: message }, { status: 500 });
+    log.error("connect", "mark_read_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "mark_read_failed", detail: "Messages could not be marked as read. Please retry." }, { status: 500 });
   }
 }

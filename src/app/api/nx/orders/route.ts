@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { fire } from "@/lib/nx/automations";
@@ -17,7 +17,7 @@ const ORDER_FLOW: Record<string, string[]> = {
 };
 
 /** GET — unified orders & results center. */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.orders.list", async (req: NextRequest) => {
   const gate = await requireModule(req, "orders");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -68,10 +68,10 @@ export async function GET(req: NextRequest) {
     })),
     counts,
   });
-}
+});
 
 /** POST — create order (fires routing automation). */
-export async function POST(req: NextRequest) {
+export const POST = withRoute("nx.orders.create", async (req: NextRequest) => {
   const gate = await requireModule(req, "orders");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!["doctor", "admin"].includes(gate.session.role)) {
@@ -113,10 +113,10 @@ export async function POST(req: NextRequest) {
     relatedId: order.id, detail: { orderType: body.orderType, priority: order.priority },
   });
   return NextResponse.json({ order });
-}
+});
 
 /** PATCH — advance order lifecycle / validate result (fires critical-result automation). */
-export async function PATCH(req: NextRequest) {
+export const PATCH = withRoute("nx.orders.transition", async (req: NextRequest) => {
   const gate = await requireModule(req, "orders");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -169,4 +169,4 @@ export async function PATCH(req: NextRequest) {
     detail: { from: order.status, to: body.to },
   });
   return NextResponse.json({ order: updated });
-}
+});

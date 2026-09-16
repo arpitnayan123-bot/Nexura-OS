@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireHospitalContext } from "@/lib/nx/api";
+import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { fire } from "@/lib/nx/automations";
@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET — laboratory work queue: specimen tasks + orders by stage + TAT. */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.labs.queue", async (req: NextRequest) => {
   const gate = await requireModule(req, "labs");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   const hospitalCtx = await requireHospitalContext(gate.session);
@@ -55,11 +55,11 @@ export async function GET(req: NextRequest) {
     specimenTasks,
     stats,
   });
-}
+});
 
 /** POST — record a result for an order (then validate via orders PATCH). */
 const RESULT_FLAGS = ["normal", "abnormal", "critical"] as const;
-export async function POST(req: NextRequest) {
+export const POST = withRoute("nx.labs.result", async (req: NextRequest) => {
   const gate = await requireModule(req, "labs");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
@@ -102,4 +102,4 @@ export async function POST(req: NextRequest) {
     });
   }
   return NextResponse.json({ result });
-}
+});

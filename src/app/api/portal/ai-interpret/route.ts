@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { aiGate } from "@/lib/nx/ai-guard";
 import { getPortalCaller } from "@/lib/portal-session";
 
@@ -96,7 +97,7 @@ Provide a clear, empathetic clinical interpretation in markdown. Under 300 words
         (completion as { choices?: { message?: { content?: string } }[] })?.choices?.[0]?.message?.content ??
         "";
     } catch (llmErr) {
-      console.error("[portal/ai-interpret] LLM failed, falling back to rule-based:", llmErr);
+      log.warn("portal", "ai_interpret_llm_fallback", { err: llmErr instanceof Error ? llmErr.message : String(llmErr) });
       source = "rule-based";
     }
 
@@ -113,7 +114,7 @@ Provide a clear, empathetic clinical interpretation in markdown. Under 300 words
 
     return NextResponse.json({ ok: true, interpretation, source, cached: false });
   } catch (err) {
-    console.error("[portal/ai-interpret] error", err);
+    log.error("portal", "ai_interpret_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to generate AI interpretation" }, { status: 500 });
   }
 }

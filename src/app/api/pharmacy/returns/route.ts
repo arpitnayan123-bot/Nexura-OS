@@ -38,7 +38,8 @@ async function GET_impl() {
     });
 
     return NextResponse.json({ nearExpiry, returns });
-  } catch {
+  } catch (err) {
+    log.error("pharmacy", "returns.list_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "returns_failed", detail: "Returns data could not be loaded. Please retry." },
       { status: 500 }

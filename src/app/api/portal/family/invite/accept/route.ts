@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { getPortalCaller } from "@/lib/portal-session";
 
 export const runtime = "nodejs";
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, member: updated, inviteId: inviteUpdate.id });
   } catch (err) {
-    console.error("[portal/family/invite/accept] error", err instanceof Error ? err.message : err);
+    log.error("portal", "family_invite_accept_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to accept invitation" }, { status: 500 });
   }
 }

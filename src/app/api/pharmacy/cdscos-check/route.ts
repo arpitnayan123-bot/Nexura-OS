@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -89,8 +90,8 @@ async function GET_impl(req: NextRequest) {
       lawReference: "Section 26A, Drugs & Cosmetics Act, 1940",
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "cdsco_check_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "cdsco_check_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "cdsco_check_failed", detail: "The CDSCO check could not be completed. Please retry." }, { status: 500 });
   }
 }
 

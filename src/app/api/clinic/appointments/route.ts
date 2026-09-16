@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
+import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
 export const runtime = "nodejs";
@@ -38,8 +39,8 @@ async function GET_impl(req: NextRequest) {
 
     return NextResponse.json({ appointments });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "clinic_appts_failed", detail: message }, { status: 500 });
+    log.error("clinic", "appts_list_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "clinic_appts_failed", detail: "Appointments could not be loaded. Please retry." }, { status: 500 });
   }
 }
 
@@ -57,8 +58,8 @@ async function POST_impl(req: NextRequest) {
     const appt = await db.clinicAppointment.create({ data: { clinicId: ctx.clinic.id, patientId, doctorId, slot: new Date(slot), reason: reason || "", tokenNo: countToday + 1 } });
     return NextResponse.json({ ok: true, appointment: appt });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "clinic_book_failed", detail: message }, { status: 500 });
+    log.error("clinic", "appt_book_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "clinic_book_failed", detail: "The appointment could not be booked. Please retry." }, { status: 500 });
   }
 }
 
@@ -83,8 +84,8 @@ async function PATCH_impl(req: NextRequest) {
     const appt = await db.clinicAppointment.update({ where: { id: appointmentId }, data: { status } });
     return NextResponse.json({ ok: true, appointment: appt });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "clinic_update_failed", detail: message }, { status: 500 });
+    log.error("clinic", "appt_update_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "clinic_update_failed", detail: "The appointment could not be updated. Please retry." }, { status: 500 });
   }
 }
 

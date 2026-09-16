@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { db } from "@/lib/db";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
@@ -23,8 +24,8 @@ async function GET_impl(req: NextRequest) {
     });
     return NextResponse.json({ drugs });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "drugs_failed", detail: message }, { status: 500 });
+    log.error("clinic", "drugs_search_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "drugs_failed", detail: "The drug database could not be searched. Please retry." }, { status: 500 });
   }
 }
 
