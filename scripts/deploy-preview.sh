@@ -49,8 +49,12 @@ echo "[2/6] Healing .env for the build (matches guardian heal_env) ..."
 mkdir -p logs
 [ -f .env ] || : > .env
 if ! grep -q "^DATABASE_URL=" .env; then
-  echo "DATABASE_URL=file:/home/z/my-project/db/custom.db" >> .env
-  echo "  restored DATABASE_URL"
+  echo "DATABASE_URL=postgresql://nexura@127.0.0.1:5432/nexura" >> .env
+  echo "  restored DATABASE_URL (local Postgres default)"
+fi
+if ! grep -q "^REDIS_URL=" .env; then
+  echo "REDIS_URL=redis://127.0.0.1:6379" >> .env
+  echo "  set REDIS_URL (local Redis default)"
 fi
 # next build runs module-eval of API routes in production mode, which
 # refuses to proceed without a real JWT_SECRET — heal it BEFORE building.
@@ -65,6 +69,11 @@ if ! grep -q "^DEMO_MODE=" .env; then
   echo "DEMO_MODE=true" >> .env
   echo "  set DEMO_MODE=true"
 fi
+# The sandbox boot chain injects a stale DATABASE_URL (file:sqlite) into
+# the process env; process env beats .env for every child, so re-export
+# .env before building/probing and make sure loopback datastores are up.
+set -a; . ./.env; set +a
+bash scripts/ensure-datastores.sh || { echo "FAILED to bring up loopback datastores"; exit 1; }
 
 echo "[3/6] Building production bundle (content-hashed assets) ..."
 if ! npx next build > logs/deploy-build.log 2>&1; then
