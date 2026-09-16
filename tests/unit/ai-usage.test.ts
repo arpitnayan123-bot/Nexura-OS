@@ -122,6 +122,9 @@ describe("ledger writes (real DB)", () => {
     expect(row).not.toBeNull();
     expect(row!.success).toBe(false);
     expect(row!.errorCode!.length).toBeLessThanOrEqual(200);
+    // Don't pollute the ledger with fake unattributed failures — the
+    // truncated error marks exactly the rows this test wrote.
+    await db.aiUsageLog.deleteMany({ where: { capability: "unattributed", errorCode: "x".repeat(200) } });
   });
 
   it("never throws — a record that fails the DB write must not break the caller", async () => {

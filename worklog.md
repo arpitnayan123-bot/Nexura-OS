@@ -323,3 +323,26 @@ Work Log:
 Stage Summary:
 - money-paise-locked-final state independently re-confirmed green at HEAD: migration is done, committed, merged to main, and locked — user request "Yes do it and committed" fully satisfied
 - Remaining deferred items (unchanged, unscheduled): per-instance withRoute default limiter, AI cost/token accounting, consent self-service UI, tourism Float display money
+
+---
+Task ID: ai-cost-metering-1
+Agent: main (Super Z)
+Task: AI cost/token accounting — AiUsageLog ledger + canonical-client instrumentation (branch ai-cost-metering-1)
+
+Work Log:
+- Instrumented the ONE funnel: src/lib/openrouter.ts callOR records every AI call on all 4 provider outcomes (z-ai direct, openrouter, fallback success, fallback failure); OpenRouter path now requests usage:{include:true} for provider-reported tokens+cost
+- New src/lib/ai-usage.ts: normalizeProviderUsage (OpenRouter {prompt_tokens,completion_tokens,total_tokens} AND z-ai {tokens} shapes), estimateTokensFromChars (~4 chars/token heuristic), estimateCostMicroUsd — INTEGER micro-USD math (money discipline: no float in the ledger), MODEL_PRICES as CONFIGURATION with conservative default, recordAiUsage fire-and-forget (swallows all errors, truncates errorCode to 200), aiUsageSummary rollup (per-capability/provider, failures, providerReportedCostRows, unknownRows)
+- Honesty model: tokenSource and costSource tracked SEPARATELY (provider | estimated | unknown) — a provider may report exact tokens while cost still comes from the local price table; nothing is guessed silently; NO prompt/completion content stored, metadata only
+- Schema: AiUsageLog model (capability, provider, model, token/cost ints + sources, latencyMs, success, fallbackUsed, errorCode, requestId nullable, createdAt; 3 indexes); migration 20260916192926_ai_usage_ledger applied
+- BONUS CATCH: prisma migrate dev drift detection surfaced that the money migration left ClinicDoctor.feeConsult + HospitalDoctor.consultationFee DEFAULTs at rupee-era values — fresh inserts would have defaulted to Rs.5 instead of Rs.500; both now verified 50000 (paise) in live DB
+- Attribution: all 24 AI call sites in 19 route files labelled via scripts/label-ai-capabilities.js (assert-exactly-once codemod): 12 kyh features, nx.ai.${feature} x4, pharmacy.voice-bill/ai-query/prescription-ocr, clinic.voice-soap, portal.assistant/ai-interpret
+- New admin surface: GET /api/nx/ai/usage (audit.view-gated, days param 1..90) — rollup explicitly labelled as accounting estimates, not a provider bill
+- Tests: tests/unit/ai-usage.test.ts (13) — integer cost math exactness, usage-shape normalization incl. garbage rejection, REAL-DB ledger write + tokensTotal derivation, never-throw guarantee (NaN row must vanish without unhandled rejection), rollup aggregation + window clamping; test cleans up its own unattributed rows after live ledger showed the pollution
+- Docs: docs/ARCHITECTURE.md §3 honest capability statement rewritten (accounting EXISTS as operational estimate ledger; user-identity attribution documented as future work)
+- Gates: prisma validate OK; tsc 0; eslint 0; vitest 293/293 (280+13); smoke 48/48 (46+2 new: doctor 403 / admin rollup); deploy-preview DEPLOY VERIFIED
+- LIVE PROOF: real pharmacy.ai-query call → ledger row {tokens 86+10=96 provider-reported, costSource estimated 12 micro-USD, latency 331ms, fallback false}; admin rollup endpoint returned correct per-capability aggregation
+
+Stage Summary:
+- The AI cost/token accounting gap from the deferred list is closed: every AI call is measured, attributed to its feature, and queryable per capability with honest provider-vs-estimate sourcing
+- z-ai SDK does report usage in practice (tokenSource=provider on the live call) — estimates remain the labeled fallback for shapes where it does not
+- Remaining deferred items: per-instance withRoute default limiter (distributed), consent self-service UI, per-request user-identity attribution on AI rows, tourism Float display money
