@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Droplet, FileStack, CalendarClock, Users,
   HeartPulse, LogOut, Bell, ChevronDown, Loader2, AlertTriangle,
-  RefreshCw,
+  RefreshCw, ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -16,10 +16,11 @@ import { BloodCheckupTab } from "./tabs/blood-checkup-tab";
 import { RecordsTab } from "./tabs/records-tab";
 import { TimelineTab } from "./tabs/timeline-tab";
 import { FamilyTab } from "./tabs/family-tab";
+import { ConsentTab } from "./tabs/consent-tab";
 import { BookingModal, type TestPanel } from "./booking-modal";
 import { ReportModal, type BloodBooking } from "./report-modal";
 
-type TabId = "overview" | "blood" | "records" | "timeline" | "family";
+type TabId = "overview" | "blood" | "records" | "timeline" | "family" | "consent";
 
 const TABS: { id: TabId; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -27,6 +28,7 @@ const TABS: { id: TabId; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "records", label: "Records", icon: FileStack },
   { id: "timeline", label: "Timeline", icon: CalendarClock },
   { id: "family", label: "Family", icon: Users },
+  { id: "consent", label: "Privacy", icon: ShieldCheck },
 ];
 
 type PortalUser = {
@@ -323,6 +325,8 @@ export function PortalApp() {
                 <RecordsTab data={data} />
               ) : tab === "timeline" ? (
                 <TimelineTab data={data} />
+              ) : tab === "consent" ? (
+                <ConsentTab />
               ) : (
                 <FamilyTab data={data} onChanged={() => fetchDashboard(true)} />
               )}
@@ -333,7 +337,7 @@ export function PortalApp() {
 
       {/* Mobile bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#E7E5E4] bg-white/85 backdrop-blur-xl md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-5 gap-0.5 px-1 py-2 pb-[env(safe-area-inset-bottom)]">
+        <div className="mx-auto grid max-w-md grid-cols-6 gap-0.5 px-1 py-2 pb-[env(safe-area-inset-bottom)]">
           {TABS.map((t) => {
             const active = tab === t.id;
             return (

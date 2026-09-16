@@ -346,3 +346,25 @@ Stage Summary:
 - The AI cost/token accounting gap from the deferred list is closed: every AI call is measured, attributed to its feature, and queryable per capability with honest provider-vs-estimate sourcing
 - z-ai SDK does report usage in practice (tokenSource=provider on the live call) — estimates remain the labeled fallback for shapes where it does not
 - Remaining deferred items: per-instance withRoute default limiter (distributed), consent self-service UI, per-request user-identity attribution on AI rows, tourism Float display money
+
+---
+Task ID: consent-selfservice-1
+Agent: main (Super Z)
+Task: Consent self-service UI — portal Privacy tab + patient-managed consents (branch consent-selfservice-1)
+
+Work Log:
+- INSPECTION found a blocking honesty bug: checkAiConsent resolved "latest GRANTED wins" over ai_assist/data_share rows and never looked at withdrawn/denied rows — withdrawing a consent was a NO-OP (the old granted row kept authorizing AI forever). No self-service UI can ship on top of a revocation that does nothing
+- Fixed checkAiConsent to LATEST-EVENT-WINS: newest ai_assist/data_share row decides; granted + not withdrawn + not expired. Grant-after-withdraw works, withdraw-after-grant works (unit-tested both directions against the real ledger)
+- New src/lib/consent.ts: SELF_SERVICE_CONSENT_TYPES (ai_assist, data_share, telemedicine, research — DPDP plain-language purposes; treatment/financial/dhir/genomics deliberately stay staff-recorded with evidence), resolveConsentState (pure, latest-event-wins, expiry-aware), resolveAllConsentStates
+- New portal API src/app/api/portal/consent (GET state+history / POST grant|withdraw): portal-session scoped (only the UHID-linked hospital patient of the signed caller — fail-closed 401/409), zod-whitelisted types+actions, APPEND-ONLY NxConsent rows attributed "self-service:portal (<name>)" with note "channel: portal self-service", nx audit event per action (actorRole "patient")
+- New portal UI src/components/portal/tabs/consent-tab.tsx: Privacy tab with per-type cards (state badge Granted/Not granted/Withdrawn/Expired, last-change timestamp), one-tap Grant/Withdraw with sonner toasts + in-flight spinners, consent history ledger, not-linked notice (front-desk UHID linkage); registered as 6th tab in portal-app (desktop nav + mobile grid-cols-6)
+- Tests: tests/unit/consent-selfservice.test.ts (9) — resolver state machine (never/granted/withdrawn/re-grant/denied/expired/cross-type isolation/self-serviceable whitelist) + REAL-DB checkAiConsent grant→withdraw→re-grant→withdraw sequence with inline cleanup restoring the seeded ledger
+- Smoke: +1 check (portal consent without session → 401) → suite 49
+- Gates: prisma validate OK (no schema change — NxConsent reused as-is); tsc 0; eslint 0; vitest 302/302 (280 base +13 ai-usage +9 consent); deploy-preview DEPLOY VERIFIED (one stale next-build lock cleared); smoke 49/49
+- LIVE PROOF (real portal login +919820099880 → UHID-2026-50714): GET showed linked state incl. seeded staff-recorded research/denied resolving to not_granted; POST grant ai_assist → governance check TRUE; POST withdraw → governance check FALSE (revocation real); history shows append-only trail attributed self-service:portal (Suresh Nair). Proof rows left in the ledger deliberately — they are real self-service actions, final state (withdrawn) matches the patient's pre-test posture
+- Env trap recurrence: platform re-injected stale file: DATABASE_URL mid-session (3rd documented occurrence) — inline re-export before every direct DB command
+- Docs: docs/ARCHITECTURE.md §3 updated (latest-event-wins + self-service surface)
+
+Stage Summary:
+- The consent self-service UI deferred item is closed: patients can now see and exercise their DPDP rights directly — and revocation is enforced end-to-end (portal → NxConsent ledger → AI governance 403), which was silently broken before
+- Remaining deferred items: per-instance withRoute default limiter (distributed), per-request user-identity attribution on AiUsageLog rows, tourism Float display money

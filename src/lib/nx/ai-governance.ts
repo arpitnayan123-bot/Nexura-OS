@@ -66,7 +66,7 @@ export async function checkAiConsent(hospitalId: string, patientId?: string): Pr
       hospitalId, patientId,
       type: { in: ["ai_assist", "data_share"] },
     },
-    orderBy: [{ grantedAt: "desc" }, { createdAt: "desc" }],
+    orderBy: { grantedAt: "desc" },
   });
   if (!latest) return false;
   if (latest.status !== "granted") return false; // withdrawn | denied | expired
