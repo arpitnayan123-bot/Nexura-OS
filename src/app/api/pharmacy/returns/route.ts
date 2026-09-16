@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { withProductAuth } from "@/lib/nx/product-auth";
 
@@ -36,20 +38,42 @@ async function GET_impl() {
     });
 
     return NextResponse.json({ nearExpiry, returns });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "returns_failed", detail: message }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { error: "returns_failed", detail: "Returns data could not be loaded. Please retry." },
+      { status: 500 }
+    );
   }
 }
 
 // POST — create a return memo + credit note (decrements stock)
+const ReturnItemSchema = z.object({
+  productId: z.string().min(1),
+  batchId: z.string().min(1),
+  batchNo: z.string().min(1),
+  medicineName: z.string().min(1).max(160),
+  expDate: z.string().min(4).max(10),
+  qtyStrips: z.number().int().min(1).max(100_000),
+  mrp: z.number().min(0).max(1_000_000),
+  cgstRate: z.number().min(0).max(100),
+  sgstRate: z.number().min(0).max(100),
+});
+const ReturnSchema = z.object({
+  supplierId: z.string().min(1),
+  reason: z.string().max(300).optional(),
+  items: z.array(ReturnItemSchema).min(1).max(200),
+});
+
 async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
-    const body = await req.json().catch(() => ({}));
-    const { supplierId, reason, items } = body as { supplierId?: string; reason?: string; items?: { productId: string; batchId: string; batchNo: string; medicineName: string; expDate: string; qtyStrips: number; mrp: number; cgstRate: number; sgstRate: number }[] };
-    if (!supplierId || !Array.isArray(items) || items.length === 0) return NextResponse.json({ error: "missing" }, { status: 400 });
+    const parsed = ReturnSchema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) {
+      const detail = parsed.error.issues.slice(0, 5).map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
+      return NextResponse.json({ error: "invalid_request", detail }, { status: 400 });
+    }
+    const { supplierId, reason, items } = parsed.data;
 
     const count = await db.nearExpiryReturn.count();
     const returnNo = `RET-${new Date().getFullYear()}-${String(count + 1).padStart(4, "0")}`;
@@ -63,20 +87,39 @@ async function POST_impl(req: NextRequest) {
       return { ...it, lineTotal };
     });
 
-    const ret = await db.nearExpiryReturn.create({
-      data: { returnNo, branchId: ctx.branch.id, supplierId, reason: reason || "Near expiry", status: "initiated", cgst, sgst, total, items: { create: lineItems.map((it) => ({ productId: it.productId, batchId: it.batchId, batchNo: it.batchNo, medicineName: it.medicineName, expDate: it.expDate, qtyStrips: it.qtyStrips, mrp: it.mrp, cgstRate: it.cgstRate, sgstRate: it.sgstRate, lineTotal: it.lineTotal })) } },
-      include: { items: true },
+    /* Return memo + stock decrement commit together; the decrement is
+       conditional so a return can never drive batch stock negative. */
+    const ret = await db.$transaction(async (tx) => {
+      const created = await tx.nearExpiryReturn.create({
+        data: { returnNo, branchId: ctx.branch.id, supplierId, reason: reason || "Near expiry", status: "initiated", cgst, sgst, total, items: { create: lineItems.map((it) => ({ productId: it.productId, batchId: it.batchId, batchNo: it.batchNo, medicineName: it.medicineName, expDate: it.expDate, qtyStrips: it.qtyStrips, mrp: it.mrp, cgstRate: it.cgstRate, sgstRate: it.sgstRate, lineTotal: it.lineTotal })) } },
+        include: { items: true },
+      });
+      for (const it of lineItems) {
+        const dec = await tx.productBatch.updateMany({
+          where: { id: it.batchId, branchId: ctx.branch.id, stockStrips: { gte: it.qtyStrips } },
+          data: { stockStrips: { decrement: it.qtyStrips } },
+        });
+        if (dec.count === 0) {
+          return null;
+        }
+      }
+      return created;
     });
 
-    // decrement stock
-    for (const it of lineItems) {
-      await db.productBatch.update({ where: { id: it.batchId }, data: { stockStrips: { decrement: it.qtyStrips } } });
+    if (!ret) {
+      return NextResponse.json(
+        { error: "insufficient_stock", detail: "One or more batches do not have enough stock to return." },
+        { status: 422 }
+      );
     }
 
     return NextResponse.json({ ok: true, return: ret });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "return_failed", detail: message }, { status: 500 });
+    log.error("pharmacy", "returns.create_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json(
+      { error: "return_failed", detail: "The return could not be recorded. Please retry." },
+      { status: 500 }
+    );
   }
 }
 

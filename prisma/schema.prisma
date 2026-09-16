@@ -177,6 +177,7 @@ model ProductBatch {
   @@index([batchNo])
   @@index([barcode])
   @@index([expDate])
+  @@unique([branchId, productId, batchNo])
 }
 
 // Sale (invoice)
@@ -204,6 +205,8 @@ model Sale {
   @@index([branchId])
   @@index([createdAt])
   @@index([invoiceNo])
+  @@index([customerId])
+  @@index([staffId])
 }
 
 model SaleItem {
@@ -224,6 +227,7 @@ model SaleItem {
 
   @@index([saleId])
   @@index([productId])
+  @@index([batchId])
 }
 
 // Purchase order from supplier
@@ -261,6 +265,7 @@ model PurchaseItem {
   product      Product  @relation(fields: [productId], references: [id])
 
   @@index([purchaseId])
+  @@index([productId])
 }
 
 /**

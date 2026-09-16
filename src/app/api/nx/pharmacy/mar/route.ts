@@ -89,8 +89,12 @@ export const PATCH = withRoute("mar.administer", async (req: NextRequest) => {
     return fail("witness_required", 422, "Controlled substance administration requires a witness name.");
   }
 
-  const updated = await db.nxMedicationAdministration.update({
-    where: { id: mar.id },
+  /* Compare-and-set administration: the status guard lives IN the UPDATE
+     where-clause, so two nurses signing the same dose concurrently cannot
+     both succeed (the historical read-check-write let both pass and the
+     second silently overwrote the first's attribution). */
+  const cas = await db.nxMedicationAdministration.updateMany({
+    where: { id: mar.id, hospitalId, status: { not: "given" } },
     data: {
       status: parsed.data.status,
       administeredAt: parsed.data.status === "given" ? new Date() : null,
@@ -98,6 +102,8 @@ export const PATCH = withRoute("mar.administer", async (req: NextRequest) => {
       notes: [parsed.data.notes, parsed.data.witnessName ? `witness: ${parsed.data.witnessName}` : null].filter(Boolean).join(" · ") || null,
     },
   });
+  if (cas.count === 0) return fail("already_given", 409, "This dose is already recorded as given.");
+  const updated = await db.nxMedicationAdministration.findFirst({ where: { id: mar.id } });
   await audit({
     hospitalId, actorName: g.session.name, actorRole: g.session.role,
     action: mar.controlled ? "mar.controlled.administered" : "mar.administered",

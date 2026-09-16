@@ -35,8 +35,10 @@ export const POST = withRoute("offline.sync", async (req: NextRequest, { request
   // resolve inside the caller's hospital AND pass patientInScope. Failures
   // are per-op (rejected receipt); authenticated staff in DEMO_MODE pass both.
   for (const op of body.data.ops) {
-    // idempotent replay protection via NxIdempotency
-    const existing = await db.nxIdempotency.findUnique({ where: { key: `offline:${op.clientId}` } });
+    // idempotent replay protection via NxIdempotency — keys are scoped to the
+    // caller so one user's clientId can never collide with (or replay) another's
+    const opKey = `offline:${g.session.userId}:${op.clientId}`;
+    const existing = await db.nxIdempotency.findUnique({ where: { key: opKey } });
     if (existing) {
       receipts.push({ clientId: op.clientId, status: "duplicate_ignored", refId: existing.endpoint });
       continue;
@@ -83,7 +85,7 @@ export const POST = withRoute("offline.sync", async (req: NextRequest, { request
     }
     if (status === "accepted") {
       await db.nxIdempotency.create({
-        data: { key: `offline:${op.clientId}`, endpoint: refId ?? op.type, requestHash: op.clientId, expiresAt: new Date(Date.now() + 7 * 86400_000) },
+        data: { key: opKey, endpoint: refId ?? op.type, requestHash: op.clientId, userId: g.session.userId, expiresAt: new Date(Date.now() + 7 * 86400_000) },
       }).catch(() => {});
       await appendEvent(hospitalId, "offline_sync", op.clientId, `offline.${op.type}`, { uhid: op.patientUhid }, g.session.name);
     }
