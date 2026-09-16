@@ -4396,3 +4396,24 @@ Work Log:
 Stage Summary:
 - Homepage "Nexura OS at a glance" stat-box band fully removed; no other page affected
 - Tag: home-glance-remove-1-final; dual bundles refreshed; tracked-bundle check = 0
+
+---
+Task ID: pg-migration-1
+Agent: main (Super Z)
+Task: SQLite → PostgreSQL production migration (backend-hardening prompt item 1)
+
+Work Log:
+- Installed rootless PostgreSQL 17.11 + Redis 8.0.2 (apt download + dpkg -x to ~/pg-install — no sudo in sandbox); cluster at ~/pgdata (user nexura, trust, TCP :5432), redis on :6379
+- Flipped prisma/schema.prisma datasource provider sqlite → postgresql. Schema audit (160 models): zero enum blocks, zero Prisma Json fields (JSON-as-String by design), zero @db native attrs — single switch point
+- FIXED a real Postgres trap the validator caught: HospitalPrescription has two FKs on consultationId (appointment OR admission) — SQLite tolerated the auto-generated constraint-name collision, Postgres does not. Explicit map: names on both @relation
+- Generated prisma/migrations/20260916000000_baseline/migration.sql (4,232 lines, 160 CREATE TABLE) via `prisma migrate diff --from-empty` + migration_lock.toml; `prisma migrate deploy` applied cleanly (161 tables incl. _prisma_migrations)
+- Ran the guardian's full seed chain against Postgres (exit 0: seed:all + nx-v5 + hospital-bootstrap + pharmacy ×2 + clinic-drugs + clinic + connect + portal + tourism + chronic + pie)
+- ROOT-CAUSE: the sandbox boot chain exports DATABASE_URL=file:... into every process env, and process env BEATS .env for Prisma — the guardian/deploy were unknowingly serving off the inherited env. New scripts/ensure-datastores.sh (loopback-only daemon revival, no-op for managed hosts; learned: shell vars need `export` to reach daemons, redis binaries need extracted lib dir on LD_LIBRARY_PATH)
+- guardian heal_env: Postgres DATABASE_URL default + REDIS_URL heal; main loop now re-exports .env (set -a) over inherited values before seeds/server boot, and calls ensure-datastores before heal_db. deploy-preview.sh: same heal + export + datastore gate before build
+- vitest: job-runner tests (real-DB) failed under the inherited file: URL → added tests/setup-env.ts (dotenv override:true, .env is source of truth; no-ops in CI) wired via vitest setupFiles; dotenv added as devDependency
+- Verified: prisma validate OK, tsc 0, eslint 0, vitest 252/252, DEPLOY VERIFIED, /api/ready {database ok 17ms, seed ok} on Postgres, key routes 200 (/ /hospital /clinic /pharmacy /know-your-health /global /connect /api/nx/system-status), psql row counts non-zero
+
+Stage Summary:
+- Nexura now runs production build + preview entirely on PostgreSQL 17 (migrations/ baseline committed); SQLite retired from the runtime path
+- env precedence trap documented + defended in scripts and test setup
+- Tag: pg-migration-1-final; dual bundles refreshed after commit
