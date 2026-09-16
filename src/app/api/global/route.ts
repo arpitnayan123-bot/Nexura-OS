@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { log } from "@/lib/logger";
 import { isDemoMode } from "@/lib/env";
 import { getSessionFresh } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
@@ -42,7 +43,10 @@ async function usdInrRate(): Promise<number> {
     const row = await db.currencyRate.findFirst({ orderBy: { fetchedAt: "desc" } });
     const parsed = row ? Number(JSON.parse(row.rates)?.USD_INR) : NaN;
     return Number.isFinite(parsed) && parsed > 0 ? parsed : FALLBACK_USD_INR;
-  } catch {
+  } catch (err) {
+    // Rate row unavailable — fall back to the documented constant, but keep
+    // the failure visible in the structured logs.
+    log.warn("global", "fx_rate_fallback", { err: err instanceof Error ? err.message : String(err) });
     return FALLBACK_USD_INR;
   }
 }
@@ -209,7 +213,8 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ error: "unknown_action" }, { status: 400 });
-  } catch {
+  } catch (err) {
+    log.error("global", "global_get_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "global_failed" }, { status: 500 });
   }
 }
@@ -351,7 +356,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: "unknown_action" }, { status: 400 });
-  } catch {
+  } catch (err) {
+    log.error("global", "inquiry_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "inquiry_failed" }, { status: 500 });
   }
 }

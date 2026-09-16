@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { runText, INDIA_PREAMBLE } from "@/lib/gemini";
 import { aiGate } from "@/lib/nx/ai-guard";
 
@@ -60,7 +61,7 @@ Rules:
     if (!result?.diabetesRisk) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "disease_risk_failed", detail: message }, { status: 500 });
+    log.error("kyh", "disease_risk_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "disease_risk_failed", detail: "The risk assessment could not be generated. Please retry." }, { status: 500 });
   }
 }

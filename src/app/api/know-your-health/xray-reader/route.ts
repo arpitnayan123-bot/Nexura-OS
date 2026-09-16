@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { runVision, INDIA_PREAMBLE, isValidImageBase64 } from "@/lib/gemini";
 import { aiGate } from "@/lib/nx/ai-guard";
 
@@ -81,7 +82,7 @@ Rules:
     }
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "xray_reader_failed", detail: message }, { status: 500 });
+    log.error("kyh", "xray_reader_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "xray_reader_failed", detail: "The X-ray could not be analyzed. Please retry with a clearer image." }, { status: 500 });
   }
 }

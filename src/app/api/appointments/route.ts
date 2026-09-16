@@ -60,7 +60,10 @@ export async function GET() {
       db.lead.count({ where: { type: "appointment" } }),
     ]);
     return NextResponse.json({ earlyAccess, appointments });
-  } catch {
+  } catch (err) {
+    // Swallowed failure: the public counter degrades to zeroed counts, but the
+    // DB problem must be visible in the structured logs.
+    log.error("api", "appointments.stats_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ earlyAccess: 0, appointments: 0 });
   }
 }

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import { withRoute } from "@/lib/nx/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Simulated live health metrics — in production these would come from
 // wearable device streams / time-series DB.
-export async function GET() {
+export const GET = withRoute("health-stats.metrics", async () => {
   const now = Date.now();
   const seed = Math.floor(now / 1000);
 
@@ -33,4 +34,4 @@ export async function GET() {
     series,
     ts: now,
   });
-}
+});

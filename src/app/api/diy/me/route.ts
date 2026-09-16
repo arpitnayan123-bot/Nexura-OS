@@ -5,13 +5,14 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { guard } from "../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { db } from "@/lib/db";
 import { AUDIT } from "@/lib/diy/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export const GET = withRoute("diy.me.export", async (req: NextRequest) => {
   const g = await guard(req, { consent: "EXPORT" });
   if (g instanceof NextResponse) return g;
 
@@ -42,9 +43,9 @@ export async function GET(req: NextRequest) {
       generations,
     },
   });
-}
+});
 
-export async function DELETE(req: NextRequest) {
+export const DELETE = withRoute("diy.me.wipe", async (req: NextRequest) => {
   const g = await guard(req, { consent: "DELETE" });
   if (g instanceof NextResponse) return g;
 
@@ -74,4 +75,4 @@ export async function DELETE(req: NextRequest) {
   ]);
 
   return NextResponse.json({ ok: true, wiped: true });
-}
+});

@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { guard, zodBody, guardFail } from "../../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { goalActionSchema } from "@/lib/diy/schemas";
 import { db } from "@/lib/db";
 import { evaluateSafety, classifyCategory, recordSafetyEvent } from "@/lib/diy/safety/engine";
@@ -24,7 +25,7 @@ const STATE_FOR_ACTION: Record<string, GoalState> = {
   not_feasible: "NOT_FEASIBLE",
 };
 
-export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export const POST = withRoute<{ id: string }>("diy.goal.action", async (req: NextRequest, ctx) => {
   const g = await guard(req, {
     body: zodBody(goalActionSchema),
     consent: "GOALS_WRITE",
@@ -71,4 +72,4 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
 
   const updated = await db.diyGoal.update({ where: { id: goal.id }, data: { status: target } });
   return NextResponse.json({ ok: true, goal: updated });
-}
+});

@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { guard, zodBody } from "../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { goalsBatchSchema } from "@/lib/diy/schemas";
 import { db } from "@/lib/db";
 import { reconcile } from "@/lib/diy/compiler";
@@ -13,7 +14,7 @@ import type { DiyCategory } from "@/lib/diy/types";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export const GET = withRoute("diy.goals.list", async (req: NextRequest) => {
   const g = await guard(req);
   if (g instanceof NextResponse) return g;
   const goals = await db.diyGoal.findMany({
@@ -21,9 +22,9 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "asc" },
   });
   return NextResponse.json({ goals });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withRoute("diy.goals.batch", async (req: NextRequest) => {
   const g = await guard(req, {
     body: zodBody(goalsBatchSchema),
     consent: "GOALS_WRITE",
@@ -77,4 +78,4 @@ export async function POST(req: NextRequest) {
     conflicts: reconciled.conflicts,
     batchId,
   });
-}
+});

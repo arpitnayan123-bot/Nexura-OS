@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { runText, INDIA_PREAMBLE } from "@/lib/gemini";
 import { aiGate } from "@/lib/nx/ai-guard";
 
@@ -65,7 +66,7 @@ Rules:
     if (!result || !Array.isArray(result.interactions)) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "med_interaction_failed", detail: message }, { status: 500 });
+    log.error("kyh", "med_interaction_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "med_interaction_failed", detail: "The interaction check could not be completed. Please retry." }, { status: 500 });
   }
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { withRoute } from "@/lib/nx/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,7 +30,7 @@ function op(summary: string, tag: string, opts?: { params?: string[]; body?: boo
   return o;
 }
 
-export function GET() {
+export const GET = withRoute("nx.openapi", async () => {
   const spec = {
     openapi: "3.1.0",
     info: {
@@ -281,4 +282,4 @@ export function GET() {
     },
   };
   return NextResponse.json(spec);
-}
+});

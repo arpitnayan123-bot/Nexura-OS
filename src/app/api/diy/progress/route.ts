@@ -3,13 +3,14 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { guard, zodBody } from "../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { progressSchema } from "@/lib/diy/schemas";
 import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export const POST = withRoute("diy.progress.upsert", async (req: NextRequest) => {
   const g = await guard(req, {
     body: zodBody(progressSchema),
     consent: "PROGRESS",
@@ -44,9 +45,9 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ ok: true, progress: row });
-}
+});
 
-export async function GET(req: NextRequest) {
+export const GET = withRoute("diy.progress.list", async (req: NextRequest) => {
   const g = await guard(req);
   if (g instanceof NextResponse) return g;
   const logs = await db.diyProgressLog.findMany({
@@ -55,4 +56,4 @@ export async function GET(req: NextRequest) {
     take: 60,
   });
   return NextResponse.json({ logs });
-}
+});
