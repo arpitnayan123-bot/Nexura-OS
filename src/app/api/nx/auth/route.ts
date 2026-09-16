@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { generateAccessToken, verifyToken } from "@/lib/auth/jwt";
+import { generateAccessToken, verifyToken, jwtSecret } from "@/lib/auth/jwt";
 import { modulesForRole, roleKeysForUser, type NxRole } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { fail, ipOf, ok, parseBody, withRoute, rateLimit, peekRateLimit } from "@/lib/nx/api";
@@ -13,16 +13,6 @@ import { env } from "@/lib/env";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Fail fast in production, mirroring src/lib/auth/jwt.ts — a silently
-// forgeable token secret is unacceptable on a healthcare platform.
-const JWT_SECRET = (() => {
-  const s = process.env.JWT_SECRET;
-  if (s && s.length >= 16) return s;
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("JWT_SECRET must be set (>=16 chars) in production — refusing to sign tokens with a fallback.");
-  }
-  return "nexura-os-dev-secret-change-in-prod";
-})();
 const SESSION_HOURS = 12;
 const REMEMBER_DAYS = 30;
 const MAX_ATTEMPTS = 5;
@@ -57,12 +47,12 @@ const LoginSchema = z.union([
 ]);
 
 function signMfaToken(userId: string): string {
-  return jwt.sign({ userId, purpose: "mfa" }, JWT_SECRET, { expiresIn: "5m" });
+  return jwt.sign({ userId, purpose: "mfa" }, jwtSecret(), { expiresIn: "5m" });
 }
 
 function readMfaToken(token: string): string | null {
   try {
-    const d = jwt.verify(token, JWT_SECRET) as { userId?: string; purpose?: string };
+    const d = jwt.verify(token, jwtSecret()) as { userId?: string; purpose?: string };
     return d.purpose === "mfa" && d.userId ? d.userId : null;
   } catch {
     return null;
