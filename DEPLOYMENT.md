@@ -27,11 +27,14 @@ In Vercel → Project Settings → Environment Variables, add:
 
 | Variable | Value | Required |
 |----------|-------|----------|
-| `DATABASE_URL` | `postgresql://user:pass@host:port/db?schema=public` | ✅ Yes |
+| `DATABASE_URL` | `postgresql://user:pass@host:port/db` | ✅ Yes |
 | `JWT_SECRET` | Generate with `openssl rand -hex 32` | ✅ Yes |
+| `REDIS_URL` | `redis://default:pass@host:6379` | ✅ Yes |
 | `NODE_ENV` | `production` | ✅ Yes |
 
-**Note:** No AI API keys are needed — z-ai-web-dev-sdk is pre-configured.
+**Note:** the server refuses to boot in production without the first three —
+see `assertProductionEnv()` in `src/lib/env.ts`. Full variable reference:
+[`.env.example`](.env.example). No AI API keys are needed — z-ai-web-dev-sdk is pre-configured.
 
 ## Step 4: Database Setup
 
@@ -50,24 +53,19 @@ In Vercel → Project Settings → Environment Variables, add:
 2. Settings → Database → Connection string
 3. Set as `DATABASE_URL`
 
-## Step 5: Push Schema to Production DB
+## Step 5: Apply Schema to Production DB
 
-After deploying, run Prisma migration:
+The repo ships a Prisma migrations history (`prisma/migrations/`). Apply it with:
 
 ```bash
 # Set DATABASE_URL to your production PostgreSQL
-DATABASE_URL="postgresql://..." bunx prisma db push
+DATABASE_URL="postgresql://..." npx prisma migrate deploy
 ```
 
-Or use Vercel's build step (add to `package.json` scripts):
-```json
-"postinstall": "prisma generate"
-```
-
-And add a Vercel build command:
-```
-bunx prisma db push && bun run build
-```
+Run this as a release-gate step (CI job, deploy hook, or one-off container)
+— never disable it silently. Verify afterwards with
+`node scripts/db-backup.mjs` + `node scripts/db-restore-validate.mjs`
+(pg_dump-based backup/restore validation).
 
 ## Step 6: Seed Production Database (Optional)
 

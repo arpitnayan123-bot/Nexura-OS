@@ -5,16 +5,20 @@ Dark, cinematic, command-center interface for clinicians, nurses, administrators
 operations teams, patients and executives — backed by a real, auditable backend.
 
 **Stack:** Next.js 16 (App Router, Turbopack) · TypeScript · Tailwind 4 + shadcn/ui ·
-Prisma + SQLite (swap-ready for Postgres) · JWT session auth (HttpOnly cookies) ·
-SSE real-time · zod validation · Vitest + Playwright.
+Prisma + PostgreSQL (migrations in `prisma/migrations/`) · Redis (rate limiting, event bus, sync leases) ·
+JWT session auth (HttpOnly cookies) · SSE real-time · zod validation · Vitest + Playwright.
+
+> **Evaluating the codebase?** Start with [PRODUCTION_STATUS.md](PRODUCTION_STATUS.md) —
+> the current, single source of truth on production readiness.
 
 ---
 
 ## Quick start
 
 ```bash
+cp .env.example .env        # fill in DATABASE_URL / JWT_SECRET / REDIS_URL
 bun install                 # deps
-bun run db:push             # create/sync schema (db/custom.db)
+npx prisma migrate deploy   # apply schema (PostgreSQL required)
 bun run seed:demo           # v4 demo dataset (21 staff, patients, MAR, billing, …)
 bun run dev                 # http://localhost:3000/hospital
 ```
@@ -24,8 +28,9 @@ bun run dev                 # http://localhost:3000/hospital
 | `bun run dev` | Dev server on :3000 |
 | `bun run typecheck` | `tsc --noEmit` gate (src must be clean) |
 | `bun run lint` | ESLint |
-| `bun run test` | Vitest unit suite (39 tests) |
-| `bun run test:api` | 29-check API smoke suite (needs dev server running) |
+| `bun run test` | Vitest unit suite (252 tests) |
+| `bun run test:api` | API smoke suite (needs dev server running) |
+| `bun run db:migrate` | Apply Prisma migrations |
 | `bun run seed:demo` | Idempotent demo seed |
 | `bun run build` | Production build (standalone) |
 
