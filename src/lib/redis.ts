@@ -42,10 +42,14 @@ export function redis(): Redis | null {
   if (!url) return null;
   const client = new Redis(url, {
     // Bounded retry — a down Redis must surface as an error fast, not
-    // queue commands behind an offline retry loop.
+    // queue commands behind an offline retry loop. The offline queue
+    // stays ENABLED for the initial connect window (commands issued
+    // during CONNECTING wait for ready instead of throwing); once the
+    // client is past that, maxRetriesPerRequest bounds every command to
+    // two attempts so a dead Redis rejects fast rather than hanging.
     retryStrategy: (times) => (times > 3 ? null : Math.min(times * 200, 1000)),
     maxRetriesPerRequest: 2,
-    enableOfflineQueue: false,
+    connectTimeout: 5_000,
     lazyConnect: false,
   });
   client.on("error", (err) => log.error("redis", "connection error", { err: err.message }));
@@ -62,7 +66,7 @@ export function redisSubscriber(): Redis | null {
   const client = new Redis(url, {
     retryStrategy: (times) => (times > 3 ? null : Math.min(times * 200, 1000)),
     maxRetriesPerRequest: null, // subscriber must never abort mid-stream
-    enableOfflineQueue: false,
+    connectTimeout: 5_000,
   });
   client.on("error", (err) => log.error("redis", "subscriber error", { err: err.message }));
   g.__nxRedisSub = client;

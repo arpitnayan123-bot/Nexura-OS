@@ -8,10 +8,38 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # Postgres + Redis are the production datastores (pg-migration-1,
+    # stateless-1): unit tests and the API smoke suite run against REAL
+    # services, not SQLite stand-ins.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: nexura
+          POSTGRES_PASSWORD: nexura
+          POSTGRES_DB: nexura
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U nexura"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     env:
       # CI runs in demo mode: demo product surfaces stay reachable for smoke.
       DEMO_MODE: "true"
       JWT_SECRET: ci-pipeline-secret-not-for-production-0123456789
+      DATABASE_URL: postgresql://nexura:nexura@127.0.0.1:5432/nexura
+      REDIS_URL: redis://127.0.0.1:6379
     steps:
       - uses: actions/checkout@v4
 
@@ -42,12 +70,14 @@ jobs:
       - name: Lint
         run: bun run lint
 
-      - name: Unit tests
+      - name: Apply migrations (release gate)
+        run: bunx prisma migrate deploy
+
+      - name: Unit tests (against Postgres + Redis services)
         run: bun run test
 
       - name: Prepare demo database (full seed chain)
         run: |
-          bun run db:push
           bun run seed:all
 
       - name: Boot dev server + API smoke suite
@@ -72,7 +102,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: verify
     env:
-      DATABASE_URL: file:/tmp/build.db
+      # Build-time dummy only (module evaluation); the real URL is
+      # provided by the deployment environment at runtime.
+      DATABASE_URL: postgresql://build:nobuild@127.0.0.1:5432/nobuild
       JWT_SECRET: ci-pipeline-secret-not-for-production-0123456789
     steps:
       - uses: actions/checkout@v4
