@@ -21,4 +21,4 @@ Work Log:
 
 Stage Summary:
 - Repo root now reads clean for a technical reviewer: code + docs + config, no stray gigabytes, no contradictory claims
-- Tag: repo-hygiene-1-final; dual bundles refreshed after commit
+- Tag: repo-hygiene-2-final (name repo-hygiene-1-final was already taken by a 2026-09-14 worklog chore — see git tag); dual bundles refreshed after commit
