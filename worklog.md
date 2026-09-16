@@ -4456,3 +4456,18 @@ Stage Summary:
 - Cross-instance safe: jobs (PG SKIP LOCKED), event bus (Redis pub/sub), rate limiting (Redis INCR), PIE sync (Redis lease)
 - Excluded auth/OTP surface untouched; its state documented for the collaborator
 - Tag: stateless-1-final; dual bundles refreshed after commit
+
+---
+Task ID: env-config-1
+Agent: main (Super Z)
+Task: .env.example + boot-time loud env validation (backend-hardening item 3)
+
+Work Log:
+- NEW .env.example: all 20 env vars the app reads (grepped process.env across src/scripts/configs), grouped (datastore/security/redis/mode/tuning/urls/ops/integrations/email/test), each with a one-line description; the 3 boot-critical ones (DATABASE_URL postgres, JWT_SECRET ≥16, REDIS_URL) marked REQUIRED. Coverage cross-checked mechanically: only NEXT_RUNTIME/NODE_ENV absent (platform-injected by Next/deployer — correct to omit)
+- src/lib/env.ts: NEW assertProductionEnv() — throws at server boot when a required production var is missing/short/wrong-scheme (SQLite URLs explicitly rejected with a pointer to .env.example); same fail-loud philosophy as the JWT_SECRET IIFE in jwt.ts. Dev (NODE_ENV!=production) stays forgiving by design
+- src/instrumentation.ts: register() calls assertProductionEnv() FIRST and re-throws on failure — the server refuses to boot half-configured. Runs at server start only, never during next build (verified: DEPLOY VERIFIED build unaffected)
+- Verify: tsc 0, eslint 0, vitest 252/252, DEPLOY VERIFIED, zero boot-gate failures in server.log on the healthy stack, /api/ready db+seed ok
+
+Stage Summary:
+- A new deployment path is now: cp .env.example .env → fill 3 required values → npx prisma migrate deploy → start; missing config fails loudly with actionable text, never silently
+- Tag: env-config-1-final; dual bundles refreshed after commit
