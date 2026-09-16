@@ -4,6 +4,7 @@ import { log } from "@/lib/logger";
 import { isDemoMode } from "@/lib/env";
 import { getSessionFresh } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
+import { centsToUsd, paiseToRupee, usdToCents, tourismProcedureToWire, tourismInquiryToWire } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -86,23 +87,30 @@ function unauthorized() {
 async function buildDeskPayload() {
   const [inquiries, procedures, coordinators, testimonials, settings] = await Promise.all([
     db.tourismInquiry.findMany({ orderBy: { createdAt: "desc" }, take: 200 }),
-    db.tourismProcedure.findMany({ where: { active: true }, orderBy: { priceUSD: "asc" } }),
+    db.tourismProcedure.findMany({ where: { active: true }, orderBy: { priceUSDCents: "asc" } }),
     db.tourismCoordinator.findMany({ where: { active: true } }),
     db.tourismTestimonial.findMany({ where: { verified: true }, orderBy: { createdAt: "desc" }, take: 6 }),
     db.tourismSetting.findFirst({ include: { hospital: { select: { id: true, name: true, district: true } } } }),
   ]);
 
+  const wireInquiries = inquiries.map(tourismInquiryToWire);
   const kanban: Record<string, unknown[]> = {};
   for (const s of STATUS_FLOW) kanban[s] = [];
-  for (const i of inquiries) if (kanban[i.status]) kanban[i.status].push(i);
+  for (let idx = 0; idx < inquiries.length; idx++) {
+    const status = inquiries[idx].status;
+    if (kanban[status]) kanban[status].push(wireInquiries[idx]);
+  }
 
   const totalInquiries = inquiries.length;
   const newInquiries = inquiries.filter((i) => i.status === "new").length;
   const activePatients = inquiries.filter((i) => ACTIVE_STATUSES.has(i.status)).length;
   const discharged = inquiries.filter((i) => DONE_STATUSES.has(i.status)).length;
-  const totalRevenue = Math.round(
-    inquiries.reduce((s, i) => s + (i.totalBilledUSD ?? i.estimatedCostUSD ?? 0), 0)
+  // Integer cents sum; wire converts to USD major (same as before).
+  const totalRevenueCents = inquiries.reduce(
+    (s, i) => s + (i.totalBilledUSDCents ?? i.estimatedCostUSDCents ?? 0),
+    0
   );
+  const totalRevenue = Math.round(centsToUsd(totalRevenueCents));
   const conversionRate = totalInquiries > 0 ? Math.round((discharged / totalInquiries) * 100) : 0;
 
   const countryCounts = new Map<string, number>();
@@ -127,9 +135,9 @@ async function buildDeskPayload() {
 
   return {
     settings,
-    procedures,
+    procedures: procedures.map(tourismProcedureToWire),
     coordinators,
-    inquiries,
+    inquiries: wireInquiries,
     kanban,
     testimonials,
     stats: {
@@ -163,11 +171,11 @@ export async function GET(req: NextRequest) {
         where: { tourismSetting: { tourismReady: true } },
         include: {
           tourismSetting: true,
-          tourismProcedures: { where: { active: true }, take: 3, orderBy: { priceUSD: "asc" } },
+          tourismProcedures: { where: { active: true }, take: 3, orderBy: { priceUSDCents: "asc" } },
           tourismTestimonials: { where: { verified: true }, take: 2, orderBy: { createdAt: "desc" } },
         },
       });
-      return NextResponse.json({ hospitals });
+      return NextResponse.json({ hospitals: hospitals.map((h) => ({ ...h, tourismProcedures: h.tourismProcedures.map(tourismProcedureToWire) })) });
     }
 
     if (action === "cost_comparison") {
@@ -205,11 +213,11 @@ export async function GET(req: NextRequest) {
       if (!hospital) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
       const settings = await db.tourismSetting.findUnique({ where: { hospitalId } });
-      const procedures = await db.tourismProcedure.findMany({ where: { hospitalId, active: true }, orderBy: { priceUSD: "asc" } });
+      const procedures = await db.tourismProcedure.findMany({ where: { hospitalId, active: true }, orderBy: { priceUSDCents: "asc" } });
       const doctors = await db.hospitalDoctor.findMany({ where: { hospitalId, active: true }, select: { id: true, name: true, specialty: true, regNo: true, department: true }, take: 12 });
       const testimonials = await db.tourismTestimonial.findMany({ where: { hospitalId, verified: true }, orderBy: { createdAt: "desc" }, take: 6 });
 
-      return NextResponse.json({ hospital, settings, procedures, doctors, testimonials });
+      return NextResponse.json({ hospital, settings, procedures: procedures.map(tourismProcedureToWire), doctors, testimonials });
     }
 
     return NextResponse.json({ error: "unknown_action" }, { status: 400 });
@@ -320,37 +328,38 @@ export async function POST(req: NextRequest) {
       // Estimate breakdown (matches the desk UI contract):
       //   procedure fee + surgeon fee (30%) + room ($150/day × stay)
       //   + nursing & meds (10% of the above) + optional add-on packages.
+      // All arithmetic in integer cents; the wire converts to USD major.
       const rate = await usdInrRate();
-      const procedureFee = proc.priceUSD;
-      const surgeonFee = Math.round(procedureFee * 0.30);
-      const roomCharges = stayDays * 150;
-      const nursingMed = Math.round((procedureFee + surgeonFee + roomCharges) * 0.10);
-      const extrasCost = extras.reduce((s: number, e: { cost: number }) => s + e.cost, 0);
-      const totalUSD = procedureFee + surgeonFee + roomCharges + nursingMed + extrasCost;
-      const totalINR = Math.round(totalUSD * rate);
+      const procedureFeeCents = proc.priceUSDCents;
+      const surgeonFeeCents = Math.round(procedureFeeCents * 0.30);
+      const roomChargesCents = stayDays * 15000; // $150.00/day, in cents
+      const nursingMedCents = Math.round((procedureFeeCents + surgeonFeeCents + roomChargesCents) * 0.10);
+      const extrasCents = extras.reduce((s: number, e: { cost: number }) => s + usdToCents(e.cost), 0);
+      const totalCents = procedureFeeCents + surgeonFeeCents + roomChargesCents + nursingMedCents + extrasCents;
+      const totalINR = Math.round(centsToUsd(totalCents) * rate);
 
       return NextResponse.json({
         procedure: proc.name,
         stayDays,
-        procedureFee,
-        surgeonFee,
-        roomCharges,
-        nursingMed,
-        extras: extrasCost,
+        procedureFee: centsToUsd(procedureFeeCents),
+        surgeonFee: centsToUsd(surgeonFeeCents),
+        roomCharges: centsToUsd(roomChargesCents),
+        nursingMed: centsToUsd(nursingMedCents),
+        extras: centsToUsd(extrasCents),
         extrasList: extras,
-        totalUSD,
+        totalUSD: centsToUsd(totalCents),
         totalINR,
         inrRate: rate,
         rate,
         breakdown: {
           procedure: proc.name,
-          baseUSD: proc.priceUSD,
+          baseUSD: centsToUsd(proc.priceUSDCents),
           stayDays,
           bundledStayDays: proc.avgStayDays,
           perDayRoomUSD: 150,
-          roomChargesUSD: roomCharges,
+          roomChargesUSD: centsToUsd(roomChargesCents),
           extras,
-          extrasCostUSD: extrasCost,
+          extrasCostUSD: centsToUsd(extrasCents),
         },
       });
     }

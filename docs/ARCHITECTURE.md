@@ -51,7 +51,7 @@ Next.js 16 App Router (Node runtime)  ── src/app/api/**  (≈187 routes)
 
 | Store | Role |
 |---|---|
-| PostgreSQL 17 | System of record. 160 models, integer-paise money in the Nx layer, FK-indexed, audit chains `ON DELETE RESTRICT`. |
+| PostgreSQL 17 | System of record. 160 models, integer-paise money in the Nx layer + integer-cents USD money in the tourism desk (`tourism-money-1`), FK-indexed, audit chains `ON DELETE RESTRICT`. |
 | Redis 7 | Distributed rate limiter (`src/lib/rate-limit.ts`), event-bus relay (`src/lib/nx/bus.ts`), PIE sync lease. |
 | In-process Map | Edge burst guard + per-route default limiter (per-instance pre-filter; with REDIS_URL set the authoritative 300/min/IP budget is consumed from the distributed limiter, so scaled instances share one budget). |
 
