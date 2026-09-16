@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { gstOnPaise, roundToRupee, saleWithItemsToRupees } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -62,9 +63,12 @@ async function POST_impl(req: NextRequest) {
       },
     });
 
-    let subtotal = 0;
-    let cgst = 0;
-    let sgst = 0;
+    /* All money math below is INTEGER PAISE (docs/ARCHITECTURE.md §5).
+       batch.mrp is paise; GST is gstOnPaise (single nearest-paise rounding).
+       No float arithmetic ever touches a monetary amount. */
+    let subtotalPaise = 0;
+    let cgstPaise = 0;
+    let sgstPaise = 0;
     const saleItems: {
       productId: string;
       batchId: string;
@@ -89,16 +93,16 @@ async function POST_impl(req: NextRequest) {
       const qtyLoose = it.qtyLoose;
       if (qtyStrips === 0 && qtyLoose === 0) continue;
 
-      // line mrp: strips at mrp, loose at mrp/tabletsPerStrip
-      const looseMrp = batch.mrp / product.tabletsPerStrip;
-      const gross = qtyStrips * batch.mrp + qtyLoose * looseMrp;
-      const lineCgst = (gross * product.cgstRate) / 100;
-      const lineSgst = (gross * product.sgstRate) / 100;
-      const lineTotal = gross + lineCgst + lineSgst;
+      // line mrp: strips at mrp, loose at mrp/tabletsPerStrip (nearest paise)
+      const looseUnitPaise = Math.round(batch.mrp / product.tabletsPerStrip);
+      const grossPaise = qtyStrips * batch.mrp + qtyLoose * looseUnitPaise;
+      const lineCgstPaise = gstOnPaise(grossPaise, product.cgstRate);
+      const lineSgstPaise = gstOnPaise(grossPaise, product.sgstRate);
+      const lineTotalPaise = grossPaise + lineCgstPaise + lineSgstPaise;
 
-      subtotal += gross;
-      cgst += lineCgst;
-      sgst += lineSgst;
+      subtotalPaise += grossPaise;
+      cgstPaise += lineCgstPaise;
+      sgstPaise += lineSgstPaise;
 
       saleItems.push({
         productId: product.id,
@@ -108,7 +112,7 @@ async function POST_impl(req: NextRequest) {
         mrpPerStrip: batch.mrp,
         cgstRate: product.cgstRate,
         sgstRate: product.sgstRate,
-        lineTotal,
+        lineTotal: lineTotalPaise,
       });
     }
 
@@ -116,14 +120,14 @@ async function POST_impl(req: NextRequest) {
       return NextResponse.json({ error: "no_sellable_items" }, { status: 400 });
     }
 
-    const discount = (subtotal * discountPct) / 100;
-    const taxableAfterDiscount = subtotal - discount;
-    // recompute gst proportionally on discounted subtotal
-    const cgstFinal = (cgst / (subtotal || 1)) * taxableAfterDiscount;
-    const sgstFinal = (sgst / (subtotal || 1)) * taxableAfterDiscount;
-    const grand = taxableAfterDiscount + cgstFinal + sgstFinal;
-    const rounded = Math.round(grand);
-    const roundOff = +(rounded - grand).toFixed(2);
+    const discountPaise = Math.round((subtotalPaise * discountPct) / 100);
+    const taxablePaise = subtotalPaise - discountPaise;
+    // recompute gst proportionally on discounted subtotal (integer math)
+    const cgstFinalPaise = Math.round((cgstPaise * taxablePaise) / (subtotalPaise || 1));
+    const sgstFinalPaise = Math.round((sgstPaise * taxablePaise) / (subtotalPaise || 1));
+    const grandPaise = taxablePaise + cgstFinalPaise + sgstFinalPaise;
+    const roundedTotalPaise = roundToRupee(grandPaise);
+    const roundOffPaise = roundedTotalPaise - grandPaise;
 
     // customer (walk-in if none)
     let customer = await db.customer.findFirst({ where: { name: "Walk-in" } });
@@ -154,13 +158,13 @@ async function POST_impl(req: NextRequest) {
               branchId: ctx.branch.id,
               staffId: ctx.staff?.id ?? null,
               customerId: customer?.id ?? null,
-              subtotal: +subtotal.toFixed(2),
+              subtotal: subtotalPaise,
               discountPct,
-              discount: +discount.toFixed(2),
-              cgst: +cgstFinal.toFixed(2),
-              sgst: +sgstFinal.toFixed(2),
-              roundOff,
-              total: rounded,
+              discount: discountPaise,
+              cgst: cgstFinalPaise,
+              sgst: sgstFinalPaise,
+              roundOff: roundOffPaise,
+              total: roundedTotalPaise,
               payMode,
               status: "billed",
               items: {
@@ -172,7 +176,7 @@ async function POST_impl(req: NextRequest) {
                   mrpPerStrip: si.mrpPerStrip,
                   cgstRate: si.cgstRate,
                   sgstRate: si.sgstRate,
-                  lineTotal: +si.lineTotal.toFixed(2),
+                  lineTotal: si.lineTotal,
                 })),
               },
             },
@@ -243,7 +247,8 @@ async function POST_impl(req: NextRequest) {
 
           return created;
         });
-        return NextResponse.json({ ok: true, sale });
+        // serialize paise -> rupees: wire contract (and the POS UI) unchanged
+        return NextResponse.json({ ok: true, sale: saleWithItemsToRupees(sale) });
       } catch (txErr) {
         if (txErr instanceof InsufficientStockError) {
           return NextResponse.json(
@@ -290,7 +295,7 @@ async function GET_impl() {
       take: 25,
       include: { items: { include: { product: true } } },
     });
-    return NextResponse.json({ sales });
+    return NextResponse.json({ sales: sales.map((s) => saleWithItemsToRupees(s)) });
   } catch (err) {
     log.error("pharmacy", "billing.list_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(

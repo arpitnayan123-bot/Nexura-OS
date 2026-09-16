@@ -40,7 +40,7 @@ async function main() {
   const docList = [];
   for (const d of doctors) {
     docList.push(await db.clinicDoctor.create({
-      data: { clinicId: clinic.id, name: d.name, specialization: d.spec, qualification: d.qual, feeConsult: d.fee, shiftStart: d.shift[0], shiftEnd: d.shift[1], phone: "+91 98" + Math.floor(10000000 + Math.random() * 89999999) },
+      data: { clinicId: clinic.id, name: d.name, specialization: d.spec, qualification: d.qual, feeConsult: d.fee * 100, shiftStart: d.shift[0], shiftEnd: d.shift[1], phone: "+91 98" + Math.floor(10000000 + Math.random() * 89999999) }, // feeConsult in paise
     }));
   }
 

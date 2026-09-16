@@ -125,8 +125,8 @@ async function main() {
           barcode: `890${Math.floor(1000000000 + Math.random() * 8999999999)}`,
           mfgDate: monthsAgo(bd.mfgOff),
           expDate: monthsFromNow(bd.expOff),
-          mrp: Math.round((mrpTable[prod.name] ?? 50) * bd.mrpMul * 100) / 100,
-          purchaseRate: Math.round((mrpTable[prod.name] ?? 50) * 0.72 * 100) / 100,
+          mrp: Math.round((mrpTable[prod.name] ?? 50) * bd.mrpMul * 100), // paise
+          purchaseRate: Math.round((mrpTable[prod.name] ?? 50) * 0.72 * 100), // paise
           stockStrips: bd.stock,
           stockLoose: 0,
         },

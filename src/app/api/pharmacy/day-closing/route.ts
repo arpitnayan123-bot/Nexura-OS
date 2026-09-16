@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { DAY_CLOSING_PAISE, rupeeToPaise, toRupees } from "@/lib/money";
+import { z } from "zod";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,32 +34,34 @@ async function GET_impl(req: NextRequest) {
     ]);
 
     const byMode = { cash: 0, upi: 0, card: 0, credit: 0 };
-    let cgst = 0, sgst = 0, discount = 0, totalSales = 0;
+    /* Sale.total/cgst/sgst/discount and Purchase.total are INTEGER PAISE —
+       these aggregates are exact integer sums, converted to rupees once below. */
+    let cgstPaise = 0, sgstPaise = 0, discountPaise = 0, totalSalesPaise = 0;
     for (const s of sales) {
       byMode[s.payMode as keyof typeof byMode] = (byMode[s.payMode as keyof typeof byMode] || 0) + s.total;
-      cgst += s.cgst;
-      sgst += s.sgst;
-      discount += s.discount;
-      totalSales += s.total;
+      cgstPaise += s.cgst;
+      sgstPaise += s.sgst;
+      discountPaise += s.discount;
+      totalSalesPaise += s.total;
     }
-    const totalPurchases = purchases.reduce((s, p) => s + p.total, 0);
-    const netProfit = totalSales - discount - totalPurchases * 0.0; // profit = sales (margin is in purchase vs mrp; simplified)
+    const totalPurchasesPaise = purchases.reduce((s, p) => s + p.total, 0);
+    const ru = (p: number) => p / 100;
 
     return NextResponse.json({
       date,
       closed: !!existing,
       invoiceCount: sales.length,
-      cashSales: byMode.cash,
-      upiSales: byMode.upi,
-      cardSales: byMode.card,
-      creditSales: byMode.credit,
-      totalSales,
-      cgstCollected: cgst,
-      sgstCollected: sgst,
-      totalGst: cgst + sgst,
-      totalDiscount: discount,
-      totalPurchases,
-      netProfit: totalSales - discount,
+      cashSales: ru(byMode.cash),
+      upiSales: ru(byMode.upi),
+      cardSales: ru(byMode.card),
+      creditSales: ru(byMode.credit),
+      totalSales: ru(totalSalesPaise),
+      cgstCollected: ru(cgstPaise),
+      sgstCollected: ru(sgstPaise),
+      totalGst: ru(cgstPaise + sgstPaise),
+      totalDiscount: ru(discountPaise),
+      totalPurchases: ru(totalPurchasesPaise),
+      netProfit: ru(totalSalesPaise - discountPaise),
     });
   } catch (err) {
     log.error("pharmacy", "day_closing_list_failed", { err: err instanceof Error ? err.message : String(err) });
@@ -65,21 +69,61 @@ async function GET_impl(req: NextRequest) {
   }
 }
 
-// POST — close the day (persist)
+// POST — close the day (persist). Client sends the summary in RUPEES (same
+// numbers the GET summary renders); persisted as integer paise. Explicit
+// whitelist — the historical `...data` spread allowed mass assignment of
+// arbitrary columns.
+const DayCloseSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  data: z.object({
+    cashSales: z.number().min(0).max(100_000_000).default(0),
+    upiSales: z.number().min(0).max(100_000_000).default(0),
+    cardSales: z.number().min(0).max(100_000_000).default(0),
+    creditSales: z.number().min(0).max(100_000_000).default(0),
+    totalSales: z.number().min(0).max(1_000_000_000).default(0),
+    cgstCollected: z.number().min(0).max(100_000_000).default(0),
+    sgstCollected: z.number().min(0).max(100_000_000).default(0),
+    totalGst: z.number().min(0).max(100_000_000).default(0),
+    totalPurchases: z.number().min(0).max(1_000_000_000).default(0),
+    totalDiscount: z.number().min(0).max(100_000_000).default(0),
+    netProfit: z.number().min(-100_000_000).max(1_000_000_000).default(0),
+    invoiceCount: z.number().int().min(0).max(100_000).default(0),
+    closedBy: z.string().trim().max(120).optional().nullable(),
+  }),
+});
+
 async function POST_impl(req: NextRequest) {
   try {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
-    const body = await req.json().catch(() => ({}));
-    const date = body.date || new Date().toISOString().slice(0, 10);
-    const data = body.data as any;
+    const parsed = DayCloseSchema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) {
+      return NextResponse.json({ error: "invalid_request", detail: "Invalid day-closing payload." }, { status: 400 });
+    }
+    const date = parsed.data.date || new Date().toISOString().slice(0, 10);
+    const d = parsed.data.data;
+    const data = {
+      cashSales: rupeeToPaise(d.cashSales),
+      upiSales: rupeeToPaise(d.upiSales),
+      cardSales: rupeeToPaise(d.cardSales),
+      creditSales: rupeeToPaise(d.creditSales),
+      totalSales: rupeeToPaise(d.totalSales),
+      cgstCollected: rupeeToPaise(d.cgstCollected),
+      sgstCollected: rupeeToPaise(d.sgstCollected),
+      totalGst: rupeeToPaise(d.totalGst),
+      totalPurchases: rupeeToPaise(d.totalPurchases),
+      totalDiscount: rupeeToPaise(d.totalDiscount),
+      netProfit: rupeeToPaise(d.netProfit),
+      invoiceCount: d.invoiceCount,
+      closedBy: d.closedBy ?? null,
+    };
 
     const closing = await db.dayClosing.upsert({
       where: { branchId_closingDate: { branchId: ctx.branch.id, closingDate: date } },
       create: { branchId: ctx.branch.id, closingDate: date, ...data },
       update: { ...data, closedAt: new Date() },
     });
-    return NextResponse.json({ ok: true, closing });
+    return NextResponse.json({ ok: true, closing: toRupees(closing, DAY_CLOSING_PAISE) });
   } catch (err) {
     log.error("pharmacy", "day_close_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "day_close_failed", detail: "The business day could not be closed. Please retry." }, { status: 500 });

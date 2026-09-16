@@ -33,6 +33,7 @@ export const GET = withRoute("billing.v2.list", async (req: NextRequest) => {
     });
     const csv = toCsv(rows.map((b) => ({
       bill: b.id, uhid: b.patient.uhid, patient: b.patient.fullName,
+      /* v2 wire convention: paise (same unit as NxCharge/NxPayment) */
       total: b.totalPayable, mode: b.paymentMode, paymentStatus: b.paymentStatus, date: b.billDate.toISOString(),
     })));
     return new NextResponse(csv, {
@@ -78,6 +79,11 @@ export const GET = withRoute("billing.v2.list", async (req: NextRequest) => {
     db.nxPayment.aggregate({ where: { hospitalId, refundOfId: null }, _sum: { amount: true }, _count: true }),
     db.insuranceClaim.groupBy({ by: ["preAuthStatus"], where: { hospitalId }, _count: true }),
   ]);
+  /* All three sums are integer paise in the SAME unit now — before the paise
+     migration `billed` (HospitalBill) was rupee-float while `collected`
+     (NxPayment) was paise, so this summary mixed currencies. The payment
+     status recompute `paid >= bill.totalPayable` below is likewise a true
+     paise-vs-paise comparison for the first time. */
   const billed = billsAgg._sum.totalPayable ?? 0;
   const collected = paymentsAgg._sum.amount ?? 0;
   return NextResponse.json({

@@ -48,14 +48,17 @@ async function main() {
     const invoiceNo = `INV-CHRONIC-${count + 1}-${month}`;
 
     const items: any[] = [];
-    let total = 0;
+    /* integer-paise math (docs/ARCHITECTURE.md §5) — batch.mrp is paise */
+    let subtotalPaise = 0, cgstTotalPaise = 0, sgstTotalPaise = 0;
     for (const med of chronicMeds) {
       const batch = await db.productBatch.findFirst({ where: { productId: med.product!.id, branchId: branch.id } });
       if (!batch) continue;
-      const amt = batch.mrp * med.qty;
-      const cgst = amt * 0.06;
-      const sgst = amt * 0.06;
-      total += amt + cgst + sgst;
+      const amtPaise = batch.mrp * med.qty;
+      const cgstPaise = Math.round((amtPaise * 6) / 100);
+      const sgstPaise = Math.round((amtPaise * 6) / 100);
+      subtotalPaise += amtPaise;
+      cgstTotalPaise += cgstPaise;
+      sgstTotalPaise += sgstPaise;
       items.push({
         productId: med.product!.id,
         batchId: batch.id,
@@ -64,7 +67,7 @@ async function main() {
         mrpPerStrip: batch.mrp,
         cgstRate: 6,
         sgstRate: 6,
-        lineTotal: amt + cgst + sgst,
+        lineTotal: amtPaise + cgstPaise + sgstPaise,
       });
     }
 
@@ -76,10 +79,11 @@ async function main() {
         branchId: branch.id,
         staffId: staff?.id,
         customerId: chronicCustomer.id,
-        subtotal: total / 1.12,
-        cgst: total * 6 / 112,
-        sgst: total * 6 / 112,
-        total: Math.round(total),
+        subtotal: subtotalPaise,
+        cgst: cgstTotalPaise,
+        sgst: sgstTotalPaise,
+        total: subtotalPaise + cgstTotalPaise + sgstTotalPaise,
+        roundOff: 0,
         payMode: "upi",
         status: "billed",
         items: { create: items },

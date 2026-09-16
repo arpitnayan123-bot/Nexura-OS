@@ -143,12 +143,15 @@ export const GET = withRoute<{ id: string }>("nx.patients.detail", async (req: N
           db.nxPayment.aggregate({ where: { patientId: patient.id, refundOfId: null }, _sum: { amount: true }, _count: true }),
           db.nxCharge.aggregate({ where: { patientId: patient.id, status: "pending" }, _sum: { unitPrice: true }, _count: true }),
         ]);
+        /* HospitalBill.totalPayable, NxPayment.amount, NxCharge.unitPrice are all
+           integer paise (same unit at last — billed was rupee-float before the
+           paise migration while paid was already paise). Serialize to rupees. */
         return {
           bills: bills._count,
-          billed: bills._sum.totalPayable ?? 0,
-          paid: payments._sum.amount ?? 0,
+          billed: (bills._sum.totalPayable ?? 0) / 100,
+          paid: (payments._sum.amount ?? 0) / 100,
           pendingCharges: charges._count,
-          pendingAmount: charges._sum.unitPrice ?? 0,
+          pendingAmount: (charges._sum.unitPrice ?? 0) / 100,
         };
       })()
     : null;

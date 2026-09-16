@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
 import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { CLINIC_INVOICE_PAISE, toRupees, toRupeesAll } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,7 +18,11 @@ async function GET_impl() {
       db.clinicInvoice.aggregate({ where: { status: "paid" }, _sum: { total: true } }),
       db.clinicInvoice.aggregate({ where: { status: "unpaid" }, _sum: { total: true } }),
     ]);
-    return NextResponse.json({ bills, summary: { collected: paid._sum.total ?? 0, outstanding: unpaid._sum.total ?? 0, count: bills.length } });
+    /* ClinicInvoice money is integer paise — sums are exact; serialize to rupees. */
+    return NextResponse.json({
+      bills: toRupeesAll(bills, CLINIC_INVOICE_PAISE),
+      summary: { collected: (paid._sum.total ?? 0) / 100, outstanding: (unpaid._sum.total ?? 0) / 100, count: bills.length },
+    });
   } catch (err) {
     log.error("clinic", "billing_list_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "clinic_billing_failed", detail: "Invoices could not be loaded. Please retry." }, { status: 500 });

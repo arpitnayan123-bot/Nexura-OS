@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { NEAR_EXPIRY_RETURN_ITEM_PAISE, NEAR_EXPIRY_RETURN_PAISE, gstOnPaise, paiseToRupee, rupeeToPaise, toRupees, toRupeesAll } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,7 +29,7 @@ async function GET_impl() {
         }),
       }))
       .filter((p) => p.batches.length > 0)
-      .flatMap((p) => p.batches.map((b) => ({ product: { id: p.id, name: p.name, genericName: p.genericName, cgstRate: p.cgstRate, sgstRate: p.sgstRate, tabletsPerStrip: p.tabletsPerStrip }, batch: { id: b.id, batchNo: b.batchNo, expDate: b.expDate, mrp: b.mrp, stockStrips: b.stockStrips } })));
+      .flatMap((p) => p.batches.map((b) => ({ product: { id: p.id, name: p.name, genericName: p.genericName, cgstRate: p.cgstRate, sgstRate: p.sgstRate, tabletsPerStrip: p.tabletsPerStrip }, batch: { id: b.id, batchNo: b.batchNo, expDate: b.expDate, mrp: paiseToRupee(b.mrp), stockStrips: b.stockStrips } })));
 
     const returns = await db.nearExpiryReturn.findMany({
       where: { branchId: ctx.branch.id },
@@ -37,7 +38,14 @@ async function GET_impl() {
       include: { supplier: { select: { id: true, name: true } }, items: true },
     });
 
-    return NextResponse.json({ nearExpiry, returns });
+    return NextResponse.json({
+      nearExpiry,
+      returns: returns.map((r) => {
+        const conv = toRupees(r, NEAR_EXPIRY_RETURN_PAISE);
+        if (Array.isArray(conv.items)) conv.items = toRupeesAll(conv.items, NEAR_EXPIRY_RETURN_ITEM_PAISE);
+        return conv;
+      }),
+    });
   } catch (err) {
     log.error("pharmacy", "returns.list_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
@@ -78,21 +86,23 @@ async function POST_impl(req: NextRequest) {
 
     const count = await db.nearExpiryReturn.count();
     const returnNo = `RET-${new Date().getFullYear()}-${String(count + 1).padStart(4, "0")}`;
-    let cgst = 0, sgst = 0, total = 0;
+    /* Client sends mrp in rupees; math + storage are integer paise. */
+    let cgstPaise = 0, sgstPaise = 0, totalPaise = 0;
     const lineItems = items.map((it) => {
-      const gross = it.qtyStrips * it.mrp;
-      const c = (gross * it.cgstRate) / 100;
-      const s = (gross * it.sgstRate) / 100;
-      const lineTotal = gross + c + s;
-      cgst += c; sgst += s; total += lineTotal;
-      return { ...it, lineTotal };
+      const mrpPaise = rupeeToPaise(it.mrp);
+      const grossPaise = it.qtyStrips * mrpPaise;
+      const cPaise = gstOnPaise(grossPaise, it.cgstRate);
+      const sPaise = gstOnPaise(grossPaise, it.sgstRate);
+      const lineTotalPaise = grossPaise + cPaise + sPaise;
+      cgstPaise += cPaise; sgstPaise += sPaise; totalPaise += lineTotalPaise;
+      return { ...it, mrpPaise, lineTotalPaise };
     });
 
     /* Return memo + stock decrement commit together; the decrement is
        conditional so a return can never drive batch stock negative. */
     const ret = await db.$transaction(async (tx) => {
       const created = await tx.nearExpiryReturn.create({
-        data: { returnNo, branchId: ctx.branch.id, supplierId, reason: reason || "Near expiry", status: "initiated", cgst, sgst, total, items: { create: lineItems.map((it) => ({ productId: it.productId, batchId: it.batchId, batchNo: it.batchNo, medicineName: it.medicineName, expDate: it.expDate, qtyStrips: it.qtyStrips, mrp: it.mrp, cgstRate: it.cgstRate, sgstRate: it.sgstRate, lineTotal: it.lineTotal })) } },
+        data: { returnNo, branchId: ctx.branch.id, supplierId, reason: reason || "Near expiry", status: "initiated", cgst: cgstPaise, sgst: sgstPaise, total: totalPaise, items: { create: lineItems.map((it) => ({ productId: it.productId, batchId: it.batchId, batchNo: it.batchNo, medicineName: it.medicineName, expDate: it.expDate, qtyStrips: it.qtyStrips, mrp: it.mrpPaise, cgstRate: it.cgstRate, sgstRate: it.sgstRate, lineTotal: it.lineTotalPaise })) } },
         include: { items: true },
       });
       for (const it of lineItems) {
@@ -114,7 +124,9 @@ async function POST_impl(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ ok: true, return: ret });
+    const conv = toRupees(ret, NEAR_EXPIRY_RETURN_PAISE);
+    if (Array.isArray(conv.items)) conv.items = toRupeesAll(conv.items, NEAR_EXPIRY_RETURN_ITEM_PAISE);
+    return NextResponse.json({ ok: true, return: conv });
   } catch (err) {
     log.error("pharmacy", "returns.create_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(

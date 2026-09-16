@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { log } from "@/lib/logger";
 import { connectGate, doctorOnly } from "@/lib/nx/connect-auth";
+import { gstOnPaise, paiseToRupee, roundToRupee } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -65,9 +66,9 @@ export async function POST(req: NextRequest) {
       sgstRate: number;
       lineTotal: number;
     }[] = [];
-    let subtotal = 0;
-    let cgst = 0;
-    let sgst = 0;
+    let subtotalPaise = 0;
+    let cgstPaise = 0;
+    let sgstPaise = 0;
     const matched: { name: string; productId: string | null }[] = [];
 
     for (const item of items) {
@@ -114,14 +115,15 @@ export async function POST(req: NextRequest) {
       const batch = finalProduct.batches[0];
       const qtyStrips = qty;
       const qtyLoose = 0;
-      const gross = qtyStrips * batch.mrp + qtyLoose * (batch.mrp / finalProduct.tabletsPerStrip);
-      const lineCgst = (gross * finalProduct.cgstRate) / 100;
-      const lineSgst = (gross * finalProduct.sgstRate) / 100;
-      const lineTotal = gross + lineCgst + lineSgst;
+      /* integer-paise math (docs/ARCHITECTURE.md §5) */
+      const grossPaise = qtyStrips * batch.mrp + qtyLoose * Math.round(batch.mrp / finalProduct.tabletsPerStrip);
+      const lineCgstPaise = gstOnPaise(grossPaise, finalProduct.cgstRate);
+      const lineSgstPaise = gstOnPaise(grossPaise, finalProduct.sgstRate);
+      const lineTotalPaise = grossPaise + lineCgstPaise + lineSgstPaise;
 
-      subtotal += gross;
-      cgst += lineCgst;
-      sgst += lineSgst;
+      subtotalPaise += grossPaise;
+      cgstPaise += lineCgstPaise;
+      sgstPaise += lineSgstPaise;
       saleItems.push({
         productId: finalProduct.id,
         batchId: batch.id,
@@ -130,7 +132,7 @@ export async function POST(req: NextRequest) {
         mrpPerStrip: batch.mrp,
         cgstRate: finalProduct.cgstRate,
         sgstRate: finalProduct.sgstRate,
-        lineTotal,
+        lineTotal: lineTotalPaise,
       });
       matched.push({ name, productId: finalProduct.id });
     }
@@ -148,9 +150,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ synced: true, saleId: null, matched, note: "no_matching_products" });
     }
 
-    const grand = subtotal + cgst + sgst;
-    const rounded = Math.round(grand);
-    const roundOff = +(rounded - grand).toFixed(2);
+    const grandPaise = subtotalPaise + cgstPaise + sgstPaise;
+    const roundedTotalPaise = roundToRupee(grandPaise);
+    const roundOffPaise = roundedTotalPaise - grandPaise;
 
     const count = await db.sale.count();
     const invoiceNo = `INV-${new Date().getFullYear()}-${String(count + 1).padStart(4, "0")}`;
@@ -161,13 +163,13 @@ export async function POST(req: NextRequest) {
         branchId: ctx.branch.id,
         staffId: ctx.staff?.id ?? null,
         customerId: customer?.id ?? null,
-        subtotal: +subtotal.toFixed(2),
+        subtotal: subtotalPaise,
         discountPct: 0,
         discount: 0,
-        cgst: +cgst.toFixed(2),
-        sgst: +sgst.toFixed(2),
-        roundOff,
-        total: rounded,
+        cgst: cgstPaise,
+        sgst: sgstPaise,
+        roundOff: roundOffPaise,
+        total: roundedTotalPaise,
         payMode: "credit",
         status: "billed",
         items: {
@@ -179,7 +181,7 @@ export async function POST(req: NextRequest) {
             mrpPerStrip: si.mrpPerStrip,
             cgstRate: si.cgstRate,
             sgstRate: si.sgstRate,
-            lineTotal: +si.lineTotal.toFixed(2),
+            lineTotal: si.lineTotal,
           })),
         },
       },
@@ -203,7 +205,7 @@ export async function POST(req: NextRequest) {
       data: {
         prescriptionSynced: true,
         pharmacySyncId: sale.id,
-        prescriptionJson: JSON.stringify({ items, matched, saleInvoiceNo: sale.invoiceNo, total: sale.total }),
+        prescriptionJson: JSON.stringify({ items, matched, saleInvoiceNo: sale.invoiceNo, total: paiseToRupee(sale.total) }),
       },
     });
 
@@ -211,7 +213,7 @@ export async function POST(req: NextRequest) {
       synced: true,
       saleId: sale.id,
       saleInvoiceNo: sale.invoiceNo,
-      total: sale.total,
+      total: paiseToRupee(sale.total),
       matched,
     });
   } catch (err) {

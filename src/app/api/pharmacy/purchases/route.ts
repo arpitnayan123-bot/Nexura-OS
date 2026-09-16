@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { PURCHASE_ITEM_PAISE, PURCHASE_PAISE, rupeeToPaise, toRupees, toRupeesAll } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,7 +42,13 @@ async function GET_impl() {
         _count: { select: { payments: true } },
       },
     });
-    return NextResponse.json({ purchases });
+    return NextResponse.json({
+      purchases: purchases.map((p) => {
+        const conv = toRupees(p, PURCHASE_PAISE);
+        if (Array.isArray(conv.items)) conv.items = toRupeesAll(conv.items, PURCHASE_ITEM_PAISE);
+        return conv;
+      }),
+    });
   } catch (err) {
     log.error("pharmacy", "purchases.list_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
@@ -65,11 +72,15 @@ async function POST_impl(req: NextRequest) {
 
     const count = await db.purchase.count();
     const poNo = `PO-${new Date().getFullYear()}-${String(count + 1).padStart(4, "0")}`;
-    let total = 0;
+    /* Client sends rupees; storage is integer paise (docs/ARCHITECTURE.md §5).
+       lineTotal = purchaseRate(paise) × qty — integer × integer, exact. */
+    let totalPaise = 0;
     const lineItems = items.map((it) => {
-      const lineTotal = it.purchaseRate * it.qtyStrips;
-      total += lineTotal;
-      return { ...it, lineTotal };
+      const mrpPaise = rupeeToPaise(it.mrp);
+      const purchaseRatePaise = rupeeToPaise(it.purchaseRate);
+      const lineTotalPaise = purchaseRatePaise * it.qtyStrips;
+      totalPaise += lineTotalPaise;
+      return { ...it, mrpPaise, purchaseRatePaise, lineTotalPaise };
     });
 
     /* One goods-receipt = one transaction. Batch merge uses the
@@ -84,9 +95,9 @@ async function POST_impl(req: NextRequest) {
           branchId: ctx.branch.id,
           supplierId,
           status: "received",
-          total,
+          total: totalPaise,
           paidAmount: 0,
-          items: { create: lineItems.map((it) => ({ productId: it.productId, batchNo: it.batchNo, mfgDate: it.mfgDate, expDate: it.expDate, mrp: it.mrp, purchaseRate: it.purchaseRate, qtyStrips: it.qtyStrips, lineTotal: it.lineTotal })) },
+          items: { create: lineItems.map((it) => ({ productId: it.productId, batchNo: it.batchNo, mfgDate: it.mfgDate, expDate: it.expDate, mrp: it.mrpPaise, purchaseRate: it.purchaseRatePaise, qtyStrips: it.qtyStrips, lineTotal: it.lineTotalPaise })) },
         },
         include: { items: true },
       });
@@ -94,15 +105,15 @@ async function POST_impl(req: NextRequest) {
       for (const it of lineItems) {
         await tx.productBatch.upsert({
           where: { branchId_productId_batchNo: { branchId: ctx.branch.id, productId: it.productId, batchNo: it.batchNo } },
-          create: { productId: it.productId, branchId: ctx.branch.id, batchNo: it.batchNo, mfgDate: it.mfgDate, expDate: it.expDate, mrp: it.mrp, purchaseRate: it.purchaseRate, stockStrips: it.qtyStrips, stockLoose: 0 },
-          update: { stockStrips: { increment: it.qtyStrips }, mrp: it.mrp, purchaseRate: it.purchaseRate, mfgDate: it.mfgDate, expDate: it.expDate },
+          create: { productId: it.productId, branchId: ctx.branch.id, batchNo: it.batchNo, mfgDate: it.mfgDate, expDate: it.expDate, mrp: it.mrpPaise, purchaseRate: it.purchaseRatePaise, stockStrips: it.qtyStrips, stockLoose: 0 },
+          update: { stockStrips: { increment: it.qtyStrips }, mrp: it.mrpPaise, purchaseRate: it.purchaseRatePaise, mfgDate: it.mfgDate, expDate: it.expDate },
         });
       }
 
       return created;
     });
 
-    return NextResponse.json({ ok: true, purchase });
+    return NextResponse.json({ ok: true, purchase: (() => { const conv = toRupees(purchase, PURCHASE_PAISE); if (Array.isArray(conv.items)) conv.items = toRupeesAll(conv.items, PURCHASE_ITEM_PAISE); return conv; })() });
   } catch (err) {
     log.error("pharmacy", "purchases.create_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
