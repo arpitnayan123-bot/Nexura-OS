@@ -2,16 +2,18 @@ import { log } from "@/lib/logger";
 import { db } from "@/lib/db";
 
 /* ============================================================
-   NEXURA OS — NxJob DURABLE BACKGROUND QUEUE (backend-core-1)
-   A single-node-safe job runner on the Prisma stack (SQLite WAL
-   or Postgres row locks). Properties:
+   NEXURA OS — NxJob DURABLE BACKGROUND QUEUE (backend-core-1,
+   Postgres-hardened in stateless-1)
+   A durable job runner on the Prisma/Postgres stack. Properties:
 
    - Durable: jobs live in NxJob rows; a crash loses nothing.
+   - Multi-instance: the claim is a single SELECT ... FOR UPDATE
+     SKIP LOCKED transaction — concurrent workers on any number
+     of app instances never see (and never double-run) the same
+     row. Every instance runs its own worker loop; the DB is the
+     only coordination point.
    - Deduped: dedupeKey UNIQUE + pre-check so the common case
      never hits the constraint (server logs stay clean).
-   - Race-safe claim: a guarded conditional update
-     (pending → running) means concurrent workers can never
-     double-run a job.
    - Self-healing: every tick re-seeds the queue-scan chain if
      no pending/running scan exists — the queue survives test
      wipes, crashed ticks, and manual clears without a restart.
@@ -80,29 +82,32 @@ export async function enqueueJob(input: NxJobInput): Promise<string | null> {
   }
 }
 
-/** Atomically claim due pending jobs (pending → running). */
+/** Atomically claim due pending jobs. One statement selects due rows
+ *  WITH row locks (SKIP LOCKED — concurrent workers skip locked rows
+ *  instead of blocking), then flips them to running inside the same
+ *  transaction. Correct across any number of app instances. */
 async function claimDueJobs(limit: number): Promise<NxJobRecord[]> {
-  const due = await db.nxJob.findMany({
-    where: { status: "pending", runAt: { lte: new Date() } },
-    orderBy: { runAt: "asc" },
-    take: limit,
-    select: { id: true },
-  });
-  const claimed: NxJobRecord[] = [];
-  for (const { id } of due) {
-    const res = await db.nxJob.updateMany({
-      where: { id, status: "pending" }, // guarded — loser of a race claims nothing
-      data: { status: "running", startedAt: new Date(), attempts: { increment: 1 } },
-    });
-    if (res.count === 1) {
-      const job = await db.nxJob.findUnique({
-        where: { id },
+  return db.$transaction(
+    async (tx) => {
+      const due = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT id FROM "NxJob"
+        WHERE status = 'pending' AND "runAt" <= now()
+        ORDER BY "runAt" ASC
+        LIMIT ${limit}
+        FOR UPDATE SKIP LOCKED`;
+      if (!due.length) return [];
+      const ids = due.map((d) => d.id);
+      await tx.nxJob.updateMany({
+        where: { id: { in: ids }, status: "pending" }, // guarded — belt and braces
+        data: { status: "running", startedAt: new Date(), attempts: { increment: 1 } },
+      });
+      return tx.nxJob.findMany({
+        where: { id: { in: ids }, status: "running" },
         select: { id: true, type: true, dedupeKey: true, payload: true, attempts: true, maxAttempts: true },
       });
-      if (job) claimed.push(job);
-    }
-  }
-  return claimed;
+    },
+    { maxWait: 2_000, timeout: 8_000 }
+  );
 }
 
 /* ---------- Job handlers ---------- */
@@ -214,7 +219,12 @@ export async function healQueueChain(): Promise<void> {
   }
 }
 
-/* ---------- Worker lifecycle ---------- */
+/* ---------- Worker lifecycle ----------
+
+   The globalThis timer guard is per-PROCESS LIFECYCLE state, not shared
+   application state: each app instance SHOULD run its own worker loop
+   (the DB claim above makes that safe), and the guard simply prevents
+   one process from stacking duplicate intervals across dev-HMR reloads. */
 
 const g = globalThis as unknown as { __nxJobWorker?: { timer: NodeJS.Timeout } };
 

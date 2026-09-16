@@ -62,13 +62,27 @@ function parseList(s: string | null): string[] {
   }
 }
 
-/** Start the recurring job (idempotent — guard on globalThis). */
+/** Start the recurring job (idempotent — per-process lifecycle guard).
+ *  The globalThis guard is deliberate per-process state: every instance
+ *  runs the interval, but each TICK takes a short Redis lease so exactly
+ *  one instance performs the sync in any window (stateless-1). Without
+ *  REDIS_URL (dev) every instance syncs — idempotent upserts make that
+ *  safe, just chattier. */
 export function startGraphSyncJob(): void {
   const g = globalThis as unknown as { __pieGraphSyncTimer?: ReturnType<typeof setInterval>; __pieGraphSyncBooted?: boolean };
   if (g.__pieGraphSyncBooted) return;
   g.__pieGraphSyncBooted = true;
   const tick = async () => {
     try {
+      const { isRedisConfigured, redis } = await import("@/lib/redis");
+      if (isRedisConfigured()) {
+        const client = redis();
+        // 4-minute lease (shorter than the 5-min cadence): the lock always
+        // expires before the next tick even if an instance crashes mid-sync.
+        const lockKey = "nx:lock:pie-graph-sync";
+        const got = client ? await client.set(lockKey, "1", "PX", 4 * 60_000, "NX") : null;
+        if (got !== "OK") return; // another instance holds this window
+      }
       await seedKnowledgeGraph();
       const res = await syncGraphFromPrisma();
       console.log(`[pie] graph sync: ${res.patients} patients, ${res.nodes} nodes, ${res.edges} edges`);

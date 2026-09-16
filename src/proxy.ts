@@ -58,7 +58,14 @@ async function verifyJwtEdge(token: string, secret: string): Promise<boolean> {
   }
 }
 
-/* ---------- Global API rate limiting (per IP, module-scoped) ---------- */
+/* ---------- Global API rate limiting (per IP) ----------
+   EDGE-RUNTIME PRE-FILTER: middleware runs on the edge runtime where
+   TCP clients (ioredis) are unavailable, so this bucket is per-isolate
+   by nature — a fast 600 req/min burst guard, NOT the authoritative
+   limit. The distributed, cross-instance limiter lives in
+   src/lib/rate-limit.ts (Redis INCR/EXPIRE) and is enforced at the
+   Node route layer (auth surfaces, OTP send, expensive handlers).
+   globalThis keeps the bucket table stable across dev-HMR reloads. */
 interface Bucket { count: number; resetAt: number }
 const g = globalThis as unknown as { __nxApiBuckets?: Map<string, Bucket> };
 const buckets = g.__nxApiBuckets ?? new Map<string, Bucket>();

@@ -202,40 +202,10 @@ export function requireAuth(requiredRoles?: Role[]) {
   };
 }
 
-/* ---------- Rate Limiting (in-memory, per-IP) ---------- */
-interface RateLimitEntry {
-  count: number;
-  resetTime: number;
-}
-
-const rateLimitStore = new Map<string, RateLimitEntry>();
-
-export function rateLimit(
-  identifier: string,
-  maxRequests: number = 100,
-  windowMs: number = 15 * 60 * 1000 // 15 minutes
-): { allowed: boolean; remaining: number; resetAt: number } {
-  const now = Date.now();
-  const entry = rateLimitStore.get(identifier);
-
-  // Reset if window expired
-  if (!entry || entry.resetTime < now) {
-    rateLimitStore.set(identifier, {
-      count: 1,
-      resetTime: now + windowMs,
-    });
-    return { allowed: true, remaining: maxRequests - 1, resetAt: now + windowMs };
-  }
-
-  // Increment count
-  entry.count++;
-  rateLimitStore.set(identifier, entry);
-
-  const allowed = entry.count <= maxRequests;
-  const remaining = Math.max(0, maxRequests - entry.count);
-
-  return { allowed, remaining, resetAt: entry.resetTime };
-}
+/* ---------- Rate Limiting ----------
+   Moved to the Redis-backed distributed limiter (src/lib/rate-limit.ts)
+   — per-process Maps cannot bound a horizontally scaled deployment
+   (stateless-1). getRateLimitHeaders stays here: it is pure formatting. */
 
 export function getRateLimitHeaders(remaining: number, resetAt: number) {
   return {
