@@ -481,3 +481,20 @@ Work Log:
 Stage Summary:
 - README now states the true platform surface; nothing claimed that is not in the tree
 - Post-lock docs commit on main; lock tags untouched
+
+---
+Task ID: vercel-deploy-1
+Agent: main (Super Z)
+Task: Vercel deploy compatibility — eliminate the next-build failure chain the user hit (JWT_SECRET module gate) and every next error behind it (prisma generate, build packaging, Docker parity)
+
+Work Log:
+- Failure analysis from the user's Vercel log: next build page-data collection evaluates route modules in production mode -> jwt.ts module gate throws without JWT_SECRET (the hardening gate working as designed). Behind it queued two more Vercel-only failures: (a) no postinstall -> prisma client never generated on Vercel -> PrismaClient stub throws at db.ts module scope; (b) build script's unconditional standalone cp steps are self-host packaging that PaaS builds do not need
+- package.json: "build" is now platform-neutral (prisma generate && next build — what Vercel/PaaS should run); new "build:standalone" carries the old packaging (prisma generate + next build + static/public copied into .next/standalone) for Docker/self-host; added "postinstall": "prisma generate" so the client exists before page-data collection under any package manager
+- Dockerfile: builder stage now runs bun run build:standalone (covers the old explicit bunx prisma generate); added build-time dummy JWT_SECRET with honest comment mirroring the existing DATABASE_URL-dummy pattern — restores Docker build parity broken by the hardening gate (Docker builds were red since env-config-1; runtime boot gate still enforces REAL secrets via instrumentation, builder ENV never ships in the image)
+- docs/DEPLOYMENT.md: new Vercel section (bun.lock auto-detection, the three REQUIRED env vars DATABASE_URL/JWT_SECRET/REDIS_URL with provider pointers, recommended DEMO_MODE/NEXT_PUBLIC_SITE_URL/OPENROUTER_API_KEY, schema migrate deploy from machine, honest SSE/serverless + per-instance job-runner caveats); Production build section rewritten for the build/build:standalone split; fixed stale Docker section line (compose stack is Postgres 17 + Redis 7, not a SQLite /app/db volume)
+- The three env vars themselves are Vercel-dashboard side (no Vercel access from here) — documented in DEPLOYMENT.md and handed to the user as a checklist
+- Gates: prisma validate OK; tsc 0; eslint 0; vitest 317/317 (27 files); npm run build:standalone end-to-end BUILD_EXIT 0 with .next/standalone/server.js + static packaging verified (proves the Docker contract and the prisma-generate-first build order); smoke 49/49 against the live server (runtime code untouched — package.json/Dockerfile/docs only)
+
+Stage Summary:
+- Vercel redeploy will pass the build once the user sets DATABASE_URL/JWT_SECRET/REDIS_URL in the dashboard; every queued next-error (prisma stub, packaging) is pre-empted in code
+- Docker builds are green again post-hardening; deploy-preview/guardian flows unchanged (they invoke next build directly)
