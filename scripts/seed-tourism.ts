@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { usdToCents, rupeeToPaise } from "@/lib/money";
 
 /* Demo-seed guard: demo seeds write synthetic patients/staff with known
    passwords and demo API keys — they must never run against a production
@@ -45,7 +46,8 @@ async function main() {
     { name: "Breast Cancer Surgery", category: "oncology", priceUSD: 3800, avgStayDays: 8 },
   ];
   for (const p of procedures) {
-    await db.tourismProcedure.create({ data: { hospitalId: hospital.id, ...p, active: true } });
+    const { priceUSD, ...rest } = p;
+    await db.tourismProcedure.create({ data: { hospitalId: hospital.id, ...rest, priceUSDCents: usdToCents(priceUSD), active: true } });
   }
   console.log(`✓ ${procedures.length} procedures`);
 
@@ -81,13 +83,13 @@ async function main() {
         procedureInterest: inq.procedure,
         conditionDesc: inq.condition,
         status: inq.status,
-        estimatedCostUSD: inq.costUSD || null,
-        estimatedCostINR: inq.costUSD ? Math.round(inq.costUSD * 83) : null,
+        estimatedCostUSDCents: inq.costUSD ? usdToCents(inq.costUSD) : null,
+        estimatedCostINRPaise: inq.costUSD ? rupeeToPaise(inq.costUSD * 83) : null,
         appointmentDate: inq.apptDate || null,
         arrivalDate: inq.arrivalDate || null,
         dischargeDate: inq.dischargeDate || null,
         outcome: inq.outcome || null,
-        totalBilledUSD: inq.totalBilled || null,
+        totalBilledUSDCents: inq.totalBilled ? usdToCents(inq.totalBilled) : null,
         assignedCoordinatorId: null,
         coordinatorName: "Reception Staff",
         messages: JSON.stringify([{ from: "patient", text: `I am interested in ${inq.procedure}. ${inq.condition}`, timestamp: new Date().toISOString() }]),

@@ -1358,15 +1358,17 @@ model TourismInquiry {
   status                String    @default("new")
   assignedCoordinatorId String?
   coordinatorName       String?
-  estimatedCostUSD      Float?
-  estimatedCostINR      Float?
+  // Money is integer cents (USD) / paise (INR) — same discipline as the
+  // paise migration. Wire format (API responses) stays major units.
+  estimatedCostUSDCents Int?
+  estimatedCostINRPaise Int?
   appointmentDate       DateTime?
   visaStatus            String?
   arrivalDate           DateTime?
   admissionId           String?
   dischargeDate         DateTime?
   outcome               String?
-  totalBilledUSD        Float?
+  totalBilledUSDCents   Int?
   messages              String?
   recordsUrl            String?
   estimateUrl           String?
@@ -1385,7 +1387,7 @@ model TourismProcedure {
   hospitalId  String
   name        String
   category    String   @default("general")
-  priceUSD    Float
+  priceUSDCents Int    // integer USD cents — wire converts to major units
   description String?
   avgStayDays Int      @default(7)
   active      Boolean  @default(true)

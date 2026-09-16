@@ -12,7 +12,11 @@
      contract and the product UI are unchanged. Request payloads accept
      rupees (rupeeToPaise) at the boundary, exactly as before.
    - Paise integers are Int (max ₹2,14,74,836.47 per value) — the same
-     convention the Nx layer has always used. */
+     convention the Nx layer has always used.
+
+   USD money (tourism/global desk, tourism-money-1): integer CENTS storage,
+   USD major units on the wire — the exact mirror of the rupee/paise rule.
+   Exchange rates (usdInrRate) remain floats: they are RATES, not money. */
 
 /** Rupees (float, wire/display unit) -> paise (integer, storage unit). */
 export function rupeeToPaise(rupees: number): number {
@@ -34,6 +38,18 @@ export function gstOnPaise(basePaise: number, ratePct: number): number {
     preserves the legacy `Math.round(grandRupees)` behaviour). */
 export function roundToRupee(paise: number): number {
   return Math.round(paise / 100) * 100;
+}
+
+/* ---- USD: integer cents storage, USD major units on the wire ---- */
+
+/** USD (float, wire/display unit) -> cents (integer, storage unit). */
+export function usdToCents(usd: number): number {
+  return Math.round(usd * 100);
+}
+
+/** Cents (integer, storage unit) -> USD (number, wire/display unit). */
+export function centsToUsd(cents: number): number {
+  return cents / 100;
 }
 
 /* ---- serialization: convert a known set of paise fields to rupees ---- */
@@ -78,6 +94,30 @@ export const CONSULT_FEE_PAISE = ["consultationFee"] as const; // HospitalDoctor
 export const FEE_CONSULT_PAISE = ["feeConsult"] as const; // ClinicDoctor
 export const NPPA_CEILING_PAISE = ["nppaCeilingPrice"] as const; // HospitalMedicine
 export const NX_INSURANCE_PAISE = ["payoutTotal", "settledAmount"] as const;
+
+/* USD cents field registries (tourism/global desk). */
+export const TOURISM_PROCEDURE_USD_CENTS = ["priceUSDCents"] as const;
+export const TOURISM_INQUIRY_USD_CENTS = ["estimatedCostUSDCents", "totalBilledUSDCents"] as const;
+export const TOURISM_INQUIRY_INR_PAISE = ["estimatedCostINRPaise"] as const;
+
+/** TourismProcedure storage row -> wire shape (priceUSD in major units).
+ *  Every other field passes through untouched. */
+export function tourismProcedureToWire<T extends { priceUSDCents: number } & Money>(p: T) {
+  const { priceUSDCents, ...rest } = p;
+  return { ...rest, priceUSD: centsToUsd(priceUSDCents) };
+}
+
+/** TourismInquiry storage row -> wire shape (USD major / INR rupees).
+ *  Null money stays null; every other field passes through untouched. */
+export function tourismInquiryToWire<T extends Money>(i: T) {
+  const { estimatedCostUSDCents, estimatedCostINRPaise, totalBilledUSDCents, ...rest } = i;
+  return {
+    ...rest,
+    estimatedCostUSD: estimatedCostUSDCents == null ? null : centsToUsd(estimatedCostUSDCents as number),
+    estimatedCostINR: estimatedCostINRPaise == null ? null : paiseToRupee(estimatedCostINRPaise as number),
+    totalBilledUSD: totalBilledUSDCents == null ? null : centsToUsd(totalBilledUSDCents as number),
+  };
+}
 
 /** Sale + nested items (the pharmacy billing response shape). */
 export function saleWithItemsToRupees<

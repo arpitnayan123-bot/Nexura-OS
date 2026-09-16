@@ -419,3 +419,21 @@ Work Log:
 Stage Summary:
 - Every AI call made during an authenticated request is now attributed to the verified caller in the ledger; admin rollup answers "who spent what" per user
 - Remaining deferred items: tourism Float display money (in progress next on this branch)
+
+---
+Task ID: tourism-money-1
+Agent: main (Super Z)
+Task: Deferred closeout C — tourism/global desk Float money → integer cents/paise (branch deferred-closeouts-1)
+
+Work Log:
+- Schema: TourismProcedure.priceUSD Float → priceUSDCents Int; TourismInquiry.estimatedCostUSD/estimatedCostINR/totalBilledUSD Float? → estimatedCostUSDCents/estimatedCostINRPaise/totalBilledUSDCents Int? — ratings/vitals/GST rates stay Float (rates and 0.25% slabs, not money)
+- Migration 20260916204200_tourism_money_cents hand-written as RENAME COLUMN + ALTER TYPE USING round(x*100)::int (prisma's diff was a lossy DROP+ADD; non-interactive create-only refused) — applied via migrate deploy; verified live: 4500 → 450000 cents, INR 373500 → 37350000 paise, 12 procedures + 8 inquiries preserved
+- money.ts: usdToCents/centsToUsd (exact at 19.99/0.29 float traps) + tourismProcedureToWire/tourismInquiryToWire wire mappers + USD/paise field registries — the canonical boundary now owns the whole wire contract
+- api/global/route.ts: desk payload, hospitals, hospital_detail convert at the boundary — WIRE SHAPES UNCHANGED (priceUSD major units), so the desk UI, global page and hospital profile needed ZERO changes; estimate quote math now integer cents (30% surgeon / $150.00-day room in 15000c / 10% nursing); totalRevenue sums cents then converts
+- seed-tourism.ts writes cents/paise via usdToCents/rupeeToPaise
+- Tests tests/unit/tourism-money.test.ts (6): float-trap exactness, round-trips, mappers preserve fields + never leak storage-unit fields, registries pin the changed columns
+- Gates (scoped): tsc 0; eslint 0; tourism-money 6/6
+
+Stage Summary:
+- The last Float money domain is closed: every money column in the schema is now an integer minor unit (paise or cents), with conversions only at the money.ts boundary
+- Remaining deferred items: none of the original three — this branch closes limiter-distributed-1, ai-identity-1 and tourism-money-1
