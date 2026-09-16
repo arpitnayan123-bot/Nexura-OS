@@ -120,17 +120,22 @@ export async function PATCH(req: NextRequest) {
     if (!["doctor", "admin"].includes(gate.session.role)) {
       return NextResponse.json({ error: "only_doctors_confirm_discharge", detail: "Discharge is a high-risk decision requiring an authorized clinician" }, { status: 403 });
     }
-    await db.hospitalAdmission.update({
-      where: { id: admission.id },
-      data: {
-        dischargeStatus: "discharged",
-        actualDischargeDate: new Date(),
-        dischargeSummary: body.summary || admission.dischargeSummary,
-      },
-    });
-    if (admission.bed) {
-      await db.hospitalBed.update({ where: { id: admission.bed.id }, data: { status: "cleaning_required", currentPatientUhid: null } });
-    }
+    /* Discharge = one business operation: the admission flip and the bed
+       release commit together. Historically a crash between the two writes
+       left a discharged patient with a bed stuck occupied. */
+    await db.$transaction([
+      db.hospitalAdmission.update({
+        where: { id: admission.id },
+        data: {
+          dischargeStatus: "discharged",
+          actualDischargeDate: new Date(),
+          dischargeSummary: body.summary || admission.dischargeSummary,
+        },
+      }),
+      ...(admission.bed
+        ? [db.hospitalBed.update({ where: { id: admission.bed.id }, data: { status: "cleaning_required", currentPatientUhid: null } })]
+        : []),
+    ]);
     await audit({
       hospitalId: admission.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
       action: "encounter.discharge", entityType: "HospitalAdmission", entityId: admission.id, patientId: admission.patientId,

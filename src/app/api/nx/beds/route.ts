@@ -83,7 +83,15 @@ export async function PATCH(req: NextRequest) {
   if (body.to === "reserved") data.reservedForName = body.reservedFor || "Next patient";
   if (["available", "ready"].includes(body.to)) data.reservedForName = null;
 
-  const updated = await db.hospitalBed.update({ where: { id: bed.id }, data });
+  /* Compare-and-set on the bed's current status: the lifecycle transition
+     only applies if the bed is still in the state the UI just read — two
+     concurrent lifecycle moves (e.g. cleaning → ready vs cleaning → retired)
+     can no longer silently overwrite each other. */
+  const cas = await db.hospitalBed.updateMany({ where: { id: bed.id, status: bed.status }, data });
+  if (cas.count === 0) {
+    return NextResponse.json({ error: "bed_state_changed", detail: `Bed is no longer ${bed.status} — refresh and retry.`, from: bed.status }, { status: 409 });
+  }
+  const updated = await db.hospitalBed.findFirst({ where: { id: bed.id }, include: { ward: true } });
 
   await audit({
     hospitalId: bed.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
@@ -120,10 +128,16 @@ export async function POST(req: NextRequest) {
   const patient = await db.hospitalPatient.findFirst({ where: { id: body.patientId, hospitalId: gate.session.hospitalId } });
   if (!patient) return NextResponse.json({ error: "patient_not_found" }, { status: 404 });
 
-  const updated = await db.hospitalBed.update({
-    where: { id: bed.id },
+  /* Reservation race: the assignable-status guard lives IN the update — two
+     concurrent reservations of one ready bed cannot both succeed. */
+  const cas = await db.hospitalBed.updateMany({
+    where: { id: bed.id, status: { in: ["ready", "available"] } },
     data: { status: "reserved", reservedForName: patient.fullName },
   });
+  if (cas.count === 0) {
+    return NextResponse.json({ error: "bed_not_assignable", status: (await db.hospitalBed.findFirst({ where: { id: bed.id } }))?.status ?? bed.status }, { status: 409 });
+  }
+  const updated = await db.hospitalBed.findFirst({ where: { id: bed.id } });
   await audit({
     hospitalId: bed.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
     action: "bed.reserve", entityType: "HospitalBed", entityId: bed.id, patientId: patient.id,
