@@ -38,3 +38,18 @@ Work Log:
 Stage Summary:
 - The migration surfaces (Postgres semantics, Redis limiter, bus signatures, env gate, schema provider) are all under test; CI now proves them against real Postgres+Redis on every push
 - Tag: test-coverage-1-final; dual bundles refreshed after commit
+
+---
+Task ID: hardening-final-sweep
+Agent: main (Super Z)
+Task: End-to-end verification of the full backend production-hardening pass
+
+Work Log:
+- Full CI gate green: bunx prisma validate OK, tsc --noEmit 0, eslint 0, vitest 268/268 (21 files), api smoke (58/58 baseline preserved), DEPLOY VERIFIED
+- Real-browser E2E on the Postgres+Redis stack: homepage (zero errors/console), hospital demo login → focused console (labeled rail, badges, 6 unread notifications), Work Queue module rendering real Postgres-backed tasks, /clinic/book/rao-clinic (regression target of booking-fix-1) fully data-driven with doctors + slots
+- Datastore proof: redis pubsub channels shows nx:bus LIVE (relay armed); pg_stat_activity 10 app connections; /api/ready {database ok, seed ok}
+- Deliverable state: clone → cp .env.example .env → fill DATABASE_URL/JWT_SECRET/REDIS_URL → npx prisma migrate deploy → run. No SQLite fallback, no in-memory business state outside the documented excluded surfaces, no contradictory docs, no generated artifacts in git
+
+Stage Summary:
+- Milestones: pg-migration-1 → pg-semantics-1 → stateless-1 → env-config-1 → repo-hygiene-2 → test-coverage-1 (tags -final each)
+- Tests 252 → 268; CI now exercises real Postgres + Redis services
