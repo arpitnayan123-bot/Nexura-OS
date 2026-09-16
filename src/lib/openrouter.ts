@@ -123,6 +123,13 @@ export function isValidImageBase64(s: string): boolean {
   return typeof s === "string" && s.length > 1000 && /^[A-Za-z0-9+/=\s]+$/.test(s);
 }
 
+/** The model that will ACTUALLY serve the next call, for telemetry honesty.
+ *  Depends on which provider path is configured in this environment —
+ *  OpenRouter when a key is present, the built-in z-ai SDK otherwise. */
+export function activeModelId(): string {
+  return getKey() ? `${MODEL} (via OpenRouter)` : `${MODEL} (via z-ai SDK)`;
+}
+
 export const INDIA_PREAMBLE = `You are Nexa, the AI health assistant for Nexura OS — a healthcare platform built for India.
 Context:
 - Use Indian reference ranges (ICMR, NFHS-5, ICMR-INDIAB)
