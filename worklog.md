@@ -4379,3 +4379,20 @@ Stage Summary:
 - Hospital OS: fake desktop → calm labeled console; same data layer, same 24 modules, one obvious way to navigate
 - Deliberately kept: lock screen (workstation hygiene), ⌘K palette, live SSE alerts, offline triage, RBAC module gating
 - Tag: hospital-console-1-final; dual bundles refreshed; tracked-bundle check = 0
+
+---
+Task ID: home-glance-remove-1
+Agent: main (Super Z)
+Task: User: "remove the four boxed stat cards inside 'Nexura OS at a glance' on the homepage — Apps one OS / API endpoints / Typed data models / AI health tools"
+
+Work Log:
+- Located the band: src/components/site/os-glance.tsx renders exactly those 4 boxed stat cards; section used ONLY on the homepage (src/app/page.tsx line 40)
+- Removed <OsGlance /> + its import from src/app/page.tsx; deleted os-glance.tsx (186 lines, dead code after removal)
+- Checked dependents: AnimatedNumber stays (used by hero.tsx, dashboard-preview.tsx, impact-stats.tsx); zero remaining os-glance references (rg clean)
+- Verification: tsc --noEmit 0, eslint 0, vitest 252/252, canonical deploy DEPLOY VERIFIED
+- Browser E2E: homepage loads, snapshot has no glance/endpoints/models/tools content, served HTML 0 matches, page errors 0, console clean, full-page screenshot eyeballed — hero flows straight into FeaturesShowcase (blank bands in capture are scroll-reveal animations, not layout gaps); temp screenshots deleted after review
+- Change landed via platform auto-checkpoint e1d2dd5 (exact diff: page.tsx -2, os-glance.tsx -186); tagged below
+
+Stage Summary:
+- Homepage "Nexura OS at a glance" stat-box band fully removed; no other page affected
+- Tag: home-glance-remove-1-final; dual bundles refreshed; tracked-bundle check = 0
