@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { runText, INDIA_PREAMBLE } from "@/lib/gemini";
 import { aiGate } from "@/lib/nx/ai-guard";
 
@@ -86,7 +87,7 @@ Rules:
     if (!result?.sleepEfficiencyCategory) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "sleep_analyze_failed", detail: message }, { status: 500 });
+    log.error("kyh", "sleep_analyze_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "sleep_analyze_failed", detail: "The sleep analysis could not be completed. Please retry." }, { status: 500 });
   }
 }

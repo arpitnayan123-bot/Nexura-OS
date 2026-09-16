@@ -5,7 +5,7 @@
    which would misreport returning guests as portal). */
 
 import { NextRequest, NextResponse } from "next/server";
-import { rateLimit, ipOf } from "@/lib/nx/api";
+import { rateLimit, ipOf, withRoute } from "@/lib/nx/api";
 import { cookies } from "next/headers";
 import { getPortalUser, PORTAL_SESSION_COOKIE } from "@/lib/portal-session";
 import { DIY_GUEST_COOKIE, ensureGuestSession } from "@/lib/diy/auth";
@@ -14,7 +14,7 @@ import { log } from "@/lib/logger";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = withRoute("diy.session.mode", async () => {
   const store = await cookies();
   const hasPortal = Boolean(store.get(PORTAL_SESSION_COOKIE)?.value);
   if (hasPortal) {
@@ -24,9 +24,9 @@ export async function GET() {
   const guest = store.get(DIY_GUEST_COOKIE)?.value;
   if (guest) return NextResponse.json({ mode: "guest" });
   return NextResponse.json({ mode: "none" });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withRoute("diy.session.guest", async (req: NextRequest) => {
   const ip = ipOf(req);
   const rl = rateLimit(`diy-session:${ip}`, 8, 60 * 60_000);
   if (!rl.allowed) {
@@ -41,4 +41,4 @@ export async function POST(req: NextRequest) {
   const { created } = await ensureGuestSession();
   if (created) log.info("diy", "DIY guest session provisioned", {});
   return NextResponse.json({ mode: "guest" });
-}
+});

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionFresh, canAccessModule } from "@/lib/nx/session";
+import { withRoute } from "@/lib/nx/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET — role workspace: everything the signed-in role needs on one surface. */
-export async function GET(req: NextRequest) {
+export const GET = withRoute("nx.workspace.role", async (req: NextRequest) => {
   // Single session resolution (previously 2× requireModule = 2× user+session queries).
   const session = await getSessionFresh(req);
   if (!session) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
@@ -92,4 +93,4 @@ export async function GET(req: NextRequest) {
       criticalResults: myAdmissions.flatMap((a) => a.orders.flatMap((o) => o.labResults)).filter((r) => r.abnormalFlag === "critical").length,
     },
   });
-}
+});

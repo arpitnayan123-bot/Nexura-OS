@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withRoute } from "@/lib/nx/api";
 import { readSubject } from "@/modules/foresight/subject";
 
 /* GET /api/nx/foresight/history — light list of the subject's
@@ -7,7 +8,7 @@ import { readSubject } from "@/modules/foresight/subject";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = withRoute("nx.foresight.history", async () => {
   try {
     const subjectKey = await readSubject();
     if (!subjectKey) {
@@ -53,4 +54,4 @@ export async function GET() {
     console.error("[foresight/history]", err);
     return NextResponse.json({ ok: false, error: "History unavailable right now" }, { status: 500 });
   }
-}
+});

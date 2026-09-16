@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { runText, INDIA_PREAMBLE } from "@/lib/gemini";
 import { aiGate } from "@/lib/nx/ai-guard";
 
@@ -46,7 +47,7 @@ Rules:
     if (!result || !result.urgency) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "symptoms_check_failed", detail: message }, { status: 500 });
+    log.error("kyh", "symptoms_check_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "symptoms_check_failed", detail: "Symptoms could not be checked. Please retry." }, { status: 500 });
   }
 }

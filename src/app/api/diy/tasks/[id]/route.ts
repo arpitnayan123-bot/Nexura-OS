@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { guard, zodBody, guardFail } from "../../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { taskActionSchema } from "@/lib/diy/schemas";
 import { db } from "@/lib/db";
 
@@ -14,7 +15,7 @@ function today(): string {
   return ist.toISOString().slice(0, 10);
 }
 
-export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export const POST = withRoute<{ id: string }>("diy.task.complete", async (req: NextRequest, ctx) => {
   const g = await guard(req, {
     body: zodBody(taskActionSchema),
     consent: "TASKS",
@@ -39,11 +40,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
   });
 
   return NextResponse.json({ ok: true, completion });
-}
+});
 
 /* DELETE — undo: removes today's completion row so the task returns
    to PENDING (the Today UI's reset affordance). Ownership-checked. */
-export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export const DELETE = withRoute<{ id: string }>("diy.task.undo", async (req: NextRequest, ctx) => {
   const g = await guard(req, { consent: "TASKS", rate: { max: 120, windowMs: 60_000 } });
   if (g instanceof NextResponse) return g;
 
@@ -58,4 +59,4 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
   });
 
   return NextResponse.json({ ok: true });
-}
+});

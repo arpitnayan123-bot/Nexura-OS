@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionFresh, canAccessModule } from "@/lib/nx/session";
+import { withRoute } from "@/lib/nx/api";
 import { runText } from "@/lib/gemini";
 import { audit } from "@/lib/nx/audit";
 import { aiGate } from "@/lib/nx/ai-guard";
@@ -28,7 +29,7 @@ async function logAI(hospitalId: string, name: string, role: string, feature: st
   await db.nxAIInteraction.create({ data: { hospitalId, userName: name, userRole: role, feature, status } }).catch(() => null);
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withRoute("nx.ai.run", async (req: NextRequest) => {
   // AI budget guard (per-IP rate limit; production additionally requires a session)
   const __ai = aiGate(req, { max: 30, windowMs: 60_000 });
   if (__ai) return __ai;
@@ -164,4 +165,4 @@ export async function POST(req: NextRequest) {
     await logAiInteraction({ hospitalId, userName: session.name, userRole: session.role, feature: feature || "unknown", status: "failed" });
     return NextResponse.json({ error: "ai_failed", detail: err instanceof Error ? err.message : "unknown" }, { status: 500 });
   }
-}
+});

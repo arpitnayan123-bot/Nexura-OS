@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { guard } from "../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -43,7 +44,7 @@ function computeStreak(dates: Set<string>, todayKey: string): number {
   return streak;
 }
 
-export async function GET(req: NextRequest) {
+export const GET = withRoute("diy.dashboard.get", async (req: NextRequest) => {
   const g = await guard(req);
   if (g instanceof NextResponse) return g;
 
@@ -126,4 +127,4 @@ export async function GET(req: NextRequest) {
     conflicts: conflicts.map((c) => ({ id: c.id, rule: c.rule, explanation: c.explanation, resolution: c.resolution })),
     progressToday: progress,
   });
-}
+});

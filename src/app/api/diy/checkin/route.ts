@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { guard, zodBody } from "../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { checkinSchema } from "@/lib/diy/schemas";
 import { db } from "@/lib/db";
 
@@ -14,7 +15,7 @@ function today(): string {
   return ist.toISOString().slice(0, 10);
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withRoute("diy.checkin.post", async (req: NextRequest) => {
   const g = await guard(req, {
     body: zodBody(checkinSchema),
     consent: "CHECKIN",
@@ -30,4 +31,4 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ ok: true, checkin: { date: row.date, mood: row.mood, energy: row.energy, sleep: row.sleep } });
-}
+});

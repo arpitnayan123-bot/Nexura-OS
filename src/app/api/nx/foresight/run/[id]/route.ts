@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withRoute } from "@/lib/nx/api";
 import { readSubject } from "@/modules/foresight/subject";
 
 /* GET /api/nx/foresight/run/[id] — full stored report for one run
@@ -7,10 +8,9 @@ import { readSubject } from "@/modules/foresight/subject";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const GET = withRoute<{ id: string }>(
+  "nx.foresight.run.detail",
+  async (_req: Request, { params }) => {
   try {
     const { id } = await params;
     const subjectKey = await readSubject();
@@ -38,4 +38,5 @@ export async function GET(
     console.error("[foresight/run/:id]", err);
     return NextResponse.json({ ok: false, error: "Could not open this run" }, { status: 500 });
   }
-}
+  }
+);

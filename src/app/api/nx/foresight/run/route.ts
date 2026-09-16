@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withRoute } from "@/lib/nx/api";
 import { getOrCreateSubject } from "@/modules/foresight/subject";
 import { runForesight, summarizeForDoctor } from "@/modules/foresight/engine";
 import { normalizeForesightInput } from "@/modules/foresight/adapter";
@@ -11,7 +12,7 @@ import { normalizeForesightInput } from "@/modules/foresight/adapter";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request) {
+export const POST = withRoute("nx.foresight.run", async (req: Request) => {
   let raw: unknown;
   try {
     raw = await req.json();
@@ -59,4 +60,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { runText, runVision, isValidImageBase64, INDIA_PREAMBLE } from "@/lib/gemini";
 import { aiGate } from "@/lib/nx/ai-guard";
 
@@ -107,7 +108,7 @@ Rules:
     if (extractedFromImage) result.extractedFromImage = true;
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json({ error: "lab_analyze_failed", detail: message }, { status: 500 });
+    log.error("kyh", "lab_analyze_failed", { err: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "lab_analyze_failed", detail: "The lab report could not be analyzed. Please retry." }, { status: 500 });
   }
 }

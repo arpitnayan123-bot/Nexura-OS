@@ -121,3 +121,41 @@ Work Log:
 Stage Summary:
 - Live schema is now integrity-hardened: pharmacy batch identity is race-proof (with self-healing dedupe for older environments), every FK column backs its list/filter/cascade path with an index, hospitals can no longer cascade-delete their audit/timestamp/event chains, NxEventLog per-aggregate streams are unique-ordered, and double-booking a doctor's exact active slot is now impossible at the DB level
 - Deploy note for other environments: `npx prisma migrate deploy` applies the batch dedupe / seq resequence / double-booking cancel deterministically before the uniques land — no manual data surgery required
+
+---
+Task ID: arch-api-1a
+Agent: sub-agent (general-purpose)
+Task: Sanitize err.message leaks in API routes — every catch that returned `detail: <raw err.message>` in clinic/pharmacy/connect/portal (except portal/auth)/know-your-health/assistant/global/appointments now logs server-side and returns an operation-specific user-safe sentence; console.* in those route files converted to the structured logger; silent swallowing catches given log visibility
+
+Work Log:
+- 59 route files changed across the 8 assigned modules; 67 client-facing `detail: message` leak sites fixed (clinic 18, pharmacy 20, connect 12, know-your-health 16, assistant 1) — each now: `log.error("<subsystem>", "<event>_failed", { err: err instanceof Error ? err.message : String(err) })` + SAME error code + SAME HTTP status + short user-safe detail (e.g. "The consultation could not be updated. Please retry."), no Prisma/connection/table words
+- Already-correct sites left byte-identical: clinic/booking (2), pharmacy/purchases POST + returns POST + billing sale (log.error + safe detail already), appointments POST (log.error + server_error), portal/auth (DO-NOT-TOUCH, untouched)
+- console.* conversion (item 2): 7 sites in portal — family POST, family/invite/accept POST, ai-interpret outer + LLM-fallback (→ log.warn, degrades to rule-based), dashboard GET, blood-bookings POST+PATCH; no other console.* existed in the scoped routes (verified by rg)
+- Silent-catch visibility (item 3, response shapes untouched): appointments GET zeroed-counts swallow → log.error("api", "appointments.stats_failed"); bare GET catches in pharmacy purchases/returns/billing → catch (err) + log.error with their existing safe details; global GET/POST bare catches → log.error ("global_get_failed"/"inquiry_failed", codes unchanged); global usdInrRate fallback → log.warn("global", "fx_rate_fallback") (constant fallback kept); pharmacy voice-bill LLM-parse fallback → log.warn (graceful control flow kept)
+- `import { log } from "@/lib/logger"` added once per changed file (reused where already present); subsystems: "clinic" | "pharmacy" | "connect" | "portal" | "kyh" | "global" | "assistant" (appointments keeps its existing "api" style); no new any, no success-shape changes, nx/** and tests/** untouched
+- Verify: npx tsc --noEmit → 0 errors; bun run lint → 0 errors; npx vitest run → 268/268 (21 files); rg audit: `detail: message`/`detail: e.message` → ZERO matches in the 8 modules; console.(log|error|warn|info) → ZERO matches in the 8 modules; every remaining `instanceof Error` hit (63 lines incl. portal/auth) is inside a log.* meta object — zero client-facing detail usages
+
+Stage Summary:
+- Client error bodies in the product-facing API surface no longer carry internal error strings (Prisma/SDK messages with connection or schema detail can't leak); the real cause goes to the PHI-redacting structured logger, frontends keep matching on the unchanged error codes/statuses
+- 59 files, +151/-105 lines (shared worktree with the concurrent nx/** agent); no manual git commit made
+
+---
+Task ID: arch-api-1b
+Agent: sub-agent (general-purpose)
+Task: Wrap every legacy bare nx/diy/misc route handler in the canonical `withRoute` wrapper (src/lib/nx/api.ts) so unexpected throws become safe JSON 500 `fail("internal")` instead of Next's HTML 500 — without changing any response body, status, or guard logic
+
+Work Log:
+- 39 route files wrapped (64 exported handlers; 5 carry the dynamic generic, e.g. `withRoute<{ id: string }>`): every `export async function VERB(...)` became `export const VERB = withRoute("name", async (...) => { ...body byte-identical... })`; module-scoped lowercase dot names unique per method (full list below)
+- nx modules (16 files): encounters (nx.encounters.list/create/transition), ed (nx.ed.board/triage), overview (nx.overview.command-center), patients (nx.patients.list), patients/[id] (withRoute<{id:string}> nx.patients.detail), schedule (nx.schedule.list/book/transition), beds (nx.beds.board/lifecycle/reserve), labs (nx.labs.queue/result), orders (nx.orders.list/create/transition), billing (nx.billing.revenue), analytics (nx.analytics.metrics), incidents (nx.incidents.list/report/transition), supply (nx.supply.inventory/adjust), pharmacy (nx.pharmacy.queue/dispense), or (nx.or.schedule/update), automations (nx.automations.list/toggle/testfire)
+- nx misc (8 files): ai (nx.ai.run — its inner try/catch safe-500 kept, withRoute wraps it), audit (nx.audit.trail), foresight/data (nx.foresight.data.wipe), foresight/history (nx.foresight.history), foresight/run (nx.foresight.run), foresight/run/[id] (withRoute<{id:string}> nx.foresight.run.detail), openapi (nx.openapi), workspace (nx.workspace.role)
+- diy (12 files, own _lib guard kept untouched — withRoute sits outside it): checkin (diy.checkin.post), consent (diy.consent.list/grant/withdraw), dashboard (diy.dashboard.get), generate (diy.generate.post), goals (diy.goals.list/batch), goals/[id] (withRoute<{id:string}> diy.goal.action), me (diy.me.export/wipe), parse (diy.parse.post), progress (diy.progress.upsert/list), session (diy.session.mode/guest), skincare (diy.skincare.routine/event), tasks/[id] (withRoute<{id:string}> diy.task.complete/undo)
+- outside nx: health (health.liveness), api root (root.hello), health-stats (health-stats.metrics — the brief's "health-stats/route.ts" exists only at src/app/api/health-stats/, not under nx/)
+- imports: extended existing `@/lib/nx/api` imports where present (encounters, ed, overview, patients, analytics, supply, or, automations, audit, session-diy, patients/[id] via new line); fresh single-import lines elsewhere; `runtime`/`dynamic`/`maxDuration` export lines untouched and outside the wrappers; requireHospitalContext/requireModule/guard bodies untouched (their NextResponse errors flow through withRoute unchanged); handler names verified globally unique (rg count=1 each)
+- Skips (3, with reasons): nx/stream/route.ts — SSE long-lived stream must not sit in the request-scoped wrapper (rate-limit/log/500 conversion would corrupt the stream contract); nx/system/errors/route.ts — already has its own withOk wrapper style per brief; nx/bio/[deviceId]/route.ts — pure `export { POST, GET } from "../../predict/bio/[deviceId]/route"` re-export of an ALREADY-wrapped handler (wrapping a re-export would double-wrap)
+- Note: automated checkpoint(auto) committed the in-flight worktree (my 16 module-route edits + the parallel agent's clinic/connect/pharmacy edits) at 16:34 — no manual commit made
+- Verify: npx tsc --noEmit → 0 errors; bun run lint → 0 errors; npx vitest run → 268/268 (21 files); residue check `rg -l withRoute` complement over src/app/api/nx → only the 3 documented skips remain
+
+Stage Summary:
+- Every remaining legacy nx/diy/misc handler now sits behind the canonical wrapper: correlation ID reuse, default 300/min/IP rate limit, one structured latency+status log line, x-request-id response header, and uncaught exceptions return JSON `fail("internal", 500)` — successful and guarded-error responses are byte-identical to before
+- 39 files, +169/-105 lines; no response-shape, status, or guard changes; next agent should re-verify with a fresh `npx vitest run` after the concurrent tests/ edits land
+

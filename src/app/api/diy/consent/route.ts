@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { guard, zodBody } from "../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { consentGrantSchema, consentWithdrawSchema } from "@/lib/diy/schemas";
 import { db } from "@/lib/db";
 import { getActiveConsentScopes } from "@/lib/diy/auth";
@@ -24,7 +25,7 @@ const PURPOSES: Record<ConsentScope, string> = {
   MODEL_TRAINING: "Separate, explicit opt-in — never bundled — for training models on your data",
 };
 
-export async function GET(req: NextRequest) {
+export const GET = withRoute("diy.consent.list", async (req: NextRequest) => {
   const g = await guard(req);
   if (g instanceof NextResponse) return g;
 
@@ -50,9 +51,9 @@ export async function GET(req: NextRequest) {
     })),
     policyVersion: CONSENT_POLICY_VERSION,
   });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withRoute("diy.consent.grant", async (req: NextRequest) => {
   const g = await guard(req, {
     body: zodBody(consentGrantSchema),
     rate: { max: 20, windowMs: 60_000 },
@@ -91,9 +92,9 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ ok: true, consentIds: created });
-}
+});
 
-export async function DELETE(req: NextRequest) {
+export const DELETE = withRoute("diy.consent.withdraw", async (req: NextRequest) => {
   const g = await guard(req, {
     body: zodBody(consentWithdrawSchema),
     rate: { max: 20, windowMs: 60_000 },
@@ -111,4 +112,4 @@ export async function DELETE(req: NextRequest) {
   }
 
   return NextResponse.json({ ok: true, withdrawn: scopes, effectiveAt: now.toISOString() });
-}
+});

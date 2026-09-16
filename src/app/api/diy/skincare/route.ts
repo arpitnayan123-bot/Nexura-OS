@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { guard, zodBody } from "../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { skincareStartSchema, skincareEventSchema } from "@/lib/diy/schemas";
 import { db } from "@/lib/db";
 import { validateContent } from "@/lib/diy/safety/content-validator";
@@ -50,7 +51,7 @@ const ROUTINES: Record<string, { name: string; steps: { slot: string; title: str
   },
 };
 
-export async function POST(req: NextRequest) {
+export const POST = withRoute("diy.skincare.routine", async (req: NextRequest) => {
   const g = await guard(req, {
     body: zodBody(skincareStartSchema),
     consent: "SKINCARE",
@@ -84,10 +85,10 @@ export async function POST(req: NextRequest) {
     },
     sensitiveSkin,
   });
-}
+});
 
 /* irritation + reactions: recorded, and moderate/severe PAUSES the plan */
-export async function PUT(req: NextRequest) {
+export const PUT = withRoute("diy.skincare.event", async (req: NextRequest) => {
   const g = await guard(req, {
     body: zodBody(skincareEventSchema),
     consent: "SKINCARE",
@@ -123,4 +124,4 @@ export async function PUT(req: NextRequest) {
       ? "Your skincare tasks are paused. Return to a plain cleanser + moisturizer until skin calms, then restart at the minimal level."
       : "Logged. Keep watching the patch area for another day.",
   });
-}
+});

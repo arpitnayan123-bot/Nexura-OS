@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { guard, zodBody, guardFail } from "../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { db } from "@/lib/db";
 import { generatePlans } from "@/lib/diy/compiler";
 
@@ -17,7 +18,7 @@ const generateSchema = z.object({
   idempotencyKey: z.string().min(6).max(64),
 });
 
-export async function POST(req: NextRequest) {
+export const POST = withRoute("diy.generate.post", async (req: NextRequest) => {
   const g = await guard(req, {
     body: zodBody(generateSchema),
     consent: "GENERATE",
@@ -52,4 +53,4 @@ export async function POST(req: NextRequest) {
     trimmed: result.trimmed,
     burdenNote: result.burdenNote,
   });
-}
+});

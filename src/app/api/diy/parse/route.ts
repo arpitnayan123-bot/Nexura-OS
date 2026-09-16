@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { guard, zodBody } from "../_lib";
+import { withRoute } from "@/lib/nx/api";
 import { parseRequestSchema } from "@/lib/diy/schemas";
 import { parseTranscript } from "@/lib/diy/compiler";
 import { evaluateSafety, recordSafetyEvent } from "@/lib/diy/safety/engine";
@@ -12,7 +13,7 @@ import { normalizeHinglish } from "@/lib/diy/language";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export const POST = withRoute("diy.parse.post", async (req: NextRequest) => {
   const g = await guard(req, {
     body: zodBody(parseRequestSchema),
     consent: "PARSE",
@@ -46,4 +47,4 @@ export async function POST(req: NextRequest) {
     goals: result.goals,
     detectedTextSample: normalizeHinglish(text).slice(0, 120),
   });
-}
+});

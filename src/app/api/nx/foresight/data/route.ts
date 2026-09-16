@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withRoute } from "@/lib/nx/api";
 import { readSubject } from "@/modules/foresight/subject";
 
 /* DELETE /api/nx/foresight/data — wipe every stored run for the
@@ -7,7 +8,7 @@ import { readSubject } from "@/modules/foresight/subject";
 
 export const dynamic = "force-dynamic";
 
-export async function DELETE() {
+export const DELETE = withRoute("nx.foresight.data.wipe", async () => {
   try {
     const subjectKey = await readSubject();
     if (!subjectKey) {
@@ -19,4 +20,4 @@ export async function DELETE() {
     console.error("[foresight/data]", err);
     return NextResponse.json({ ok: false, error: "Delete failed — please retry" }, { status: 500 });
   }
-}
+});

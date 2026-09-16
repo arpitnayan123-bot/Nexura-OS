@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "@/lib/logger";
 import { aiGate } from "@/lib/nx/ai-guard";
 
 export const runtime = "nodejs";
@@ -62,9 +63,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ reply });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown error";
+    log.error("assistant", "assistant_failed", { err: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
-      { error: "assistant_failed", detail: message },
+      { error: "assistant_failed", detail: "The assistant could not respond right now. Please retry in a moment." },
       { status: 500 }
     );
   }
