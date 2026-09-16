@@ -85,24 +85,42 @@ export async function enqueueJob(input: NxJobInput): Promise<string | null> {
 /** Atomically claim due pending jobs. One statement selects due rows
  *  WITH row locks (SKIP LOCKED — concurrent workers skip locked rows
  *  instead of blocking), then flips them to running inside the same
- *  transaction. Correct across any number of app instances. */
+ *  transaction. Correct across any number of app instances.
+ *
+ *  Stale-claim reaper: rows stuck in `running` (their worker process died
+ *  between claim and finish) are re-armed after STALE_RUNNING_MIN minutes —
+ *  WITHOUT incrementing attempts, because a crashed process is not the
+ *  job's fault and must not dead-letter healthy work. Before this reaper
+ *  existed, a crashed claim blocked the job's dedupeKey forever. */
+const STALE_RUNNING_MIN = 10;
+
 async function claimDueJobs(limit: number): Promise<NxJobRecord[]> {
   return db.$transaction(
     async (tx) => {
-      const due = await tx.$queryRaw<Array<{ id: string }>>`
-        SELECT id FROM "NxJob"
-        WHERE status = 'pending' AND "runAt" <= now()
+      const due = await tx.$queryRaw<Array<{ id: string; stale: boolean }>>`
+        SELECT id, (status = 'running') AS stale FROM "NxJob"
+        WHERE (status = 'pending' AND "runAt" <= now())
+           OR (status = 'running' AND "startedAt" < now() - interval '10 minutes')
         ORDER BY "runAt" ASC
         LIMIT ${limit}
         FOR UPDATE SKIP LOCKED`;
       if (!due.length) return [];
-      const ids = due.map((d) => d.id);
-      await tx.nxJob.updateMany({
-        where: { id: { in: ids }, status: "pending" }, // guarded — belt and braces
-        data: { status: "running", startedAt: new Date(), attempts: { increment: 1 } },
-      });
+      const freshIds = due.filter((d) => !d.stale).map((d) => d.id);
+      const staleIds = due.filter((d) => d.stale).map((d) => d.id);
+      if (freshIds.length) {
+        await tx.nxJob.updateMany({
+          where: { id: { in: freshIds }, status: "pending" }, // guarded — belt and braces
+          data: { status: "running", startedAt: new Date(), attempts: { increment: 1 } },
+        });
+      }
+      if (staleIds.length) {
+        await tx.nxJob.updateMany({
+          where: { id: { in: staleIds }, status: "running", startedAt: { lt: new Date(Date.now() - STALE_RUNNING_MIN * 60_000) } },
+          data: { status: "running", startedAt: new Date() }, // re-arm, attempts unchanged
+        });
+      }
       return tx.nxJob.findMany({
-        where: { id: { in: ids }, status: "running" },
+        where: { id: { in: [...freshIds, ...staleIds] }, status: "running" },
         select: { id: true, type: true, dedupeKey: true, payload: true, attempts: true, maxAttempts: true },
       });
     },

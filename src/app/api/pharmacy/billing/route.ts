@@ -18,7 +18,7 @@ const BillingItemSchema = z.object({
   batchId: z.string().min(1).optional(),
   qtyStrips: z.number().int().min(0).max(1000).default(0),
   qtyLoose: z.number().int().min(0).max(10_000).default(0),
-  scheduleH: z.record(z.unknown()).optional(),
+  scheduleH: z.record(z.string(), z.unknown()).optional(),
 });
 const BillingSchema = z.object({
   items: z.array(BillingItemSchema).min(1, "cart cannot be empty").max(100),

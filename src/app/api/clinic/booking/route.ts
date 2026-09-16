@@ -44,60 +44,80 @@ async function POST_impl(req: NextRequest) {
         return NextResponse.json({ error: "already_processed" }, { status: 409 });
       }
 
-      // Find-or-create the walk-in patient by phone (dedupes repeat bookers).
-      let patient = await db.clinicPatient.findFirst({
-        where: { clinicId: ctx.clinic.id, phone: booking.phone },
+      /* Claim the booking atomically: only one concurrent accept can win the
+         status flip (the historical check-then-convert let two staff members
+         accept the same booking simultaneously and create two patients /
+         appointments). On conversion failure the claim is released. */
+      const claim = await db.onlineBooking.updateMany({
+        where: { id: booking.id, status: "booked" },
+        data: { status: "processing" },
       });
-      if (!patient) {
-        const count = await db.clinicPatient.count({ where: { clinicId: ctx.clinic.id } });
-        patient = await db.clinicPatient.create({
+      if (claim.count === 0) {
+        return NextResponse.json({ error: "already_processed" }, { status: 409 });
+      }
+
+      try {
+        // Find-or-create the walk-in patient by phone (dedupes repeat bookers).
+        let patient = await db.clinicPatient.findFirst({
+          where: { clinicId: ctx.clinic.id, phone: booking.phone },
+        });
+        if (!patient) {
+          const count = await db.clinicPatient.count({ where: { clinicId: ctx.clinic.id } });
+          patient = await db.clinicPatient.create({
+            data: {
+              clinicId: ctx.clinic.id,
+              mrn: `CLN-${2001 + count}`,
+              name: booking.patientName,
+              gender: "unknown",
+              phone: booking.phone,
+            },
+          });
+        }
+
+        const dayStart = new Date(booking.slot); dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(booking.slot); dayEnd.setHours(23, 59, 59, 999);
+        const tokenNo = (await db.clinicAppointment.count({ where: { clinicId: ctx.clinic.id, slot: { gte: dayStart, lte: dayEnd } } })) + 1;
+
+        // Appointments require a doctor — "any doctor" bookings resolve to
+        // the clinic's first active doctor at acceptance time. Fail closed
+        // when the clinic has no active doctor at all.
+        let doctorId: string | null = booking.doctorId;
+        if (!doctorId) {
+          const firstDoctor = await db.clinicDoctor.findFirst({
+            where: { clinicId: ctx.clinic.id, active: true },
+            orderBy: { createdAt: "asc" },
+            select: { id: true },
+          });
+          if (!firstDoctor) {
+            await db.onlineBooking.updateMany({ where: { id: booking.id, status: "processing" }, data: { status: "booked" } }).catch(() => {});
+            return NextResponse.json({ error: "no_doctor" }, { status: 409 });
+          }
+          doctorId = firstDoctor.id;
+        }
+
+        const appointment = await db.clinicAppointment.create({
           data: {
             clinicId: ctx.clinic.id,
-            mrn: `CLN-${2001 + count}`,
-            name: booking.patientName,
-            gender: "unknown",
-            phone: booking.phone,
+            patientId: patient.id,
+            doctorId: doctorId ?? undefined,
+            slot: booking.slot,
+            tokenNo,
+            reason: "Online booking",
+            source: "online",
+            status: "booked",
           },
         });
-      }
 
-      const dayStart = new Date(booking.slot); dayStart.setHours(0, 0, 0, 0);
-      const dayEnd = new Date(booking.slot); dayEnd.setHours(23, 59, 59, 999);
-      const tokenNo = (await db.clinicAppointment.count({ where: { clinicId: ctx.clinic.id, slot: { gte: dayStart, lte: dayEnd } } })) + 1;
-
-      // Appointments require a doctor — "any doctor" bookings resolve to
-      // the clinic's first active doctor at acceptance time. Fail closed
-      // when the clinic has no active doctor at all.
-      let doctorId: string | null = booking.doctorId;
-      if (!doctorId) {
-        const firstDoctor = await db.clinicDoctor.findFirst({
-          where: { clinicId: ctx.clinic.id, active: true },
-          orderBy: { createdAt: "asc" },
-          select: { id: true },
+        const updated = await db.onlineBooking.update({
+          where: { id: booking.id },
+          data: { status: "converted", convertedPatientId: patient.id, convertedAppointmentId: appointment.id },
         });
-        if (!firstDoctor) return NextResponse.json({ error: "no_doctor" }, { status: 409 });
-        doctorId = firstDoctor.id;
+
+        return NextResponse.json({ ok: true, booking: updated, appointment, patient });
+      } catch (convErr) {
+        await db.onlineBooking.updateMany({ where: { id: booking.id, status: "processing" }, data: { status: "booked" } }).catch(() => {});
+        throw convErr;
       }
-
-      const appointment = await db.clinicAppointment.create({
-        data: {
-          clinicId: ctx.clinic.id,
-          patientId: patient.id,
-          doctorId: doctorId ?? undefined,
-          slot: booking.slot,
-          tokenNo,
-          reason: "Online booking",
-          source: "online",
-          status: "booked",
-        },
-      });
-
-      const updated = await db.onlineBooking.update({
-        where: { id: booking.id },
-        data: { status: "converted", convertedPatientId: patient.id, convertedAppointmentId: appointment.id },
-      });
-
-      return NextResponse.json({ ok: true, booking: updated, appointment, patient });
     }
 
     if (!clinicId || !patientName || !phone || !slot) return NextResponse.json({ error: "missing" }, { status: 400 });

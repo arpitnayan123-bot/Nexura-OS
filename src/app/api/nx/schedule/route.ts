@@ -95,19 +95,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "slot_conflict", detail: `${doctor.name} already has an appointment in this slot`, suggestions }, { status: 409 });
   }
 
-  const appt = await db.hospitalAppointment.create({
-    data: {
-      hospitalId: hospitalId!,
-      patientId: patient.id,
-      patientUhid: patient.uhid,
-      doctorId: doctor.id,
-      date: when,
-      timeSlot: when.toISOString().slice(11, 16),
-      appointmentType: body.type === "teleconsult" ? "teleconsult" : body.type === "followup" ? "followup" : "opd",
-      chiefComplaint: body.complaint || null,
-      status: "scheduled",
-    },
-  });
+  /* The findFirst clash check above narrows the window but cannot close it —
+     two concurrent bookings can both see a free slot. The partial unique
+     index (doctorId, date) WHERE status NOT IN ('cancelled','no_show')
+     (migration 20260918000000) is the real serialization point: the loser
+     of the race gets the same 409 the pre-check would have returned. */
+  let appt;
+  try {
+    appt = await db.hospitalAppointment.create({
+      data: {
+        hospitalId: hospitalId!,
+        patientId: patient.id,
+        patientUhid: patient.uhid,
+        doctorId: doctor.id,
+        date: when,
+        timeSlot: when.toISOString().slice(11, 16),
+        appointmentType: body.type === "teleconsult" ? "teleconsult" : body.type === "followup" ? "followup" : "opd",
+        chiefComplaint: body.complaint || null,
+        status: "scheduled",
+      },
+    });
+  } catch (err) {
+    if (typeof err === "object" && err !== null && "code" in err && (err as { code?: string }).code === "P2002") {
+      return NextResponse.json({ error: "slot_conflict", detail: `${doctor.name} already has an appointment in this slot` }, { status: 409 });
+    }
+    throw err;
+  }
   await audit({
     hospitalId: hospitalId!, actorName: gate.session.name, actorRole: gate.session.role,
     action: "appointment.create", entityType: "HospitalAppointment", entityId: appt.id, patientId: patient.id,
