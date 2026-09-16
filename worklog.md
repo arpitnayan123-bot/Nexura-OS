@@ -253,3 +253,18 @@ Work Log:
 Stage Summary:
 - The 20-phase Principal Architect program is committed, gate-verified green on HEAD, and locked under tag hardening-locked-final — the exact tree that passed 280/280 + 46/46 + DEPLOY VERIFIED is now immutably addressable
 - Residual honest gaps (documented, intentionally deferred): legacy Float rupees in pharmacy/clinic, per-instance withRoute default limiter, AI cost/token accounting absent, consent self-service UI queued
+
+---
+Task ID: env-example-1
+Agent: main (Super Z)
+Task: Un-exclude .env.example from git (user-supplied one-line fix) and commit the template
+
+Work Log:
+- Confirmed root cause: .gitignore line 34 `.env*` matched both .env.example and .env (git check-ignore -v)
+- Security screen BEFORE tracking: read .env.example end-to-end — all values are placeholders (DATABASE_URL user:pass@host, JWT_SECRET change-me-…, OPENROUTER_API_KEY / NX_INBOUND_WEBHOOK_SECRET empty); zero real secrets; template documents the production boot gate (src/lib/env.ts assertProductionEnv)
+- Applied fix: `!.env.example` added directly after `.env*` (line 35)
+- Verified: .env.example resolves through the negation rule and is staged (A); .env still ignored by line 34; no other ignore semantics touched
+
+Stage Summary:
+- Fresh clones now get the env template showing exactly what the production boot gate requires (DATABASE_URL/JWT_SECRET/REDIS_URL) — .env itself remains untracked
+- Non-code change (2 files + worklog): tsc/eslint/vitest unaffected; lock tag hardening-locked-final still marks the verified hardening tree
