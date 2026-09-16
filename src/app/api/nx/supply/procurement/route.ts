@@ -111,10 +111,35 @@ export const PATCH = withRoute("procurement.txn", async (req: NextRequest) => {
   const newOnHand = item.onHand + delta;
   if (newOnHand < 0) return fail("insufficient_stock", 422, `Only ${item.onHand} ${item.unit} on hand.`);
 
-  const [txn] = await db.$transaction([
-    db.nxStockTxn.create({ data: { hospitalId, itemId: item.id, kind: parsed.data.kind, qty: parsed.data.qty, batchNo: parsed.data.batchNo, reason: parsed.data.reason, actorName: g.session.name } }),
-    db.nxSupplyItem.update({ where: { id: item.id }, data: { onHand: newOnHand } }),
-  ]);
+  /* The stock mutation is conditional INSIDE the transaction — the historical
+     code read `onHand`, computed `newOnHand`, then wrote it back, so two
+     concurrent issues of the same item both computed from the same starting
+     value and one issue was silently lost (lost update). Negative deltas
+     (issue/wastage/transfer_out) additionally re-check sufficiency in the
+     UPDATE's where-clause; `adjust` is a compare-and-set on the read value. */
+  const txn = await db.$transaction(async (tx) => {
+    const created = await tx.nxStockTxn.create({ data: { hospitalId, itemId: item.id, kind: parsed.data.kind, qty: parsed.data.qty, batchNo: parsed.data.batchNo, reason: parsed.data.reason, actorName: g.session.name } });
+    let applied: { count: number };
+    if (delta < 0) {
+      applied = await tx.nxSupplyItem.updateMany({
+        where: { id: item.id, hospitalId, onHand: { gte: -delta } },
+        data: { onHand: { decrement: -delta } },
+      });
+    } else if (delta > 0) {
+      applied = await tx.nxSupplyItem.updateMany({
+        where: { id: item.id, hospitalId },
+        data: { onHand: { increment: delta } },
+      });
+    } else {
+      applied = await tx.nxSupplyItem.updateMany({
+        where: { id: item.id, hospitalId, onHand: item.onHand },
+        data: { onHand: parsed.data.qty },
+      });
+    }
+    if (applied.count === 0) return null;
+    return created;
+  });
+  if (!txn) return fail("stock_conflict", 409, "Stock changed concurrently — re-check the item and retry.");
 
   if (parsed.data.poId && parsed.data.kind === "receipt") {
     await db.nxPurchaseOrder.updateMany({ where: { id: parsed.data.poId, hospitalId, status: { in: ["submitted", "partially_received"] } }, data: { status: "received", receivedAt: new Date() } }).catch(() => {});

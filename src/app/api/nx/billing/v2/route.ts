@@ -157,24 +157,31 @@ export const PUT = withRoute("billing.payment.record", async (req: NextRequest) 
   }
 
   return withIdempotency(req, "billing.payment", async () => {
-    const payment = await db.nxPayment.create({
-      data: {
-        hospitalId, patientId: patient.id, patientUhid: patient.uhid,
-        amount: parsed.data.amount, mode: parsed.data.mode, reference: parsed.data.reference,
-        billId: parsed.data.billId, note: parsed.data.note, refundOfId: parsed.data.refundOfId,
-        receivedBy: g.session.name,
-      },
-    });
-    if (parsed.data.billId) {
-      const bill = await db.hospitalBill.findFirst({ where: { id: parsed.data.billId, hospitalId } });
-      if (bill) {
-        const payments = await db.nxPayment.aggregate({ where: { billId: bill.id, refundOfId: null }, _sum: { amount: true } });
-        const paid = payments._sum.amount ?? 0;
-        await db.hospitalBill.update({ where: { id: bill.id }, data: { paymentStatus: paid >= bill.totalPayable ? "paid" : paid > 0 ? "partial" : bill.paymentStatus } }).catch(() => {});
+    /* Payment + bill-status recompute commit atomically: concurrent payments
+       on one bill could otherwise leave a paid bill marked partial. The
+       refund-cap check happens before this block; the recompute itself now
+       cannot race with another payment's recompute. */
+    const payment = await db.$transaction(async (tx) => {
+      const created = await tx.nxPayment.create({
+        data: {
+          hospitalId, patientId: patient.id, patientUhid: patient.uhid,
+          amount: parsed.data.amount, mode: parsed.data.mode, reference: parsed.data.reference,
+          billId: parsed.data.billId, note: parsed.data.note, refundOfId: parsed.data.refundOfId,
+          receivedBy: g.session.name,
+        },
+      });
+      if (parsed.data.billId) {
+        const bill = await tx.hospitalBill.findFirst({ where: { id: parsed.data.billId, hospitalId } });
+        if (bill) {
+          const payments = await tx.nxPayment.aggregate({ where: { billId: bill.id, refundOfId: null }, _sum: { amount: true } });
+          const paid = payments._sum.amount ?? 0;
+          await tx.hospitalBill.update({ where: { id: bill.id }, data: { paymentStatus: paid >= bill.totalPayable ? "paid" : paid > 0 ? "partial" : bill.paymentStatus } });
+        }
       }
-    }
+      return created;
+    });
     await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: parsed.data.refundOfId ? "billing.refund" : "billing.payment", entityType: "nx_payment", entityId: payment.id, patientId: patient.id, detail: { amount: parsed.data.amount, mode: parsed.data.mode } });
     return { status: 201, body: { data: { payment, receipt: { id: payment.id, amount: payment.amount, at: payment.receivedAt, receivedBy: payment.receivedBy, hospitalId } } } };
-  }, { bodyForHash: parsed.data });
+  }, { bodyForHash: parsed.data, callerId: g.session.userId });
 });
 void paginate; void pageMeta;
