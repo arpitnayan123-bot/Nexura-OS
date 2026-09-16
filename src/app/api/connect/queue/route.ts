@@ -1,15 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { connectGate } from "@/lib/nx/connect-auth";
+import { getSession } from "@/lib/nx/session";
+import { getAuthUser } from "@/lib/auth/jwt";
+import { isDemoMode } from "@/lib/env";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // GET /api/connect/queue?doctorId=xxx
 // Returns grouped by mode: {queue:{chat:[],voice:[],video:[]}, totalWaiting}.
+//
+// Party boundary (production): the queue shows a doctor's waiting room, so
+// the caller must BE that doctor; an unfiltered call would expose every
+// waiting patient's name/phone and is refused fail-closed. Mirrors the
+// callerId resolution of connectCallsListDenied. DEMO_MODE keeps its
+// documented posture (UI picks the demo doctor client-side).
 export async function GET(req: NextRequest) {
   const __gate = connectGate(req);
   if (__gate) return __gate;
+  if (!isDemoMode()) {
+    const { searchParams } = new URL(req.url);
+    const doctorId = searchParams.get("doctorId");
+    const session = getSession(req);
+    const legacy = getAuthUser(req);
+    const callerId = session?.userId ?? legacy?.id ?? null;
+    if (!callerId) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+    if (!doctorId || callerId !== doctorId) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
+  }
   try {
     const { searchParams } = new URL(req.url);
     const doctorId = searchParams.get("doctorId");

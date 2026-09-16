@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireHospitalContext } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { fire } from "@/lib/nx/automations";
@@ -19,7 +20,9 @@ const ORDER_FLOW: Record<string, string[]> = {
 export async function GET(req: NextRequest) {
   const gate = await requireModule(req, "orders");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
-  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(gate.session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
 
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type");
@@ -74,7 +77,9 @@ export async function POST(req: NextRequest) {
   if (!["doctor", "admin"].includes(gate.session.role)) {
     return NextResponse.json({ error: "only_doctors_can_order", detail: "Ordering requires an authorized prescriber role" }, { status: 403 });
   }
-  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(gate.session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
   const body = await req.json().catch(() => ({}));
   if (!body.patientId || !body.orderType || !body.testName) {
     return NextResponse.json({ error: "missing_fields" }, { status: 400 });

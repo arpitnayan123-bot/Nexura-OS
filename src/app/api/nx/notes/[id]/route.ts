@@ -71,9 +71,15 @@ export const PATCH = withRoute("notes.mutate", async (req: NextRequest) => {
   const body = await parseBody(req, PatchSchema);
   if ("response" in body) return body.response;
 
-  const note = await db.clinicalNote.findUnique({ where: { id } });
+  // Tenant boundary (mirrors the GET handler): the note is fetched WITH the
+  // caller's hospitalId in the where-clause, so a missing note and another
+  // hospital's note are indistinguishable — both 404. The old fetch-by-id +
+  // compare leaked existence across hospitals via the 404-vs-403 split.
+  if (!session.hospitalId) return fail("no_hospital", 400);
+  const note = await db.clinicalNote.findFirst({
+    where: { id, hospitalId: session.hospitalId },
+  });
   if (!note) return fail("not_found", 404, "Note not found.");
-  if (note.hospitalId !== session.hospitalId) return fail("forbidden", 403, "Cross-hospital access denied.");
 
   // ---- IMMUTABILITY: signed notes never silently mutate ----
   if (note.locked && body.data.action === "save") {

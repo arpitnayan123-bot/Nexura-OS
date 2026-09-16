@@ -11,7 +11,8 @@ import { approveProtocol, rejectProtocol } from "@/modules/pi-engine/engine";
 const ActionSchema = z.object({
   action: z.enum(["approve", "reject"]),
   reason: z.string().max(300).optional(),
-  approvedBy: z.string().max(80).optional(),
+  // approvedBy was removed from the client contract: the deciding actor is
+  // stamped from the authenticated session, never from a spoofable body field.
 });
 
 export const POST = withRoute(
@@ -22,7 +23,10 @@ export const POST = withRoute(
     const { id } = await ctx.params;
     const body = await parseBody(req, ActionSchema);
     if ("response" in body) return body.response;
-    const who = body.data.approvedBy || g.session.name || g.session.staffCode || "clinician";
+    // Audit attribution boundary: the approver identity comes from the signed
+    // session (name, falling back to staffCode) — the client cannot forge who
+    // approved a protocol.
+    const who = g.session.name || g.session.staffCode || "clinician";
 
     if (body.data.action === "approve") {
       const res = await approveProtocol(id, who);

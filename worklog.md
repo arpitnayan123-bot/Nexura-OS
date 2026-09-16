@@ -53,3 +53,22 @@ Work Log:
 Stage Summary:
 - Milestones: pg-migration-1 → pg-semantics-1 → stateless-1 → env-config-1 → repo-hygiene-2 → test-coverage-1 (tags -final each)
 - Tests 252 → 268; CI now exercises real Postgres + Redis services
+
+---
+Task ID: arch-1a
+Agent: sub-agent (general-purpose)
+Task: Sweep findFirst fallbacks fail-closed — replace every `session.hospitalId || (await db.hospital.findFirst())?.id` cross-tenant fallback in src/app/api/nx with requireHospitalContext()
+
+Work Log:
+- 16 route files changed (28 fallback sites + supply PATCH write hole): ed, patients, incidents (GET+POST), beds, labs, encounters (GET+POST — admission+bed $transaction untouched, only the hospitalId resolution line replaced), messages (GET+POST, session variable shape), automations (GET+POST), or, billing, overview, schedule (GET+POST), orders (GET+POST), audit, analytics, supply (GET standard; PATCH special)
+- Each site now resolves hospitalId via `requireHospitalContext(gate.session|session)` and returns the ready-made 403 no_hospital_context response on the `"response" in hospitalCtx` branch; DEMO_MODE single-hospital fallback stays centralized in the helper
+- Imports: extended the existing `@/lib/nx/api` imports in messages (`fail, requireHospitalContext, withRoute`) and analytics (`requireHospitalContext, toCsv`); added a fresh `@/lib/nx/api` import line to the other 14 files (all still use `db`, so no import removals anywhere)
+- supply/route.ts PATCH (cross-tenant write hole): the handler already authenticated via the same dual requireModule("inventory"/"equipment") gate as GET (the brief's "no session check at all" was inaccurate — the hole was missing hospital scoping, not missing auth), so auth mirrored as-is; hospitalId now resolved via requireHospitalContext; both branches tenant-scoped — `findUnique({ where: { id } })` → `findFirst({ where: { id, hospitalId } })` (404 on null), `update({ where: { id } })` → `updateMany({ where: { id, hospitalId } })` with 404 on count===0, then a scoped re-fetch so success response bodies (`{ equipment }`, `{ item, hospitalId }`) stay byte-identical to the old `update()` payloads
+- onboard/route.ts searched: NO fallback pattern present (it uses `guard` and only touches `g.session.hospitalId ?? hospital.id` where hospital.id is the just-created hospital — intended onboarding semantics); left untouched
+- Now-dead `if (!hospitalId)` guards at patients/overview/analytics/messages (previously 404/400 on undefined) left in place per the no-other-changes rule; they are unreachable since hospitalId is now a non-optional string
+- Verify: rg 'hospital\.findFirst\(\)' src/app/api → ZERO matches (helper's internal one lives in src/lib/nx/api.ts; src/lib/hospital-context.ts left for the other agent); npx tsc --noEmit → 0 errors (not even the stale .next/types one); bun run lint → 0 errors; npx vitest run → 268/268 (21 files)
+
+Stage Summary:
+- Production sessions without a hospital claim now fail closed with 403 no_hospital_context on every hospital-scoped nx route instead of silently binding to the first hospital's data; DEMO_MODE keeps the documented single-hospital fallback
+- 16 files, +98/-29 lines, no response-shape or transaction changes; supply PATCH is now tenant-scoped end-to-end (fetch, write, audit)
+

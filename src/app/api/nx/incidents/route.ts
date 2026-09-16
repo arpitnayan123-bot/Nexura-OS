@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireHospitalContext } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 
@@ -10,7 +11,9 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   const gate = await requireModule(req, "incidents");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
-  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(gate.session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
@@ -34,7 +37,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const gate = await requireModule(req, "incidents");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
-  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(gate.session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
   const body = await req.json().catch(() => ({}));
   if (!body.title) return NextResponse.json({ error: "missing_title" }, { status: 400 });
 

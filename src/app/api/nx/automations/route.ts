@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireHospitalContext } from "@/lib/nx/api";
 import { requireModule, permsForSession, hasPermission } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
 import { fire, type NxTrigger } from "@/lib/nx/automations";
@@ -13,7 +14,9 @@ const TRIGGERS: NxTrigger[] = ["result.critical", "discharge.confirmed", "bed.re
 export async function GET(req: NextRequest) {
   const gate = await requireModule(req, "automations");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
-  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(gate.session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
 
   const [rules, runs] = await Promise.all([
     db.nxAutomationRule.findMany({ where: { hospitalId }, orderBy: { createdAt: "asc" } }),
@@ -71,7 +74,9 @@ export async function POST(req: NextRequest) {
   if (!["admin", "command"].includes(gate.session.role)) {
     return NextResponse.json({ error: "admin_only", detail: "Test execution requires elevated role" }, { status: 403 });
   }
-  const hospitalId = gate.session.hospitalId || (await db.hospital.findFirst())?.id;
+  const hospitalCtx = await requireHospitalContext(gate.session);
+  if ("response" in hospitalCtx) return hospitalCtx.response;
+  const hospitalId = hospitalCtx.hospitalId;
   const body = await req.json().catch(() => ({}));
   const trigger = TRIGGERS.includes(body.trigger as NxTrigger) ? (body.trigger as NxTrigger) : null;
   if (!trigger) return NextResponse.json({ error: "unknown_trigger" }, { status: 400 });
