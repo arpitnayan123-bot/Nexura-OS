@@ -290,3 +290,19 @@ Stage Summary:
 - The last data-engineering gap from the 20-phase report is closed: money is integer paise everywhere, computation is exact, the wire/UI contract is unchanged, and the doc set no longer contradicts itself (KNOWN_LIMITATIONS "integer paise; no floats" now literally true)
 - Two bonus hardening fixes landed with the migration: day-closing mass-assignment hole closed, supplier payment + paidAmount increment made atomic, e-way bill threshold unit bug fixed
 - Honest residuals: tourism display money still Float (documented); NxInsuranceContract Int change is zero-usage schema alignment
+
+---
+Task ID: lock-2
+Agent: main (Super Z)
+Task: Merge money-paise-1 to main, re-verify all gates, commit and lock
+
+Work Log:
+- main already carried the migration tip 73c03e9 (platform auto-commit kept main in sync); verified ancestry: e28dfa5 (hardening lock) + be5718f (env-example) + money-paise-1 tip all present; merge no-op, tree clean
+- Platform had re-injected the stale packaged DATABASE_URL (file:custom.db) into the session shell, overriding the correct .env (documented env-precedence trap) — re-sourced .env; Postgres + Redis datastores untouched and healthy
+- Full gate re-run on main @ 73c03e9: prisma validate OK; tsc 0; eslint 0; vitest 280/280 (22 files); api smoke 46/46; scripts/deploy-preview.sh DEPLOY VERIFIED
+- Excluded collaborator surfaces still untouched: portal/auth OTP route, payment/billing-gateway integrations
+- Appended this entry and created annotated tag money-paise-locked-final at the lock commit
+
+Stage Summary:
+- Integer-paise money migration is merged, gate-verified green on main, and locked under tag money-paise-locked-final — the tree that passes all six gates and the live end-to-end sale proof is immutably addressable
+- Honest residual (unchanged): tourism marketing money still Float (public-site display only); AI cost/token accounting is the next deferred item
