@@ -368,3 +368,18 @@ Work Log:
 Stage Summary:
 - The consent self-service UI deferred item is closed: patients can now see and exercise their DPDP rights directly — and revocation is enforced end-to-end (portal → NxConsent ledger → AI governance 403), which was silently broken before
 - Remaining deferred items: per-instance withRoute default limiter (distributed), per-request user-identity attribution on AiUsageLog rows, tourism Float display money
+
+---
+Task ID: consent-lock-1
+Agent: main (Super Z)
+Task: Lock consent self-service work — fresh full-gate re-run at main b7e6766 + lock tag consent-selfservice-locked-final
+
+Work Log:
+- Verified merge completeness first: platform auto-checkpoint 6888162 had captured src/app/api/portal/consent/route.ts (132 ln), src/lib/consent.ts (99 ln) and the ai-governance latest-event-wins fix; b7e6766 carried the UI tab, unit tests, smoke check, docs, worklog — nothing stranded, collaborator surfaces (portal/auth, payment/billing-gateway) untouched
+- Fresh full-gate re-run at main b7e6766 (honesty rule: verify before tagging): prisma validate OK; tsc 0; eslint 0; vitest 302/302 (24 files); smoke 49/49 (live server, incl. new portal-consent-no-session 401 check); deploy-preview DEPLOY VERIFIED
+- Confirmed lock sequence lock-1 (hardening e28dfa5) → lock-2 (money ee94cba) → this is lock-3
+
+Stage Summary:
+- Consent self-service is locked: patients exercise DPDP rights end-to-end (portal → append-only NxConsent ledger → AI governance 403 on revoke) and revocation is real (latest-event-wins)
+- Tag consent-selfservice-locked-final pins the full tree state incl. AI cost/token metering (ancestor 59cbca3)
+- Remaining deferred items: per-instance withRoute default limiter (distributed), per-request user-identity attribution on AiUsageLog rows, tourism Float display money
