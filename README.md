@@ -23,7 +23,11 @@ Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-cen
 
   <br/>
 
-  [The demo](#the-demo--a-30-second-tour) · [Products](#the-products) · [Platform](#the-platform-layer-shared-by-every-product) · [Backend](#the-backend--whats-actually-implemented) · [Quick start](#quick-start) · [Quality gates](#quality-gates--the-lock-chain) · [Docs](#documentation) · [Contributing](#contributing)
+  [The demo](#the-demo--a-30-second-tour) · [Products](#the-products) · [Platform](#the-platform-layer-shared-by-every-product) · [Backend](#the-backend--whats-actually-implemented) · [Quick start](#quick-start) · [Ship it](#ship-your-own-instance) · [Quality gates](#quality-gates--the-lock-chain) · [Docs](#documentation) · [Contributing](#contributing)
+
+  <br/>
+
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Farpitnayan123-bot%2FNexura-OS&env=DATABASE_URL%2CJWT_SECRET%2CREDIS_URL&project-name=nexura-os&repository-name=Nexura-OS"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="40" /></a>&nbsp;&nbsp;<a href="#2--docker-one-command"><img src="https://img.shields.io/badge/Docker-compose%20up%20--build-2496ED?logo=docker&logoColor=white" alt="Docker compose" height="28" /></a>&nbsp;&nbsp;<a href="#ship-your-own-instance"><img src="https://img.shields.io/badge/self--host-standalone%20build-2EA043" alt="Self-host" height="28" /></a>
 
 </div>
 
@@ -44,6 +48,7 @@ Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-cen
 - [The platform layer](#the-platform-layer-shared-by-every-product) — auth, RBAC, AI governance, money integrity, real-time
 - [The backend — what's actually implemented](#the-backend--whats-actually-implemented)
 - [Quick start](#quick-start) (demo credentials included)
+- [Ship your own instance](#ship-your-own-instance) — Vercel one-click · Docker · any PaaS
 - [Quality gates & the lock chain](#quality-gates--the-lock-chain)
 - [Documentation](#documentation)
 - [Repository layout](#repository-layout)
@@ -215,6 +220,45 @@ npm run dev                 # http://localhost:3000
 **Demo sign-in:** open `/hospital` → "Explore demo roles" fills credentials → Sign in.
 All accounts use password `Demo@12345`; legacy staff-code + PIN `2468` also works.
 Full list: [docs/DEMO_CREDENTIALS.md](docs/DEMO_CREDENTIALS.md).
+
+## Ship your own instance
+
+Three supported paths — all running the same code, all gated by the same boot check. The production boot gate (`assertProductionEnv`, wired from `src/instrumentation.ts`) refuses to serve unless `DATABASE_URL`, `JWT_SECRET` and `REDIS_URL` are present and well-formed. That is deliberate: a healthcare platform should never silently boot half-configured. Builds, by contrast, need **no secrets at all** — `next build` completes with every variable masked, verified.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Farpitnayan123-bot%2FNexura-OS&env=DATABASE_URL%2CJWT_SECRET%2CREDIS_URL&project-name=nexura-os&repository-name=Nexura-OS)
+
+### 1 · Vercel (one click)
+
+The button forks the repo into your workspace and prompts for the three variables. Pair it with a hosted Postgres (Neon, Vercel Postgres or Supabase) and Upstash Redis — both available from the Vercel **Storage** tab. Vercel auto-detects **bun** from `bun.lock` and runs `prisma generate` + `next build` (see `vercel.json`: `bom1` region, 60s function budget). One step from your machine initializes the database schema:
+
+```bash
+DATABASE_URL="postgresql://…your-neon-or-vercel-pg-url…" npx prisma migrate deploy
+DATABASE_URL="…same url…" npm run seed:demo        # optional — 21 demo staff, patients, MAR, billing
+```
+
+Sign in at `https://your-deployment.vercel.app/hospital` → "Explore demo roles".
+
+### 2 · Docker (one command)
+
+The stack pairs the app (multi-stage image, non-root, healthchecked) with Postgres 17 and Redis 7 and a persistent `pg-data` volume:
+
+```bash
+docker compose up --build -d
+docker compose exec app npx prisma migrate deploy          # apply schema inside the container
+DATABASE_URL=postgresql://nexura:nexura-local-only@localhost:5432/nexura npm run seed:demo
+```
+
+### 3 · Any PaaS / self-host
+
+`npm run build` (platform-neutral: prisma generate + next build) or `npm run build:standalone` (self-host packaging: static + public copied into `.next/standalone`), then `npx prisma migrate deploy` as a release-gate step. Rollback, backups and the deployment checklist live in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) and [docs/DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md).
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `DATABASE_URL` | **yes** | Postgres 17 — Neon / Vercel Postgres / Supabase / your own. Accepted schemes: `postgres://`, `postgresql://`, `prisma+postgres://` (pgbouncer) |
+| `JWT_SECRET` | **yes** | `openssl rand -hex 32` (≥ 16 chars). Runtime-only — never used at build time |
+| `REDIS_URL` | **yes** | Distributed rate limiting (`nx:rl:*`), SSE event bus (`nx:bus`), sync leases. Upstash works |
+| `DEMO_MODE` | no | Demo affordances: synthetic ABDM lookup, demo OTP code, demo quick-login. Secure default `false` — never enable on real patient data |
+| `EMAIL_TRANSPORT` | no | `console` (prints OTP/reset links to server log — demo default) or `smtp` (real mail via nodemailer) |
 
 ## Quality gates & the lock chain
 
