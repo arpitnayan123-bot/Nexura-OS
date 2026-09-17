@@ -84,7 +84,9 @@ jobs:
 
       - name: Boot dev server + API smoke suite
         run: |
-          bun run dev &
+          # dev:real = plain `next dev` — the default `dev` guardian wrapper
+          # hardcodes the local sandbox path and cannot run on CI runners.
+          bun run dev:real &
           for i in $(seq 1 60); do
             code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health --max-time 5 || true)
             [ "$code" = "200" ] && break
