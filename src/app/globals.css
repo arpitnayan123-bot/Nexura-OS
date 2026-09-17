@@ -1802,6 +1802,13 @@ html.nx-force-visible [style*="opacity:0"] {
   background: var(--champagne);
 }
 
+/* a11y (contrast): on dark experience roots the gold eyebrow must reach 4.5:1
+   (#a16207 measured 3.79:1 on #141210 — lifted to #b07b2e = 5.09:1) */
+.nxc-root .eyebrow,
+.nxt-root .eyebrow {
+  color: #b07b2e;
+}
+
 /* ---------- surfaces ---------- */
 
 /* Liquid Glass — the skill's primary style, refined */
@@ -1915,10 +1922,13 @@ html.nx-force-visible [style*="opacity:0"] {
   justify-content: center;
   gap: 0.5rem;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold) 45%, #C08A2D 78%, var(--champagne) 110%);
-  color: #FFFDF6;
-  border: 1px solid oklch(1 0 0 / 0.16);
-  text-shadow: 0 1px 1px oklch(0.4 0.08 70 / 0.25);
+  background: linear-gradient(135deg, #B07B2E 0%, #C08A2D 45%, #D9B87C 78%, #E8CB92 110%);
+  /* a11y: dark editorial ink on champagne — every gradient stop ≥ 4.7:1
+     (white text failed mid-gradient at 3.25:1; dark ink matches the
+     product console's own dark-on-gold CTA language) */
+  color: #1F1A14;
+  border: 1px solid oklch(0.35 0.06 70 / 0.22);
+  text-shadow: 0 1px 1px oklch(1 0 0 / 0.35);
   box-shadow:
     inset 0 1px 0 0 oklch(1 0 0 / 0.28),
     0 8px 22px -8px oklch(0.62 0.12 75 / 0.55);

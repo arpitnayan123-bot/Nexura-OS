@@ -41,7 +41,7 @@ export function CreditsFooter() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15, duration: 0.5 }}
-              className="flex items-center gap-1 text-[0.65rem] text-[#4B5563]"
+              className="flex items-center gap-1 text-[0.65rem] text-[#7D848E]"
             >
               {c.text}
               {c.link && <ExternalLink className="inline h-2.5 w-2.5 opacity-40" />}
@@ -71,7 +71,7 @@ export function CreditsFooter() {
             >
               Nexura AI
             </motion.span>{" "}
-            <a href="https://nexuraai.in" target="_blank" rel="noreferrer" className="text-[#F59E0B]/60 underline hover:text-[#F59E0B]">
+            <a href="https://nexuraai.in" target="_blank" rel="noreferrer" className="text-[#A3762A] underline hover:text-[#E8B04B]">
               (nexuraai.in)
             </a>
           </p>
