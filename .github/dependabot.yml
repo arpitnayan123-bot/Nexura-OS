@@ -1,20 +1,9 @@
 version: 2
 updates:
-  # Production + build dependencies
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
-    groups:
-      minor-and-patch:
-        applies-to: version-updates
-        update-types:
-          - "minor"
-          - "patch"
-
-  # GitHub Actions
+  # NOTE: the npm ecosystem is deliberately NOT enabled here. Dependabot
+  # resolves npm updates into package-lock.json and cannot regenerate
+  # bun.lock, so every npm PR fails `bun install --frozen-lockfile` in CI.
+  # Dependency updates are done manually: `bun update` + the full gate chain.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
