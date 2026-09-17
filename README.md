@@ -9,6 +9,21 @@ Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-cen
 </div>
 
 <div align="center">
+
+  [![CI](https://github.com/arpitnayan123-bot/Nexura-OS/actions/workflows/ci.yml/badge.svg)](https://github.com/arpitnayan123-bot/Nexura-OS/actions/workflows/ci.yml)
+  ![Tests](https://img.shields.io/badge/tests-345%20passing-2EA043?logo=vitest&logoColor=white)
+  ![API routes](https://img.shields.io/badge/API%20routes-189-0969DA)
+  ![Data models](https://img.shields.io/badge/Prisma%20models-165-444DB4?logo=prisma&logoColor=white)
+  ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+  ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)
+  ![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-0969DA.svg)](LICENSE)
+  [![PRs welcome](https://img.shields.io/badge/PRs-welcome-2EA043.svg)](#contributing)
+
+</div>
+
+<div align="center">
   <img src="docs/screenshots/homepage.png" alt="Nexura OS homepage — A calmer operating system for your health" width="840" />
 </div>
 
@@ -17,6 +32,29 @@ Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-cen
 > **Evaluating the codebase?** Start with [PRODUCTION_STATUS.md](PRODUCTION_STATUS.md) — the current, single source of truth on production readiness.
 
 ---
+
+## Table of contents
+
+- [The demo — a 30-second tour](#the-demo--a-30-second-tour)
+- [The products](#the-products) — Hospital OS · Clinic · Pharmacia · Portal · Know Your Health · Global · Connect · consumer surfaces
+- [The platform layer](#the-platform-layer-shared-by-every-product) — auth, RBAC, AI governance, money integrity, real-time
+- [The backend — what's actually implemented](#the-backend--whats-actually-implemented)
+- [Quick start](#quick-start) (demo credentials included)
+- [Quality gates & the lock chain](#quality-gates--the-lock-chain)
+- [Documentation](#documentation)
+- [Repository layout](#repository-layout)
+- [Compliance posture](#compliance-posture-read-this)
+- [Contributing](#contributing) · [Contributors](#contributors) · [License](#license)
+
+---
+
+## The demo — a 30-second tour
+
+Nine products, one platform. No mockups — every frame below is a live route in this repo.
+
+<div align="center">
+  <img src="docs/screenshots/nexura-demo.gif" alt="Nexura OS product tour: homepage, Hospital OS command center, patient records, clinic, pharmacy inventory, patient portal, Know Your Health, Global, Connect" width="840" />
+</div>
 
 ## The Products
 
@@ -232,4 +270,40 @@ docs/               the full documentation set (table above) + screenshots/
 
 This codebase implements **technical controls** — auditability, access control, encryption in transit (TLS at the hosting layer), lockout, session revocation, immutability of signed records, DPDP consent self-service with enforced revocation, integer money integrity, AI usage attribution. It does **NOT** by itself make you HIPAA/ABHA/GDPR/DPDP-compliant: organizational policies, BAAs, formal risk assessments, hosting controls and certification remain your responsibility. See [docs/SECURITY.md](docs/SECURITY.md) and [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md).
 
-AI cost figures are **accounting estimates from a local price table**, not provider bills; identity attribution is per request, not per human (shared logins share identity). The system states what it knows and labels everything else honestly.
+## Contributing
+
+PRs are welcome — especially on the honest-boundary integrations listed in [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md) (ABDM/ABHA registry, IRP e-invoicing, SMS/WhatsApp OTP providers).
+
+1. Fork → branch from `main`
+2. `cp .env.example .env` and run the [quick start](#quick-start)
+3. Keep the gates green: `npm run typecheck && npm run lint && npm run test`
+4. New API surface? Add a smoke check in `tests/api-smoke.sh` — CI enforces the full chain (typecheck · lint · migrations · 345 unit tests against real Postgres + Redis · 49-check smoke · standalone build)
+5. Open the PR — the [CI workflow](.github/workflows/ci.yml) runs the whole gate chain on every push
+
+Good first issues: documentation gaps, seed-data richness, accessibility passes on consumer surfaces.
+
+## Contributors
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/arpitnayan123-bot">
+        <img src="https://avatars.githubusercontent.com/u/281837164?v=4" width="84" alt="arpitnayan123-bot" style="border-radius: 50%;"/><br/>
+        <sub><b>arpitnayan123-bot</b></sub><br/>
+        <sub>creator & maintainer</sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+[![GitHub contributors](https://img.shields.io/github/contributors/arpitnayan123-bot/Nexura-OS?label=contributors)](https://github.com/arpitnayan123-bot/Nexura-OS/graphs/contributors)
+[![GitHub stars](https://img.shields.io/github/stars/arpitnayan123-bot/Nexura-OS?label=stars&logo=github)](https://github.com/arpitnayan123-bot/Nexura-OS/stargazers)
+
+## License
+
+Released under the [MIT License](LICENSE) — with a healthcare notice: the code implements technical controls, but compliance certifications (HIPAA / GDPR / DPDP / ABDM) remain the operator's responsibility. See [docs/SECURITY.md](docs/SECURITY.md).
+
+<div align="center">
+  <sub><b>Nexura OS</b> — a calmer operating system for your health.<br/>
+  <a href="#nexura-os--multi-product-healthcare-platform">back to top ↑</a></sub>
+</div>

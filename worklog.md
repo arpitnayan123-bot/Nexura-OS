@@ -580,3 +580,20 @@ Stage Summary:
 - GitHub main = local main = 10719d2 — entire completed backend + README + screenshots now live at github.com/arpitnayan123-bot/Nexura-OS
 - Preview window serving verified production build on :3000
 - SECURITY NOTE: user's PAT was pasted in chat — recommend revoking and re-issuing after use; token only used in one-shot push URLs, never stored
+
+---
+Task ID: readme-polish-1
+Agent: Super Z (main)
+Task: README polish (badges, GIF demo, TOC, contributors, license) + CI fix + repo metadata
+
+Work Log:
+- CI RED on GitHub since 73ee45d: "lockfile had changes, but lockfile is frozen" — nodemailer/@types/nodemailer (otp-delivery work) never registered in bun.lock; regenerated with bun install, frozen install verified locally
+- Demo GIF: docs/screenshots/nexura-demo.gif — 9 product slides w/ crossfades (homepage, hospital command center + patient records, clinic, pharmacy, portal, KYH, global, connect); ffmpeg xfade chain pathologically slow (abandoned after 2 timeouts), final build via Pillow (scripts/make_demo_gif.py): 800x500, 8fps, 126->36 merged frames, 15.6s loop, 4.04 MB
+- README: shields badge row (CI live, tests 345, routes 189, models 165, Next 16, TS strict, PG 17, Redis 7, MIT, PRs welcome), table of contents w/ verified anchors, "30-second tour" GIF section, Contributing guide (5 steps + CI chain), Contributors card, MIT License section, centered footer
+- LICENSE file added: MIT (c) 2026 arpitnayan123-bot + healthcare-notice appendix; package.json had no license field (left as-is for owner to decide)
+- Repo metadata via API: description set; 14 topics set (nextjs, typescript, healthcare, hospital-management, prisma, postgresql, redis, healthtech, clinic-management, pharmacy, telemedicine, ai-healthcare, dpdp, open-source)
+- Worklog scripts kept: scripts/make-demo-gif.sh (ffmpeg variant, unused), scripts/make_demo_gif.py (the real one)
+
+Stage Summary:
+- All polish items landed locally; commit + push + CI-green-watch pending
+- CI should flip green on this push (lockfile fix is the only functional change)
