@@ -1,7 +1,7 @@
 // vitals-verify.mjs — interactive verification of /vitals
 import { chromium } from "playwright";
 
-const exe = "/home/z/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome";
+const exe = "/home/z/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome";
 const browser = await chromium.launch({ executablePath: exe, headless: true });
 const errors = [];
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
