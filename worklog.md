@@ -617,3 +617,20 @@ Stage Summary:
 - CI fully green on GitHub Actions for the first time in repo history (was red since 73ee45d, root causes stacked behind the original lockfile failure)
 - README polish live: badges (CI badge now green), 4MB animated GIF tour, TOC, contributing/contributors/license, MIT LICENSE file
 - Commits pushed: 1ced2b1 (polish+lockfile), ebee4b5, 7deedd8, c6856b5, 6f1e0ae (CI chain)
+
+---
+Task ID: premium-upgrade-1
+Agent: Super Z (main)
+Task: Premium README hero + social preview image, deploy to GitHub
+
+Work Log:
+- Extracted design tokens from nx-os.css: void oklch(0.152 0.011 60), accent oklch(0.825 0.115 82), Fraunces display + Plus Jakarta Sans + JetBrains Mono
+- Built scripts/hero-banner.html — keynote-style banner: Fraunces 88px headline w/ italic gold accent, layered product windows (homepage + clinic) w/ macOS chrome + deep shadows, stat chips (189/165/345/15), mono footer, film grain + radial gold glow
+- Rendered via Playwright chromium (scripts/render_banner.js, explicit executablePath chromium-1234): hero-banner.png 1600x900 @2x (3.0MB), social-preview.png 1280x640 @2x (2.2MB)
+- README: hero-banner replaces raw homepage screenshot as top hero; nav row added under badges; collapsible <details> block with homepage-full.png scroll
+- Social preview upload via API (octet-stream + multipart PUT /social-preview) → 404 both: feature is web-UI-only; social-preview.png shipped in repo for manual 2-click upload
+- Pushed 6f1e0ae..9d61d43; local synced
+
+Stage Summary:
+- Premium hero live on GitHub README; social card asset ready at docs/screenshots/social-preview.png (user uploads in Settings → General → Social preview)
+- All work green (CI was already green; this push triggers a fresh run — README/scripts only, no runtime code)
