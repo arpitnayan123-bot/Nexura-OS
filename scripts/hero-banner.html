@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,560;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: oklch(0.152 0.011 60);
+    --panel: oklch(0.205 0.013 58 / 0.86);
+    --ink: oklch(0.945 0.008 85);
+    --ink-2: oklch(0.800 0.011 75);
+    --ink-3: oklch(0.610 0.012 70);
+    --gold: oklch(0.825 0.115 82);
+    --hairline: oklch(0.945 0.008 85 / 0.13);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--void); }
+  .stage {
+    position: relative; width: 1600px; height: 900px; overflow: hidden;
+    background:
+      radial-gradient(1100px 620px at 82% -10%, oklch(0.825 0.115 82 / 0.10), transparent 62%),
+      radial-gradient(900px 700px at -8% 110%, oklch(0.62 0.06 60 / 0.12), transparent 60%),
+      var(--void);
+    font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    color: var(--ink);
+  }
+  /* film grain, matching the product's noise texture */
+  .grain {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .frame { position: absolute; inset: 26px; border: 1px solid var(--hairline); border-radius: 22px; }
+  header {
+    position: absolute; top: 66px; left: 92px; right: 92px;
+    display: flex; align-items: center; gap: 18px;
+    font-family: "JetBrains Mono", monospace; font-size: 15px; letter-spacing: 0.34em;
+    color: var(--gold); text-transform: uppercase;
+  }
+  header .rule { flex: 0 0 64px; height: 1px; background: linear-gradient(90deg, var(--gold), transparent); }
+  header .site { margin-left: auto; color: var(--ink-3); letter-spacing: 0.22em; font-size: 13px; }
+  .left { position: absolute; left: 92px; top: 178px; width: 700px; }
+  h1 {
+    font-family: "Fraunces", Georgia, serif; font-weight: 560;
+    font-size: 88px; line-height: 1.04; letter-spacing: -0.022em;
+    color: var(--ink);
+  }
+  h1 .gold { color: var(--gold); font-style: italic; }
+  .sub {
+    margin-top: 34px; font-size: 25px; line-height: 1.55; font-weight: 400;
+    color: var(--ink-2); max-width: 620px;
+  }
+  .chips {
+    position: absolute; left: 92px; bottom: 96px;
+    display: flex; gap: 14px;
+  }
+  .chip {
+    font-family: "JetBrains Mono", monospace; font-size: 15.5px; letter-spacing: 0.10em;
+    color: var(--ink-2); padding: 13px 22px; border-radius: 999px;
+    border: 1px solid var(--hairline); background: oklch(0.205 0.013 58 / 0.55);
+  }
+  .chip b { color: var(--gold); font-weight: 500; }
+  .win { position: absolute; border-radius: 16px; overflow: hidden; border: 1px solid var(--hairline);
+    box-shadow: 0 60px 120px oklch(0 0 0 / 0.55), 0 24px 48px oklch(0 0 0 / 0.45); background: var(--panel); }
+  .win .bar { height: 38px; display: flex; align-items: center; gap: 8px; padding: 0 16px;
+    background: oklch(0.24 0.014 58 / 0.9); border-bottom: 1px solid var(--hairline); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .win img { display: block; width: 100%; }
+  .win-front { right: 74px; top: 208px; width: 660px; transform: rotate(-1.6deg); z-index: 3; }
+  .win-back { right: 26px; top: 148px; width: 520px; transform: rotate(2.4deg); z-index: 2; opacity: 0.92; }
+  footer {
+    position: absolute; bottom: 44px; left: 92px; right: 92px;
+    display: flex; justify-content: space-between;
+    font-family: "JetBrains Mono", monospace; font-size: 13.5px; letter-spacing: 0.18em;
+    color: var(--ink-3); text-transform: uppercase;
+  }
+  footer .gold { color: var(--gold); }
+
+  /* ------- social variant (1280×640) ------- */
+  body.social .stage { width: 1280px; height: 640px; }
+  body.social header { top: 44px; left: 64px; right: 64px; font-size: 13px; }
+  body.social .left { left: 64px; top: 122px; width: 600px; }
+  body.social h1 { font-size: 62px; }
+  body.social .sub { margin-top: 22px; font-size: 19px; }
+  body.social .chips { left: 64px; bottom: 56px; gap: 10px; }
+  body.social .chip { font-size: 12.5px; padding: 10px 16px; }
+  body.social .win-front { right: 56px; top: 128px; width: 470px; }
+  body.social .win-back { right: 18px; top: 92px; width: 360px; }
+  body.social footer { bottom: 26px; left: 64px; right: 64px; font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="grain"></div>
+  <div class="frame"></div>
+  <header>
+    Nexura <span class="rule"></span> Os
+    <span class="site">Healthcare · Platform · OS</span>
+  </header>
+  <div class="left">
+    <h1>A calmer operating<br>system for <span class="gold">your&nbsp;health.</span></h1>
+    <p class="sub">Seven staff-facing products, eight consumer surfaces and one honest, auditable platform — hospital command center to pharmacy to patient portal.</p>
+  </div>
+  <div class="win win-back">
+    <div class="bar">
+      <div class="dot" style="background:oklch(0.65 0.18 25)"></div>
+      <div class="dot" style="background:oklch(0.80 0.14 85)"></div>
+      <div class="dot" style="background:oklch(0.72 0.15 150)"></div>
+    </div>
+    <img src="/home/z/my-project/docs/screenshots/clinic.png" alt="">
+  </div>
+  <div class="win win-front">
+    <div class="bar">
+      <div class="dot" style="background:oklch(0.65 0.18 25)"></div>
+      <div class="dot" style="background:oklch(0.80 0.14 85)"></div>
+      <div class="dot" style="background:oklch(0.72 0.15 150)"></div>
+    </div>
+    <img src="/home/z/my-project/docs/screenshots/homepage.png" alt="">
+  </div>
+  <div class="chips">
+    <div class="chip"><b>189</b> API routes</div>
+    <div class="chip"><b>165</b> Postgres models</div>
+    <div class="chip"><b>345</b> tests</div>
+    <div class="chip"><b>15</b> surfaces</div>
+  </div>
+  <footer>
+    <span>Nexura OS — open source · MIT</span>
+    <span class="gold">github.com/arpitnayan123-bot/Nexura-OS</span>
+  </footer>
+</div>
+<script>
+  if (location.search.includes("social")) document.body.classList.add("social");
+</script>
+</body>
+</html>
