@@ -73,12 +73,14 @@ jobs:
       - name: Apply migrations (release gate)
         run: bunx prisma migrate deploy
 
+      - name: Seed demo database (idempotent)
+        # Real-DB unit tests (consent ledger, permissions, money) are authored
+        # against the seeded demo dataset — same reality as local dev. The seed
+        # is idempotent, so the later smoke-suite stage reuses this state.
+        run: bun run seed:all
+
       - name: Unit tests (against Postgres + Redis services)
         run: bun run test
-
-      - name: Prepare demo database (full seed chain)
-        run: |
-          bun run seed:all
 
       - name: Boot dev server + API smoke suite
         run: |
