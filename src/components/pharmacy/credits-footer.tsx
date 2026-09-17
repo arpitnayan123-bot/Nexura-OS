@@ -62,7 +62,7 @@ export function CreditsFooter() {
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             className="h-2 w-2 rounded-full bg-[#F59E0B]"
           />
-          <p className="text-xs font-medium text-[#6B7280]">
+          <p className="text-xs font-medium text-[#828894]">
             Nexura Pharmacia — Built in India for Indian Pharmacies — by{" "}
             <motion.span
               animate={{ color: ["#6B7280", "#F59E0B", "#6B7280"] }}

@@ -28,7 +28,7 @@ const PharmaciaApp = dynamic(
           </span>
           <div className="flex flex-col items-center gap-2">
             <p className="font-serif text-lg font-semibold tracking-tight text-white">Nexura Pharmacia</p>
-            <p className="text-[0.6rem] uppercase tracking-[0.25em] text-[#6B7280]">Preparing your counter</p>
+            <p className="text-[0.6rem] uppercase tracking-[0.25em] text-[#828894]">Preparing your counter</p>
           </div>
           {/* fine gold shimmer bar */}
           <div className="h-px w-40 overflow-hidden rounded-full bg-[#1E2228]" aria-hidden="true">

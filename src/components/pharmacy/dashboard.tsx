@@ -602,7 +602,7 @@ export function PharmacyDashboard() {
                         >
                           <td className="py-2.5 pr-2">
                             <p className="font-medium leading-tight">{it.name}</p>
-                            <p className="text-[0.65rem] text-muted-foreground">
+                            <p className="text-[0.65rem] text-[#828894]">
                               {it.genericName} · {it.batchNo}
                             </p>
                           </td>
@@ -671,7 +671,7 @@ export function PharmacyDashboard() {
             {/* checkout row */}
             <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-3">
-                <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <label className="flex items-center gap-1.5 text-xs text-[#828894]">
                   Disc %
                   <input
                     type="number"
@@ -766,7 +766,7 @@ export function PharmacyDashboard() {
                 <div key={p.id} className="flex items-center justify-between rounded-lg bg-muted/40 px-2.5 py-1.5">
                   <div className="min-w-0">
                     <p className="truncate text-xs font-medium">{p.name}</p>
-                    <p className="text-[0.6rem] text-muted-foreground">{p.genericName}</p>
+                    <p className="text-[0.6rem] text-[#828894]">{p.genericName}</p>
                   </div>
                   <div className="ml-2 text-right">
                     <p className="text-xs font-semibold text-destructive">{p.stockStrips}</p>
@@ -989,9 +989,9 @@ function HelpModal({ open, onClose }: { open: boolean; onClose: () => void }) {
             className="w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-2xl"
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="flex items-center gap-2 font-display font-semibold">
+              <h2 className="flex items-center gap-2 font-display font-semibold">
                 <Keyboard className="h-4 w-4 text-primary" /> Keyboard shortcuts
-              </h3>
+              </h2>
               <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full hover:bg-accent">
                 <X className="h-4 w-4" />
               </button>

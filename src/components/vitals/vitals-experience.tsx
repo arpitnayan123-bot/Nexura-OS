@@ -290,7 +290,7 @@ export function VitalsExperience() {
   const stress = series(88, 30, 32, 10);
 
   return (
-    <div className="nxt-root relative min-h-dvh bg-[#141210] text-[#EFE7D3]" role="main">
+    <div className="nxt-root relative min-h-dvh bg-[#141210] text-[#EFE7D3]">
       <ScrollProgress />
 
       {/* hero */}
@@ -335,6 +335,8 @@ export function VitalsExperience() {
           </motion.div>
         </div>
       </header>
+
+      <main>
 
       {/* dashboard */}
       <section className="relative px-6 pb-8" aria-labelledby="dash-heading">
@@ -417,6 +419,8 @@ export function VitalsExperience() {
           </div>
         </div>
       </section>
+
+      </main>
 
       <footer className="border-t border-[#241F16] px-6 py-10 text-center text-xs leading-relaxed text-[#8B8476]">
         Nexura Vitals is a demo experience with simulated device data. Wellness insights, not medical advice — always consult your physician.

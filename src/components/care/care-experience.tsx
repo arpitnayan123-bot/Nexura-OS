@@ -188,7 +188,7 @@ export function CareExperience() {
   const active = useMemo(() => MEMBERS.find((m) => m.id === activeId) ?? MEMBERS[0], [activeId]);
 
   return (
-    <div className="nxc-root relative min-h-dvh bg-[#141210] text-[#EFE7D3]" role="main">
+    <div className="nxc-root relative min-h-dvh bg-[#141210] text-[#EFE7D3]">
       <ScrollProgress />
 
       {/* hero */}
@@ -217,6 +217,8 @@ export function CareExperience() {
           </motion.p>
         </div>
       </header>
+
+      <main>
 
       {/* member switcher + dashboard */}
       <section className="relative px-6 pb-6" aria-labelledby="members-heading">
@@ -415,6 +417,8 @@ export function CareExperience() {
           </Link>
         </div>
       </section>
+
+      </main>
 
       <footer className="border-t border-[#241F16] px-6 py-10 text-center text-xs leading-relaxed text-[#8B8476]">
         Nexura Care Circle — demo family, simulated data. Consent tools reflect DPDP Act 2023 principles. A product of Nexura OS
