@@ -4,7 +4,7 @@
 
 ## Local development
 ```bash
-bun install && bun run db:push && bun run seed:demo && bun run dev
+bun install && bun run db:push && bun run seed:suite && bun run dev
 ```
 
 ## Production build

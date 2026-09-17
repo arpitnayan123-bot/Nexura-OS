@@ -33,7 +33,7 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     ports:
-      - "5432:5432"   # host access for seeding/inspection: npm run seed:demo with DATABASE_URL=postgresql://nexura:nexura-local-only@localhost:5432/nexura
+      - "5432:5432"   # host access for seeding/inspection: npm run seed:suite with DATABASE_URL=postgresql://nexura:nexura-local-only@localhost:5432/nexura
     environment:
       POSTGRES_USER: nexura
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nexura-local-only}

@@ -24,6 +24,7 @@
     "seed:nx": "bun scripts/seed-nx.ts",
     "seed:demo": "bun scripts/seed-nx-v4.ts",
     "seed:all": "bun run seed:hospital && bun run seed:nx && bun run seed:demo && bun run seed:v5",
+    "seed:suite": "bun run seed:all && bun scripts/seed-hospital-bootstrap.ts && bun scripts/legacy/seed-pharmacy.ts && bun scripts/seed-pharmacy-compliance.ts && bun scripts/seed-clinic-drugs.ts && bun scripts/legacy/seed-clinic.ts && bun scripts/seed-connect.ts && bun scripts/seed-portal.ts && bun scripts/seed-tourism.ts && bun scripts/seed-chronic.ts && bun scripts/seed-pie.ts",
     "typecheck": "tsc --noEmit",
     "db:migrate:deploy": "prisma migrate deploy",
     "seed:v5": "bun scripts/seed-nx-v5.ts"

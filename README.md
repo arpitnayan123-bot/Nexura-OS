@@ -96,7 +96,11 @@ A full hospital operating system: boot sequence, login, workspaces, window manag
 
 ### 🩺 Nexura Clinic
 
-Simple Clinic OS for outpatient practices — live queue, encounters, voice SOAP (AI), prescriptions, billing with integer GST math.
+Simple Clinic OS for outpatient practices — the whole practice on one screen.
+
+- **Today's Queue** — live appointment flow with status chips (done · no-show · waiting), per-doctor filters and one-tap consult start
+- **Encounters** — voice SOAP (AI) with draft→sign discipline, drug autocomplete with interaction guard, ABHA lookup (simulated outside demo mode)
+- **Also inside:** Prescriptions · Billing with integer-GST math (paise-exact) · public booking page · Reports · patients, appointments and pricing all on real API routes
 
 <div align="center">
   <img src="docs/screenshots/clinic.png" alt="Nexura Clinic — Dr. Rao Family Clinic with today's queue" width="840" />
@@ -104,7 +108,11 @@ Simple Clinic OS for outpatient practices — live queue, encounters, voice SOAP
 
 ### 💊 Nexura Pharmacia
 
-AI-Powered Pharmacy OS — POS/billing, stock & batch management, expiry and reorder guardrails, supplier payments with atomic settlement, voice billing, natural-language AI query over inventory, prescription OCR, online medicine orders, e-invoice (GST) payloads, Schedule-H / NPPA / CDSCO compliance tooling.
+AI-Powered Pharmacy OS — built for Indian pharmacies, not adapted to them.
+
+- **Billing-first POS** — voice billing, prescription OCR, GST e-invoice payloads; Schedule-H checks are applied at billing time, not audited after
+- **Inventory that thinks** — batch/expiry tracking with near-expiry warnings, reorder guardrails, natural-language AI query over stock, predictive analytics
+- **Also inside:** Purchases & supplier payments with atomic settlement · online medicine orders with Rx verification · Schedule-H / NPPA / CDSCO compliance register · curated India medicine reference (brand, salt, HSN) maintained in-platform
 
 <div align="center">
   <img src="docs/screenshots/pharmacy-inventory.png" alt="Nexura Pharmacia — inventory with batches, Schedule H badges, near-expiry warnings" width="840" />
@@ -198,7 +206,7 @@ Nothing on this list is "designed in chat" — it is code in the tree, running a
 cp .env.example .env        # fill in DATABASE_URL / JWT_SECRET / REDIS_URL
 npm install                 # deps (bun also works)
 npx prisma migrate deploy   # apply schema (PostgreSQL required)
-npm run seed:demo           # v4 demo dataset (21 staff, patients, MAR, billing, …)
+npm run seed:suite          # complete demo dataset — base hospital, staff, pharmacy, clinic, all surfaces
 npm run dev                 # http://localhost:3000
 ```
 
@@ -213,7 +221,7 @@ npm run dev                 # http://localhost:3000
 | `npm run test:e2e` | Playwright |
 | `npm run db:migrate` / `db:migrate:deploy` | Apply Prisma migrations |
 | `npm run db:generate` / `db:push` / `db:reset` | Client gen / schema push / reset |
-| `npm run seed:demo` / `seed:nx` / `seed:hospital` / `seed:all` | Demo seeds |
+| `npm run seed:demo` / `seed:nx` / `seed:hospital` / `seed:all` / `seed:suite` | Demo seeds (`seed:suite` = everything, fresh-DB safe) |
 | `npm run build` / `start` | Production build / start (`build:standalone` for Docker/self-host) |
 | `npm run smoke` | Smoke suite via scripts |
 
@@ -235,7 +243,7 @@ The button forks the repo into your workspace and prompts for the three variable
 
 ```bash
 DATABASE_URL="postgresql://…your-neon-or-vercel-pg-url…" npx prisma migrate deploy
-DATABASE_URL="…same url…" npm run seed:demo        # optional — 21 demo staff, patients, MAR, billing
+DATABASE_URL="…same url…" npm run seed:suite        # complete demo dataset — 21 staff, patients, pharmacy, clinic, all surfaces
 ```
 
 Sign in at `https://your-deployment.vercel.app/hospital` → "Explore demo roles".
@@ -247,7 +255,7 @@ The stack pairs the app (multi-stage image, non-root, healthchecked) with Postgr
 ```bash
 docker compose up --build -d
 docker compose exec app npx prisma migrate deploy          # apply schema inside the container
-DATABASE_URL=postgresql://nexura:nexura-local-only@localhost:5432/nexura npm run seed:demo
+DATABASE_URL=postgresql://nexura:nexura-local-only@localhost:5432/nexura npm run seed:suite
 ```
 
 ### 3 · Any PaaS / self-host
