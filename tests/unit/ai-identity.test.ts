@@ -13,7 +13,19 @@ import { db } from "@/lib/db";
  *  cleans up the rows it writes. */
 
 const TEST_CAPS = ["test.identity-a", "test.identity-b"];
-const flush = (ms = 250) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Poll until fire-and-forget ledger writes are visible — a fixed sleep races
+ * under CI load (write lands after the sleep → assertion on absent data).
+ */
+async function waitForLedger<T>(probe: () => Promise<T>, ok: (v: T) => boolean, timeoutMs = 8000): Promise<T> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const v = await probe();
+    if (ok(v) || Date.now() > deadline) return v;
+    await new Promise((r) => setTimeout(r, 50));
+  }
+}
 
 beforeEach(() => resetAiActor());
 
@@ -61,18 +73,23 @@ describe("recordAiUsage identity attribution", () => {
   it("captures the verified-session actor onto the ledger row", async () => {
     setAiActor({ userId: "user-attr-1", role: "doctor" });
     recordAiUsage(baseRow(TEST_CAPS[0]));
-    await flush();
-    const row = await db.aiUsageLog.findFirst({ where: { capability: TEST_CAPS[0], userId: "user-attr-1" } });
+    const row = await waitForLedger(
+      () => db.aiUsageLog.findFirst({ where: { capability: TEST_CAPS[0], userId: "user-attr-1" } }),
+      (r) => r !== null,
+    );
     expect(row).not.toBeNull();
     expect(row?.userRole).toBe("doctor");
   });
 
   it("leaves identity null when no session context exists (system/cron calls)", async () => {
     recordAiUsage(baseRow(TEST_CAPS[0]));
-    await flush();
-    const row = await db.aiUsageLog.findFirst({
-      where: { capability: TEST_CAPS[0], userId: null, costMicroUsd: 8, latencyMs: 12 },
-    });
+    const row = await waitForLedger(
+      () =>
+        db.aiUsageLog.findFirst({
+          where: { capability: TEST_CAPS[0], userId: null, costMicroUsd: 8, latencyMs: 12 },
+        }),
+      (r) => r !== null,
+    );
     expect(row).not.toBeNull();
     expect(row?.userId).toBeNull();
     expect(row?.userRole).toBeNull();
@@ -81,9 +98,12 @@ describe("recordAiUsage identity attribution", () => {
   it("explicit record identity wins over the ambient context", async () => {
     setAiActor({ userId: "ambient-user", role: "doctor" });
     recordAiUsage({ ...baseRow(TEST_CAPS[0]), userId: "explicit-user", userRole: "auditor" });
-    await flush();
-    const row = await db.aiUsageLog.findFirst({ where: { capability: TEST_CAPS[0], userId: "explicit-user" } });
+    const row = await waitForLedger(
+      () => db.aiUsageLog.findFirst({ where: { capability: TEST_CAPS[0], userId: "explicit-user" } }),
+      (r) => r !== null,
+    );
     expect(row?.userRole).toBe("auditor");
+    // the ambient actor must NOT have produced a row of its own
     const ambient = await db.aiUsageLog.findFirst({ where: { capability: TEST_CAPS[0], userId: "ambient-user" } });
     expect(ambient).toBeNull();
   });
@@ -95,9 +115,12 @@ describe("aiUsageSummary byUser rollup", () => {
     recordAiUsage({ ...baseRow(TEST_CAPS[1]), costMicroUsd: 1000, tokensTotal: 500 });
     recordAiUsage({ ...baseRow(TEST_CAPS[1]), costMicroUsd: 500, tokensTotal: 100 });
     recordAiUsage({ ...baseRow(TEST_CAPS[1]), userId: null, userRole: null, costMicroUsd: 777 }); // system row
-    await flush();
 
-    const s = await aiUsageSummary(30);
+    // all three writes must be in the rollup before asserting (poll, don't sleep)
+    const s = await waitForLedger(
+      () => aiUsageSummary(30),
+      (sum) => sum.byUser.some((b) => b.key === "user-attr-roll" && b.calls >= 2),
+    );
     const bucket = s.byUser.find((b) => b.key === "user-attr-roll");
     expect(bucket).toBeDefined();
     expect(bucket?.calls).toBe(2);

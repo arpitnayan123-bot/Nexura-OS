@@ -203,7 +203,9 @@ describe("aiUsageSummary rollup", () => {
     });
     const summary = await waitForLedger(
       () => aiUsageSummary(30),
-      (s) => s.byCapability.some((x) => x.key === "test.cap-b"),
+      // both rows must be IN the rollup before asserting on it — a predicate of
+      // mere presence races the second fire-and-forget write under CI load
+      (s) => s.byCapability.some((x) => x.key === "test.cap-b" && x.calls >= 2),
     );
     const b = summary.byCapability.find((x) => x.key === "test.cap-b")!;
     expect(b!.calls).toBe(2);
