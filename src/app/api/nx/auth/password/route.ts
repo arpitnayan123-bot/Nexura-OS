@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { verifyToken } from "@/lib/auth/jwt";
 import { audit } from "@/lib/nx/audit";
 import { fail, guard, ok, withRoute } from "@/lib/nx/api";
-import { env } from "@/lib/env";
+import { sendAuthEmail } from "@/lib/mailer";
 import { log } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -63,13 +63,18 @@ export const POST = withRoute("auth.password.reset.request", async (req: NextReq
     await db.nxPasswordResetToken.create({
       data: { userId: user.id, tokenHash: crypto.createHash("sha256").update(token).digest("hex"), expiresAt: new Date(Date.now() + 3600_000) },
     });
-    // EMAIL_TRANSPORT=console (default): the reset token is printed to console, not emailed.
-    // TODO(otp-delivery): replace with a real email provider. Until then raw console is
-    // intentionally the demo delivery channel (bypasses the redacting logger). The token
-    // must NEVER go into the structured log — it persists to server.log.
-    if (env().values.EMAIL_TRANSPORT === "console") {
+    // Delivery boundary (otp-delivery): console transport prints the same
+    // demo line as before; EMAIL_TRANSPORT=smtp sends the real mail. The
+    // token must NEVER go into the structured log — it persists to server.log.
+    const sent = await sendAuthEmail({
+      to: email,
+      subject: "password reset token",
+      text: `Your Nexura OS password reset token: ${token} (valid 60 minutes)`,
+    });
+    if (sent.transport === "console") {
       log.info("auth", "password_reset.issued", { to: email, expiresInMinutes: 60 });
-      console.log(`[DEMO EMAIL DELIVERY] password reset token for ${email}: ${token}`);
+    } else {
+      log.info("auth", "password_reset.issued", { to: email, expiresInMinutes: 60, delivered: sent.delivered });
     }
     await audit({ hospitalId: user.hospitalId, actorName: user.staffCode, actorRole: user.role, action: "auth.password.reset_requested", entityType: "nx_staff_user", entityId: user.id });
   }
