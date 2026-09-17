@@ -122,7 +122,10 @@ describe("order numbers", () => {
   });
 
   it("is effectively collision-free across a large batch", () => {
+    // 5000 draws from a 36^4 (≈1.68M) space: expected birthday collisions ≈ 7
+    // (σ ≈ 3), so unique ≈ 4992. A threshold of 4950 requires a ~7σ deviation
+    // to flake, while still failing hard on any systemic generator bug.
     const set = new Set(Array.from({ length: 5000 }, () => generateOrderNo(new Date(2026, 8, 19))));
-    expect(set.size).toBeGreaterThan(4990);
+    expect(set.size).toBeGreaterThan(4950);
   });
 });
