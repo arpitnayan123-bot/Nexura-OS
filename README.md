@@ -21,10 +21,14 @@ Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-cen
   [![License: MIT](https://img.shields.io/badge/License-MIT-0969DA.svg)](LICENSE)
   [![PRs welcome](https://img.shields.io/badge/PRs-welcome-2EA043.svg)](#contributing)
 
+  <br/>
+
+  [The demo](#the-demo--a-30-second-tour) · [Products](#the-products) · [Platform](#the-platform-layer-shared-by-every-product) · [Backend](#the-backend--whats-actually-implemented) · [Quick start](#quick-start) · [Quality gates](#quality-gates--the-lock-chain) · [Docs](#documentation) · [Contributing](#contributing)
+
 </div>
 
 <div align="center">
-  <img src="docs/screenshots/homepage.png" alt="Nexura OS homepage — A calmer operating system for your health" width="840" />
+  <img src="docs/screenshots/hero-banner.png" alt="Nexura OS — a calmer operating system for your health. 189 API routes, 165 Postgres models, 345 tests, 15 surfaces." width="100%" />
 </div>
 
 **Stack:** Next.js 16 (App Router, Turbopack) · TypeScript (strict, zero suppressions) · Tailwind 4 + shadcn/ui · Prisma + PostgreSQL (165 models) · Redis (distributed rate limiting, event bus, sync leases) · JWT session auth (HttpOnly cookies) · SSE real-time · zod validation · Vitest (345 tests) + Playwright.
@@ -55,6 +59,14 @@ Nine products, one platform. No mockups — every frame below is a live route in
 <div align="center">
   <img src="docs/screenshots/nexura-demo.gif" alt="Nexura OS product tour: homepage, Hospital OS command center, patient records, clinic, pharmacy inventory, patient portal, Know Your Health, Global, Connect" width="840" />
 </div>
+
+<details>
+<summary><b>Scroll the entire homepage</b> — the full marketing site, top to bottom</summary>
+<br/>
+<div align="center">
+  <img src="docs/screenshots/homepage-full.png" alt="Full Nexura OS homepage scroll" width="840" />
+</div>
+</details>
 
 ## The Products
 
