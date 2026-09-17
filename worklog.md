@@ -634,3 +634,39 @@ Work Log:
 Stage Summary:
 - Premium hero live on GitHub README; social card asset ready at docs/screenshots/social-preview.png (user uploads in Settings → General → Social preview)
 - All work green (CI was already green; this push triggers a fresh run — README/scripts only, no runtime code)
+
+---
+Task ID: community-release-1
+Agent: Super Z (main)
+Task: Community-ready repo + v1.0.0 GitHub Release + dependabot triage
+
+Work Log:
+- Community layer: CONTRIBUTING.md (honest-boundary focus), CODE_OF_CONDUCT.md (Contributor Covenant 2.1), SECURITY.md (private disclosure via GH advisories), .github/ISSUE_TEMPLATE (bug + feature + config), .github/PULL_REQUEST_TEMPLATE.md (gates checklist + conventions), .github/dependabot.yml
+- Tagged v1.0.0 -> pushed; GitHub Release created via API: https://github.com/arpitnayan123-bot/Nexura-OS/releases/tag/v1.0.0 (full notes: products, platform, numbers table, highlights, honest boundaries, quick start)
+- Dependabot first run opened 7 PRs. Triage: #1 actions/cache 4->6 GREEN -> merged (squash); #2 actions/checkout 4->7 -> rebased after flake fixes -> GREEN -> merged; #3 minor-and-patch (44 deps) -> CLOSED (systemic: dependabot writes package-lock.json, cannot regenerate bun.lock -> every npm PR fails frozen install); #4-#7 majors (react-resizable-panels 4, typescript 7, framer-motion 13, eslint 10) -> CLOSED with migration-work-needed comments
+- dependabot.yml final: npm ecosystem REMOVED (bun.lock conflict), github-actions monthly kept
+- Two more CI flakes found + fixed (same fire-and-forget family): ai-usage rollup asserted on aggregates after mere-presence poll (second write raced) -> poll for calls>=2; ai-identity had 4x fixed flush(250) sleeps -> waitForLedger polling everywhere
+- Fixed through: cf94d28, 6a98be1 (rebased over aad1974 merge), PR2 merge 7eb064b; main GREEN at every step
+
+Stage Summary:
+- Repo now: v1.0.0 Release live, community files live, dependabot tidy (actions only), CI green, zero open PRs
+- Remaining majors (TS7/eslint10/framer13/panels4) are documented decisions, closed with reasons — real migration work for a future session
+
+---
+Task ID: ship-it-1
+Agent: Super Z (main)
+Task: "Ship your own instance" upgrade — make the repo deployable-by-anyone from the README
+
+Work Log:
+- Visual audit of key pages (home/hospital/pricing/investors/care screenshots, scripts/audit/): product surfaces already wear the premium design (linen+gold homepage, void+champagne console, dark editorial investors/care) — no visual work needed
+- Gap identified: repo had Dockerfile + compose + vercel.json + docs/DEPLOYMENT.md but zero deploy story surfaced in README
+- README: added official "Deploy with Vercel" button (clone flow prefills DATABASE_URL/JWT_SECRET/REDIS_URL) + Docker badge + self-host badge in header row; nav row gains "Ship it" link
+- README: new "Ship your own instance" section after Quick start — 3 paths as h3 headings (1 · Vercel one-click with Neon/Upstash pairing + migrate/seed init commands, 2 · Docker one-command with in-container migrate + host-side seed, 3 · any PaaS/self-host) + required-env table (3 required + DEMO_MODE + EMAIL_TRANSPORT); TOC updated
+- docker-compose.yml: published db 5432->5432 so the documented host-side seed command actually works
+- package.json: added engines node>=20 (clean 3-line diff)
+- scripts/preview_readme.js: Playwright QA render of README top region — deploy row verified visually (chromium-1234 path)
+- Gates re-run: tsc 0 · eslint 0 · vitest 345/345
+
+Stage Summary:
+- README now converts visitors to deployers: one-click Vercel, one-command Docker, explicit PaaS path
+- Committed locally; PUSH BLOCKED — no PAT in environment (previous one used for 9d61d43 push). Ask user for fresh PAT
