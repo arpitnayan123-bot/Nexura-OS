@@ -64,7 +64,7 @@
     "cmdk": "^1.1.1",
     "cobe": "^2.0.1",
     "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^12.23.2",
+    "framer-motion": "^13.3.0",
     "input-otp": "^1.4.2",
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
