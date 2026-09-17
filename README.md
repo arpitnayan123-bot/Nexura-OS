@@ -59,10 +59,10 @@ Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-cen
 
 ## The demo — a 30-second tour
 
-Nine products, one platform. No mockups — every frame below is a live route in this repo.
+Eleven surfaces, one platform. No mockups — every frame below is a live route in this repo.
 
 <div align="center">
-  <img src="docs/screenshots/nexura-demo.gif" alt="Nexura OS product tour: homepage, Hospital OS command center, patient records, clinic, pharmacy inventory, patient portal, Know Your Health, Global, Connect" width="840" />
+  <img src="docs/screenshots/nexura-demo.gif" alt="Nexura OS product tour: homepage, Hospital OS command center, patient records, clinic, pharmacy inventory, Care Circle, patient portal, Know Your Health, Predictive, Global, Connect" width="840" />
 </div>
 
 <details>
@@ -227,6 +227,8 @@ Three supported paths — all running the same code, all gated by the same boot 
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Farpitnayan123-bot%2FNexura-OS&env=DATABASE_URL%2CJWT_SECRET%2CREDIS_URL&project-name=nexura-os&repository-name=Nexura-OS)
 
+**Step-by-step walkthrough** — click-by-click, free tiers, ~15 minutes to a live URL: [docs/DEPLOY_WALKTHROUGH.md](docs/DEPLOY_WALKTHROUGH.md)
+
 ### 1 · Vercel (one click)
 
 The button forks the repo into your workspace and prompts for the three variables. Pair it with a hosted Postgres (Neon, Vercel Postgres or Supabase) and Upstash Redis — both available from the Vercel **Storage** tab. Vercel auto-detects **bun** from `bun.lock` and runs `prisma generate` + `next build` (see `vercel.json`: `bom1` region, 60s function budget). One step from your machine initializes the database schema:
@@ -289,6 +291,7 @@ Root: [API.md](API.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [BUSINESS.md](BU
 | [docs/NEXURA_INTEGRATION.md](docs/NEXURA_INTEGRATION.md) | Platform contracts & adapters |
 | [docs/API.md](API.md) | API reference (also `/api/nx/openapi`) |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deploy, env, rollback, backups, Vercel |
+| [docs/DEPLOY_WALKTHROUGH.md](docs/DEPLOY_WALKTHROUGH.md) | Click-by-click guide: Vercel + Neon + Upstash, $0, ~15 min |
 | [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) | Every environment variable |
 | [docs/SECURITY.md](docs/SECURITY.md) | Controls + what's still required |
 | [docs/TESTING.md](docs/TESTING.md) | Test strategy + how to run |

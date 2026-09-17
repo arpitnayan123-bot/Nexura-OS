@@ -3,7 +3,8 @@
 
 Slideshow with linear crossfades:
 homepage -> hospital command center -> patient records -> clinic -> pharmacy
--> portal -> KYH -> global -> connect. Target: <= 6 MB, 800x500, 8 fps.
+-> care circle -> portal -> KYH -> predictive -> global -> connect.
+Target: <= 6 MB, 800x500, 8 fps.
 """
 from PIL import Image
 import os
@@ -21,8 +22,10 @@ SLIDES = [
     "hospital-patient-records.png",
     "clinic.png",
     "pharmacy-inventory.png",
+    "care-circle.png",
     "portal-dashboard.png",
     "know-your-health.png",
+    "predictive.png",
     "global.png",
     "connect.png",
 ]
