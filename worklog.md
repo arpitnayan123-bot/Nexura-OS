@@ -765,3 +765,19 @@ Stage Summary:
 - A new deployer can no longer hit the seed:demo-on-fresh-DB dead end — one command (seed:suite) does the whole dataset
 - Local infra knowledge captured: zonky PG + source-built redis restore path works without sudo
 - Gates: tsc 0 · eslint 0 · vitest 345/345
+
+---
+Task ID: lock-in-1
+Agent: Super Z (main)
+Task: "Commit everything and lock everything up until now" — cleanup + v1.1.0 release
+
+Work Log:
+- Orphan audit: 6 screenshots with zero references removed (hospital-login, hospital-os, hospital-workspace, pharmacy, portal-privacy, portal.png); 3 applied one-off codemods removed (contrast_fix.py, final-gold-codemod.mjs, codemod-product-auth.mjs); stale shot-pie-current.sh (dead agent-browser CLI) removed; kept demo-sweep.sh + material-screenshot.mjs (reusable QA)
+- Chromium path refresh: 5 QA scripts updated chromium-1234 -> 1243 (sandbox reset swapped the build)
+- dump.rdb (redis cwd artifact) gitignored; sandbox-wiped dirs (db/, tool-results/, download/) already gone; removed 117MB /home/z/dl tarball debris
+- Gates re-run: tsc 0 · eslint 0 · vitest 345/345
+- Pushed 7db2a5d; tagged v1.1.0; GitHub Release created with full notes since v1.0.0 (deploy story, a11y sweep, seed:suite fix, marketing depth, housekeeping)
+
+Stage Summary:
+- Repo state locked at v1.1.0: https://github.com/arpitnayan123-bot/Nexura-OS/releases/tag/v1.1.0
+- scripts/ now 66 files, zero dead codemods; screenshots/ only referenced assets
