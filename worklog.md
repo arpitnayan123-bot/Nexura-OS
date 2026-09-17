@@ -703,3 +703,25 @@ Work Log:
 Stage Summary:
 - Both next-session ideas shipped: complete 11-surface demo GIF + a visitor can go from README click to live URL in ~15 min with zero prior knowledge
 - Push pending with user's fresh token (one-shot URL)
+
+---
+Task ID: next-round-1
+Agent: Super Z (main)
+Task: "What's next" executed end-to-end — a11y sweep + Star History + landing polish verification
+
+Work Log:
+- Live URL: production build verified serving :3000 via guardian (health ok, homepage/hospital 200) — preview window is the live demo
+- A11y (axe-core 4.10.2, scripts/axe-audit.js, 8 consumer surfaces): initial audit = 47 violation nodes (37 contrast, 4 missing main landmark, heading-order ×1, no-h1 ×1, 4 landmark-containment after first fix round)
+- Contrast fixes (all WCAG-computed, same hue family): btn-gold flipped white→dark editorial ink #1F1A14 with gradient narrowed to #B07B2E→#C08A2D→champagne (white failed mid-gradient 3.25:1; dark ink ≥4.7 at every stop — matches console CTA language); eyebrow gold on dark roots scoped override #b07b2e (5.09:1); kbd/hints #938A7B; linen eyebrows #6A6764 + footer #6E6A66; pricing nav #5C6A7F; care/vitals muted #988F81/#8B8476; Pharmacia grays #828894 (58 instances across 14 files — uppercase #6B7280 tokens were the hidden mass); pricing tier pills darkened per-hue (white text ≥5.46)
+- Landmarks: real <main> added inside care/vitals/pricing/pharmacia (first attempt with role="main" on root caused landmark-containment regressions — corrected to proper main wrapping content between header/footer)
+- Heading order: clinic Today's Queue h3→h2; billing Bill Cart h3→h2; keyboard-shortcuts modal h3→h2
+- RESULT: re-audit after rebuild = 0 violation nodes on ALL 8 pages (home, pricing, KYH, portal, care, vitals, clinic, pharmacy)
+- Visual QA: pricing screenshot confirms dark-on-champagne CTA reads premium; design integrity kept
+- Gates: tsc 0 · eslint 0 · vitest 345/345 · DEPLOY VERIFIED
+- README: Star History chart (dark/light picture element) added above License
+- Clinic/pharmacy page metadata verified proper (title/description/viewport/themeColor)
+
+Stage Summary:
+- Consumer surfaces now pass axe-core with zero violations; palette unchanged in family, CTA language unified with product console
+- Star History auto-populates as repo gains stars
+- Commit + push + CI watch pending
