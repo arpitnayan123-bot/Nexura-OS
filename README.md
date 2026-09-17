@@ -358,6 +358,14 @@ Good first issues: documentation gaps, seed-data richness, accessibility passes 
 [![GitHub contributors](https://img.shields.io/github/contributors/arpitnayan123-bot/Nexura-OS?label=contributors)](https://github.com/arpitnayan123-bot/Nexura-OS/graphs/contributors)
 [![GitHub stars](https://img.shields.io/github/stars/arpitnayan123-bot/Nexura-OS?label=stars&logo=github)](https://github.com/arpitnayan123-bot/Nexura-OS/stargazers)
 
+<a href="https://star-history.com/#arpitnayan123-bot/Nexura-OS&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=arpitnayan123-bot/Nexura-OS&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=arpitnayan123-bot/Nexura-OS&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=arpitnayan123-bot/Nexura-OS&type=Date" width="480" />
+ </picture>
+</a>
+
 ## License
 
 Released under the [MIT License](LICENSE) — with a healthcare notice: the code implements technical controls, but compliance certifications (HIPAA / GDPR / DPDP / ABDM) remain the operator's responsibility. See [docs/SECURITY.md](docs/SECURITY.md).
