@@ -597,3 +597,23 @@ Work Log:
 Stage Summary:
 - All polish items landed locally; commit + push + CI-green-watch pending
 - CI should flip green on this push (lockfile fix is the only functional change)
+
+---
+Task ID: readme-polish-2
+Agent: Super Z (main)
+Task: Get GitHub Actions CI green (4-run debugging chain) + finish polish push
+
+Work Log:
+- Run 1 (1ced2b1): install FAIL — bun.lock out of sync (nodemailer missing, fixed in readme-polish-1) → fixed
+- Run 2 (ebee4b5): unit tests FAIL — consent-selfservice.test.ts:121 assumed seeded hospital/patient; CI never seeded before tests (latent — tests step had never been reached before). Fix: seed:all moved BEFORE unit tests (seed is idempotent; removed redundant later seed step)
+- Run 3 (7deedd8): smoke 0/49 FAIL — nx-guardian.sh hardcodes cd /home/z/my-project (sandbox path absent on runners) so `bun run dev` never booted. Fix: smoke stage uses `dev:real` (plain next dev)
+- Run 4 (c6856b5): unit tests FAIL — online-orders collision test flaky: 5000 draws from 36^4 space expect ≈7±3 collisions; assertion >4990 sat on the distribution edge. Fix: threshold 4950 (~7σ flake margin, still fails systemic bugs)
+- Run 5 (6f1e0ae): smoke 47/49 — gateway demo key + anaphylaxis-ward simulation missing: both created ONLY by seed-nx-v5.ts, absent from seed:all chain (local DB had v5 from an earlier manual run). Fix: seed:all now = hospital → nx → demo(v4) → v5 (+ seed:v5 alias). NOTE: seed:nx is fresh-DB-only (plain create on staffCode) — fine in CI's fresh service container, fails on re-run locally
+- Run 6 (6f1e0ae): **SUCCESS — verify + build both green**
+- Repo metadata set via API: description + 14 topics
+- Local main synced: origin/main = 6f1e0ae
+
+Stage Summary:
+- CI fully green on GitHub Actions for the first time in repo history (was red since 73ee45d, root causes stacked behind the original lockfile failure)
+- README polish live: badges (CI badge now green), 4MB animated GIF tour, TOC, contributing/contributors/license, MIT LICENSE file
+- Commits pushed: 1ced2b1 (polish+lockfile), ebee4b5, 7deedd8, c6856b5, 6f1e0ae (CI chain)
