@@ -41,7 +41,7 @@ jobs:
       DATABASE_URL: postgresql://nexura:nexura@127.0.0.1:5432/nexura
       REDIS_URL: redis://127.0.0.1:6379
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -111,7 +111,7 @@ jobs:
       DATABASE_URL: postgresql://build:nobuild@127.0.0.1:5432/nobuild
       JWT_SECRET: ci-pipeline-secret-not-for-production-0123456789
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: oven-sh/setup-bun@v2
         with:
