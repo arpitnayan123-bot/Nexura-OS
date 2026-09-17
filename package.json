@@ -23,9 +23,10 @@
     "seed:hospital": "bun scripts/legacy/seed-hospital.ts",
     "seed:nx": "bun scripts/seed-nx.ts",
     "seed:demo": "bun scripts/seed-nx-v4.ts",
-    "seed:all": "bun run seed:hospital && bun run seed:nx && bun run seed:demo",
+    "seed:all": "bun run seed:hospital && bun run seed:nx && bun run seed:demo && bun run seed:v5",
     "typecheck": "tsc --noEmit",
-    "db:migrate:deploy": "prisma migrate deploy"
+    "db:migrate:deploy": "prisma migrate deploy",
+    "seed:v5": "bun scripts/seed-nx-v5.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
