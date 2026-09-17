@@ -26,15 +26,16 @@ import { AnimatedNumber } from "./animated-number";
 import { cn } from "@/lib/utils";
 
 type Stats = {
-  heart: number;
-  steps: number;
-  sleep: number;
-  water: number;
-  calories: number;
-  mood: number;
-  spo2: number;
-  stress: number;
+  heart: number | null;
+  steps: number | null;
+  sleep: number | null;
+  water: number | null;
+  calories: number | null;
+  mood: number | null;
+  spo2: number | null;
+  stress: number | null;
   series: { t: string; v: number }[];
+  source?: "db" | "demo";
 };
 
 const FALLBACK: Stats = {
@@ -83,7 +84,10 @@ export function DashboardPreview() {
     const id = setInterval(() => {
       setStats((s) => ({
         ...s,
-        heart: Math.max(58, Math.min(86, s.heart + (Math.random() > 0.5 ? 1 : -1))),
+        heart:
+          s.heart != null
+            ? Math.max(58, Math.min(86, s.heart + (Math.random() > 0.5 ? 1 : -1)))
+            : null,
       }));
     }, 1400);
     return () => clearInterval(id);
@@ -175,7 +179,7 @@ function Dashboard({
             </div>
             <div className="mt-2 flex items-end gap-2">
               <AnimatedNumber
-                value={stats.heart}
+                value={stats.heart ?? 0}
                 format="plain"
                 className="font-display text-6xl font-semibold leading-none"
               />
@@ -192,11 +196,11 @@ function Dashboard({
               <EcgLine width={420} height={50} color="white" className="w-full" />
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <MiniStat label="SpO₂" value={stats.spo2} suffix="%" tone="light" />
+              <MiniStat label="SpO₂" value={stats.spo2 ?? "—"} suffix={stats.spo2 != null ? "%" : undefined} tone="light" />
               <MiniStat
                 label="Stress"
-                value={stats.stress}
-                suffix="/100"
+                value={stats.stress ?? "—"}
+                suffix={stats.stress != null ? "/100" : undefined}
                 tone="light"
                 low
               />
@@ -290,9 +294,9 @@ function Dashboard({
         <MetricTile
           icon={Droplets}
           label="Hydration"
-          value={stats.water}
-          suffix="L"
-          delta="+0.3L"
+          value={stats.water ?? "—"}
+          suffix={stats.water != null ? "L" : undefined}
+          delta={stats.water != null ? "+0.3L" : "log to track"}
           tone="default"
           className="lg:col-span-3"
         />
@@ -320,7 +324,7 @@ function Dashboard({
             <Smile className="h-5 w-5 text-honey" />
           </div>
           <div className="mt-3 flex items-center gap-5">
-            <MoodRing value={stats.mood} />
+            <MoodRing value={stats.mood ?? 0} />
             <div className="flex-1 space-y-2.5">
               {[
                 { label: "Sleep quality", v: 78, c: "var(--sage)" },
@@ -386,7 +390,7 @@ function Dashboard({
                 Last night · sleep
               </p>
               <p className="mt-1 font-display text-lg font-semibold">
-                {stats.sleep}h across {SleepStages.stages.length} cycles
+                {stats.sleep != null ? `${stats.sleep}h across ${SleepStages.stages.length} cycles` : "Sleep data streams from your paired devices"}
               </p>
             </div>
             <div className="flex items-center gap-3 text-[0.65rem] text-muted-foreground">
@@ -535,7 +539,7 @@ function MiniStat({
   low,
 }: {
   label: string;
-  value: number;
+  value: number | string;
   suffix?: string;
   tone?: "light" | "dark";
   low?: boolean;
@@ -570,7 +574,7 @@ function MetricTile({
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
-  value: number;
+  value: number | string; // string = em-dash placeholder for unmeasured metrics
   suffix?: string;
   delta: string;
   tone: "sage" | "honey" | "clay" | "default";
@@ -614,7 +618,7 @@ function MetricTile({
         {label}
       </p>
       <p className="relative mt-0.5 font-display text-2xl font-semibold">
-        <AnimatedNumber value={value} format="comma" />
+        {typeof value === "number" ? <AnimatedNumber value={value} format="comma" /> : value}
         {suffix && <span className="text-sm font-normal text-muted-foreground">{suffix}</span>}
       </p>
     </div>
