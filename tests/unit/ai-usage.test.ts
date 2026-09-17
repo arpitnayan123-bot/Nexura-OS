@@ -15,6 +15,20 @@ import { db } from "@/lib/db";
 
 const TEST_CAPS = ["test.cap-a", "test.cap-b", "test.cap-c"];
 
+/**
+ * Poll until a fire-and-forget ledger write is visible. `recordAiUsage` returns
+ * before its DB write lands, so a fixed sleep races under CI load — poll the
+ * probe instead (50ms interval, 8s budget) and assert on the final state.
+ */
+async function waitForLedger<T>(probe: () => Promise<T>, ok: (v: T) => boolean, timeoutMs = 8000): Promise<T> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const v = await probe();
+    if (ok(v) || Date.now() > deadline) return v;
+    await new Promise((r) => setTimeout(r, 50));
+  }
+}
+
 afterAll(async () => {
   await db.aiUsageLog.deleteMany({ where: { capability: { in: TEST_CAPS } } }).catch(() => {});
 });
@@ -92,8 +106,10 @@ describe("ledger writes (real DB)", () => {
       fallbackUsed: false,
       errorCode: null,
     });
-    await new Promise((r) => setTimeout(r, 120)); // allow the fire-and-forget write to land
-    const row = await db.aiUsageLog.findFirst({ where: { capability: "test.cap-a" } });
+    const row = await waitForLedger(
+      () => db.aiUsageLog.findFirst({ where: { capability: "test.cap-a" } }),
+      (r) => r !== null,
+    );
     expect(row).not.toBeNull();
     expect(row!.tokensTotal).toBe(140); // derived from prompt + completion
     expect(row!.latencyMs).toBe(124); // rounded
@@ -117,8 +133,10 @@ describe("ledger writes (real DB)", () => {
       fallbackUsed: true,
       errorCode: "x".repeat(500),
     });
-    await new Promise((r) => setTimeout(r, 120));
-    const row = await db.aiUsageLog.findFirst({ where: { capability: "unattributed" } });
+    const row = await waitForLedger(
+      () => db.aiUsageLog.findFirst({ where: { capability: "unattributed" } }),
+      (r) => r !== null,
+    );
     expect(row).not.toBeNull();
     expect(row!.success).toBe(false);
     expect(row!.errorCode!.length).toBeLessThanOrEqual(200);
@@ -146,7 +164,7 @@ describe("ledger writes (real DB)", () => {
         fallbackUsed: false,
       })
     ).not.toThrow();
-    await new Promise((r) => setTimeout(r, 150)); // rejection surfaces here if not caught
+    await new Promise((r) => setTimeout(r, 300)); // a rejected write would surface here as an unhandled rejection
     const stored = await db.aiUsageLog.count({ where: { capability: "test.cap-c" } });
     expect(stored).toBe(0); // bad row absent, caller unaffected
   });
@@ -183,11 +201,11 @@ describe("aiUsageSummary rollup", () => {
       fallbackUsed: true,
       errorCode: "boom",
     });
-    await new Promise((r) => setTimeout(r, 150));
-
-    const summary = await aiUsageSummary(30);
-    const b = summary.byCapability.find((x) => x.key === "test.cap-b");
-    expect(b).toBeDefined();
+    const summary = await waitForLedger(
+      () => aiUsageSummary(30),
+      (s) => s.byCapability.some((x) => x.key === "test.cap-b"),
+    );
+    const b = summary.byCapability.find((x) => x.key === "test.cap-b")!;
     expect(b!.calls).toBe(2);
     expect(b!.failures).toBe(1);
     expect(b!.tokensTotal).toBe(800);
