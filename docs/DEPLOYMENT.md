@@ -1,5 +1,7 @@
 # Deployment Guide
 
+> Click-by-click version (free tiers, ~15 min): [DEPLOY_WALKTHROUGH.md](DEPLOY_WALKTHROUGH.md)
+
 ## Local development
 ```bash
 bun install && bun run db:push && bun run seed:demo && bun run dev
