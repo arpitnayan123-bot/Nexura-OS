@@ -725,3 +725,22 @@ Stage Summary:
 - Consumer surfaces now pass axe-core with zero violations; palette unchanged in family, CTA language unified with product console
 - Star History auto-populates as repo gains stars
 - Commit + push + CI watch pending
+
+---
+Task ID: deploy-rehearsal-1
+Agent: Super Z (main)
+Task: "Deploy" — push verification + full production deploy rehearsal against the live instance
+
+Work Log:
+- Found 6 commits showing "ahead" — turned out remote already had them (previous session pushed before context ran out); local tracking ref was stale, git fetch synced; CI confirmed GREEN on ec7fdd7 (build + verify both success)
+- Token safety: full-range scan origin/main..main for ghp_/gh_/github_pat_ patterns — 0 matches; tracked worklog contains only truncated prose references (ghp_7blr...) which cannot trigger push protection
+- Discovered the production stack already live from last session: next-server :3000, Postgres :5432, Redis :6379 (guardian-managed)
+- Built scripts/deploy_verify.py — executes the DEPLOY_WALKTHROUGH.md Step-8 checklist programmatically (8 checks)
+- Harness fixes along the way: production sets nx_access cookie with Secure flag (correct for HTTPS) so urllib jar refuses it over http — replay Set-Cookie manually; SSE read-timeout AFTER headers = streaming success; audit RBAC is admin/auditor-only so doctor 403 is correct (role matrix verified in src/lib/nx/session.ts); audit entries nest under "events" key
+- RESULT: 8/8 PASS — build current with HEAD (no src drift vs BUILD_ID), health ok, linen homepage 200, /hospital shell 200, DR.RAJESH PIN login (15 modules), patient records returned, admin audit trail 34 entries with auth.login + chainOk:true (tamper-evident chain intact), SSE stream opens and stays live
+- README Deploy button verified: vercel.com/new/clone URL points at live repo with DATABASE_URL/JWT_SECRET/REDIS_URL predeclared
+
+Stage Summary:
+- The exact chain a new deployer will run (build → boot gate → health → demo sign-in → patient data → audit → SSE) is proven working end-to-end on the live instance
+- deploy_verify.py committed as the reusable "deploy-preview verification script" the README Ops section references
+- Remaining human step: the actual Vercel/Neon/Upstash account creation + click-through (walkthrough ready at docs/DEPLOY_WALKTHROUGH.md)
