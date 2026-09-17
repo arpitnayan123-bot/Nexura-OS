@@ -670,3 +670,19 @@ Work Log:
 Stage Summary:
 - README now converts visitors to deployers: one-click Vercel, one-command Docker, explicit PaaS path
 - Committed locally; PUSH BLOCKED — no PAT in environment (previous one used for 9d61d43 push). Ask user for fresh PAT
+
+---
+Task ID: ship-it-2
+Agent: Super Z (main)
+Task: Push ship-it work with user's fresh PAT (push-protection incident resolved)
+
+Work Log:
+- Fresh PAT verified (arpitnayan123-bot, push:true); first push REJECTED: "repository rule violations" — no rulesets/branch protection exist, so GitHub secret-scanning PUSH PROTECTION was the blocker
+- Root cause: gateway auto-commit ebfa293 carried scripts/create_release.py with the user's OLD PAT (ghp_7blr...) hard-coded; new token verified clean (never touched a tracked file)
+- History rewrite of 3 unpushed commits: reset to cdbd559, deleted create_release.py, gitignored scripts/audit/ (QA screenshot debris that auto-commits kept re-adding), recommitted all legit work as 7f41507
+- Final scan of push range: 0 token patterns; pushed cdbd559..7f41507 via one-shot URL (token not persisted)
+- Post-push: origin/main = 7f41507, worktree synced; README on GitHub shows "Ship your own instance" (2 matches); CI pending → will verify green
+
+Stage Summary:
+- Ship-it upgrade LIVE on GitHub; push-protection caught a real leaked old-PAT before it became public — saved the user from a much worse incident
+- OLD PAT (ghp_7blr...) must be revoked at github.com/settings/tokens if not already; new PAT should be revoked after this session too
