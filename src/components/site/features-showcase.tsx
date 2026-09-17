@@ -106,7 +106,7 @@ export function FeaturesShowcase() {
 
         {/* Products grid */}
         <div className="mb-4">
-          <p className="px-1 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50 mb-3">
+          <p className="px-1 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-[#6A6764] mb-3">
             Products
           </p>
         </div>
@@ -124,7 +124,7 @@ export function FeaturesShowcase() {
 
         {/* Quick actions */}
         <div className="mt-10 mb-4">
-          <p className="px-1 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50 mb-3">
+          <p className="px-1 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-[#6A6764] mb-3">
             Quick Actions
           </p>
         </div>
@@ -156,7 +156,7 @@ export function FeaturesShowcase() {
                   decimals={"decimals" in s ? s.decimals : 0}
                 />
               </div>
-              <p className="text-[0.6rem] uppercase tracking-wider text-muted-foreground/50 mt-0.5">{s.label}</p>
+              <p className="text-[0.6rem] uppercase tracking-wider text-[#6A6764] mt-0.5">{s.label}</p>
             </div>
           ))}
         </motion.div>

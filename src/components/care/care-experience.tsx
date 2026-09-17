@@ -121,7 +121,7 @@ function MemberDashboard({ m }: { m: Member }) {
           <div className="flex items-center justify-between">
             <div>
               <div className="font-serif text-xl font-semibold text-[#F5EDD8]">{m.name}</div>
-              <div className="mt-0.5 text-xs text-[#8A8070]">{m.relation} · {m.uhid}</div>
+              <div className="mt-0.5 text-xs text-[#988F81]">{m.relation} · {m.uhid}</div>
             </div>
             <span className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] ${
               m.score >= 85 ? "border-[#8FBF8F]/40 text-[#8FBF8F]" : m.score >= 75 ? "border-[#E3C578]/40 text-[#E3C578]" : "border-[#E58F7A]/40 text-[#E58F7A]"
@@ -133,7 +133,7 @@ function MemberDashboard({ m }: { m: Member }) {
         <div className="mt-6">
           <div className="font-serif text-5xl font-semibold tabular-nums text-[#F5EDD8]">
             <Counter to={m.score} />
-            <span className="text-lg font-normal text-[#8A8070]">/100</span>
+            <span className="text-lg font-normal text-[#988F81]">/100</span>
           </div>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#241F16]">
             <motion.div
@@ -188,7 +188,7 @@ export function CareExperience() {
   const active = useMemo(() => MEMBERS.find((m) => m.id === activeId) ?? MEMBERS[0], [activeId]);
 
   return (
-    <div className="nxc-root relative min-h-dvh bg-[#141210] text-[#EFE7D3]">
+    <div className="nxc-root relative min-h-dvh bg-[#141210] text-[#EFE7D3]" role="main">
       <ScrollProgress />
 
       {/* hero */}
@@ -238,7 +238,7 @@ export function CareExperience() {
               >
                 <Users className="h-4 w-4 text-[#C8A55B]" aria-hidden="true" />
                 {m.name.split(" ")[0]}
-                <span className="text-xs text-[#8A8070]">{m.relation.split(" · ")[1]}</span>
+                <span className="text-xs text-[#988F81]">{m.relation.split(" · ")[1]}</span>
               </button>
             ))}
           </div>
@@ -277,7 +277,7 @@ export function CareExperience() {
                   </span>
                   <div className="min-w-0">
                     <div className={`text-sm font-medium ${v.done ? "text-[#EFE7D3]" : "text-[#9C927E]"}`}>{v.name}</div>
-                    <div className="text-xs text-[#8A8070]">{v.when}{!v.done && " · due later"}</div>
+                    <div className="text-xs text-[#988F81]">{v.when}{!v.done && " · due later"}</div>
                   </div>
                 </li>
               ))}
@@ -306,7 +306,7 @@ export function CareExperience() {
                       transition={{ duration: 0.9, ease: "easeOut" }}
                     />
                   </div>
-                  <div className="mt-1.5 text-xs text-[#8A8070]">{a.when} · synced from Pharmacia</div>
+                  <div className="mt-1.5 text-xs text-[#988F81]">{a.when} · synced from Pharmacia</div>
                 </div>
               ))}
             </div>
@@ -333,7 +333,7 @@ export function CareExperience() {
             <div className="mt-6">
               <div className="flex items-end justify-between">
                 <div className="font-serif text-4xl font-semibold tabular-nums text-[#F5EDD8]">
-                  ₹4.1L <span className="text-base font-normal text-[#8A8070]">used of ₹10L</span>
+                  ₹4.1L <span className="text-base font-normal text-[#988F81]">used of ₹10L</span>
                 </div>
                 <span className="text-xs text-[#9C927E]">41% · renews Apr 01</span>
               </div>
@@ -365,7 +365,7 @@ export function CareExperience() {
                 <li key={c.who} className="flex items-center justify-between gap-4 rounded-2xl border border-[#2E2A20] px-4 py-3">
                   <div className="min-w-0">
                     <div className="text-sm font-medium text-[#EFE7D3]">{c.who}</div>
-                    <div className="mt-0.5 inline-flex items-center gap-1.5 text-xs text-[#8A8070]">
+                    <div className="mt-0.5 inline-flex items-center gap-1.5 text-xs text-[#988F81]">
                       <Eye className="h-3 w-3" aria-hidden="true" /> {c.scope}
                     </div>
                   </div>
@@ -386,7 +386,7 @@ export function CareExperience() {
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-[11px] leading-relaxed text-[#6E6654]">
+            <p className="mt-4 text-[11px] leading-relaxed text-[#8B8476]">
               Consent changes are logged, timestamped and revocable — the audit trail ships with the DPDP compliance report.
             </p>
           </div>
@@ -416,7 +416,7 @@ export function CareExperience() {
         </div>
       </section>
 
-      <footer className="border-t border-[#241F16] px-6 py-10 text-center text-xs leading-relaxed text-[#6E6654]">
+      <footer className="border-t border-[#241F16] px-6 py-10 text-center text-xs leading-relaxed text-[#8B8476]">
         Nexura Care Circle — demo family, simulated data. Consent tools reflect DPDP Act 2023 principles. A product of Nexura OS
       </footer>
     </div>

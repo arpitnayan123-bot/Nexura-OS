@@ -58,7 +58,7 @@ export function PricingPage() {
   const [activeProduct, setActiveProduct] = useState(0);
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-[#FAF7F2]" role="main">
       {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-[#FAF7F2]/80 border-b border-[#E7E5E4]">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
@@ -69,8 +69,8 @@ export function PricingPage() {
             <span className="font-display text-sm font-semibold text-[#0F172A]">Nexura OS</span>
           </Link>
           <div className="flex items-center gap-4 text-xs">
-            <Link href="/investors" className="text-[#64748B] hover:text-[#0F172A]">Investors</Link>
-            <Link href="/" className="text-[#64748B] hover:text-[#0F172A]">Product</Link>
+            <Link href="/investors" className="text-[#5C6A7F] hover:text-[#0F172A]">Investors</Link>
+            <Link href="/" className="text-[#5C6A7F] hover:text-[#0F172A]">Product</Link>
             <Link href="/portal" className="btn-gold rounded-full px-3 py-1.5 font-medium">Patient Portal</Link>
           </div>
         </div>
@@ -94,7 +94,7 @@ export function PricingPage() {
                 "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all",
                 activeProduct === i
                   ? "text-white shadow-md"
-                  : "bg-white text-[#64748B] border border-[#E7E5E4] hover:bg-[#F8FAFC]"
+                  : "bg-white text-[#5C6A7F] border border-[#E7E5E4] hover:bg-[#F8FAFC]"
               )}
               style={activeProduct === i ? { background: t.color } : {}}
             >
@@ -134,14 +134,14 @@ export function PricingPage() {
                   </>
                 )}
                 <p className="font-display text-lg font-semibold text-[#0F172A]">{plan.name}</p>
-                <p className="text-xs text-[#64748B] mt-0.5">{plan.desc}</p>
+                <p className="text-xs text-[#5C6A7F] mt-0.5">{plan.desc}</p>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="stat-lux tabular text-3xl text-[#0F172A]">{plan.price}</span>
                   <span className="text-sm text-[#94A3B8]">{plan.period}</span>
                 </div>
                 <ul className="mt-6 space-y-2.5">
                   {plan.features.map((f, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-[#64748B]">
+                    <li key={j} className="flex items-start gap-2 text-sm text-[#5C6A7F]">
                       <span className="grid h-4 w-4 place-items-center rounded-full bg-[#A16207]/12 text-[#A16207] shrink-0 mt-0.5">
                         <Check className="h-2.5 w-2.5" strokeWidth={3} />
                       </span>
@@ -182,7 +182,7 @@ export function PricingPage() {
             ].map((faq, i) => (
               <div key={i} className="card-lux card-lux-hover rounded-2xl p-5">
                 <p className="font-medium text-[#0F172A]">{faq.q}</p>
-                <p className="text-sm text-[#64748B] mt-1.5 leading-relaxed">{faq.a}</p>
+                <p className="text-sm text-[#5C6A7F] mt-1.5 leading-relaxed">{faq.a}</p>
               </div>
             ))}
           </div>

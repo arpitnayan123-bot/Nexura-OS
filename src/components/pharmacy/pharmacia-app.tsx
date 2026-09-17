@@ -91,10 +91,10 @@ export function PharmaciaApp() {
             <Pill className="h-4 w-4 text-white" strokeWidth={2.4} />
           </span>
           <div className="hidden leading-none lg:block">
-            <p className="font-serif text-sm font-semibold">Nexura Pharmacia</p>
+            <h1 className="font-serif text-sm font-semibold">Nexura Pharmacia</h1>
             <div className="mt-0.5 flex items-center gap-1">
               <span className={cn("h-1.5 w-1.5 rounded-full", online ? "bg-[#22C55E] animate-pulse" : "bg-red-500")} />
-              <span className="text-[0.55rem] text-[#6B7280]">{online ? "Live" : "Offline"}</span>
+              <span className="text-[0.55rem] text-[#828894]">{online ? "Live" : "Offline"}</span>
             </div>
           </div>
         </Link>
@@ -112,7 +112,7 @@ export function PharmaciaApp() {
                   "group relative flex items-center gap-3 rounded-xl px-2 py-2.5 text-left transition-all lg:px-3",
                   isActive
                     ? "bg-[#E8B04B]/10 text-[#E8B04B]"
-                    : "text-[#6B7280] hover:bg-[#1E2228] hover:text-white"
+                    : "text-[#828894] hover:bg-[#1E2228] hover:text-white"
                 )}
               >
                 <item.icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.9} />
@@ -130,14 +130,14 @@ export function PharmaciaApp() {
         </nav>
 
         {/* Exit */}
-        <Link href="/" className="mt-auto flex items-center gap-3 rounded-xl px-2 py-2.5 text-[#6B7280] transition-colors hover:bg-[#1E2228] hover:text-white lg:px-3">
+        <Link href="/" className="mt-auto flex items-center gap-3 rounded-xl px-2 py-2.5 text-[#828894] transition-colors hover:bg-[#1E2228] hover:text-white lg:px-3">
           <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={1.9} />
           <span className="hidden text-[13px] font-medium lg:block">Homepage</span>
         </Link>
       </aside>
 
       {/* Main area */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col" role="main">
         {/* Mini-dashboard strip — champagne glass with gold hairline */}
         <div className="sticky top-0 z-20 relative flex items-center gap-3 border-b border-[#1E2228] bg-[#111418]/90 px-4 py-2.5 backdrop-blur-xl lg:px-6">
           <div aria-hidden className="hairline-gold pointer-events-none absolute inset-x-0 bottom-0 opacity-60" />
@@ -146,7 +146,7 @@ export function PharmaciaApp() {
           <MiniStat label="UPI" value={`₹${miniData.upi.toLocaleString("en-IN")}`} color="#3B82F6" />
           <MiniStat label="Credit" value={`₹${miniData.credit.toLocaleString("en-IN")}`} color="#EF4444" />
           <MiniStat label="Low Stock" value={String(miniData.lowStock)} color="#F59E0B" />
-          <div className="ml-auto flex items-center gap-1.5 text-[0.65rem] text-[#6B7280]">
+          <div className="ml-auto flex items-center gap-1.5 text-[0.65rem] text-[#828894]">
             <Wifi className={cn("h-3.5 w-3.5", online ? "text-[#22C55E]" : "text-red-500")} />
             <span className="hidden sm:inline">{online ? "Real-time sync" : "Offline — auto-sync on reconnect"}</span>
           </div>
@@ -166,7 +166,7 @@ export function PharmaciaApp() {
                 <div className="grid h-64 place-items-center">
                   <div className="flex flex-col items-center gap-3">
                     <Loader2 className="h-5 w-5 animate-spin text-[#E8B04B]" />
-                    <p className="text-xs text-[#6B7280]">Loading module…</p>
+                    <p className="text-xs text-[#828894]">Loading module…</p>
                   </div>
                 </div>
               ) : active === "billing" ? (
@@ -200,7 +200,7 @@ export function PharmaciaApp() {
 function MiniStat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="hidden text-[0.6rem] uppercase tracking-wide text-[#6B7280] sm:inline">{label}</span>
+      <span className="hidden text-[0.6rem] uppercase tracking-wide text-[#828894] sm:inline">{label}</span>
       <span className="text-xs font-bold tabular-nums" style={{ color }}>{value}</span>
     </div>
   );

@@ -77,7 +77,7 @@ export function CleanFooter() {
             <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link href="/terms" className="hover:text-foreground">Terms</Link>
             <span className="text-muted-foreground/40">·</span>
-            <span className="text-muted-foreground/60">© {new Date().getFullYear()} Nexura</span>
+            <span className="text-[#6E6A66]">© {new Date().getFullYear()} Nexura</span>
           </div>
         </div>
 
@@ -92,12 +92,12 @@ export function CleanFooter() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-col items-center gap-2"
         >
-          <p className="max-w-md text-center text-[0.65rem] leading-relaxed text-muted-foreground/60">
+          <p className="max-w-md text-center text-[0.65rem] leading-relaxed text-[#6E6A66]">
             Built for ABDM (Ayushman Bharat Digital Mission) alignment, Drugs &amp;
             Cosmetics Rules 1945, ICD-10, IRDAI TPA guidelines &amp; Indian GST
             e-invoice structure.
           </p>
-          <p className="text-center text-[0.65rem] leading-relaxed text-muted-foreground/60">
+          <p className="text-center text-[0.65rem] leading-relaxed text-[#6E6A66]">
             Emergencies: call 108 · Mental health: Tele-MANAS 14416 (free, 24×7)
           </p>
         </motion.div>

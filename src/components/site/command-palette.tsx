@@ -127,7 +127,7 @@ export function CommandPalette() {
         >
           <Search className="h-3.5 w-3.5 text-[#C8A55B]" aria-hidden="true" />
           <span>Search Nexura</span>
-          <kbd className="rounded border border-[#3A3428] bg-[#241F16] px-1.5 py-0.5 font-mono text-[10px] text-[#8A8070] group-hover:text-[#B3A892]">
+          <kbd className="rounded border border-[#3A3428] bg-[#241F16] px-1.5 py-0.5 font-mono text-[10px] text-[#938A7B] group-hover:text-[#B3A892]">
             {kbdHint}
           </kbd>
         </button>
@@ -143,7 +143,7 @@ export function CommandPalette() {
               <CommandItem key={a.id} value={`${a.name} ${a.hint}`} onSelect={run(a)} className="nx-cmdk-item">
                 <a.icon className="mr-2 h-4 w-4 shrink-0 text-[#C8A55B]" aria-hidden="true" />
                 <span className="flex-1">{a.name}</span>
-                <span className="hidden text-xs text-[#8A8070] sm:inline">{a.hint}</span>
+                <span className="hidden text-xs text-[#938A7B] sm:inline">{a.hint}</span>
               </CommandItem>
             ))}
           </CommandGroup>
@@ -154,7 +154,7 @@ export function CommandPalette() {
               <CommandItem key={p.id} value={`${p.name} ${p.hint}`} onSelect={run(p)} className="nx-cmdk-item">
                 <p.icon className="mr-2 h-4 w-4 shrink-0 text-[#C8A55B]" aria-hidden="true" />
                 <span className="flex-1">{p.name}</span>
-                <span className="hidden text-xs text-[#8A8070] sm:inline">{p.hint}</span>
+                <span className="hidden text-xs text-[#938A7B] sm:inline">{p.hint}</span>
                 <ArrowRight className="ml-2 h-3.5 w-3.5 text-[#5E5748]" aria-hidden="true" />
               </CommandItem>
             ))}
@@ -166,7 +166,7 @@ export function CommandPalette() {
               <CommandItem key={r.id} value={`${r.name} ${r.hint}`} onSelect={run(r)} className="nx-cmdk-item">
                 <r.icon className="mr-2 h-4 w-4 shrink-0 text-[#C8A55B]" aria-hidden="true" />
                 <span className="flex-1">{r.name}</span>
-                <span className="hidden text-xs text-[#8A8070] sm:inline">{r.hint}</span>
+                <span className="hidden text-xs text-[#938A7B] sm:inline">{r.hint}</span>
               </CommandItem>
             ))}
           </CommandGroup>

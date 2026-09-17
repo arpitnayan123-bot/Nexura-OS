@@ -199,7 +199,7 @@ function TodayTab({ data, doctorFilter, onConsult, onReload, onClearFilter }: { 
 
       {/* Queue — patient cards */}
       <div>
-        <h3 className="mb-3 font-serif text-base font-semibold">Today&apos;s Queue {filterDoctor && `· ${filterDoctor.name}`}</h3>
+        <h2 className="mb-3 font-serif text-base font-semibold">Today&apos;s Queue {filterDoctor && `· ${filterDoctor.name}`}</h2>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.length === 0 && <p className="py-8 text-center text-sm text-[#9A8F84]">No appointments {filterDoctor ? "for this doctor" : "today"}.</p>}
           {filtered.map((a, i) => {

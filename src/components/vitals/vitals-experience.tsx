@@ -128,7 +128,7 @@ function RingGauge({ value, max, label, sub }: { value: number; max: number; lab
           <span className="font-serif text-2xl font-semibold tabular-nums text-[#F5EDD8]">
             {value.toLocaleString("en-IN")}
           </span>
-          <span className="text-[10px] uppercase tracking-[0.14em] text-[#8A8070]">{sub}</span>
+          <span className="text-[10px] uppercase tracking-[0.14em] text-[#988F81]">{sub}</span>
         </div>
       </div>
       <div className="mt-2 text-xs uppercase tracking-[0.14em] text-[#9C927E]">{label}</div>
@@ -214,7 +214,7 @@ function LiveHeartRate() {
           </div>
           <div className="mt-3 font-serif text-5xl font-semibold tabular-nums text-[#F5EDD8]">
             {current}
-            <span className="ml-2 text-sm font-normal text-[#8A8070]">bpm</span>
+            <span className="ml-2 text-sm font-normal text-[#988F81]">bpm</span>
           </div>
           <div className="mt-1 inline-flex items-center gap-1.5 text-xs text-[#9C927E]">
             <TrendingDown className="h-3.5 w-3.5 text-[#8FBF8F]" aria-hidden="true" />
@@ -234,7 +234,7 @@ function LiveHeartRate() {
       <div className="mt-5">
         <Sparkline data={data} height={64} live={live} stroke="#E58F7A" fill="rgba(229,100,84,0.14)" />
       </div>
-      <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-[#6E6654]">
+      <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-[#8B8476]">
         <span className={`inline-block h-1.5 w-1.5 rounded-full ${live && !reduce ? "bg-[#E58F7A] nxl-vt-pulse" : "bg-[#6E6654]"}`} aria-hidden="true" />
         {live ? "Live demo simulation" : "Simulation paused"}
       </p>
@@ -269,7 +269,7 @@ function Alerts() {
                   <a.icon className={`h-5 w-5 ${a.tone === "watch" ? "text-[#E3C578]" : "text-[#C8A55B]"}`} aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-xs font-mono uppercase tracking-wider text-[#8A8070]">{a.time}</div>
+                  <div className="text-xs font-mono uppercase tracking-wider text-[#988F81]">{a.time}</div>
                   <div className="mt-1 text-[15px] font-medium text-[#EFE7D3]">{a.title}</div>
                   <p className="mt-1 text-sm leading-relaxed text-[#B3A892]">{a.body}</p>
                 </div>
@@ -290,7 +290,7 @@ export function VitalsExperience() {
   const stress = series(88, 30, 32, 10);
 
   return (
-    <div className="nxt-root relative min-h-dvh bg-[#141210] text-[#EFE7D3]">
+    <div className="nxt-root relative min-h-dvh bg-[#141210] text-[#EFE7D3]" role="main">
       <ScrollProgress />
 
       {/* hero */}
@@ -350,7 +350,7 @@ export function VitalsExperience() {
               <Wind className="h-5 w-5" aria-hidden="true" />
               <span className="text-xs font-semibold uppercase tracking-[0.16em]">SpO₂ · oxygen</span>
             </div>
-            <div className="mt-3 font-serif text-4xl font-semibold tabular-nums text-[#F5EDD8]">97<span className="ml-1 text-sm font-normal text-[#8A8070]">%</span></div>
+            <div className="mt-3 font-serif text-4xl font-semibold tabular-nums text-[#F5EDD8]">97<span className="ml-1 text-sm font-normal text-[#988F81]">%</span></div>
             <div className="mt-4"><Sparkline data={spo2} height={48} /></div>
           </SpotlightCard>
 
@@ -359,7 +359,7 @@ export function VitalsExperience() {
               <Activity className="h-5 w-5" aria-hidden="true" />
               <span className="text-xs font-semibold uppercase tracking-[0.16em]">HRV · recovery</span>
             </div>
-            <div className="mt-3 font-serif text-4xl font-semibold tabular-nums text-[#F5EDD8]">52<span className="ml-1 text-sm font-normal text-[#8A8070]">ms</span></div>
+            <div className="mt-3 font-serif text-4xl font-semibold tabular-nums text-[#F5EDD8]">52<span className="ml-1 text-sm font-normal text-[#988F81]">ms</span></div>
             <div className="mt-4"><Sparkline data={hrv} height={48} /></div>
           </SpotlightCard>
 
@@ -368,7 +368,7 @@ export function VitalsExperience() {
               <Footprints className="h-5 w-5" aria-hidden="true" />
               <span className="text-xs font-semibold uppercase tracking-[0.16em]">Stress index</span>
             </div>
-            <div className="mt-3 font-serif text-4xl font-semibold tabular-nums text-[#F5EDD8]">32<span className="ml-1 text-sm font-normal text-[#8A8070]">/100 · low</span></div>
+            <div className="mt-3 font-serif text-4xl font-semibold tabular-nums text-[#F5EDD8]">32<span className="ml-1 text-sm font-normal text-[#988F81]">/100 · low</span></div>
             <div className="mt-4"><Sparkline data={stress} height={48} stroke="#8FBF8F" fill="rgba(143,191,143,0.10)" /></div>
           </SpotlightCard>
         </div>
@@ -383,7 +383,7 @@ export function VitalsExperience() {
               <span className="text-xs font-semibold uppercase tracking-[0.16em]">Last night · sleep architecture</span>
             </div>
             <span className="font-serif text-2xl font-semibold tabular-nums text-[#F5EDD8]">
-              7h 58m <span className="text-sm font-normal text-[#8A8070]">total · score 84</span>
+              7h 58m <span className="text-sm font-normal text-[#988F81]">total · score 84</span>
             </span>
           </div>
           <div className="mt-6"><SleepBar /></div>
@@ -418,7 +418,7 @@ export function VitalsExperience() {
         </div>
       </section>
 
-      <footer className="border-t border-[#241F16] px-6 py-10 text-center text-xs leading-relaxed text-[#6E6654]">
+      <footer className="border-t border-[#241F16] px-6 py-10 text-center text-xs leading-relaxed text-[#8B8476]">
         Nexura Vitals is a demo experience with simulated device data. Wellness insights, not medical advice — always consult your physician.
         <br />
         A product of Nexura OS
