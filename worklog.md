@@ -686,3 +686,20 @@ Work Log:
 Stage Summary:
 - Ship-it upgrade LIVE on GitHub; push-protection caught a real leaked old-PAT before it became public — saved the user from a much worse incident
 - OLD PAT (ghp_7blr...) must be revoked at github.com/settings/tokens if not already; new PAT should be revoked after this session too
+
+---
+Task ID: next-ideas-1
+Agent: Super Z (main)
+Task: Next-session ideas executed — demo GIF refresh + deployment walkthrough
+
+Work Log:
+- Audit: no UI drift since GIF build (UI last touched da03c5f < 1ced2b1) → instead of blind rebuild, extended the tour: 9 → 11 slides (adds care-circle.png + predictive.png), both verified on-brand dark+gold
+- GIF rebuilt: 154 frames, 4.78 MB (under 6 MB budget); README "The demo" copy updated to "Eleven surfaces" + alt text lists all 11
+- docs/DEPLOY_WALKTHROUGH.md: click-by-click $0 guide — Vercel button flow, Neon pooled connection (bom1 pairing), Upstash rediss:// (verified supported: redis.ts startsWith("redis") + ioredis TLS), openssl JWT_SECRET, migrate deploy + seed:demo from a local clone, 6-check verification table, troubleshooting table (boot gate, P1001, WRONGPASS, cold starts, seed mismatch, 429s), "before real users" checklist
+- Technical corrections made while writing: prisma migrate deploy needs the repo's schema (clone required, not bare npx); seeds need bun (documented npm i -g bun)
+- Linked from README Ship section + docs table + DEPLOYMENT.md header pointer
+- Gates: tsc 0 · eslint 0 · vitest 345/345
+
+Stage Summary:
+- Both next-session ideas shipped: complete 11-surface demo GIF + a visitor can go from README click to live URL in ~15 min with zero prior knowledge
+- Push pending with user's fresh token (one-shot URL)
