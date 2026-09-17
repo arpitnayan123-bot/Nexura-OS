@@ -540,3 +540,27 @@ Stage Summary:
 - Dev server up on :3000, fully verified (58/0)
 - Local main = GitHub main = 73ee45d (green); partial snapshot preserved on branch snapshot-partial-20260917 — needs matching schema/types to ever build; user decision required
 - Sandbox reaps unsupervised processes; guardian auto-relaunches on sandbox restarts via platform boot chain
+
+---
+Task ID: backend-core-2
+Agent: Super Z (main)
+Task: Complete the whole backend in the codebase (not just chat), update preview, prep GitHub push + screenshot README
+
+Work Log:
+- Audit (Explore agent): 189 route files / 145 DB-backed / 165→(then)162 models / platform layer all real; found 2 true stubs (pharmacy/online-orders, health-stats), 5 static-lookup clinic endpoints, console-only OTP delivery
+- pharmacy/online-orders: NEW 3 models (PharmaOnlineOrder/Item/Event + back-relations), migration 20260919010000_online_orders (additive-only SQL via migrate diff), pure domain lib (state machine, catalog matching, paise math, order numbers) + GET/POST route (Rx upload → runVision OCR → merge → catalog match → estimatedTotal paise) + PATCH [id] (transition enforcement 409, confirm-time stock warnings, image never shipped in payloads)
+- health-stats: rewrote as real aggregates (NxWearableSample 24h groupBy + HospitalVital fallback + hourly resting_hr series), pure derivations in src/lib/site/health-stats.ts (stress from HRV/HR, mood, calories, hourly buckets, deterministic demo fallback), hydration null (never invented), 15s cache; widget updated for nullable metrics
+- clinic AI upgrades: symptom-triage (deterministic red-flag screen BEFORE AI + validated AI triage + labelled keyword fallback), patient-chat (AI + escalation + red-flag screen), lab-interpretation (deterministic ICMR flag + AI meaning/advice), similar-patients (REAL ClinicVisit/ClinicRx cohort aggregation with honest empty state <3 samples), chronic-care (ICMR library + AI-generated plans validated to same shape)
+- otp-delivery: src/lib/mailer.ts (console transport = same demo lines; SMTP via lazy nodemailer), wired password reset + verify-email, env.ts SMTP_CONFIGURED + SMTP_* vars, .env.example updated; SMS/WhatsApp stays honest-boundary
+- Fixed .env (JWT_SECRET was unexpanded $(openssl...) literal) + discovered sandbox-level DATABASE_URL=file:... env override; prisma validate/migrate status run with explicit postgres URL
+- Tests: +3 files / +28 tests = 30 files / 345 tests (online-orders state machine+matching+money, health-stats derivations+series, mailer boundary); fixed one wrong clamp expectation
+- Gates: prisma validate OK · tsc 0 · eslint 0 · vitest 345/345 · smoke 49/49 · deploy-preview DEPLOY VERIFIED (production build serving :3000)
+- README rewritten with 16 screenshots (docs/screenshots/) — homepage hero, Hospital OS command center + patient records, clinic, pharmacy inventory, portal dashboard, KYH, global, connect, predictive/care/diy grid; backend-at-a-glance table; honest boundaries; counts verified (189 routes/165 models/8 migrations/345 tests)
+- docs/KNOWN_LIMITATIONS.md refreshed from stale SQLite-era text to current baseline + recently-closed-gaps section
+- GitHub push FAILED: no credentials in environment (previous PAT revoked) — main @ da03c5f (+2) awaiting fresh PAT
+
+Stage Summary:
+- The last backend gaps are closed in code: no stub routes remain; every response is DB-backed, AI-backed with deterministic safety layers, or honestly labelled
+- Live proof: POST /api/pharmacy/online-orders created+matched ₹70 order (catalog match), PATCH confirm + 409 invalid transition, health-stats source:"db" (4 wearable samples + 44 vitals), triage red-flag deterministic + AI path, lab-interpretation deterministic HIGH + AI, chronic-care AI plan for Asthma, cohort matcher honest empty state
+- Preview window updated (DEPLOY VERIFIED production build on :3000)
+- USER ACTION NEEDED: fresh GitHub PAT to push main (3 commits: 2 checkpoints + backend-core-2 da03c5f)
