@@ -69,6 +69,7 @@ model PharmaBranch {
   scheduleHEntries  ScheduleHEntry[]
   nearExpiryReturns NearExpiryReturn[]
   dayClosings       DayClosing[]
+  onlineOrders      PharmaOnlineOrder[]
 
   @@index([companyId])
 }
@@ -95,17 +96,18 @@ model PharmaStaff {
 
 // Customer (walk-in or registered, for GST billing)
 model Customer {
-  id        String            @id @default(cuid())
-  name      String            @default("Walk-in")
-  phone     String?
-  email     String?
-  gstin     String? // optional B2B GSTIN
-  address   String?
-  dob       String?
-  createdAt DateTime          @default(now())
-  sales     Sale[]
-  account   CustomerAccount?
-  payments  CustomerPayment[]
+  id           String               @id @default(cuid())
+  name         String               @default("Walk-in")
+  phone        String?
+  email        String?
+  gstin        String? // optional B2B GSTIN
+  address      String?
+  dob          String?
+  createdAt    DateTime             @default(now())
+  sales        Sale[]
+  account      CustomerAccount?
+  payments     CustomerPayment[]
+  onlineOrders PharmaOnlineOrder[]
 
   @@index([phone])
   @@index([gstin])
@@ -148,6 +150,7 @@ model Product {
   batches         ProductBatch[]
   saleItems       SaleItem[]
   purchaseItems   PurchaseItem[]
+  onlineOrderItems PharmaOnlineOrderItem[]
 
   @@index([name])
   @@index([genericName])
@@ -228,6 +231,65 @@ model SaleItem {
   @@index([saleId])
   @@index([productId])
   @@index([batchId])
+}
+
+// Online medicine order — patient places from the portal/site (uploaded Rx →
+// OCR, or hand-picked items); branch pharmacists confirm, prepare and deliver.
+// Fulfilment (stock decrement + GST invoice) stays in the POS billing flow —
+// a Sale is the single source of truth for inventory movement.
+model PharmaOnlineOrder {
+  id                String   @id @default(cuid())
+  orderNo           String   @unique // ONL-2026-0001
+  branchId          String
+  customerId        String?
+  patientName       String
+  phone             String
+  deliveryAddress   String?
+  prescriptionImage String? // bounded dataURL — the uploaded Rx (if any)
+  ocrItemsJson      String? // [{name,dosage,duration}] — AI-extracted from the Rx
+  status            String   @default("pending_review") // pending_review | confirmed | preparing | ready | out_for_delivery | delivered | cancelled
+  note              String?
+  estimatedTotal    Int      @default(0) // paise — catalog-MRP quote, firmed at confirmation
+  placedAt          DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  branch            PharmaBranch        @relation(fields: [branchId], references: [id])
+  customer          Customer?           @relation(fields: [customerId], references: [id])
+  items             PharmaOnlineOrderItem[]
+  events            PharmaOnlineOrderEvent[]
+
+  @@index([branchId])
+  @@index([status])
+  @@index([phone])
+  @@index([placedAt])
+}
+
+model PharmaOnlineOrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String? // null = free-text line not (yet) matched to the catalog
+  name      String
+  dosage    String?
+  qtyStrips Int      @default(1)
+  matched   Boolean  @default(false)
+  unitMrp   Int      @default(0) // paise — catalog MRP when matched
+  order     PharmaOnlineOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product?          @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model PharmaOnlineOrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  status    String
+  note      String?
+  actor     String? // staff id/name or "patient" / "system"
+  createdAt DateTime @default(now())
+  order     PharmaOnlineOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([createdAt])
 }
 
 // Purchase order from supplier
