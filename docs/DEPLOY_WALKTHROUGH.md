@@ -82,10 +82,14 @@ DATABASE_URL="…neon url…" npx prisma migrate status     # → "Database sche
 The demo sign-ins need seeded staff accounts:
 
 ```bash
-DATABASE_URL="…neon url…" npm run seed:demo
+DATABASE_URL="…neon url…" npm run seed:suite
 ```
 
-This loads the v4 demo dataset: 21 staff across 17 roles, patients, MAR, billing, pharmacy stock. Credentials: password **`Demo@12345`** for every account, staff codes in [docs/DEMO_CREDENTIALS.md](DEMO_CREDENTIALS.md). (Skip this step and the deployment still works — you just get an empty hospital to register into.)
+This loads the complete demo dataset in the right order: base hospital + staff, the v4 demo dataset (21 staff across 17 roles, patients, MAR, billing), v5 extensions, then pharmacy stock, clinic, connect, portal, tourism, chronic-care and PIE signals. Credentials: password **`Demo@12345`** for every account, staff codes in [docs/DEMO_CREDENTIALS.md](DEMO_CREDENTIALS.md).
+
+> Why `seed:suite` and not `seed:demo`: the demo seeder expects the **base hospital seed** to exist first — on a fresh database `seed:demo` alone fails with "no hospital found". `seed:suite` runs everything in the correct order and is idempotent.
+
+(Skip this step and the deployment still works — you just get an empty hospital to register into.)
 
 ## Step 8 · Verify the deployment
 
@@ -108,7 +112,7 @@ Boot-gate note: if any of the three variables were wrong or missing, the product
 | `P1001: can't reach database` | Non-pooled Neon string, or typo | Use the **pooled** connection string, keep `?sslmode=require` |
 | `WRONGPASS` / Redis connect fail | Copied non-TLS URL or stale password | Re-copy the `rediss://` URL from Upstash Details |
 | Functions time out on first paint | Cold start + autosuspended Neon | First request wakes Neon (~1 s); enable Neon autoscale if it bothers you |
-| Demo sign-in says account not found | Step 7 skipped or wrong DB | Re-run `seed:demo` against the **same** `DATABASE_URL` as the deployment |
+| Demo sign-in says account not found | Step 7 skipped or wrong DB | Re-run `seed:suite` against the **same** `DATABASE_URL` as the deployment |
 | 429s on API routes | Upstash free tier 10k cmds/day | Expected at hobby scale; upgrade or burst-limit your testing |
 
 ## What to change before real users

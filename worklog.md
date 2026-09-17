@@ -744,3 +744,24 @@ Stage Summary:
 - The exact chain a new deployer will run (build → boot gate → health → demo sign-in → patient data → audit → SSE) is proven working end-to-end on the live instance
 - deploy_verify.py committed as the reusable "deploy-preview verification script" the README Ops section references
 - Remaining human step: the actual Vercel/Neon/Upstash account creation + click-through (walkthrough ready at docs/DEPLOY_WALKTHROUGH.md)
+
+---
+Task ID: marketing-1
+Agent: Super Z (main)
+Task: "Focus on github and nexura os" — clinic/pharmacy marketing deep-dive + fresh-DB seed fix
+
+Work Log:
+- GitHub topics audit: already comprehensive (14 topics) — no changes needed
+- Asset freshness audit: clinic.png (16:55) + pharmacy-inventory.png (16:57) + nexura-demo.gif (19:21) all predate the a11y sweep (20:07) — README visuals showed the old low-contrast Pharmacia grays
+- Sandbox reset mid-task wiped the data layer: platform .env restored SQLite DATABASE_URL (boot gate correctly refused -> 500s), local Postgres/Redis binaries gone, no sudo
+- Rebuilt the datastore stack from scratch: zonky embedded PostgreSQL 17.3 binaries (Maven Central; EDB 403s) into ~/pg-install/rootfs, initdb + trust auth on :5432, redis 7.4.2 compiled from source, DATABASE_URL -> postgres db; guardian re-seeded nothing (hollow probe can't detect schema-less db) so ran prisma migrate deploy (8 migrations) + full seed chain manually; deploy_verify.py 8/8 PASS again
+- scripts/capture-product-shots.mjs: reusable Playwright capture (1600x1000, clinic defaults to Today queue, pharmacy clicks Inventory nav); recaptured clinic.png + pharmacy-inventory.png with the a11y-clean UI — both eyeballed, on-brand
+- GIF rebuilt: 154 logical frames (44 physical — Pillow optimize merges identical holds), 4.79 MB; clinic + pharmacy crossfades verified visually
+- README: Clinic + Pharmacia sections upgraded from one-liners to Hospital-OS-style structure (intro + 2 feature bullets + "Also inside" line); claims verified against actual product (status chips, draft-to-sign, billing-time Schedule-H checks, atomic supplier settlement, in-platform India medicine reference)
+- FRESH-DB SEED BUG found live: seed:demo (seed-nx-v4) fails on an empty database with "no hospital found" — walkthrough Step 7 was wrong for the exact audience it serves. Added package.json seed:suite (full ordered chain, idempotent); walkthrough + README quick-start/Vercel/Docker paths + DEPLOYMENT.md local-dev + compose comment + troubleshooting table all switched to seed:suite with an explainer note
+
+Stage Summary:
+- README marketing now gives clinic + pharmacy the same visual weight as Hospital OS, with screenshots + GIF showing the current (axe-clean) UI
+- A new deployer can no longer hit the seed:demo-on-fresh-DB dead end — one command (seed:suite) does the whole dataset
+- Local infra knowledge captured: zonky PG + source-built redis restore path works without sudo
+- Gates: tsc 0 · eslint 0 · vitest 345/345
