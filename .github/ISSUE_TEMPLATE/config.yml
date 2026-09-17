@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability (private)
+    url: https://github.com/arpitnayan123-bot/Nexura-OS/security/advisories/new
+    about: Report security issues privately — never in a public issue.
+  - name: Questions & discussions
+    url: https://github.com/arpitnayan123-bot/Nexura-OS/discussions
+    about: Ask how to self-host, extend a product, or wire an integration.
