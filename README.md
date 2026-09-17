@@ -1,8 +1,18 @@
+<div align="center">
+
 # Nexura OS — Multi-Product Healthcare Platform
 
-A production-grade healthcare operating ecosystem: **seven staff-facing products, eight consumer health surfaces, and a shared platform layer** — built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-center interface for clinicians, nurses, pharmacists, administrators, operations teams, patients and executives.
+**A production-grade healthcare operating ecosystem: seven staff-facing products, eight consumer health surfaces, and a shared platform layer — 189 API routes, 165 Postgres models, 345 unit tests.**
 
-**Stack:** Next.js 16 (App Router, Turbopack) · TypeScript (strict, zero suppressions) · Tailwind 4 + shadcn/ui · Prisma + PostgreSQL (162 models) · Redis (distributed rate limiting, event bus, sync leases) · JWT session auth (HttpOnly cookies) · SSE real-time · zod validation · Vitest (317 tests) + Playwright.
+Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-center interfaces for clinicians, nurses, pharmacists, administrators, operations teams, patients and executives.
+
+</div>
+
+<div align="center">
+  <img src="docs/screenshots/homepage.png" alt="Nexura OS homepage — A calmer operating system for your health" width="840" />
+</div>
+
+**Stack:** Next.js 16 (App Router, Turbopack) · TypeScript (strict, zero suppressions) · Tailwind 4 + shadcn/ui · Prisma + PostgreSQL (165 models) · Redis (distributed rate limiting, event bus, sync leases) · JWT session auth (HttpOnly cookies) · SSE real-time · zod validation · Vitest (345 tests) + Playwright.
 
 > **Evaluating the codebase?** Start with [PRODUCTION_STATUS.md](PRODUCTION_STATUS.md) — the current, single source of truth on production readiness.
 
@@ -10,19 +20,72 @@ A production-grade healthcare operating ecosystem: **seven staff-facing products
 
 ## The Products
 
-Every product below is a first-class surface in this repo — not a mockup. Each runs on the shared platform layer with real auth, RBAC scoping, audit trails and the same money/AI governance rules.
+Every product below is a first-class surface in this repo — **not a mockup**. Each runs on the shared platform layer with real auth, RBAC scoping, audit trails and the same money/AI governance rules.
 
-### Staff operations
+### 🏥 Hospital OS — the flagship
 
-| Product | Route | What it is |
-|---|---|---|
-| **Hospital OS** | `/hospital` | The flagship: a full hospital operating system — boot sequence, login, workspaces, window manager, dock, launcher, ⌘K palette, app switcher, lock screen, Files & Console system apps, and **23 registered apps** (Command Center, Work Queue, Patient Records with timeline/consents/MAR/access history, Emergency, Scheduling with waitlist & conflict detection, Beds & Rooms with 8-state lifecycle, Care Communication, Pharmacy with MAR/allergy guard/controlled substances, Laboratory with verify + critical escalation, Revenue Cycle, Inventory & Procurement, Staff Operations, Analytics, tamper-evident Audit Trail, Administration with permission matrix, Automations, AI-assisted workspaces) |
-| **Nexura Clinic** | `/clinic` | Simple Clinic OS for outpatient practices — queue, encounters, voice SOAP (AI), prescriptions, billing with integer GST math |
-| **Nexura Pharmacia** | `/pharmacy` | AI-Powered Pharmacy OS — POS/billing, stock & batches, expiry and reorder guardrails, supplier payments with atomic settlement, voice billing, natural-language AI query over inventory, prescription OCR, e-way threshold checks |
-| **Patient Portal** | `/portal` | Patients' own window: records and timeline, appointments, AI assistant and report interpretation, and a **Privacy tab** — patients grant/withdraw their DPDP consents themselves (append-only ledger, revocation enforced end-to-end) |
-| **Nexura Connect** | `/connect` | Care communication: channels, mentions, receipts, critical alerts across the care circle |
-| **Know Your Health** | `/know-your-health` | Consumer AI health hub with 14 tools: symptom checker, disease risk, lab analyzer, BP analyzer, food scan, derma scan, diet planner, medication interaction, mental wellness, sleep quality, diabetes care, women's care, Ayurveda, health quiz |
-| **Nexura Global** | `/global` | Medical tourism desk — destination hospitals, procedure catalog with integer USD/INR quotes, cost estimates (surgeon/room/nursing breakdown), inquiries, billed totals |
+A full hospital operating system: boot sequence, login, workspaces, window manager, dock, launcher, ⌘K palette, app switcher, lock screen, Files & Console system apps, and **23 registered apps**.
+
+<div align="center">
+  <img src="docs/screenshots/hospital-command-center.png" alt="Hospital OS Command Center — live census, bed lifecycle, ED, operating rooms, critical alerts" width="840" />
+</div>
+
+- **Command Center** — live census, bed-lifecycle map across 8 wards, ED pressure, OR schedule, critical-alert escalation with acknowledgement SLAs, flow-bottleneck detection, audited activity feed
+- **Patient Records** — universal records with care timeline, consents, MAR, and per-patient access history
+
+<div align="center">
+  <img src="docs/screenshots/hospital-patient-records.png" alt="Hospital OS Patient Records — 24 patients with diagnoses, allergies and UHIDs" width="840" />
+</div>
+
+- **Also inside:** Work Queue · Crisis Radar · Operating Rooms · Emergency · Beds & Rooms (8-state lifecycle) · Scheduling with waitlist & conflict detection · Care Communication · Pharmacy with MAR/allergy guard · Laboratory with verify + critical escalation · Revenue Cycle · Inventory & Procurement · Staff Operations · Analytics · tamper-evident Audit Trail · Administration with the permission matrix · Automations · AI-assisted workspaces
+
+### 🩺 Nexura Clinic
+
+Simple Clinic OS for outpatient practices — live queue, encounters, voice SOAP (AI), prescriptions, billing with integer GST math.
+
+<div align="center">
+  <img src="docs/screenshots/clinic.png" alt="Nexura Clinic — Dr. Rao Family Clinic with today's queue" width="840" />
+</div>
+
+### 💊 Nexura Pharmacia
+
+AI-Powered Pharmacy OS — POS/billing, stock & batch management, expiry and reorder guardrails, supplier payments with atomic settlement, voice billing, natural-language AI query over inventory, prescription OCR, online medicine orders, e-invoice (GST) payloads, Schedule-H / NPPA / CDSCO compliance tooling.
+
+<div align="center">
+  <img src="docs/screenshots/pharmacy-inventory.png" alt="Nexura Pharmacia — inventory with batches, Schedule H badges, near-expiry warnings" width="840" />
+</div>
+
+### 🔐 Patient Portal
+
+Patients' own window: unified records and timeline, appointments, AI assistant and report interpretation, blood tests at home — and a **Privacy tab** where patients grant/withdraw their DPDP consents themselves (append-only ledger, revocation enforced end-to-end).
+
+<div align="center">
+  <img src="docs/screenshots/portal-dashboard.png" alt="Patient Portal — unified health view with insights and care timeline" width="840" />
+</div>
+
+### 🧠 Know Your Health
+
+Consumer AI health hub with **15 tools**: symptom checker, disease risk, lab analyzer, BP analyzer, food scan, derma scan, x-ray reader, diet planner, medication interaction, mental wellness, sleep quality, diabetes care, women's care, Ayurveda, health quiz — all server-side AI with honest "educational, not a diagnosis" framing.
+
+<div align="center">
+  <img src="docs/screenshots/know-your-health.png" alt="Know Your Health — 15 AI tools hub" width="840" />
+</div>
+
+### ✈️ Nexura Global
+
+Medical tourism desk — destination hospitals, procedure catalog with integer USD/INR quotes, cost estimates (surgeon/room/nursing breakdown), inquiries, billed totals.
+
+<div align="center">
+  <img src="docs/screenshots/global.png" alt="Nexura Global — medical tourism desk" width="840" />
+</div>
+
+### 💬 Nexura Connect
+
+Care communication: channels, mentions, receipts, critical alerts across the care circle.
+
+<div align="center">
+  <img src="docs/screenshots/connect.png" alt="Nexura Connect — care communication" width="840" />
+</div>
 
 ### Consumer & public surfaces
 
@@ -37,17 +100,42 @@ Every product below is a first-class surface in this repo — not a mockup. Each
 | **Pi engine** | rendered via widgets | Protocol intelligence: protocol cards, risk badges, digital-twin simulator (unit-tested engine) |
 | **Site & marketing** | `/`, `/pricing`, `/compliance`, `/investors`, `/founder`, `/privacy`, `/terms` | Honest-CTA marketing site, compliance posture, investor deck, founder page |
 
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="33%"><img src="docs/screenshots/predictive.png" alt="Nexura Predictive — Health Foresight" width="100%" /><sub><b>Nexura Predictive</b> — Health Foresight engine</sub></td>
+      <td align="center" width="33%"><img src="docs/screenshots/care-circle.png" alt="Nexura Care Circle" width="100%" /><sub><b>Nexura Care Circle</b> — family care coordination</sub></td>
+      <td align="center" width="33%"><img src="docs/screenshots/diy.png" alt="Nexura DIY" width="100%" /><sub><b>Nexura DIY</b> — calm wellness roadmap</sub></td>
+    </tr>
+  </table>
+</div>
+
 ## The Platform Layer (shared by every product)
 
-- **Auth suite** — email+password & staff-code+PIN, TOTP MFA, progressive lockout, revocable sessions (per-device + all), password reset, email verification, break-glass emergency access, audited logins; separate signed portal-token sessions for patients
+- **Auth suite** — email+password & staff-code+PIN, TOTP MFA, progressive lockout, revocable sessions (per-device + all), password reset, email verification, break-glass emergency access, audited logins; separate signed portal-token sessions for patients; transactional email via a real SMTP transport (`src/lib/mailer.ts`, console transport in demo)
 - **RBAC as data** — 20 roles → 36 permissions, hospital/department/patient scoping, explicit allow/deny grants with TTL, delegations, permission matrix UI
-- **AI governance** — every AI call flows through a single funnel (`callOR`): capability-labelled (24 call sites), metered to an append-only ledger (tokens + integer micro-USD cost, honest `tokenSource`/`costSource` separation — provider-reported vs estimated, never guessed silently), **attributed to the verified caller** per request via AsyncLocalStorage (null = system call, stated honestly), and gated by consent — DPDP consent with latest-event-wins resolution means a withdrawn consent produces a real 403, not a no-op
+- **AI governance** — every AI call flows through a single funnel (`callOR`): capability-labelled (30+ call sites), metered to an append-only ledger (tokens + integer micro-USD cost, honest `tokenSource`/`costSource` separation — provider-reported vs estimated, never guessed silently), **attributed to the verified caller** per request via AsyncLocalStorage (null = system call, stated honestly), and gated by consent — DPDP consent with latest-event-wins resolution means a withdrawn consent produces a real 403, not a no-op
 - **Money integrity** — every money column schema-wide is an integer minor unit (paise or cents); `src/lib/money.ts` is the canonical boundary (rupee wire / paise storage, USD cents for tourism) with exact conversions and no Float money anywhere; integer GST math and quote math throughout
 - **Rate limiting** — default limiter on every `withRoute` API route: in-process pre-filter absorbs bursts, and when `REDIS_URL` is configured the authoritative budget is consumed from Redis so horizontally scaled instances share one limit (fail-closed on Redis errors)
 - **Real-time** — SSE stream with auth-at-subscribe, reconnect, dedupe; live notifications, critical-lab alerts, urgent messages
+- **Durable jobs** — Postgres-backed queue (`FOR UPDATE SKIP LOCKED` claiming, dedupe, stale-claim reaper, self-healing chain, retention purge), booted from instrumentation with an env kill switch
 - **Observability** — `/api/health`, `/api/ready`, structured JSON logs, request IDs, maintenance mode + incident banners, startup env validation
-- **Auditability** — tamper-evident audit trail, append-only consent ledger, AI usage ledger queryable per capability/provider/user (`/api/nx/ai/usage`, `audit.view`-gated)
+- **Auditability** — tamper-evident (hash-chained) audit trail, append-only consent ledger, AI usage ledger queryable per capability/provider/user (`/api/nx/ai/usage`, `audit.view`-gated)
 - **Ops** — Dockerfile + compose, GitHub Actions CI (`.github/workflows/ci.yml`), OpenAPI 3.1 at `/api/nx/openapi`, deploy-preview verification script, DB backup/restore + validation scripts, idempotent demo seeds
+
+## The Backend — what's actually implemented
+
+Nothing on this list is "designed in chat" — it is code in the tree, running against Postgres + Redis:
+
+| Layer | Reality in the repo |
+|---|---|
+| API routes | **189 route handlers** across `/api/nx` (Hospital OS core), `/api/clinic`, `/api/pharmacy`, `/api/portal`, `/api/connect`, `/api/know-your-health`, `/api/diy`, `/api/global` and friends — the overwhelming majority execute real Prisma queries behind RBAC/ABAC guards |
+| Data | **165 Prisma models**, 8 applied migrations (baseline + AI ledger + identity attribution + integer money + telemedicine + integrity indexes + online orders) |
+| Platform services | JWT auth (bcrypt(12), token-family separation, lazy secret resolution), session revocation, ABAC engine, hash-chained audit, Redis rate limiting, durable job queue, idempotency keys (claim-then-execute) |
+| AI surface | 30+ capability-labelled AI call sites through one governance funnel: per-IP rate limits, consent enforcement, response-shape validation, metering + identity attribution |
+| Tests | **345 unit tests / 30 files** (real Postgres + Redis where honest: job queue, rate limiter, security, permissions, consent, money) + 49-check API smoke suite + Playwright e2e |
+
+**Honest boundaries (fail loudly, never fake):** ABDM/ABHA lookup returns 501 outside demo mode until the real registry is wired; IRN for e-invoices is issued by the IRP portal, so it stays `null` until that integration; SMS/WhatsApp OTP delivery needs a provider account (email goes through the SMTP mailer now); the clinic's cohort matcher reports "too few visits" instead of inventing statistics. Every demo-only behavior is labelled in the response `source` field.
 
 ## Quick start
 
@@ -55,7 +143,7 @@ Every product below is a first-class surface in this repo — not a mockup. Each
 cp .env.example .env        # fill in DATABASE_URL / JWT_SECRET / REDIS_URL
 npm install                 # deps (bun also works)
 npx prisma migrate deploy   # apply schema (PostgreSQL required)
-bun run seed:demo           # v4 demo dataset (21 staff, patients, MAR, billing, …)
+npm run seed:demo           # v4 demo dataset (21 staff, patients, MAR, billing, …)
 npm run dev                 # http://localhost:3000
 ```
 
@@ -65,13 +153,13 @@ npm run dev                 # http://localhost:3000
 | `npm run dev:real` | Plain `next dev` on :3000 |
 | `npm run typecheck` | `tsc --noEmit` gate (src must be clean) |
 | `npm run lint` | ESLint |
-| `npm run test` | Vitest unit suite (317 tests, 27 files — incl. real-DB tests that clean up after themselves) |
+| `npm run test` | Vitest unit suite (345 tests, 30 files — incl. real-DB tests that clean up after themselves) |
 | `npm run test:api` | API smoke suite, 49 checks (needs dev server running) |
 | `npm run test:e2e` | Playwright |
 | `npm run db:migrate` / `db:migrate:deploy` | Apply Prisma migrations |
 | `npm run db:generate` / `db:push` / `db:reset` | Client gen / schema push / reset |
-| `npm run seed:demo` / `seed:nx` / `seed:hospital` / `seed:all` | Demo seeds (run via bun) |
-| `npm run build` / `start` | Production build (standalone) / guardian start |
+| `npm run seed:demo` / `seed:nx` / `seed:hospital` / `seed:all` | Demo seeds |
+| `npm run build` / `start` | Production build / start (`build:standalone` for Docker/self-host) |
 | `npm run smoke` | Smoke suite via scripts |
 
 **Demo sign-in:** open `/hospital` → "Explore demo roles" fills credentials → Sign in.
@@ -82,7 +170,7 @@ Full list: [docs/DEMO_CREDENTIALS.md](docs/DEMO_CREDENTIALS.md).
 
 Six gates are run fresh at every lock point: `prisma validate` · `tsc --noEmit` · `eslint` · `vitest run` · `tests/api-smoke.sh` (49 checks against a live server) · `scripts/deploy-preview.sh` (must print `DEPLOY VERIFIED`).
 
-Current status at `main`: **all six green** — prisma OK · tsc 0 · eslint 0 · vitest 317/317 · smoke 49/49 · DEPLOY VERIFIED.
+Current status at `main`: **all six green** — prisma OK · tsc 0 · eslint 0 · vitest 345/345 · smoke 49/49 · DEPLOY VERIFIED.
 
 Tagged, gate-verified lock points (the audit trail):
 
@@ -106,7 +194,7 @@ Root: [API.md](API.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [BUSINESS.md](BU
 | [docs/AUTHORIZATION_MATRIX.md](docs/AUTHORIZATION_MATRIX.md) | Full role → permission matrix |
 | [docs/NEXURA_INTEGRATION.md](docs/NEXURA_INTEGRATION.md) | Platform contracts & adapters |
 | [docs/API.md](API.md) | API reference (also `/api/nx/openapi`) |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deploy, env, rollback, backups |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deploy, env, rollback, backups, Vercel |
 | [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) | Every environment variable |
 | [docs/SECURITY.md](docs/SECURITY.md) | Controls + what's still required |
 | [docs/TESTING.md](docs/TESTING.md) | Test strategy + how to run |
@@ -126,16 +214,18 @@ src/app/            one route tree per product (hospital, clinic, pharmacy,
                     surfaces (care, vitals, diy, predictive, labs, emergency)
                     + site pages (pricing, compliance, investors, founder)
 src/app/api/        version-routed APIs under /api/nx + per-product routes
+                    (189 route handlers)
 src/components/     per-product UI + shared nx platform components + ui kit
 src/lib/            platform layer: auth, nx/api (withRoute+guard), money.ts,
                     consent.ts, ai-usage.ts, ai-actor.ts, rate-limit.ts,
-                    redis.ts, openrouter.ts, portal-session.ts, logger, env
-prisma/             schema (162 models) + applied migrations
-tests/              27 unit test files (317 tests, real-DB where honest) +
-                    api-smoke.sh (49 checks)
+                    redis.ts, openrouter.ts, mailer.ts, portal-session.ts,
+                    logger, env
+prisma/             schema (165 models) + 8 applied migrations
+tests/              30 unit test files (345 tests, real-DB where honest) +
+                    api-smoke.sh (49 checks) + Playwright e2e
 scripts/            deploy-preview, api-smoke, db-backup/restore, guardians,
                     seeds, codemods
-docs/               the full documentation set (table above)
+docs/               the full documentation set (table above) + screenshots/
 ```
 
 ## Compliance posture (read this)

@@ -277,7 +277,7 @@ function Dashboard({
         <MetricTile
           icon={Footprints}
           label="Steps"
-          value={stats.steps}
+          value={stats.steps ?? "—"}
           delta="+12%"
           tone="sage"
           className="lg:col-span-3"
@@ -285,8 +285,8 @@ function Dashboard({
         <MetricTile
           icon={Moon}
           label="Sleep"
-          value={stats.sleep}
-          suffix="h"
+          value={stats.sleep ?? "—"}
+          suffix={stats.sleep != null ? "h" : undefined}
           delta="+0.4h"
           tone="honey"
           className="lg:col-span-3"
@@ -303,7 +303,7 @@ function Dashboard({
         <MetricTile
           icon={Flame}
           label="Calories"
-          value={stats.calories}
+          value={stats.calories ?? "—"}
           delta="-5%"
           tone="clay"
           negative

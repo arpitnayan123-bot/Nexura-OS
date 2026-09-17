@@ -16,6 +16,7 @@ interface EnvReport {
     DEMO_MODE: boolean;
     NEXURA_MODE: "local" | "remote";
     EMAIL_TRANSPORT: "console" | "smtp";
+    SMTP_CONFIGURED: boolean;
     JWT_SECRET_SET: boolean;
     DATABASE_URL: string;
   };
@@ -46,7 +47,13 @@ export function env(): EnvReport {
   }
   const emailTransport = process.env.EMAIL_TRANSPORT === "smtp" ? "smtp" : "console";
   if (emailTransport === "console") {
-    warnings.push("EMAIL_TRANSPORT=console — emails (password reset, verification) print to the server log instead of sending. Integration point for SMTP/provider.");
+    warnings.push("EMAIL_TRANSPORT=console — emails (password reset, verification) print to the server log instead of sending. Set EMAIL_TRANSPORT=smtp + SMTP_* vars to send real mail.");
+  }
+  const smtpConfigured = Boolean(
+    emailTransport === "smtp" && process.env.SMTP_HOST && process.env.SMTP_PORT && process.env.SMTP_FROM
+  );
+  if (emailTransport === "smtp" && !smtpConfigured) {
+    warnings.push("EMAIL_TRANSPORT=smtp but SMTP_HOST/SMTP_PORT/SMTP_FROM are incomplete — mail senders fall back to console transport per call.");
   }
   if (!process.env.DATABASE_URL) {
     errors.push("DATABASE_URL is required.");
@@ -63,6 +70,7 @@ export function env(): EnvReport {
       DEMO_MODE: process.env.DEMO_MODE === "true",
       NEXURA_MODE: nexuraMode,
       EMAIL_TRANSPORT: emailTransport,
+      SMTP_CONFIGURED: smtpConfigured,
       JWT_SECRET_SET: jwtSecretSet,
       DATABASE_URL: process.env.DATABASE_URL ? "set" : "missing",
     },

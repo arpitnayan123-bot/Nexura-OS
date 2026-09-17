@@ -241,7 +241,7 @@ async function POST_impl(req: NextRequest) {
         patientName,
         phone,
         deliveryAddress,
-        prescriptionImage: img.raw ? body.prescriptionImage : null,
+        prescriptionImage: img.raw,
         ocrItemsJson: ocrRawJson,
         status: "pending_review",
         note,

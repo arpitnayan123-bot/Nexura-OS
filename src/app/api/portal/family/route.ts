@@ -81,7 +81,9 @@ export async function GET() {
  *   PortalFamilyInvite is created; the person must accept it from their
  *   own account with a one-time token. Their profile is NEVER modified
  *   by the requester. (Delivery channel in production: SMS/WhatsApp —
- *   TODO(otp-delivery); the demo returns the token to the inviting UI.)
+ *   requires an external provider account; email invitations go through
+ *   src/lib/mailer.ts when a member has an email on file. The demo
+ *   returns the token to the inviting UI.)
  */
 export async function POST(req: NextRequest) {
   try {
@@ -113,7 +115,9 @@ export async function POST(req: NextRequest) {
         },
         select: { id: true, phone: true, fullName: true, relation: true, expiresAt: true },
       });
-      // TODO(otp-delivery): production sends this link by SMS/WhatsApp.
+      // SMS/WhatsApp delivery needs an external provider account (honest
+      // boundary); email invitations route through src/lib/mailer.ts when
+      // the invited member has an address on file.
       return NextResponse.json({
         ok: true,
         invite: { ...invite, token },
