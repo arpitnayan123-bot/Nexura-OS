@@ -26,7 +26,7 @@ const RISK_STYLE: Record<string, { bg: string; text: string; border: string; lab
   high: { bg: "bg-red-500/5", text: "text-red-400", border: "border-red-500/20", label: "High Risk" },
   moderate: { bg: "bg-yellow-500/5", text: "text-yellow-400", border: "border-yellow-500/20", label: "Moderate Risk" },
   low: { bg: "bg-green-500/5", text: "text-green-400", border: "border-green-500/20", label: "Low Risk" },
-  none: { bg: "bg-[#111418]", text: "text-[#6B7280]", border: "border-[#1E2228]", label: "No Risk Data" },
+  none: { bg: "bg-[#111418]", text: "text-[#828894]", border: "border-[#1E2228]", label: "No Risk Data" },
 };
 
 export function RiskScoresModule() {
@@ -38,7 +38,7 @@ export function RiskScoresModule() {
     fetch("/api/pharmacy/risk-score").then(r => r.json()).then(d => { setPatients(d.patients || []); setSummary(d.summary); }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="grid h-40 place-items-center"><Loader2 className="h-5 w-5 animate-spin text-[#6B7280]" /></div>;
+  if (loading) return <div className="grid h-40 place-items-center"><Loader2 className="h-5 w-5 animate-spin text-[#828894]" /></div>;
 
   const riskPatients = patients.filter(p => p.riskLevel !== "none");
 
@@ -47,7 +47,7 @@ export function RiskScoresModule() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="font-serif text-2xl font-semibold text-white">Patient Risk Scores</h1>
-          <p className="text-sm text-[#6B7280]">AI risk stratification — ICMR-INDIAB + NFHS-5 + medication profile</p>
+          <p className="text-sm text-[#828894]">AI risk stratification — ICMR-INDIAB + NFHS-5 + medication profile</p>
         </div>
         <span className="flex items-center gap-1.5 rounded-full bg-[#F59E0B]/10 px-3 py-1 text-xs font-medium text-[#F59E0B]">
           <Sparkles className="h-3.5 w-3.5" /> AI-powered (PioneerRx inspired)
@@ -68,7 +68,7 @@ export function RiskScoresModule() {
       {riskPatients.length === 0 ? (
         <div className="grid place-items-center rounded-2xl border border-[#1E2228] bg-[#111418] py-16 text-center">
           <HeartPulse className="mb-2 h-10 w-10 text-[#1E2228]" />
-          <p className="text-sm text-[#6B7280]">No at-risk patients detected.</p>
+          <p className="text-sm text-[#828894]">No at-risk patients detected.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -90,14 +90,14 @@ export function RiskScoresModule() {
                     </span>
                     <div>
                       <p className="text-sm font-semibold text-white">{p.customerName}</p>
-                      <p className="text-[0.65rem] text-[#6B7280]">{p.phone || "No phone"} · {p.totalPurchases} purchases · {p.diseaseCount} diseases</p>
+                      <p className="text-[0.65rem] text-[#828894]">{p.phone || "No phone"} · {p.totalPurchases} purchases · {p.diseaseCount} diseases</p>
                     </div>
                   </div>
                   {/* Risk score gauge */}
                   <div className="flex items-center gap-3">
                     <div className="text-right">
                       <p className="font-serif text-3xl font-bold" style={{ color: p.riskColor }}>{p.riskScore}</p>
-                      <p className="text-[0.55rem] uppercase tracking-wider text-[#6B7280]">risk score</p>
+                      <p className="text-[0.55rem] uppercase tracking-wider text-[#828894]">risk score</p>
                     </div>
                     <span className={cn("rounded-full px-2.5 py-1 text-[0.65rem] font-bold", style.bg, style.text)}>
                       {style.label}
@@ -118,13 +118,13 @@ export function RiskScoresModule() {
 
                 {/* Detected diseases */}
                 <div className="mt-3">
-                  <p className="mb-1.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[#6B7280]">Detected conditions (from purchase history)</p>
+                  <p className="mb-1.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[#828894]">Detected conditions (from purchase history)</p>
                   <div className="flex flex-wrap gap-1.5">
                     {p.detectedDiseases.map((dd, j) => (
                       <span key={j} className="flex items-center gap-1 rounded-lg bg-[#0D0F12] px-2 py-1 text-xs">
                         <Stethoscope className="h-3 w-3 text-[#F59E0B]" />
                         <span className="font-medium text-white">{dd.disease}</span>
-                        <span className="text-[0.55rem] text-[#6B7280]">({dd.source})</span>
+                        <span className="text-[0.55rem] text-[#828894]">({dd.source})</span>
                       </span>
                     ))}
                   </div>
@@ -138,7 +138,7 @@ export function RiskScoresModule() {
                     </p>
                     <div className="space-y-1">
                       {p.recommendations.map((r, j) => (
-                        <p key={j} className="text-xs text-[#6B7280]">→ {r}</p>
+                        <p key={j} className="text-xs text-[#828894]">→ {r}</p>
                       ))}
                     </div>
                   </div>
@@ -147,7 +147,7 @@ export function RiskScoresModule() {
                 {/* Data sources */}
                 <div className="mt-2 flex flex-wrap gap-1">
                   {p.sources.map((s, j) => (
-                    <span key={j} className="rounded bg-[#1E2228] px-1.5 py-0.5 text-[0.5rem] text-[#6B7280]">{s}</span>
+                    <span key={j} className="rounded bg-[#1E2228] px-1.5 py-0.5 text-[0.5rem] text-[#828894]">{s}</span>
                   ))}
                 </div>
               </motion.div>
@@ -166,7 +166,7 @@ function Kpi({ icon: Icon, label, value, color }: { icon: React.ComponentType<{ 
         <Icon className="h-4 w-4" />
       </span>
       <p className="mt-2 font-serif text-xl font-bold text-white">{value}</p>
-      <p className="text-[0.6rem] text-[#6B7280]">{label}</p>
+      <p className="text-[0.6rem] text-[#828894]">{label}</p>
     </div>
   );
 }

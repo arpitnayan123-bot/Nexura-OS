@@ -58,7 +58,7 @@ export function MedSyncModule() {
     } catch { toast.error("Could not send reminder"); } finally { setSending(null); }
   };
 
-  if (loading) return <div className="grid h-40 place-items-center"><Loader2 className="h-5 w-5 animate-spin text-[#6B7280]" /></div>;
+  if (loading) return <div className="grid h-40 place-items-center"><Loader2 className="h-5 w-5 animate-spin text-[#828894]" /></div>;
 
   return (
     <div className="space-y-4">
@@ -66,7 +66,7 @@ export function MedSyncModule() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="font-serif text-2xl font-semibold text-white">Medication Sync</h1>
-          <p className="text-sm text-[#6B7280]">AI-detected chronic patients · aligned monthly refills · auto WhatsApp reminders</p>
+          <p className="text-sm text-[#828894]">AI-detected chronic patients · aligned monthly refills · auto WhatsApp reminders</p>
         </div>
         <span className="flex items-center gap-1.5 rounded-full bg-[#F59E0B]/10 px-3 py-1 text-xs font-medium text-[#F59E0B]">
           <Sparkles className="h-3.5 w-3.5" /> AI-powered (PioneerRx inspired)
@@ -87,8 +87,8 @@ export function MedSyncModule() {
       {patients.length === 0 ? (
         <div className="grid place-items-center rounded-2xl border border-[#1E2228] bg-[#111418] py-16 text-center">
           <HeartPulse className="mb-2 h-10 w-10 text-[#1E2228]" />
-          <p className="text-sm text-[#6B7280]">No chronic patients detected yet.</p>
-          <p className="text-xs text-[#6B7280]">AI detects chronic patterns from purchase history (e.g. monthly Metformin = diabetic).</p>
+          <p className="text-sm text-[#828894]">No chronic patients detected yet.</p>
+          <p className="text-xs text-[#828894]">AI detects chronic patterns from purchase history (e.g. monthly Metformin = diabetic).</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -113,7 +113,7 @@ export function MedSyncModule() {
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-white">{p.customerName}</p>
-                    <p className="text-[0.65rem] text-[#6B7280]">{p.phone || "No phone"} · {p.totalPurchases} purchases</p>
+                    <p className="text-[0.65rem] text-[#828894]">{p.phone || "No phone"} · {p.totalPurchases} purchases</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -144,10 +144,10 @@ export function MedSyncModule() {
                       </span>
                       <p className="text-xs font-semibold text-white">{dd.disease}</p>
                     </div>
-                    <p className="mt-1 text-[0.65rem] text-[#6B7280]">
+                    <p className="mt-1 text-[0.65rem] text-[#828894]">
                       {dd.medicines.join(", ")}
                     </p>
-                    <p className="mt-0.5 text-[0.6rem] text-[#6B7280]">
+                    <p className="mt-0.5 text-[0.6rem] text-[#828894]">
                       Last purchased: {new Date(dd.lastPurchase).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                     </p>
                   </div>
@@ -157,7 +157,7 @@ export function MedSyncModule() {
               {/* Refill timeline */}
               {p.nextRefillDates.length > 0 && (
                 <div className="mt-3">
-                  <p className="mb-1.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[#6B7280]">Refill timeline</p>
+                  <p className="mb-1.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[#828894]">Refill timeline</p>
                   <div className="flex flex-wrap gap-2">
                     {p.nextRefillDates.map((r, j) => {
                       const urgent = r.daysUntil <= 3;
@@ -165,7 +165,7 @@ export function MedSyncModule() {
                       return (
                         <div key={j} className={cn(
                           "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs",
-                          urgent ? "bg-red-500/10 text-red-400" : soon ? "bg-yellow-500/10 text-yellow-400" : "bg-[#0D0F12] text-[#6B7280]"
+                          urgent ? "bg-red-500/10 text-red-400" : soon ? "bg-yellow-500/10 text-yellow-400" : "bg-[#0D0F12] text-[#828894]"
                         )}>
                           <Clock className="h-3 w-3" />
                           <span>{r.disease}</span>
@@ -187,7 +187,7 @@ export function MedSyncModule() {
                     "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all",
                     p.needsReminder
                       ? "bg-[#F59E0B] text-black hover:bg-[#D97706]"
-                      : "bg-[#1E2228] text-[#6B7280] hover:text-white"
+                      : "bg-[#1E2228] text-[#828894] hover:text-white"
                   )}
                 >
                   {sending === p.customerId ? <Loader2 className="h-3 w-3 animate-spin" /> : <MessageCircle className="h-3 w-3" />}
@@ -217,7 +217,7 @@ function Kpi({ icon: Icon, label, value, color }: { icon: React.ComponentType<{ 
         <Icon className="h-4 w-4" />
       </span>
       <p className="mt-2 font-serif text-xl font-bold text-white">{value}</p>
-      <p className="text-[0.6rem] text-[#6B7280]">{label}</p>
+      <p className="text-[0.6rem] text-[#828894]">{label}</p>
     </div>
   );
 }

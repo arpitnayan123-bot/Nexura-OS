@@ -177,7 +177,7 @@ export const BillingModule = memo(function BillingModule() {
     <div className="space-y-4">
       {/* Search bar — Marg ERP style */}
       <div className="relative">
-        <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6B7280]" />
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#828894]" />
         <input
           ref={searchRef}
           value={query}
@@ -192,7 +192,7 @@ export const BillingModule = memo(function BillingModule() {
           <button onClick={() => setShowRx(true)} className="flex items-center gap-1.5 rounded-xl bg-[#F59E0B]/10 px-3 py-2 text-xs font-medium text-[#F59E0B] transition-colors hover:bg-[#F59E0B]/20" title="AI Prescription Camera">
             <Camera className="h-4 w-4" /> <span className="hidden sm:inline">AI Rx</span>
           </button>
-          <button onClick={() => toast.info("AI Substitute Finder — search an out-of-stock medicine")} className="grid h-9 w-9 place-items-center rounded-xl bg-[#1E2228] text-[#6B7280] hover:bg-[#2A2E35] hover:text-white" title="AI Substitute">
+          <button onClick={() => toast.info("AI Substitute Finder — search an out-of-stock medicine")} className="grid h-9 w-9 place-items-center rounded-xl bg-[#1E2228] text-[#828894] hover:bg-[#2A2E35] hover:text-white" title="AI Substitute">
             <Sparkles className="h-4 w-4" />
           </button>
         </div>
@@ -210,7 +210,7 @@ export const BillingModule = memo(function BillingModule() {
                     <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-lg", isH ? "bg-red-500/10 text-red-400" : "bg-green-500/10 text-green-400")}><Pill className="h-4 w-4" /></span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-white">{p.name} {isH && <span className="ml-1 rounded bg-red-500/15 px-1 text-[0.55rem] font-bold text-red-400">{p.schedule}</span>}</p>
-                      <p className="truncate text-[0.65rem] text-[#6B7280]">{p.genericName} · {p.brand} · {p.salts}</p>
+                      <p className="truncate text-[0.65rem] text-[#828894]">{p.genericName} · {p.brand} · {p.salts}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-serif text-sm font-bold text-[#F59E0B]">₹{batch?.mrp.toFixed(0)}</p>
@@ -244,8 +244,8 @@ export const BillingModule = memo(function BillingModule() {
         {/* LEFT — cart */}
         <div className="rounded-2xl border border-[#1E2228] bg-[#111418] p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-serif text-base font-semibold text-white">Bill Cart ({cart.length})</h3>
-            {cart.length > 0 && <button onClick={() => setCart([])} className="text-xs text-[#6B7280] hover:text-red-400">Clear</button>}
+            <h2 className="font-serif text-base font-semibold text-white">Bill Cart ({cart.length})</h2>
+            {cart.length > 0 && <button onClick={() => setCart([])} className="text-xs text-[#828894] hover:text-red-400">Clear</button>}
           </div>
 
           {cart.length === 0 ? (
@@ -256,7 +256,7 @@ export const BillingModule = memo(function BillingModule() {
                 </span>
                 <div>
                   <p className="text-sm font-medium text-[#9CA3AF]">Search above to add medicines</p>
-                  <p className="mt-0.5 text-[0.65rem] text-[#6B7280]">AI Rx reading · interaction checks · GST built in</p>
+                  <p className="mt-0.5 text-[0.65rem] text-[#828894]">AI Rx reading · interaction checks · GST built in</p>
                 </div>
               </div>
             </div>
@@ -264,7 +264,7 @@ export const BillingModule = memo(function BillingModule() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#1E2228] text-left text-[0.6rem] uppercase tracking-wider text-[#6B7280]">
+                  <tr className="border-b border-[#1E2228] text-left text-[0.6rem] uppercase tracking-wider text-[#828894]">
                     <th className="py-2 pr-2 font-medium">Medicine · Batch</th>
                     <th className="px-2 py-2 text-center font-medium">MRP</th>
                     <th className="px-2 py-2 text-center font-medium">Strips</th>
@@ -285,29 +285,29 @@ export const BillingModule = memo(function BillingModule() {
                         <motion.tr key={it.key} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="border-b border-[#1A1D22]">
                           <td className="py-2.5 pr-2">
                             <p className="font-medium text-white">{it.name} {(it.schedule === "H" || it.schedule === "H1") && <span className="ml-1 rounded bg-red-500/15 px-1 text-[0.55rem] font-bold text-red-400">{it.schedule}</span>}</p>
-                            <p className="text-[0.6rem] text-[#6B7280]">{it.genericName} · {it.batchNo}</p>
+                            <p className="text-[0.6rem] text-[#828894]">{it.genericName} · {it.batchNo}</p>
                             {it.scheduleH && <p className="mt-0.5 text-[0.55rem] text-green-400">✓ Rx: {it.scheduleH.doctorName} · {it.scheduleH.patientName}</p>}
                           </td>
-                          <td className="px-2 py-2.5 text-center tabular-nums text-[#6B7280]">₹{it.mrp.toFixed(0)}</td>
+                          <td className="px-2 py-2.5 text-center tabular-nums text-[#828894]">₹{it.mrp.toFixed(0)}</td>
                           <td className="px-2 py-2.5">
                             <div className="mx-auto flex w-fit items-center gap-1">
-                              <button onClick={() => updateQty(it.key, -1)} className="grid h-6 w-6 place-items-center rounded-full bg-[#1E2228] text-[#6B7280] hover:bg-[#2A2E35]"><Minus className="h-3 w-3" /></button>
+                              <button onClick={() => updateQty(it.key, -1)} className="grid h-6 w-6 place-items-center rounded-full bg-[#1E2228] text-[#828894] hover:bg-[#2A2E35]"><Minus className="h-3 w-3" /></button>
                               <span className="w-6 text-center tabular-nums text-white">{it.qtyStrips}</span>
-                              <button onClick={() => updateQty(it.key, 1)} className="grid h-6 w-6 place-items-center rounded-full bg-[#1E2228] text-[#6B7280] hover:bg-[#2A2E35]"><Plus className="h-3 w-3" /></button>
+                              <button onClick={() => updateQty(it.key, 1)} className="grid h-6 w-6 place-items-center rounded-full bg-[#1E2228] text-[#828894] hover:bg-[#2A2E35]"><Plus className="h-3 w-3" /></button>
                             </div>
                           </td>
                           <td className="px-2 py-2.5">
                             <div className="mx-auto flex w-fit items-center gap-1">
-                              <button onClick={() => updateQty(it.key, -1, true)} className="grid h-6 w-6 place-items-center rounded-full bg-[#1E2228] text-[#6B7280] hover:bg-[#2A2E35]"><Minus className="h-3 w-3" /></button>
+                              <button onClick={() => updateQty(it.key, -1, true)} className="grid h-6 w-6 place-items-center rounded-full bg-[#1E2228] text-[#828894] hover:bg-[#2A2E35]"><Minus className="h-3 w-3" /></button>
                               <span className="w-5 text-center tabular-nums text-white">{it.qtyLoose}</span>
-                              <button onClick={() => updateQty(it.key, 1, true)} className="grid h-6 w-6 place-items-center rounded-full bg-[#1E2228] text-[#6B7280] hover:bg-[#2A2E35]"><Plus className="h-3 w-3" /></button>
+                              <button onClick={() => updateQty(it.key, 1, true)} className="grid h-6 w-6 place-items-center rounded-full bg-[#1E2228] text-[#828894] hover:bg-[#2A2E35]"><Plus className="h-3 w-3" /></button>
                             </div>
                           </td>
                           <td className="px-2 py-2.5 text-center">
                             <input type="number" value={it.discountPct || ""} onChange={(e) => updateDiscount(it.key, +e.target.value || 0)} className="h-7 w-12 rounded-md bg-[#0D0F12] text-center text-xs text-white ring-1 ring-[#1E2228] outline-none focus:ring-[#F59E0B]/40" placeholder="0" />
                           </td>
                           <td className="px-2 py-2.5 text-right font-medium tabular-nums text-white">₹{amt.toFixed(2)}</td>
-                          <td className="py-2.5 pl-2"><button onClick={() => removeItem(it.key)} className="grid h-7 w-7 place-items-center rounded-full text-[#6B7280] hover:bg-red-500/10 hover:text-red-400"><Trash2 className="h-3.5 w-3.5" /></button></td>
+                          <td className="py-2.5 pl-2"><button onClick={() => removeItem(it.key)} className="grid h-7 w-7 place-items-center rounded-full text-[#828894] hover:bg-red-500/10 hover:text-red-400"><Trash2 className="h-3.5 w-3.5" /></button></td>
                         </motion.tr>
                       );
                     })}
@@ -321,7 +321,7 @@ export const BillingModule = memo(function BillingModule() {
           <div className="mt-4 flex flex-col gap-3 border-t border-[#1E2228] pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-1 rounded-xl bg-[#0D0F12] p-0.5">
               {(["cash", "upi", "card", "credit"] as const).map((m) => (
-                <button key={m} onClick={() => setPayMode(m)} className={cn("rounded-lg px-2.5 py-1.5 text-xs font-medium uppercase transition-colors", payMode === m ? "bg-[#F59E0B] text-black" : "text-[#6B7280] hover:text-white")}>{m}</button>
+                <button key={m} onClick={() => setPayMode(m)} className={cn("rounded-lg px-2.5 py-1.5 text-xs font-medium uppercase transition-colors", payMode === m ? "bg-[#F59E0B] text-black" : "text-[#828894] hover:text-white")}>{m}</button>
               ))}
             </div>
             <button onClick={submit} disabled={billing || cart.length === 0} className="btn-gold flex items-center justify-center gap-2 rounded-xl bg-[#F59E0B] px-6 py-2.5 text-sm font-bold text-black shadow-lg shadow-[#F59E0B]/20 transition-all hover:bg-[#D97706] disabled:opacity-50">
@@ -349,17 +349,17 @@ export const BillingModule = memo(function BillingModule() {
             <div className="mb-3 space-y-1">
               {GST_SLABS.filter(s => totals.slabData[s].taxable > 0).map(s => (
                 <div key={s} className="flex items-center justify-between rounded-lg bg-[#0D0F12] px-2.5 py-1.5">
-                  <span className="text-xs text-[#6B7280]">{s}% slab</span>
+                  <span className="text-xs text-[#828894]">{s}% slab</span>
                   <div className="text-right">
                     <span className="text-xs tabular-nums text-white">₹{totals.slabData[s].taxable.toFixed(0)}</span>
-                    <span className="ml-2 text-[0.6rem] tabular-nums text-[#6B7280]">CGST ₹{totals.slabData[s].cgst.toFixed(0)} · SGST ₹{totals.slabData[s].sgst.toFixed(0)}</span>
+                    <span className="ml-2 text-[0.6rem] tabular-nums text-[#828894]">CGST ₹{totals.slabData[s].cgst.toFixed(0)} · SGST ₹{totals.slabData[s].sgst.toFixed(0)}</span>
                   </div>
                 </div>
               ))}
             </div>
             <dl className="space-y-1.5 text-sm">
-              <div className="flex justify-between"><dt className="text-[#6B7280]">Subtotal</dt><dd className="tabular-nums text-white">₹{totals.subtotal.toFixed(2)}</dd></div>
-              <div className="flex justify-between"><dt className="text-[#6B7280]">Discount</dt><dd className="tabular-nums text-red-400">-₹{totals.discount.toFixed(2)}</dd></div>
+              <div className="flex justify-between"><dt className="text-[#828894]">Subtotal</dt><dd className="tabular-nums text-white">₹{totals.subtotal.toFixed(2)}</dd></div>
+              <div className="flex justify-between"><dt className="text-[#828894]">Discount</dt><dd className="tabular-nums text-red-400">-₹{totals.discount.toFixed(2)}</dd></div>
               {lastSale && (
                 <div className="pt-2">
                   <button onClick={fetchEinvoice} disabled={einvLoading} className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#F59E0B]/30 px-3 py-2 text-xs font-semibold text-[#F59E0B] transition hover:bg-[#F59E0B]/10 disabled:opacity-50">
@@ -372,9 +372,9 @@ export const BillingModule = memo(function BillingModule() {
                 </div>
               )}
               <div className="my-1 h-px bg-[#1E2228]" />
-              <div className="flex justify-between"><dt className="text-[#6B7280]">CGST</dt><dd className="tabular-nums text-white">₹{totals.totalCgst.toFixed(2)}</dd></div>
-              <div className="flex justify-between"><dt className="text-[#6B7280]">SGST</dt><dd className="tabular-nums text-white">₹{totals.totalSgst.toFixed(2)}</dd></div>
-              <div className="flex justify-between text-xs"><dt className="text-[#6B7280]">Round off</dt><dd className="tabular-nums text-[#6B7280]">{totals.roundOff >= 0 ? "+" : ""}₹{totals.roundOff.toFixed(2)}</dd></div>
+              <div className="flex justify-between"><dt className="text-[#828894]">CGST</dt><dd className="tabular-nums text-white">₹{totals.totalCgst.toFixed(2)}</dd></div>
+              <div className="flex justify-between"><dt className="text-[#828894]">SGST</dt><dd className="tabular-nums text-white">₹{totals.totalSgst.toFixed(2)}</dd></div>
+              <div className="flex justify-between text-xs"><dt className="text-[#828894]">Round off</dt><dd className="tabular-nums text-[#828894]">{totals.roundOff >= 0 ? "+" : ""}₹{totals.roundOff.toFixed(2)}</dd></div>
               <div className="my-1 h-px bg-[#1E2228]" />
               <div className="flex items-baseline justify-between">
                 <dt className="font-medium text-white">Total Payable</dt>
@@ -416,11 +416,11 @@ function BatchPanel({ item, onClose, onSelect }: { item: InventoryItem | null; o
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <h3 className="font-serif text-base font-semibold text-white">{item.name}</h3>
-                <p className="text-[0.65rem] text-[#6B7280]">{item.genericName} · {item.salts} · {item.brand}</p>
+                <p className="text-[0.65rem] text-[#828894]">{item.genericName} · {item.salts} · {item.brand}</p>
               </div>
-              <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-[#6B7280] hover:bg-[#1E2228]"><X className="h-4 w-4" /></button>
+              <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-[#828894] hover:bg-[#1E2228]"><X className="h-4 w-4" /></button>
             </div>
-            <p className="mb-3 text-[0.6rem] uppercase tracking-wider text-[#6B7280]">Batches (FEFO — earliest expiry first)</p>
+            <p className="mb-3 text-[0.6rem] uppercase tracking-wider text-[#828894]">Batches (FEFO — earliest expiry first)</p>
             <div className="space-y-2">
               {[...item.batches].sort((a, b) => a.expDate.localeCompare(b.expDate)).map((b) => {
                 const exp = new Date(b.expDate + "-01");
@@ -431,8 +431,8 @@ function BatchPanel({ item, onClose, onSelect }: { item: InventoryItem | null; o
                   <div key={b.id} className="flex items-center gap-3 rounded-xl border border-[#1E2228] bg-[#0D0F12] p-3">
                     <div className="flex-1">
                       <p className="text-sm font-medium text-white">Batch: {b.batchNo}</p>
-                      <p className="text-[0.65rem] text-[#6B7280]">MRP ₹{b.mrp.toFixed(0)} · Stock: {b.stockStrips} strips</p>
-                      <p className="text-[0.65rem] text-[#6B7280]">Exp: {exp.toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" })}</p>
+                      <p className="text-[0.65rem] text-[#828894]">MRP ₹{b.mrp.toFixed(0)} · Stock: {b.stockStrips} strips</p>
+                      <p className="text-[0.65rem] text-[#828894]">Exp: {exp.toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" })}</p>
                     </div>
                     <span className={cn("rounded-full px-2 py-0.5 text-[0.55rem] font-medium", urgency.color)}>{urgency.label}</span>
                     {isOut ? (
@@ -466,10 +466,10 @@ function ScheduleHModal({ pending, onClose, onConfirm }: { pending: { item: Inve
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-red-500/15 text-red-400"><ShieldAlert className="h-4 w-4" /></span>
                 <div>
                   <h3 className="font-serif text-base font-semibold text-white">Schedule {pending.item.schedule} — Mandatory</h3>
-                  <p className="text-[0.65rem] text-[#6B7280]">Drug Inspector compliance — Drugs &amp; Cosmetics Rules 1945</p>
+                  <p className="text-[0.65rem] text-[#828894]">Drug Inspector compliance — Drugs &amp; Cosmetics Rules 1945</p>
                 </div>
               </div>
-              <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-[#6B7280] hover:bg-[#1E2228]"><X className="h-4 w-4" /></button>
+              <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-[#828894] hover:bg-[#1E2228]"><X className="h-4 w-4" /></button>
             </div>
             <ScheduleHForm key={pending.item.id} pending={pending} onClose={onClose} onConfirm={onConfirm} />
           </motion.div>
@@ -485,7 +485,7 @@ function ScheduleHForm({ pending, onClose, onConfirm }: { pending: { item: Inven
   return (
     <>
       <div className="space-y-3 p-5">
-        <div className="rounded-lg bg-red-500/5 px-3 py-2 text-xs"><span className="text-[#6B7280]">Adding: </span><strong className="text-white">{pending.item.name}</strong><span className="ml-1 rounded bg-red-500/15 px-1 text-[0.55rem] font-bold text-red-400">{pending.item.schedule}</span></div>
+        <div className="rounded-lg bg-red-500/5 px-3 py-2 text-xs"><span className="text-[#828894]">Adding: </span><strong className="text-white">{pending.item.name}</strong><span className="ml-1 rounded bg-red-500/15 px-1 text-[0.55rem] font-bold text-red-400">{pending.item.schedule}</span></div>
         <Field label="Patient name *" value={d.patientName} onChange={(v) => setD({ ...d, patientName: v })} />
         <Field label="Patient address" value={d.patientAddress} onChange={(v) => setD({ ...d, patientAddress: v })} />
         <Field label="Prescribing doctor name *" value={d.doctorName} onChange={(v) => setD({ ...d, doctorName: v })} />
@@ -495,7 +495,7 @@ function ScheduleHForm({ pending, onClose, onConfirm }: { pending: { item: Inven
         </div>
       </div>
       <div className="flex gap-2 border-t border-[#1E2228] p-4">
-        <button onClick={onClose} className="flex-1 rounded-xl py-2.5 text-sm font-medium text-[#6B7280] hover:bg-[#1E2228]">Cancel</button>
+        <button onClick={onClose} className="flex-1 rounded-xl py-2.5 text-sm font-medium text-[#828894] hover:bg-[#1E2228]">Cancel</button>
         <button onClick={() => valid && onConfirm(d)} disabled={!valid} className="flex-[2] rounded-xl bg-[#F59E0B] py-2.5 text-sm font-bold text-black disabled:opacity-40">Confirm &amp; Add to Bill</button>
       </div>
     </>
@@ -503,7 +503,7 @@ function ScheduleHForm({ pending, onClose, onConfirm }: { pending: { item: Inven
 }
 
 function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
-  return <div><label className="text-xs text-[#6B7280]">{label}</label><input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="mt-1 h-10 w-full rounded-lg border border-[#1E2228] bg-[#0D0F12] px-3 text-sm text-white outline-none focus:border-[#F59E0B]/50" /></div>;
+  return <div><label className="text-xs text-[#828894]">{label}</label><input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="mt-1 h-10 w-full rounded-lg border border-[#1E2228] bg-[#0D0F12] px-3 text-sm text-white outline-none focus:border-[#F59E0B]/50" /></div>;
 }
 
 /* ============== AI Prescription Camera (VLM) ============== */
@@ -548,13 +548,13 @@ function PrescriptionModal({ open, onClose, onMapped, inventory }: { open: boole
             <div className="flex items-center justify-between border-b border-[#1E2228] bg-[#F59E0B]/5 px-5 py-4">
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#F59E0B]/15 text-[#F59E0B]"><Camera className="h-4 w-4" /></span>
-                <div><h3 className="font-serif text-base font-semibold text-white">AI Prescription Camera</h3><p className="text-[0.65rem] text-[#6B7280]">Nexura AI Vision — reads handwriting</p></div>
+                <div><h3 className="font-serif text-base font-semibold text-white">AI Prescription Camera</h3><p className="text-[0.65rem] text-[#828894]">Nexura AI Vision — reads handwriting</p></div>
               </div>
-              <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-[#6B7280] hover:bg-[#1E2228]"><X className="h-4 w-4" /></button>
+              <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-[#828894] hover:bg-[#1E2228]"><X className="h-4 w-4" /></button>
             </div>
             <div className="space-y-4 p-5">
               {!preview ? (
-                <button onClick={() => fileRef.current?.click()} className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#1E2228] text-[#6B7280] transition-colors hover:border-[#F59E0B]/30 hover:bg-[#0D0F12]">
+                <button onClick={() => fileRef.current?.click()} className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#1E2228] text-[#828894] transition-colors hover:border-[#F59E0B]/30 hover:bg-[#0D0F12]">
                   <Camera className="h-8 w-8" /><span className="text-sm font-medium">Take / upload prescription photo</span>
                 </button>
               ) : (
@@ -572,11 +572,11 @@ function PrescriptionModal({ open, onClose, onMapped, inventory }: { open: boole
               )}
               {items && (
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">AI Extracted Medicines ({items.length})</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#828894]">AI Extracted Medicines ({items.length})</p>
                   {items.map((m, i) => (
                     <div key={i} className={cn("flex items-center gap-2 rounded-lg border p-2.5", m.matched ? "border-green-500/20 bg-green-500/5" : "border-red-500/20 bg-red-500/5")}>
                       {m.matched ? <CheckCircle2 className="h-4 w-4 text-green-400" /> : <X className="h-4 w-4 text-red-400" />}
-                      <div className="flex-1"><p className="text-sm font-medium text-white">{m.name}</p><p className="text-[0.6rem] text-[#6B7280]">{m.matched ? `₹${m.mrp.toFixed(0)} · Matched` : "Not in inventory"}</p></div>
+                      <div className="flex-1"><p className="text-sm font-medium text-white">{m.name}</p><p className="text-[0.6rem] text-[#828894]">{m.matched ? `₹${m.mrp.toFixed(0)} · Matched` : "Not in inventory"}</p></div>
                       <span className={cn("rounded-full px-2 py-0.5 text-[0.55rem] font-medium", m.confidence >= 85 ? "text-green-400 bg-green-500/10" : "text-yellow-400 bg-yellow-500/10")}>{m.confidence}%</span>
                     </div>
                   ))}
@@ -602,15 +602,15 @@ function InteractionModal({ data, onClose }: { data: any; onClose: () => void })
             <div className="mb-3 flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-yellow-400" /><h3 className="font-serif text-base font-semibold text-white">AI Drug Interaction Alert</h3></div>
             <div className="space-y-3">
               <div className="rounded-lg bg-[#0D0F12] p-3">
-                <p className="text-xs text-[#6B7280]">Interacting pair</p><p className="text-sm font-medium text-white">{data.pair}</p>
+                <p className="text-xs text-[#828894]">Interacting pair</p><p className="text-sm font-medium text-white">{data.pair}</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-lg bg-[#0D0F12] p-3"><p className="text-xs text-[#6B7280]">Type</p><p className="text-sm text-white">{data.type}</p></div>
-                <div className="rounded-lg bg-[#0D0F12] p-3"><p className="text-xs text-[#6B7280]">Severity</p><p className={cn("text-sm font-medium", data.severity === "severe" ? "text-red-400" : "text-yellow-400")}>{data.severity}</p></div>
+                <div className="rounded-lg bg-[#0D0F12] p-3"><p className="text-xs text-[#828894]">Type</p><p className="text-sm text-white">{data.type}</p></div>
+                <div className="rounded-lg bg-[#0D0F12] p-3"><p className="text-xs text-[#828894]">Severity</p><p className={cn("text-sm font-medium", data.severity === "severe" ? "text-red-400" : "text-yellow-400")}>{data.severity}</p></div>
               </div>
-              <div className="rounded-lg bg-[#0D0F12] p-3"><p className="text-xs text-[#6B7280]">Clinical effect</p><p className="text-sm text-white">{data.effect}</p></div>
+              <div className="rounded-lg bg-[#0D0F12] p-3"><p className="text-xs text-[#828894]">Clinical effect</p><p className="text-sm text-white">{data.effect}</p></div>
             </div>
-            <p className="mt-3 text-[0.6rem] text-[#6B7280]">AI-as-decision-support — does not block sale. Pharmacist acknowledgment logged with timestamp per US PioneerRx standard.</p>
+            <p className="mt-3 text-[0.6rem] text-[#828894]">AI-as-decision-support — does not block sale. Pharmacist acknowledgment logged with timestamp per US PioneerRx standard.</p>
             <button onClick={onClose} className="mt-4 w-full rounded-xl bg-[#F59E0B] py-2.5 text-sm font-bold text-black">Acknowledge &amp; continue</button>
           </motion.div>
         </motion.div>

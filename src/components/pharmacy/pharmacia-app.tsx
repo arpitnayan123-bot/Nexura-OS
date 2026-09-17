@@ -137,7 +137,7 @@ export function PharmaciaApp() {
       </aside>
 
       {/* Main area */}
-      <div className="flex min-w-0 flex-1 flex-col" role="main">
+      <div className="flex min-w-0 flex-1 flex-col">
         {/* Mini-dashboard strip — champagne glass with gold hairline */}
         <div className="sticky top-0 z-20 relative flex items-center gap-3 border-b border-[#1E2228] bg-[#111418]/90 px-4 py-2.5 backdrop-blur-xl lg:px-6">
           <div aria-hidden className="hairline-gold pointer-events-none absolute inset-x-0 bottom-0 opacity-60" />
@@ -153,7 +153,7 @@ export function PharmaciaApp() {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-x-hidden p-4 sm:p-6">
+        <main className="flex-1 overflow-x-hidden p-4 sm:p-6">
           <AnimatePresence mode="wait">
             <motion.div
               key={active}
@@ -188,7 +188,7 @@ export function PharmaciaApp() {
               )}
             </motion.div>
           </AnimatePresence>
-        </div>
+        </main>
 
         {/* Credits footer */}
         <CreditsFooter />

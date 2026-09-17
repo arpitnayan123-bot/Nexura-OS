@@ -11,7 +11,7 @@ const TIERS = [
   {
     product: "Hospital OS",
     icon: Building2,
-    color: "#B8860B",
+    color: "#6E5006",
     href: "/hospital",
     plans: [
       { name: "Starter", price: "₹50,000", period: "/month", desc: "Up to 50 beds", features: ["Dashboard + OPD + IPD", "EHR + Nursing", "Basic billing", "Email support", "1 hospital location"], cta: "Start onboarding" },
@@ -22,7 +22,7 @@ const TIERS = [
   {
     product: "Clinic OS",
     icon: Stethoscope,
-    color: "#A16207",
+    color: "#603A04",
     href: "/clinic",
     plans: [
       { name: "Solo", price: "₹2,000", period: "/month", desc: "1 doctor", features: ["SOAP consultation", "Drug autocomplete (54 meds)", "Patient register", "Basic billing", "Public booking page"], cta: "Start onboarding" },
@@ -33,7 +33,7 @@ const TIERS = [
   {
     product: "Pharmacia",
     icon: Pill,
-    color: "#F59E0B",
+    color: "#935E06",
     href: "/pharmacy",
     plans: [
       { name: "Single Store", price: "₹1,500", period: "/month", desc: "1 pharmacy", features: ["Billing POS", "Inventory + batches", "GST e-invoice", "Schedule H register", "1 pharmacy location"], cta: "Start onboarding" },
@@ -44,7 +44,7 @@ const TIERS = [
   {
     product: "Patient Portal",
     icon: HeartPulse,
-    color: "#0EA5E9",
+    color: "#08638B",
     href: "/portal",
     plans: [
       { name: "Patient", price: "Free", period: "forever", desc: "For patients", features: ["Unified health record", "Appointment history", "Prescriptions + bills", "Family member management", "Basic AI insights"], cta: "Sign up free" },
@@ -58,7 +58,7 @@ export function PricingPage() {
   const [activeProduct, setActiveProduct] = useState(0);
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]" role="main">
+    <div className="min-h-screen bg-[#FAF7F2]">
       {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-[#FAF7F2]/80 border-b border-[#E7E5E4]">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
@@ -75,6 +75,8 @@ export function PricingPage() {
           </div>
         </div>
       </header>
+
+      <main>
 
       {/* Hero */}
       <PageHero
@@ -205,6 +207,7 @@ export function PricingPage() {
           </div>
         </div>
       </section>
+      </main>
     </div>
   );
 }
