@@ -93,3 +93,6 @@ video-recordings/
 video-screenshots/
 yarn-debug.log*
 yarn-error.log*
+
+# redis runtime snapshot (server cwd writes it at repo root)
+dump.rdb

@@ -3,7 +3,7 @@
    material chips, console errors, mobile overflow. */
 import { chromium } from "playwright";
 
-const EXE = "/home/z/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome";
+const EXE = "/home/z/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome";
 const BASE = "http://localhost:3000";
 let fails = 0;
 const ok = (name, cond, extra = "") => {

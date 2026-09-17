@@ -1,7 +1,7 @@
 // emergency-verify.mjs — full interactive verification of /emergency
 import { chromium } from "playwright";
 
-const exe = "/home/z/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome";
+const exe = "/home/z/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome";
 const browser = await chromium.launch({ executablePath: exe, headless: true });
 const errors = [];
 
