@@ -520,3 +520,23 @@ Stage Summary:
 - Env-less builds now pass; security posture unchanged (boot gate + lazy first-use throw)
 - main @ d15dc89 ready to push; needs fresh PAT from user
 - User-side mandatory: set DATABASE_URL / JWT_SECRET / REDIS_URL in Vercel env vars + prisma migrate deploy, then redeploy latest
+
+---
+Task ID: sandbox-recovery-1
+Agent: Super Z (main)
+Task: Start dev server (after sandbox restart broke environment)
+
+Work Log:
+- Sandbox restarted: all processes killed, .env reset to SQLite template, ~/pg-install + ~/pgdata wiped (Postgres/Redis binaries AND data gone)
+- Platform checkpoint 386fa16 swept 127 files / +30,951 lines of PARTIAL newer work into main: missing validateGeneratedPlan export (content-validator.ts), missing GeneratedPlan type (types.ts), seed scripts referencing models absent from schema.prisma → 397 TS errors, build broken
+- Preservation: branch snapshot-partial-20260917 @ 386fa16 (nothing lost)
+- Restoration: main reset to 73ee45d (= pushed GitHub state, d15dc89 + worklog — last verified-green)
+- Datastore recovery: scripts/install-datastores.sh re-run (Postgres 17 READY :5432 + db nexura created, Redis READY :6379)
+- .env repaired: DATABASE_URL=postgresql://nexura@127.0.0.1:5432/nexura, REDIS_URL=redis://127.0.0.1:6379, healed JWT_SECRET kept, DEMO_MODE=true, EMAIL_TRANSPORT=console
+- Schema pushed (prisma db push), base hospital seed + seed:demo v4 complete (21 staff, 8 departments, appointments, vitals, pharma, PIE trajectories)
+- Guardian relaunched via setsid; homepage 200, /api/health 200, smoke PASS=58 FAIL=0
+
+Stage Summary:
+- Dev server up on :3000, fully verified (58/0)
+- Local main = GitHub main = 73ee45d (green); partial snapshot preserved on branch snapshot-partial-20260917 — needs matching schema/types to ever build; user decision required
+- Sandbox reaps unsupervised processes; guardian auto-relaunches on sandbox restarts via platform boot chain
