@@ -1057,3 +1057,18 @@ Stage Summary:
 - The publish link is now IN the repo everywhere a demo link belongs: README (button + demo section), package.json homepage, DEPLOYMENT.md, and the GitHub repo sidebar/metadata
 - If the user's publish UI shows a different URL, swapping it is a 4-line change (README x2, package.json, DEPLOYMENT.md) + one API PATCH
 - Sandbox app fully healthy again after the SQLite-client bundle fix; everything committed and pushed — rollback-safe
+
+---
+## Session 2026-09-18 — live publish link fixed: REDIS_URL injection trap (login 500)
+
+Work Log:
+- User provided the real publish link: https://n13xb70qvnr0-d.space-z.ai/ — swapped into README (button + demo section), package.json homepage, DEPLOYMENT.md, repo API homepage (commit 520ab97)
+- Probed the link: pages 200 but EVERY API returned 500; ready said 'redis unreachable — rate-limited routes fail closed' (REDIS_URL set-but-dead — the platform injects it FC-wide)
+- Root cause: packaged demo inherited the platform's REDIS_URL -> isRedisConfigured() true -> consumeRateLimit threw on the unreachable Redis -> withRoute catch = generic 500 on all APIs
+- Fixes: packaged start.sh forces REDIS_URL='' (in-process fallbacks) + unconditional HOSTNAME=0.0.0.0 (ambient bash HOSTNAME defeated the :- default -> bound to container-name IP -> Caddy dial fails); withRoute turns limiter errors into clean 503 fail-closed; rate-limit.ts drops a no-TTL key before rethrowing; build.sh rm -rf BUILD_DIR (stale-dir seed rerun died on FK order, P2003)
+- PROOF: built pubtest7 package, extracted, booted exactly as FC does with REDIS_URL=redis://10.255.255.1 injected -> ready (db/seed ok, 'in-process fallbacks active'), login 200, pages 200, Caddy :81-gate path home 200 + login 200
+- Sandbox restored post-build: Postgres client, ready db/seed/redis all ok, login 200, deploy verify clean, vitest 345/345, tsc/eslint/prettier green
+
+Stage Summary:
+- The live publish link's login 500 is root-caused and fixed in-repo; the platform must REBUILD the FC package from the new main (user re-publish) for the live link to pick it up
+- The publish link is now in the repo (README button + demo section, package.json homepage, DEPLOYMENT.md, repo metadata)
