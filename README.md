@@ -204,6 +204,82 @@ Nothing on this list is "designed in chat" — it is code in the tree, running a
 
 **Honest boundaries (fail loudly, never fake):** ABDM/ABHA lookup returns 501 outside demo mode until the real registry is wired; IRN for e-invoices is issued by the IRP portal, so it stays `null` until that integration; SMS/WhatsApp OTP delivery needs a provider account (email goes through the SMTP mailer now); the clinic's cohort matcher reports "too few visits" instead of inventing statistics. Every demo-only behavior is labelled in the response `source` field.
 
+## Architecture
+
+One Next.js 16 process, one Postgres system of record, one Redis coordinator. **A monolith with modular internals — chosen deliberately**, so any request can be debugged end-to-end without chasing services. The full path-anchored map lives in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md); here is the shape of it.
+
+### Request lifecycle — anatomy of one API call
+
+```
+Browser ── HTTPS ──▶ src/proxy.ts (edge middleware)
+                      ├── x-request-id mint / propagation
+                      ├── edge burst guard: 600 req/min/IP + 13 MB body cap
+                      ├── CSP · HSTS · nosniff · Referrer-Policy (single-sourced)
+                      └── production auth gate on product-surface prefixes
+                          (nx_access / portal_session cookies verified at the edge)
+                                 ▼
+                      Route handler (src/app/api/** — 189 routes)
+                      wrapped in withRoute (src/lib/nx/api.ts):
+                      rate limit → structured log → safe JSON 500 → x-request-id echo
+                                 ▼
+                      guard() → requirePermission (src/lib/nx/session.ts):
+                      revocation-aware session · RBAC matrix · explicit denies
+                      · context scoping (patientInScope / department match)
+                                 ▼
+                      Service modules (business logic — never in handlers):
+                      src/modules/pi-engine · src/modules/foresight
+                      · src/lib/nx/{journey, pathway, gateway, webhooks,
+                        escalation, eventlog, tenant, patient-scope, …}
+                                 ▼
+          ┌────────────────────────┴────────────────────────┐
+          ▼                                                 ▼
+  Prisma Client (src/lib/db.ts singleton)         Redis 7 (src/lib/redis.ts)
+          ▼                                                 ├── distributed rate-limit budget
+  PostgreSQL 17 — system of record                          ├── event-bus pub/sub relay
+  165 models · 8 applied migrations                         └── PIE sync lease
+  integer-paise money · FK-indexed
+  hash-chained audit chains (ON DELETE RESTRICT)
+```
+
+**Boundary rule:** transactional state lives in Postgres; ephemeral cross-instance coordination lives in Redis; the only in-memory state is documented per-instance pre-filtering in front of the shared Redis budget. Nothing else is hidden in a process.
+
+### Four authentication planes — one canonical verifier each
+
+| Plane               | Cookie / credential                                                                    | Verifier                                            | Revocation            |
+| ------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------- | --------------------- |
+| Staff (Hospital OS) | `nx_access` JWT                                                                        | `getSessionFresh` — jti + idle budget + user status | `NxSessionRecord`     |
+| Portal patient      | `portal_session` service JWT                                                           | `verifyServiceToken` (`src/lib/portal-session.ts`)  | DB existence re-check |
+| DIY guest           | `diy_guest`                                                                            | `src/lib/diy/auth.ts`                               | TTL                   |
+| Machine             | API keys (hashed, `src/lib/nx/gateway.ts`) · device HMAC · webhook HMAC (SSRF-guarded) | timing-safe comparison                              | DB flag               |
+
+Authentication ≠ authorization: `patient.demographics.view` grants the _what_; `patientInScope` enforces the _where_. Patient-role sessions are hard-scoped to `linkedPatientId`, cross-family tokens (`type:"refresh"`, `scope:"service"`) are rejected, and the legacy unrevocable login path was deleted outright.
+
+### AI governance — one funnel, no side doors
+
+Every AI call (30+ capability-labelled call sites) flows through the same funnel — there is no second path:
+
+```
+feature route → aiGate (rate limit + session) → src/lib/openrouter.ts
+  → consent ENFORCED (DPDP, latest-event-wins — withdrawal ⇒ real 403)
+  → JSON-contract output validation → AiUsageLog (append-only ledger)
+  → per-request caller attribution via AsyncLocalStorage (null = system, stated)
+  → HITL loop: NxAiFeedback + /api/nx/ai/report (override rate, fallbacks, blocks)
+```
+
+Cost/token accounting is an honest operational estimate: `tokenSource`/`costSource` tracked separately (provider-reported vs char-heuristic vs unknown), the price table is configuration, and **no prompt or completion content is ever stored — metadata only**.
+
+### Money, invariants, concurrency
+
+- **Integer minor units everywhere** — paise (India) and cents (USD). Wire contracts speak rupees, storage speaks paise, `src/lib/money.ts` is the only converter; GST math is integer with one nearest-paise rounding. No Float money anywhere in the schema.
+- **Races are settled in the database, not in JavaScript** — pharmacy sale = `$transaction` + conditional stock decrement + P2002 retry; appointment booking = partial unique index `(doctorId, date) WHERE active` → 409; MAR = compare-and-set (no double-administration); bed lifecycle = CAS; discharge = one atomic admission + bed release; payments = atomic bill recompute.
+- **Idempotency** — `NxIdempotency` claim-then-execute with caller-scoped keys and hashed payloads; reuse → 409. The unique key is the serialization point.
+
+### Background work & events
+
+- **`NxJob` durable queue** (`src/lib/nx/jobs/runner.ts`) — Postgres-backed, `FOR UPDATE SKIP LOCKED` claiming (multi-instance safe), exponential backoff → dead-letter, stale-claim reaper, 7-day retention purge. Boots from `src/instrumentation.ts`; `NEXURA_JOBS=off` is the kill switch.
+- **Event bus** (`src/lib/nx/bus.ts`) — local SSE fan-out + HMAC-signed Redis pub/sub relay, per-connection tenant filtering, per-user connection cap.
+- **PIE sync** — 5-minute interval under a Redis `SET NX PX` lease, fail-open, idempotent upserts.
+
 ## Quick start
 
 ```bash
@@ -315,27 +391,78 @@ Root: [API.md](API.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [BUSINESS.md](BU
 | [docs/ROADMAP-5-PHASES.md](docs/ROADMAP-5-PHASES.md)         | Phased roadmap                                                 |
 | [docs/WHITEPAPER.md](docs/WHITEPAPER.md)                     | Platform whitepaper                                            |
 
-## Repository layout
+## Project structure
+
+Every directory below exists and earns its place — nothing is scaffolding. The tree is deliberately shallow: one route tree per product, one platform core, engines isolated from handlers.
 
 ```
-src/app/            one route tree per product (hospital, clinic, pharmacy,
-                    portal, connect, know-your-health, global) + consumer
-                    surfaces (care, vitals, diy, predictive, labs, emergency)
-                    + site pages (pricing, compliance, investors, founder)
-src/app/api/        version-routed APIs under /api/nx + per-product routes
-                    (189 route handlers)
-src/components/     per-product UI + shared nx platform components + ui kit
-src/lib/            platform layer: auth, nx/api (withRoute+guard), money.ts,
-                    consent.ts, ai-usage.ts, ai-actor.ts, rate-limit.ts,
-                    redis.ts, openrouter.ts, mailer.ts, portal-session.ts,
-                    logger, env
-prisma/             schema (165 models) + 8 applied migrations
-tests/              30 unit test files (345 tests, real-DB where honest) +
-                    api-smoke.sh (49 checks) + Playwright e2e
-scripts/            deploy-preview, api-smoke, db-backup/restore, guardians,
-                    seeds, codemods
-docs/               the full documentation set (table above) + screenshots/
+Nexura-OS/
+├── src/
+│   ├── app/                            # Next.js 16 App Router — one route tree per surface
+│   │   ├── hospital/                   #   🏥 Hospital OS — command center, 31 code-split modules
+│   │   ├── clinic/                     #   🩺 Clinic OS — SOAP, queue, billing, public booking
+│   │   ├── pharmacy/                   #   💊 Pharmacia — POS, inventory, Schedule H, e-invoice
+│   │   ├── portal/                     #   🔐 Patient Portal — records, timeline, family, consent
+│   │   ├── connect/                    #   💬 Connect — chat / voice / video consults
+│   │   ├── know-your-health/           #   🧠 15 AI health tools (guest, TTL-auth'd)
+│   │   ├── global/                     #   ✈️ Nexura Global — medical-tourism desk
+│   │   ├── care/ vitals/ diy/ labs/    #   consumer surfaces — Care Circle, vitals, DIY check, labs
+│   │   ├── predictive/ emergency/      #   Predictive Intelligence · Emergency
+│   │   ├── pricing/ compliance/        #   public marketing & trust pages
+│   │   │   investors/ founder/ privacy/ terms/
+│   │   └── api/                        #   189 route handlers
+│   │       ├── nx/                     #     Hospital OS core + platform surface
+│   │       │                           #     (auth, rbac, audit, ai, jobs, webhooks, openapi…)
+│   │       └── clinic/ pharmacy/ portal/ connect/ global/ know-your-health/ diy/ …
+│   ├── components/
+│   │   ├── nx/                         #   shared platform components (guard UI, tables, banners)
+│   │   ├── ui/                         #   shadcn/ui kit (New York style)
+│   │   └── …18 product dirs            #   per-product component trees (hospital, pi, pharmacy…)
+│   ├── lib/
+│   │   ├── nx/                         #   ⭐ PLATFORM CORE — 26 modules, the real product:
+│   │   │   ├── api.ts                  #     withRoute: rate limit · logs · safe 500s
+│   │   │   ├── session.ts              #     revocation-aware sessions + requirePermission
+│   │   │   ├── abac.ts / patient-scope.ts / tenant.ts      # the "where" of access
+│   │   │   ├── ai-guard.ts / ai-governance.ts              # AI consent + thresholds
+│   │   │   ├── eventlog.ts / merkle.ts / redact.ts         # hash-chained audit
+│   │   │   ├── gateway.ts / webhooks.ts / device-keys.ts   # machine-plane auth
+│   │   │   ├── jobs/                   #     durable queue runner (SKIP LOCKED)
+│   │   │   └── fhir.ts / hl7.ts / pathway.ts / journey.ts  # interop + care pathways
+│   │   ├── money.ts                    #   integer paise/cents boundary — the only converter
+│   │   ├── db.ts                       #   Prisma client singleton
+│   │   ├── openrouter.ts               #   canonical AI client (fallback chain + metering)
+│   │   ├── rate-limit.ts / redis.ts    #   distributed limiting + coordination
+│   │   └── auth/ mailer.ts portal-session.ts …             # staff auth suite
+│   ├── modules/
+│   │   ├── pi-engine/                  #   Predictive Intelligence engine (risk trajectories)
+│   │   └── foresight/                  #   Foresight engine (capacity & demand)
+│   ├── proxy.ts                        #   edge middleware: request id · burst guard · CSP · auth gate
+│   └── instrumentation.ts              #   boot: env validation + job worker (kill-switchable)
+├── prisma/
+│   ├── schema.prisma                   # 165 models, integer money columns
+│   └── migrations/                     # 8 applied migrations — real, ordered history
+├── tests/
+│   ├── unit/                           # 30 files · 345 tests — real Postgres + Redis where honest
+│   ├── api-smoke.sh                    # 49-check black-box API suite
+│   └── e2e/                            # Playwright role journeys (hospital-os.spec.ts)
+├── scripts/                            # deploy-preview · api-smoke · db-backup/restore-validate
+│                                       # · guardians · seed-* · gold-sweeps · deadend-scan
+├── docs/                               # 20+ documents (table above) + screenshots/ + demo gif
+├── .github/workflows/ci.yml            # the full gate chain on every push
+├── Dockerfile · docker-compose.yml     # standalone self-host path
+└── .env.example                        # every variable, commented
 ```
+
+**Where to look first, by intent:**
+
+| You want to understand…               | Open                                                                                                       |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| How a request is guarded              | `src/proxy.ts` → `src/lib/nx/api.ts` (`withRoute`) → `src/lib/nx/session.ts` (`requirePermission`)         |
+| How AI is governed and metered        | `src/lib/nx/ai-guard.ts` → `src/lib/openrouter.ts` → `src/lib/nx/ai-governance.ts` → `src/lib/ai-usage.ts` |
+| How money stays exact                 | `src/lib/money.ts` + the integer-paise migration in `prisma/migrations/`                                   |
+| How the audit trail resists tampering | `src/lib/nx/eventlog.ts` + `src/lib/nx/merkle.ts`                                                          |
+| How background jobs survive restarts  | `src/lib/nx/jobs/runner.ts` + `src/instrumentation.ts`                                                     |
+| Where the schema decisions live       | `prisma/schema.prisma` (165 models) + [docs/DATABASE.md](docs/DATABASE.md)                                 |
 
 ## Compliance posture (read this)
 

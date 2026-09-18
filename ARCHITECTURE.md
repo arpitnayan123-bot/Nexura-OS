@@ -1,143 +1,108 @@
 # Nexura OS — System Architecture
 
+> Current as of the integer-money migration (`20260919000000`). The living,
+> path-anchored map — runtime topology, auth planes, AI funnel, demo
+> boundaries, verification chains — is [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+> This file is the one-page orientation.
+
 ## Overview
 
-Nexura OS is a unified, AI-native healthcare platform built on Next.js 16 with a monolithic
-frontend and modular backend. The system is designed for Indian healthcare — high-volume,
-multi-tenant, compliance-first, and AI-powered.
+Nexura OS is a multi-product healthcare platform: seven staff-facing products,
+eight consumer health surfaces, and a shared platform layer. Built on
+Next.js 16 (App Router) as **a monolith with modular internals** — chosen
+deliberately so every request is debuggable end-to-end without chasing
+services.
 
-## Tech Stack
+## Tech stack
 
-| Layer         | Technology                                                     | Rationale                                                           |
-| ------------- | -------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Framework     | Next.js 16 (App Router)                                        | SSR + ISR + API routes in one framework. Turbopack for fast dev.    |
-| Language      | TypeScript 5 (strict)                                          | Type safety across frontend + backend. No `any` in production code. |
-| Database      | Prisma ORM + SQLite (dev) / PostgreSQL (prod)                  | Type-safe DB access. Prisma migrate for versioned schema.           |
-| Styling       | Tailwind CSS 4 + shadcn/ui                                     | Utility-first + accessible component library. New York style.       |
-| AI            | z-ai-web-dev-sdk (GLM-4-Plus LLM + VLM + ASR)                  | Indian-optimized AI. Backend-only (never client-side).              |
-| Auth          | JWT + httpOnly cookies (portal) / localStorage role (hospital) | Stateless + secure.                                                 |
-| Real-time     | Polling (30s/60s intervals)                                    | Simpler than WebSockets for MVP. WS planned for v2.                 |
-| Charts        | Recharts                                                       | React-native charting. Lightweight.                                 |
-| Animations    | Framer Motion                                                  | Declarative animations. Page transitions.                           |
-| Notifications | Sonner                                                         | Toast notifications.                                                |
-| Deployment    | Vercel (planned)                                               | Edge network + automatic SSL.                                       |
+| Layer        | Technology                                                  | Rationale                                                               |
+| ------------ | ----------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Framework    | Next.js 16 (App Router, Node runtime)                       | SSR + ISR + 189 API routes in one deployable; Turbopack dev.            |
+| Language     | TypeScript 5 (strict)                                       | One type system across UI, API and platform code.                       |
+| Database     | Prisma ORM + PostgreSQL 17                                  | System of record: 165 models, 8 applied migrations, FK-indexed.         |
+| Coordination | Redis 7                                                     | Distributed rate-limit budget, event-bus relay, PIE sync lease.         |
+| Styling      | Tailwind CSS 4 + shadcn/ui (New York)                       | Utility-first + accessible primitives.                                  |
+| AI           | `src/lib/openrouter.ts` — OpenRouter → z-ai SDK fallback    | One canonical client; every call consent-gated, metered and attributed. |
+| Auth         | JWT sessions + httpOnly cookies (4 planes, see below)       | Revocation-aware; legacy unrevocable path deleted.                      |
+| Real-time    | SSE + Redis pub/sub relay                                   | Auth-at-subscribe, per-connection tenant filtering.                     |
+| Background   | `NxJob` Postgres-backed queue                               | `FOR UPDATE SKIP LOCKED`, backoff → dead-letter, stale-claim reaper.    |
+| Testing      | Vitest (345 tests / 30 files) + 49-check smoke + Playwright | Real Postgres + Redis in CI where honest.                               |
 
-## System Architecture
+## Request lifecycle
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         CLIENT (Browser)                         │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐│
-│  │ Hospital │ │  Clinic  │ │Pharmacia │ │ Portal   │ │Connect  ││
-│  │   OS     │ │   OS     │ │   POS    │ │ Patient  │ │  Chat   ││
-│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └───┬────┘│
-│       │            │            │            │           │      │
-│  ┌────┴────────────┴────────────┴────────────┴───────────┴────┐│
-│  │              Command Palette (⌘K) + Shared Components       ││
-│  └─────────────────────────┬───────────────────────────────────┘│
-└────────────────────────────┼────────────────────────────────────┘
-                             │ HTTPS
-┌────────────────────────────┼────────────────────────────────────┐
-│                    NEXT.JS API ROUTES                            │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐│
-│  │/api/     │ │/api/     │ │/api/     │ │/api/     │ │/api/   ││
-│  │hospital  │ │clinic    │ │pharmacy  │ │portal    │ │connect ││
-│  │(38 routes)│ │(8 routes)│ │(12 routes)│ │(5 routes)│ │(6)    ││
-│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └───┬────┘│
-│       │            │            │            │           │      │
-│  ┌────┴────────────┴────────────┴────────────┴───────────┴────┐│
-│  │           AI Layer (z-ai-web-dev-sdk)                       ││
-│  │  • GLM-4-Plus LLM (clinical assistant, lab interpretation)  ││
-│  │  • VLM (prescription OCR, X-ray reader, derma scan)         ││
-│  │  • ASR (voice-to-SOAP, voice billing)                       ││
-│  └─────────────────────────┬───────────────────────────────────┘│
-└────────────────────────────┼────────────────────────────────────┘
-                             │ Prisma ORM
-┌────────────────────────────┼────────────────────────────────────┐
-│                    DATABASE (Prisma)                             │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐│
-│  │ Hospital │ │  Clinic  │ │ Pharmacy │ │  Portal  │ │Connect ││
-│  │ (15 models)│ │(6 models)│ │(11 models)│ │(3 models)│ │(4)    ││
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └────────┘│
-│                        SQLite (dev) / PostgreSQL (prod)          │
-└──────────────────────────────────────────────────────────────────┘
+Browser ──▶ src/proxy.ts (edge): request id · burst guard 600/min/IP · 13 MB cap
+            · CSP/HSTS · edge auth gate on product prefixes
+   ▼
+withRoute (src/lib/nx/api.ts): rate limit · structured logs · safe JSON 500s
+   ▼
+guard() → requirePermission (src/lib/nx/session.ts):
+revocation-aware session · RBAC matrix · denies · patientInScope ctx
+   ▼
+Service modules (src/modules/pi-engine · foresight · src/lib/nx/*)
+   ▼
+Prisma Client (src/lib/db.ts) ──▶ PostgreSQL 17        Redis 7 (coordination only)
 ```
 
-## Product Architecture
+**Boundary rule:** transactional state in Postgres; ephemeral cross-instance
+coordination in Redis; the only in-memory state is documented per-instance
+pre-filtering in front of the shared Redis budget.
 
-### Hospital OS (`/hospital`)
+## Authentication planes
 
-- **31 modules** dynamically imported (code-split per module)
-- **38 API routes** with Prisma queries
-- Auth: Role-based (Doctor, Nurse, Admin, Receptionist, Lab, Pharmacist, Patient)
-- Auto-refresh: 30s polling on all dashboards
-- AI: Clinical assistant (GLM-4-Plus) + lab interpretation
+| Plane               | Cookie / credential                   | Verifier               | Revocation            |
+| ------------------- | ------------------------------------- | ---------------------- | --------------------- |
+| Staff (Hospital OS) | `nx_access` JWT                       | `getSessionFresh`      | `NxSessionRecord`     |
+| Portal patient      | `portal_session` service JWT          | `verifyServiceToken`   | DB existence re-check |
+| DIY guest           | `diy_guest`                           | `src/lib/diy/auth.ts`  | TTL                   |
+| Machine             | API keys · device HMAC · webhook HMAC | timing-safe comparison | DB flag               |
 
-### Clinic OS (`/clinic`)
+Authentication ≠ authorization: permissions grant the _what_;
+`patientInScope` / tenant context enforce the _where_. Patient sessions are
+hard-scoped to `linkedPatientId`.
 
-- **6 tabs**: Today, Patients, Appointments, Prescriptions, Billing, Reports
-- SOAP consultation with drug autocomplete (54 Indian medicines)
-- ABHA registry integration
-- Public booking page at `/clinic/book/[slug]`
+## Data model (165 models, highlights)
 
-### Pharmacia (`/pharmacy`)
+- **Hospital OS core (`nx`)** — hospitals, patients, staff, wards/beds,
+  appointments, admissions, MAR, orders, NxCharge/NxPayment (integer paise),
+  insurance, audit/eventlog (hash-chained), consent ledger, AI usage ledger,
+  durable jobs, idempotency keys.
+- **Clinic** — clinic, doctors, patients, appointments, visits, Rx, invoices.
+- **Pharmacy** — companies, branches, products, batches, sales/purchases
+  (integer paise), Schedule H register, near-expiry returns, day closing.
+- **Portal** — portal users, blood bookings, phlebotomists, family links,
+  self-service consent rows.
+- **Connect** — connections, messages, calls, queue.
+- **Consumer** — vitals, DIY check sessions, labs, care circle, emergencies.
 
-- **8 modules**: Billing, Inventory, Purchases, Suppliers, Customers, Schedule H, Reports, Settings
-- Voice billing (Web Speech API, en-IN)
-- Prescription OCR (VLM)
-- GST e-invoice generation (IRN-ready JSON)
-- Schedule H register (CDSCO compliance)
+Conventions: integer minor units for money (paise/cents — no Float money),
+append-only ledgers for audit/consent/AI usage, `ON DELETE RESTRICT` on audit
+chains, FK columns indexed (integrity-index migration).
 
-### Patient Portal (`/portal`)
+## Invariants
 
-- Phone + OTP login (httpOnly cookie session)
-- 5 tabs: Overview, Blood Checkup, Records, Timeline, Family
-- Blood Checkup at Home: phlebotomist assignment + 6-step status tracker
-- AI lab report interpretation (GLM-4-Plus)
-- Family member management
+1. **Money** — integer paise/cents everywhere; `src/lib/money.ts` is the only
+   converter (rupee wire ↔ paise storage); GST = integer math, one rounding.
+2. **Concurrency** — races settled in the database: conditional stock
+   decrements, partial unique index on active appointments (→ 409),
+   compare-and-set MAR, CAS bed lifecycle, atomic discharge.
+3. **Idempotency** — claim-then-execute, caller-scoped keys, reuse → 409.
+4. **AI** — one funnel (`aiGate` → `openrouter.ts` → `ai-governance.ts`);
+   consent withdrawal ⇒ 403; no prompt/completion content stored.
+5. **Fail loudly** — demo-only behavior is labelled in the response `source`
+   field; missing integration (ABDM, IRP, OTP) returns 501/null, never fakes.
 
-### Connect (`/connect`)
+## Scaling path
 
-- Doctor-patient chat, voice, video
-- Auto-connect when consultations complete or symptom triage flags urgency
-- Prescription sync to Pharmacia
+Phase 1 (current): single Next.js + Postgres + Redis, multi-instance safe
+(shared Redis budget, SKIP LOCKED jobs). Phase 2: read replicas + CDN for
+static assets. Phase 3: extract AI/billing workers (the queue is already
+worker-ready via `NEXURA_JOBS=off` on the web tier + dedicated worker).
+Phase 4: multi-region — the event bus's Redis relay is the seam.
 
-### Know Your Health (`/know-your-health`)
+## Observability
 
-- 15 AI tools: symptom checker, derma scan, X-ray reader, diet planner, lab analyzer, etc.
-- All powered by z-ai-web-dev-sdk (LLM + VLM)
-
-## Data Model
-
-62 Prisma models across 5 product domains:
-
-- **Hospital** (15): Hospital, Patient, Doctor, Staff, Ward, Bed, Appointment, Admission, Vital, Order, Medicine, Prescription, Bill, InsuranceClaim, OTSurgery
-- **Clinic** (6): Clinic, Doctor, Patient, Appointment, Visit, Rx, Invoice
-- **Pharmacy** (11): Company, Branch, Staff, Customer, Supplier, Product, Batch, Sale, SaleItem, Purchase, PurchaseItem
-- **Portal** (3): PortalUser, BloodBooking, Phlebotomist
-- **Connect** (4): Connection, Message, Call, Queue
-
-## Security
-
-- AES-256 encryption at rest (DB)
-- TLS 1.3 in transit (HTTPS)
-- httpOnly cookies for session
-- Role-based access control (RBAC)
-- Audit trail (planned)
-- Rate limiting (planned)
-- DPDP 2023 compliant consent flow
-
-## Scaling Strategy
-
-1. **Phase 1 (current)**: SQLite for dev. Monolithic Next.js. Polling for real-time.
-2. **Phase 2 (Q2 2026)**: Migrate to PostgreSQL. Add Redis for caching. WebSocket for real-time.
-3. **Phase 3 (Q4 2026)**: Microservices for AI + billing. Read replicas. CDN for static assets.
-4. **Phase 4 (Q1 2027)**: Multi-region. Kubernetes. Event-driven architecture (Kafka).
-
-## Observability (planned)
-
-- Sentry for error tracking
-- Datadog for APM + logs
-- Custom health check endpoint (`/api/health`)
-- Structured logging (JSON)
-- Metrics: request latency, error rate, DB query time
+`/api/health` + `/api/ready`, structured JSON logs with request IDs,
+maintenance mode + incident banners, startup env validation
+(`assertProductionEnv` refuses to boot half-configured in production),
+AI usage rollup at `/api/nx/ai/usage` (`audit.view`-gated).
