@@ -86,7 +86,23 @@ export function withRoute<P = Record<string, string>>(
       if (isRedisConfigured()) {
         // Authoritative shared budget (same max/window) — `route:` namespace
         // keeps these keys disjoint from auth/webhook limiter keys in Redis.
-        const drl = await consumeRateLimit(`route:${name}:${ip}`, limit.max, limit.windowMs);
+        let drl: Awaited<ReturnType<typeof consumeRateLimit>>;
+        try {
+          drl = await consumeRateLimit(`route:${name}:${ip}`, limit.max, limit.windowMs);
+        } catch (err) {
+          // Redis configured but unreachable: fail CLOSED with a clean 503 —
+          // the policy rate-limit.ts documents. A thrown limiter error must
+          // not fall through to the 500 catch below; that masked a dead Redis
+          // as "internal error" on EVERY route (observed on a deploy where
+          // the platform injected an unreachable REDIS_URL).
+          log.error("api", `${name}:rate-limit`, {
+            requestId,
+            err: err instanceof Error ? err.message : String(err),
+          });
+          return fail("rate_limited", 503, "Rate limiter unavailable — retry shortly.", requestId, {
+            "Retry-After": "5",
+          });
+        }
         if (!drl.allowed) {
           return fail("rate_limited", 429, "Too many requests — slow down.", requestId, {
             "Retry-After": String(Math.ceil((drl.resetAt - Date.now()) / 1000)),

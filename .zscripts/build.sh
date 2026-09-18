@@ -29,6 +29,9 @@ export NEXT_TELEMETRY_DISABLED=1
 
 BUILD_DIR="/tmp/build_fullstack_$BUILD_ID"
 echo "📁 清理并创建构建目录: $BUILD_DIR"
+# 必须从零开始：复用旧目录会让 seed 对已填充的库重跑 deleteMany，
+# 外键删除顺序不完整 -> P2003 (FK constraint) —— 空库路径才是被验证的路径。
+rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
 # 安装依赖
