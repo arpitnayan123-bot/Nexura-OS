@@ -35,9 +35,20 @@ mkdir -p "$BUILD_DIR"
 echo "📦 安装依赖..."
 bun install
 
-# 构建 Next.js 应用
+# ------------------------------------------------------------------
+# 数据库产物准备（必须在 next build 之前！）—— postgres 项目会在此步
+# 生成 SQLite 部署库 + 对应的 Prisma client；若放在 build 之后，打包
+# 进产物的仍是 postgres client（provider 在 generate 时锁死），部署到
+# FC 后 app 无法使用内嵌库 —— warmup_412 / 部署失败的主因。
+# ------------------------------------------------------------------
+PROJECT_DIR="$NEXTJS_PROJECT_DIR" BUILD_DIR="$BUILD_DIR" \
+    bash "$SCRIPT_DIR/database-runtime-build.sh"
+
+# 构建 Next.js 应用（直接调 next build —— bun run build 会先执行
+# `prisma generate`（postgres schema），把上一步生成的部署 client
+# 覆盖掉。prisma generate 已按需在 database-runtime-build.sh 中完成）
 echo "🔨 构建 Next.js 应用..."
-bun run build
+bunx next build
 
 # 校验 standalone 服务端入口是否生成（部署成功率守卫）。
 # Next 仅在 next.config 含 output:"standalone" 时产出 .next/standalone/server.js。
@@ -88,7 +99,7 @@ if [ ! -f ".next/standalone/server.js" ]; then
     fi
 
     echo "🔨 已注入 output:\"standalone\"，重新构建..."
-    bun run build
+    bunx next build
 
     if [ ! -f ".next/standalone/server.js" ]; then
         echo "❌ 注入 output:\"standalone\" 并重建后，仍未生成 .next/standalone/server.js。"
@@ -139,11 +150,6 @@ fi
 # 依赖清单，在构建期将生产依赖固化到产物，并保持 Python 源码的项目相对路径。
 PROJECT_DIR="$NEXTJS_PROJECT_DIR" BUILD_DIR="$BUILD_DIR" \
     bash "$SCRIPT_DIR/python-runtime-build.sh"
-
-# 有 Preview 数据库时复制现有数据；没有时直接在部署产物中初始化空库。
-# 模板源码不携带 db/custom.db，不能依赖 dev.sh 必须在 Deploy 前成功运行过。
-PROJECT_DIR="$NEXTJS_PROJECT_DIR" BUILD_DIR="$BUILD_DIR" \
-    bash "$SCRIPT_DIR/database-runtime-build.sh"
 
 # 复制 Caddyfile（如果存在）
 if [ -f "Caddyfile" ]; then

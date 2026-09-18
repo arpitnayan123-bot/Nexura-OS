@@ -114,19 +114,29 @@ function isPostgresUrl(url: string | undefined): boolean {
 
 export function assertProductionEnv(): void {
   if (process.env.NODE_ENV !== "production") return; // dev stays forgiving
+
+  /* PACKAGED DEMO MODE (platform publish contract) — the sandbox publish
+   * pipeline ships this app as a self-contained FC package: embedded SQLite
+   * (db/custom.db), no external Postgres, no Redis. start.sh marks it with
+   * NEXURA_PACKAGED=1. In that mode we require a database (either provider —
+   * the client is generated to match at package-build time) and a JWT secret,
+   * while Redis stays OPTIONAL: redis.ts falls back to documented in-process
+   * rate-limiting and per-instance event delivery when REDIS_URL is absent. */
+  const packaged = process.env.NEXURA_PACKAGED === "1";
+
   const missing: string[] = [];
 
-  if (!isPostgresUrl(process.env.DATABASE_URL)) {
+  if (!process.env.DATABASE_URL) {
+    missing.push("DATABASE_URL is required (postgresql://host/db or file:/path/db)");
+  } else if (!packaged && !isPostgresUrl(process.env.DATABASE_URL)) {
     missing.push(
-      process.env.DATABASE_URL
-        ? "DATABASE_URL must be a postgres:// URL (SQLite is no longer a supported provider)"
-        : "DATABASE_URL is required (postgresql://user:pass@host:5432/db)",
+      "DATABASE_URL must be a postgres:// URL (SQLite is only supported in the packaged demo mode)",
     );
   }
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
     missing.push("JWT_SECRET must be set (>=16 chars)");
   }
-  if (!process.env.REDIS_URL || !process.env.REDIS_URL.startsWith("redis")) {
+  if (!packaged && (!process.env.REDIS_URL || !process.env.REDIS_URL.startsWith("redis"))) {
     missing.push(
       "REDIS_URL is required (redis://host:6379) — rate limiting, the event bus, and sync leases are Redis-backed",
     );
