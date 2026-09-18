@@ -13,10 +13,7 @@ import type { NxSession } from "./session";
 
 const PLATFORM_ROLES = new Set(["super_admin", "org_admin"]);
 
-export async function patientInScope(
-  patientId: string,
-  session: NxSession
-): Promise<boolean> {
+export async function patientInScope(patientId: string, session: NxSession): Promise<boolean> {
   if (PLATFORM_ROLES.has(session.role)) return true;
   if (!session.hospitalId) return false;
   const patient = await db.hospitalPatient

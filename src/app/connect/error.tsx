@@ -14,12 +14,5 @@ export default function ConnectError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SegmentErrorBoundary
-      error={error}
-      reset={reset}
-      variant="connect"
-      tag="connect"
-    />
-  );
+  return <SegmentErrorBoundary error={error} reset={reset} variant="connect" tag="connect" />;
 }

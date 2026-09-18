@@ -33,14 +33,22 @@ export const POST = withRoute("mar.create", async (req: NextRequest) => {
   const body = await parseBody(req, CreateSchema);
   if ("response" in body) return body.response;
 
-  const patient = await db.hospitalPatient.findFirst({ where: { id: body.data.patientId, hospitalId }, select: { id: true, uhid: true, allergy: true, fullName: true } });
+  const patient = await db.hospitalPatient.findFirst({
+    where: { id: body.data.patientId, hospitalId },
+    select: { id: true, uhid: true, allergy: true, fullName: true },
+  });
   if (!patient) return fail("not_found", 404, "Patient not found.");
 
   // Allergy cross-check: warn (block only if exact token match)
-  const allergyTokens = (patient.allergy || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const allergyTokens = (patient.allergy || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
   const med = body.data.medicineName.toLowerCase();
   const exactHit = allergyTokens.find((t) => t.length > 3 && (med.includes(t) || t.includes(med)));
-  const softHit = allergyTokens.find((t) => t.length > 3 && med.split(/\s+/).some((w) => w.startsWith(t.slice(0, 4))));
+  const softHit = allergyTokens.find(
+    (t) => t.length > 3 && med.split(/\s+/).some((w) => w.startsWith(t.slice(0, 4))),
+  );
 
   const mar = await db.nxMedicationAdministration.create({
     data: {
@@ -56,13 +64,37 @@ export const POST = withRoute("mar.create", async (req: NextRequest) => {
       controlled: body.data.controlled,
     },
   });
-  await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "mar.create", entityType: "mar", entityId: mar.id, patientId: patient.id, detail: { medicine: body.data.medicineName, controlled: body.data.controlled } });
-  return NextResponse.json({
-    data: {
-      mar,
-      allergyCheck: exactHit ? { level: "blocked", allergen: exactHit, message: `Patient allergy: ${patient.allergy}. Do not administer — contact the ordering clinician.` } : softHit ? { level: "warning", allergen: softHit, message: `Possible cross-sensitivity with allergy: ${patient.allergy}. Verify before administering.` } : { level: "clear" },
+  await audit({
+    hospitalId,
+    actorName: g.session.name,
+    actorRole: g.session.role,
+    action: "mar.create",
+    entityType: "mar",
+    entityId: mar.id,
+    patientId: patient.id,
+    detail: { medicine: body.data.medicineName, controlled: body.data.controlled },
+  });
+  return NextResponse.json(
+    {
+      data: {
+        mar,
+        allergyCheck: exactHit
+          ? {
+              level: "blocked",
+              allergen: exactHit,
+              message: `Patient allergy: ${patient.allergy}. Do not administer — contact the ordering clinician.`,
+            }
+          : softHit
+            ? {
+                level: "warning",
+                allergen: softHit,
+                message: `Possible cross-sensitivity with allergy: ${patient.allergy}. Verify before administering.`,
+              }
+            : { level: "clear" },
+      },
     },
-  }, { status: 201 });
+    { status: 201 },
+  );
 });
 
 const AdministerSchema = z.object({
@@ -80,13 +112,20 @@ export const PATCH = withRoute("mar.administer", async (req: NextRequest) => {
   const parsed = AdministerSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return fail("invalid_request", 400, parsed.error.issues[0]?.message);
 
-  const mar = await db.nxMedicationAdministration.findFirst({ where: { id: parsed.data.id, hospitalId } });
+  const mar = await db.nxMedicationAdministration.findFirst({
+    where: { id: parsed.data.id, hospitalId },
+  });
   if (!mar) return fail("not_found", 404, "MAR entry not found.");
-  if (mar.status === "given") return fail("already_given", 409, "This dose is already recorded as given.");
+  if (mar.status === "given")
+    return fail("already_given", 409, "This dose is already recorded as given.");
 
   // Controlled substances require a witness
   if (mar.controlled && parsed.data.status === "given" && !parsed.data.witnessName) {
-    return fail("witness_required", 422, "Controlled substance administration requires a witness name.");
+    return fail(
+      "witness_required",
+      422,
+      "Controlled substance administration requires a witness name.",
+    );
   }
 
   /* Compare-and-set administration: the status guard lives IN the UPDATE
@@ -99,16 +138,27 @@ export const PATCH = withRoute("mar.administer", async (req: NextRequest) => {
       status: parsed.data.status,
       administeredAt: parsed.data.status === "given" ? new Date() : null,
       administeredBy: g.session.name,
-      notes: [parsed.data.notes, parsed.data.witnessName ? `witness: ${parsed.data.witnessName}` : null].filter(Boolean).join(" · ") || null,
+      notes:
+        [parsed.data.notes, parsed.data.witnessName ? `witness: ${parsed.data.witnessName}` : null]
+          .filter(Boolean)
+          .join(" · ") || null,
     },
   });
   if (cas.count === 0) return fail("already_given", 409, "This dose is already recorded as given.");
   const updated = await db.nxMedicationAdministration.findFirst({ where: { id: mar.id } });
   await audit({
-    hospitalId, actorName: g.session.name, actorRole: g.session.role,
+    hospitalId,
+    actorName: g.session.name,
+    actorRole: g.session.role,
     action: mar.controlled ? "mar.controlled.administered" : "mar.administered",
-    entityType: "mar", entityId: mar.id, patientId: mar.patientId,
-    detail: { status: parsed.data.status, medicine: mar.medicineName, witness: parsed.data.witnessName },
+    entityType: "mar",
+    entityId: mar.id,
+    patientId: mar.patientId,
+    detail: {
+      status: parsed.data.status,
+      medicine: mar.medicineName,
+      witness: parsed.data.witnessName,
+    },
   });
   return NextResponse.json({ data: { mar: updated } });
 });
@@ -121,13 +171,23 @@ export const GET = withRoute("mar.list", async (req: NextRequest) => {
   const patientId = req.nextUrl.searchParams.get("patientId");
   const status = req.nextUrl.searchParams.get("status") ?? "pending";
   const entries = await db.nxMedicationAdministration.findMany({
-    where: { hospitalId, ...(patientId ? { patientId } : {}), ...(status !== "all" ? { status } : {}) },
+    where: {
+      hospitalId,
+      ...(patientId ? { patientId } : {}),
+      ...(status !== "all" ? { status } : {}),
+    },
     orderBy: { scheduledAt: "asc" },
     take: 100,
   });
   const patientIds = Array.from(new Set(entries.map((e) => e.patientId)));
-  const patients = await db.hospitalPatient.findMany({ where: { id: { in: patientIds } }, select: { id: true, fullName: true, uhid: true, allergy: true } });
+  const patients = await db.hospitalPatient.findMany({
+    where: { id: { in: patientIds } },
+    select: { id: true, fullName: true, uhid: true, allergy: true },
+  });
   const pmap = new Map(patients.map((pt) => [pt.id, pt]));
-  return NextResponse.json({ data: { entries: entries.map((e) => ({ ...e, patient: pmap.get(e.patientId) ?? null })) } });
+  return NextResponse.json({
+    data: { entries: entries.map((e) => ({ ...e, patient: pmap.get(e.patientId) ?? null })) },
+  });
 });
-void guard; void withRoute;
+void guard;
+void withRoute;

@@ -2,15 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Sparkles,
-  X,
-  TrendingDown,
-  PackageX,
-  ShoppingCart,
-  Loader2,
-  Calendar,
-} from "lucide-react";
+import { Sparkles, X, TrendingDown, PackageX, ShoppingCart, Loader2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -35,13 +27,7 @@ type Predict = {
   summary: { dumpCount: number; highRisk: number; reorderCount: number; totalStockUnits: number };
 };
 
-export function PredictPanel({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export function PredictPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [data, setData] = useState<Predict | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -109,10 +95,30 @@ export function PredictPanel({
                 <div className="space-y-5">
                   {/* summary */}
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <Stat label="Dump stock" value={data.summary.dumpCount} icon={PackageX} tone="clay" />
-                    <Stat label="High risk" value={data.summary.highRisk} icon={TrendingDown} tone="destructive" />
-                    <Stat label="Reorder" value={data.summary.reorderCount} icon={ShoppingCart} tone="primary" />
-                    <Stat label="Stock units" value={data.summary.totalStockUnits} icon={Calendar} tone="sage" />
+                    <Stat
+                      label="Dump stock"
+                      value={data.summary.dumpCount}
+                      icon={PackageX}
+                      tone="clay"
+                    />
+                    <Stat
+                      label="High risk"
+                      value={data.summary.highRisk}
+                      icon={TrendingDown}
+                      tone="destructive"
+                    />
+                    <Stat
+                      label="Reorder"
+                      value={data.summary.reorderCount}
+                      icon={ShoppingCart}
+                      tone="primary"
+                    />
+                    <Stat
+                      label="Stock units"
+                      value={data.summary.totalStockUnits}
+                      icon={Calendar}
+                      tone="sage"
+                    />
                   </div>
 
                   {/* dump stock */}
@@ -150,7 +156,8 @@ export function PredictPanel({
                           <div>
                             <p className="text-sm font-medium">{r.product}</p>
                             <p className="text-[0.65rem] text-muted-foreground">
-                              {r.genericName} · now {r.currentStock} / {r.reorderLevel} · avg {r.avgMonthlySales}/mo
+                              {r.genericName} · now {r.currentStock} / {r.reorderLevel} · avg{" "}
+                              {r.avgMonthlySales}/mo
                             </p>
                           </div>
                           <div className="text-right">
@@ -181,8 +188,8 @@ export function PredictPanel({
                             d.season === "peak"
                               ? "bg-coral/15 text-coral"
                               : d.season === "moderate"
-                              ? "bg-honey/15 text-honey"
-                              : "bg-muted text-muted-foreground"
+                                ? "bg-honey/15 text-honey"
+                                : "bg-muted text-muted-foreground",
                           )}
                         >
                           {d.season.toUpperCase()}
@@ -254,19 +261,13 @@ function Empty({ children }: { children: React.ReactNode }) {
   );
 }
 
-function RiskBadge({
-  risk,
-  months,
-}: {
-  risk: "high" | "medium" | "low";
-  months: number;
-}) {
+function RiskBadge({ risk, months }: { risk: "high" | "medium" | "low"; months: number }) {
   const c =
     risk === "high"
       ? "bg-destructive/15 text-destructive"
       : risk === "medium"
-      ? "bg-honey/15 text-honey"
-      : "bg-sage/15 text-sage";
+        ? "bg-honey/15 text-honey"
+        : "bg-sage/15 text-sage";
   return (
     <span className={cn("rounded-full px-2 py-0.5 text-[0.6rem] font-semibold", c)}>
       {risk.toUpperCase()} · {months}mo

@@ -67,7 +67,9 @@ describe("DIY safety — romanized-Hindi emergencies (12 patterns)", () => {
 
 describe("DIY safety — stop-and-refer (never coached)", () => {
   it("eating-disorder starvation is STOP_AND_REFER", () => {
-    expect(evaluateSafety("I want to stop eating completely to lose weight fast").action).toBe("STOP_AND_REFER");
+    expect(evaluateSafety("I want to stop eating completely to lose weight fast").action).toBe(
+      "STOP_AND_REFER",
+    );
   });
   it("purging is STOP_AND_REFER", () => {
     expect(evaluateSafety("how to make myself vomit after eating").action).toBe("STOP_AND_REFER");
@@ -107,7 +109,9 @@ describe("DIY safety — prompt injection and routine text stay ALLOW", () => {
 
 describe("DIY parser — deterministic, offline", () => {
   it("parses a 3-goal hinglish message with categories + timeframe", () => {
-    const r = parseTranscript("mera vajan kam karna hai 2 mahine mein, neend bhi theek nahi hai, aur chehre pe daane ho rahe hain");
+    const r = parseTranscript(
+      "mera vajan kam karna hai 2 mahine mein, neend bhi theek nahi hai, aur chehre pe daane ho rahe hain",
+    );
     expect(r.language).toBe("hinglish");
     expect(r.goals.length).toBeGreaterThanOrEqual(2);
     const cats = r.goals.map((g) => g.category);
@@ -164,7 +168,9 @@ describe("DIY parser — deterministic, offline", () => {
   });
 
   it("walking goals classify as endurance", () => {
-    expect(classifyCategory("I want to start walking every morning").category).toBe("FITNESS_ENDURANCE");
+    expect(classifyCategory("I want to start walking every morning").category).toBe(
+      "FITNESS_ENDURANCE",
+    );
   });
 });
 
@@ -228,7 +234,7 @@ describe("DIY reconciliation — first-stated goal wins", () => {
         category: c,
         rawGoalText: `goal ${i}`,
         clientKey: `g${i}`,
-      }))
+      })),
     );
     expect(r.kept).toHaveLength(5);
     expect(r.trimmed[0].reason).toMatch(/5 active plans/i);

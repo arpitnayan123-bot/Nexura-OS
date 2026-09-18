@@ -30,9 +30,13 @@ export const POST = withRoute(
 
     if (body.data.action === "approve") {
       const res = await approveProtocol(id, who);
-      return res.ok ? ok(res, { requestId: g.requestId }) : ok(res, { requestId: g.requestId, status: 409 });
+      return res.ok
+        ? ok(res, { requestId: g.requestId })
+        : ok(res, { requestId: g.requestId, status: 409 });
     }
     const res = await rejectProtocol(id, who, body.data.reason ?? "reviewed — not indicated");
-    return res.ok ? ok(res, { requestId: g.requestId }) : ok(res, { requestId: g.requestId, status: 409 });
-  }
+    return res.ok
+      ? ok(res, { requestId: g.requestId })
+      : ok(res, { requestId: g.requestId, status: 409 });
+  },
 );

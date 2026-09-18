@@ -39,7 +39,10 @@ export async function ensureGuestSession(): Promise<{ userId: string; created: b
   if (existing) {
     const payload = verifyServiceToken<{ sub: string; kind?: string }>(existing);
     if (payload?.sub && payload.kind === "diy_guest") {
-      const user = await db.portalUser.findUnique({ where: { id: payload.sub }, select: { id: true } });
+      const user = await db.portalUser.findUnique({
+        where: { id: payload.sub },
+        select: { id: true },
+      });
       if (user) return { userId: user.id, created: false };
     }
   }

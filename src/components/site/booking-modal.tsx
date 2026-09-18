@@ -45,16 +45,7 @@ const DATES = Array.from({ length: 10 }).map((_, i) => {
   return d;
 });
 
-const SLOTS = [
-  "09:15",
-  "10:30",
-  "11:45",
-  "13:00",
-  "14:30",
-  "16:00",
-  "17:15",
-  "18:30",
-];
+const SLOTS = ["09:15", "10:30", "11:45", "13:00", "14:30", "16:00", "17:15", "18:30"];
 
 const STEPS = ["Specialty", "Date", "Time", "Details"] as const;
 
@@ -111,10 +102,11 @@ export function BookingModal() {
       if (!res.ok) throw new Error();
       setDone(true);
       toast.success("Booking confirmed", {
-        description: `We've reserved ${slot} on ${selectedDate.toLocaleDateString(
-          "en-US",
-          { weekday: "short", month: "short", day: "numeric" }
-        )}.`,
+        description: `We've reserved ${slot} on ${selectedDate.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        })}.`,
       });
     } catch {
       toast.error("Couldn't book that slot. Please try again.");
@@ -164,7 +156,7 @@ export function BookingModal() {
                   <div
                     className={cn(
                       "h-1.5 flex-1 rounded-full transition-colors duration-300",
-                      i <= step ? "bg-white" : "bg-white/25"
+                      i <= step ? "bg-white" : "bg-white/25",
                     )}
                   />
                 </div>
@@ -267,13 +259,15 @@ export function BookingModal() {
                             "group flex items-center gap-2 rounded-2xl border p-3 text-left text-sm font-medium transition-all",
                             sel
                               ? "border-primary bg-primary/10 text-foreground shadow-[0_8px_24px_-10px_oklch(0.70_0.145_45/0.4)]"
-                              : "border-border bg-card hover:border-primary/40 hover:bg-accent/40"
+                              : "border-border bg-card hover:border-primary/40 hover:bg-accent/40",
                           )}
                         >
                           <span
                             className={cn(
                               "grid h-8 w-8 place-items-center rounded-xl transition-colors",
-                              sel ? "bg-primary text-primary-foreground" : "bg-accent/60 text-foreground"
+                              sel
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-accent/60 text-foreground",
                             )}
                           >
                             <Stethoscope className="h-4 w-4" />
@@ -298,7 +292,7 @@ export function BookingModal() {
                               "flex flex-col items-center gap-0.5 rounded-2xl border py-2.5 transition-all",
                               sel
                                 ? "border-primary bg-primary/10 text-foreground"
-                                : "border-border bg-card hover:bg-accent/40"
+                                : "border-border bg-card hover:bg-accent/40",
                             )}
                           >
                             <span className="text-[0.6rem] uppercase tracking-wider text-muted-foreground">
@@ -338,7 +332,7 @@ export function BookingModal() {
                             "flex items-center justify-center gap-1 rounded-xl border py-2.5 text-sm font-medium transition-all",
                             sel
                               ? "border-primary bg-primary/10 text-foreground"
-                              : "border-border bg-card hover:bg-accent/40"
+                              : "border-border bg-card hover:bg-accent/40",
                           )}
                         >
                           <Clock className="h-3.5 w-3.5 text-muted-foreground" />
@@ -425,7 +419,11 @@ export function BookingModal() {
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {step === STEPS.length - 1 ? (
-                loading ? "Booking…" : "Confirm booking"
+                loading ? (
+                  "Booking…"
+                ) : (
+                  "Confirm booking"
+                )
               ) : (
                 <>
                   Continue
@@ -478,7 +476,10 @@ function buildGoogleCalendarLink({
   const start = parseSlotToDate(date, slot);
   const end = new Date(start.getTime() + 20 * 60 * 1000); // 20-min consult
   const fmt = (d: Date) =>
-    d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    d
+      .toISOString()
+      .replace(/[-:]/g, "")
+      .replace(/\.\d{3}/, "");
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: title,

@@ -12,12 +12,7 @@
  * Hindi and Hinglish self-harm phrasing.
  * ============================================================ */
 
-import type {
-  ForesightInput,
-  RedFlagHit,
-  SymptomEntry,
-  TriageResult,
-} from "./types";
+import type { ForesightInput, RedFlagHit, SymptomEntry, TriageResult } from "./types";
 
 export const EMERGENCY_LINE = "108";
 export const MENTAL_HEALTH_LINES = [
@@ -85,8 +80,7 @@ const EMERGENCY_SYMPTOM_RULES: SymptomRule[] = [
   {
     id: "rf.cardio.chest_pain",
     match: (s) =>
-      s.id === SYMPTOM_IDS.chestPain &&
-      (s.severity >= 6 || s.worsening || s.onsetDays <= 2),
+      s.id === SYMPTOM_IDS.chestPain && (s.severity >= 6 || s.worsening || s.onsetDays <= 2),
     title: "Chest pain needs emergency care",
     why: (s) =>
       `Chest pain (severity ${s.severity}/10${s.worsening ? ", worsening" : ""}) can be heart-related. Only a hospital can rule that out safely.`,
@@ -99,14 +93,16 @@ const EMERGENCY_SYMPTOM_RULES: SymptomRule[] = [
       return s.id === SYMPTOM_IDS.chestPain && !!breath;
     },
     title: "Chest pain with breathlessness is an emergency",
-    why: () => "The combination of chest pain and breathlessness is treated as a possible cardiac event until proven otherwise.",
+    why: () =>
+      "The combination of chest pain and breathlessness is treated as a possible cardiac event until proven otherwise.",
     action: `Call ${EMERGENCY_LINE} immediately.`,
   },
   {
     id: "rf.resp.breathlessness_rest",
     match: (s) => s.id === SYMPTOM_IDS.breathlessness && s.severity >= 6,
     title: "Severe breathlessness needs emergency care",
-    why: (s) => `Breathlessness at severity ${s.severity}/10 can signal a serious lung or heart problem.`,
+    why: (s) =>
+      `Breathlessness at severity ${s.severity}/10 can signal a serious lung or heart problem.`,
     action: `Seek emergency care now — call ${EMERGENCY_LINE}.`,
   },
   {
@@ -116,7 +112,8 @@ const EMERGENCY_SYMPTOM_RULES: SymptomRule[] = [
       s.id === SYMPTOM_IDS.speechSlur ||
       (s.id === SYMPTOM_IDS.visionSudden && s.severity >= 7),
     title: "Possible stroke signs — every minute counts",
-    why: () => "One-sided weakness, slurred speech or sudden vision loss can be a stroke. Treatment works best within the first hours.",
+    why: () =>
+      "One-sided weakness, slurred speech or sudden vision loss can be a stroke. Treatment works best within the first hours.",
     action: `Call ${EMERGENCY_LINE} RIGHT NOW. Note the time symptoms started — doctors will ask for it.`,
   },
   {
@@ -161,11 +158,13 @@ function vitalsRules(input: ForesightInput): RedFlagHit[] {
     hits.push({
       id: "rf.glucose.extreme",
       level: "EMERGENCY",
-      title: v.glucoseMgDl >= 350 ? "Blood sugar is critically high" : "Blood sugar is critically low",
+      title:
+        v.glucoseMgDl >= 350 ? "Blood sugar is critically high" : "Blood sugar is critically low",
       why: `A ${v.glucoseContext ?? "random"} glucose of ${v.glucoseMgDl} mg/dL is outside safe limits.`,
-      action: v.glucoseMgDl <= 60
-        ? "Take fast sugar (glucose/juice) if conscious and call a doctor immediately. Unresponsive: call 108."
-        : `Seek urgent medical care today — call ${EMERGENCY_LINE} if you feel unwell.`,
+      action:
+        v.glucoseMgDl <= 60
+          ? "Take fast sugar (glucose/juice) if conscious and call a doctor immediately. Unresponsive: call 108."
+          : `Seek urgent medical care today — call ${EMERGENCY_LINE} if you feel unwell.`,
       source: "vitals",
     });
   }
@@ -187,17 +186,18 @@ function vitalsRules(input: ForesightInput): RedFlagHit[] {
 const SAME_DAY_SYMPTOM_RULES: SymptomRule[] = [
   {
     id: "rf.fever.persistent",
-    match: (s) =>
-      s.id === SYMPTOM_IDS.feverPersistent && (s.onsetDays >= 3 || s.severity >= 7),
+    match: (s) => s.id === SYMPTOM_IDS.feverPersistent && (s.onsetDays >= 3 || s.severity >= 7),
     title: "Persistent fever needs a doctor today",
-    why: (s) => `Fever lasting ${s.onsetDays} day(s) at ${s.severity}/10 should be examined — monsoon-season fevers in India often need a blood test (dengue/typhoid/malaria panel).`,
+    why: (s) =>
+      `Fever lasting ${s.onsetDays} day(s) at ${s.severity}/10 should be examined — monsoon-season fevers in India often need a blood test (dengue/typhoid/malaria panel).`,
     action: "Book a doctor visit today. Get CBC + dengue/malaria/typhoid panel if advised.",
   },
   {
     id: "rf.alarm.severe_abdominal",
     match: (s) => s.id === SYMPTOM_IDS.severeAbdominalPain && s.severity >= 7,
     title: "Severe abdominal pain needs same-day review",
-    why: () => "Pain at this intensity can indicate appendicitis, gallstones or another acute cause.",
+    why: () =>
+      "Pain at this intensity can indicate appendicitis, gallstones or another acute cause.",
     action: "See a doctor today — urgent care if it worsens.",
   },
   {
@@ -312,7 +312,11 @@ function pregnancyHits(input: ForesightInput): RedFlagHit[] {
 
 /* ------------------ Orchestration ------------------ */
 
-function hitFromRule(rule: SymptomRule, s: SymptomEntry, level: "EMERGENCY" | "SAME_DAY"): RedFlagHit {
+function hitFromRule(
+  rule: SymptomRule,
+  s: SymptomEntry,
+  level: "EMERGENCY" | "SAME_DAY",
+): RedFlagHit {
   return {
     id: rule.id,
     level,
@@ -339,7 +343,7 @@ export function runTriage(input: ForesightInput): TriageResult {
   raw.push(...pregnancyHits(input));
 
   const sameDayRules = SAME_DAY_SYMPTOM_RULES.filter((r) =>
-    input.symptoms.some((s) => r.match(s, input))
+    input.symptoms.some((s) => r.match(s, input)),
   ).map((r) => {
     const s = input.symptoms.find((x) => r.match(x, input))!;
     return hitFromRule(r, s, "SAME_DAY");

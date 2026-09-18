@@ -25,18 +25,24 @@ export function newRequestId(): string {
   return `req_${randomUUID().replace(/-/g, "").slice(0, 20)}`;
 }
 
-export function ok<T>(data: T, opts?: { requestId?: string; headers?: Record<string, string>; status?: number }) {
+export function ok<T>(
+  data: T,
+  opts?: { requestId?: string; headers?: Record<string, string>; status?: number },
+) {
   return NextResponse.json(
     { data, meta: { requestId: opts?.requestId } },
-    { status: opts?.status ?? 200, headers: opts?.headers }
+    { status: opts?.status ?? 200, headers: opts?.headers },
   );
 }
 
-export function fail(code: string, status: number, detail?: string, requestId?: string, headers?: Record<string, string>) {
-  return NextResponse.json(
-    { error: code, detail, meta: { requestId } },
-    { status, headers }
-  );
+export function fail(
+  code: string,
+  status: number,
+  detail?: string,
+  requestId?: string,
+  headers?: Record<string, string>,
+) {
+  return NextResponse.json({ error: code, detail, meta: { requestId } }, { status, headers });
 }
 
 /** Wrap a route handler: correlation ID, structured logs, uniform 500s, rate limits.
@@ -54,8 +60,11 @@ export const DEFAULT_ROUTE_RATE_LIMIT = { max: 300, windowMs: 60_000 } as const;
  *  flow through; existing handlers that ignore params are unaffected. */
 export function withRoute<P = Record<string, string>>(
   name: string,
-  handler: (req: NextRequest, ctx: { requestId: string; params: Promise<P> }) => Promise<NextResponse>,
-  opts?: { rateLimit?: { max: number; windowMs: number } }
+  handler: (
+    req: NextRequest,
+    ctx: { requestId: string; params: Promise<P> },
+  ) => Promise<NextResponse>,
+  opts?: { rateLimit?: { max: number; windowMs: number } },
 ) {
   return async (req: NextRequest, routeCtx?: { params?: Promise<P> }) => {
     const requestId = req.headers.get("x-request-id") || newRequestId();
@@ -84,14 +93,22 @@ export function withRoute<P = Record<string, string>>(
           });
         }
       }
-      const res = await handler(req, { requestId, params: (routeCtx?.params ?? Promise.resolve({})) as Promise<P> });
+      const res = await handler(req, {
+        requestId,
+        params: (routeCtx?.params ?? Promise.resolve({})) as Promise<P>,
+      });
       res.headers.set("x-request-id", requestId);
       log.info("api", name, { requestId, ms: Date.now() - started, status: res.status });
       return res;
     } catch (err) {
       log.error("api", name, { requestId, err: err instanceof Error ? err.message : String(err) });
       // Never leak stack traces or internal errors to clients
-      return fail("internal", 500, "Something went wrong. The incident has been logged.", requestId);
+      return fail(
+        "internal",
+        500,
+        "Something went wrong. The incident has been logged.",
+        requestId,
+      );
     }
   };
 }
@@ -107,7 +124,7 @@ export function withRoute<P = Record<string, string>>(
  * resolves its hospitalId through this helper — no exceptions.
  */
 export async function requireHospitalContext(
-  session: NxSession
+  session: NxSession,
 ): Promise<{ hospitalId: string } | { response: NextResponse }> {
   if (session.hospitalId) return { hospitalId: session.hospitalId };
   if (isDemoMode()) {
@@ -118,7 +135,7 @@ export async function requireHospitalContext(
     response: fail(
       "no_hospital_context",
       403,
-      "Session has no hospital context — re-authenticate to continue."
+      "Session has no hospital context — re-authenticate to continue.",
     ),
   };
 }
@@ -127,8 +144,11 @@ export async function requireHospitalContext(
 export async function guard(
   req: NextRequest,
   permission: NxPermission,
-  ctx?: { departmentId?: string | null; patientId?: string | null }
-): Promise<{ session: NxSession; perms: EffectivePermissions; requestId: string } | { response: NextResponse }> {
+  ctx?: { departmentId?: string | null; patientId?: string | null },
+): Promise<
+  | { session: NxSession; perms: EffectivePermissions; requestId: string }
+  | { response: NextResponse }
+> {
   const requestId = req.headers.get("x-request-id") || newRequestId();
   const result = await requirePermission(req, permission, ctx);
   if ("error" in result) {
@@ -145,19 +165,32 @@ export async function guard(
 /** Parse + validate JSON body with a zod schema. Returns 400-ready error on failure. */
 export async function parseBody<T>(
   req: NextRequest,
-  schema: ZodSchema<T>
+  schema: ZodSchema<T>,
 ): Promise<{ data: T } | { response: NextResponse; requestId: string }> {
   const requestId = req.headers.get("x-request-id") || newRequestId();
   let raw: unknown;
   try {
     raw = await req.json();
   } catch {
-    return { response: fail("invalid_json", 400, "Request body must be valid JSON.", requestId), requestId };
+    return {
+      response: fail("invalid_json", 400, "Request body must be valid JSON.", requestId),
+      requestId,
+    };
   }
   const parsed = schema.safeParse(raw);
   if (!parsed.success) {
-    const issues = parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })).slice(0, 8);
-    return { response: fail("invalid_request", 400, issues.map((i) => `${i.path}: ${i.message}`).join("; "), requestId), requestId };
+    const issues = parsed.error.issues
+      .map((i) => ({ path: i.path.join("."), message: i.message }))
+      .slice(0, 8);
+    return {
+      response: fail(
+        "invalid_request",
+        400,
+        issues.map((i) => `${i.path}: ${i.message}`).join("; "),
+        requestId,
+      ),
+      requestId,
+    };
   }
   return { data: parsed.data };
 }
@@ -172,7 +205,10 @@ export interface PageParams {
   q?: string;
 }
 
-export function paginate(req: NextRequest, defaults?: { perPage?: number; maxPerPage?: number }): PageParams {
+export function paginate(
+  req: NextRequest,
+  defaults?: { perPage?: number; maxPerPage?: number },
+): PageParams {
   const sp = req.nextUrl.searchParams;
   const maxPerPage = defaults?.maxPerPage ?? 100;
   const page = Math.max(1, Number(sp.get("page") || 1) || 1);
@@ -222,11 +258,7 @@ function sweepBuckets(now: number): void {
   }
 }
 
-export function rateLimit(
-  identifier: string,
-  max: number,
-  windowMs: number
-): RateResult {
+export function rateLimit(identifier: string, max: number, windowMs: number): RateResult {
   const now = Date.now();
   sweepBuckets(now);
   const entry = buckets.get(identifier);
@@ -236,7 +268,11 @@ export function rateLimit(
   }
   entry.count += 1;
   buckets.set(identifier, entry);
-  return { allowed: entry.count <= max, remaining: Math.max(0, max - entry.count), resetAt: entry.resetTime };
+  return {
+    allowed: entry.count <= max,
+    remaining: Math.max(0, max - entry.count),
+    resetAt: entry.resetTime,
+  };
 }
 
 /** Inspect a rate-limit bucket WITHOUT consuming a slot (used to gate before processing). */
@@ -246,7 +282,11 @@ export function peekRateLimit(identifier: string, max: number, windowMs: number)
   if (!entry || entry.resetTime < now) {
     return { allowed: true, remaining: max, resetAt: now + windowMs };
   }
-  return { allowed: entry.count <= max, remaining: Math.max(0, max - entry.count), resetAt: entry.resetTime };
+  return {
+    allowed: entry.count <= max,
+    remaining: Math.max(0, max - entry.count),
+    resetAt: entry.resetTime,
+  };
 }
 
 /* ---------- Idempotency for important writes ---------- */
@@ -254,7 +294,7 @@ export async function withIdempotency<T>(
   req: NextRequest,
   scope: string,
   fn: () => Promise<{ status: number; body: T }>,
-  opts?: { ttlHours?: number; bodyForHash?: unknown; callerId?: string }
+  opts?: { ttlHours?: number; bodyForHash?: unknown; callerId?: string },
 ): Promise<NextResponse> {
   const key = req.headers.get("x-idempotency-key");
   if (!key) {
@@ -263,14 +303,17 @@ export async function withIdempotency<T>(
   }
   const endpoint = `${req.method} ${req.nextUrl.pathname}`;
   // Hash the already-parsed body (the request stream may be consumed by the handler)
-  const requestHash = createHash("sha256").update(JSON.stringify(opts?.bodyForHash ?? "")).digest("hex");
+  const requestHash = createHash("sha256")
+    .update(JSON.stringify(opts?.bodyForHash ?? ""))
+    .digest("hex");
   // Scope the key to the caller so one tenant's replayed key can never return
   // another caller's cached response (or 409-DoS them). Routes with an
   // authenticated identity pass opts.callerId (preferred); the cookie-hint
   // fallback keeps anonymous integrations working but hashes ALL session
   // cookie families so nx and portal callers never share a scope bucket.
   const cookieHint =
-    req.headers.get("cookie")?.match(/(?:nx_access|portal_session|nexura_access)=([^;]+)/)?.[1] ?? "";
+    req.headers.get("cookie")?.match(/(?:nx_access|portal_session|nexura_access)=([^;]+)/)?.[1] ??
+    "";
   const callerScope = createHash("sha256")
     .update(opts?.callerId ? `user:${opts.callerId}` : `cookie:${cookieHint}`)
     .digest("hex")
@@ -298,16 +341,28 @@ export async function withIdempotency<T>(
   if (!insert) {
     // We lost the insert race — this key is already claimed. Replay the
     // winner's response when the payload matches; 409 otherwise.
-    const existing = await db.nxIdempotency.findUnique({ where: { key: scopedKey } }).catch(() => null);
+    const existing = await db.nxIdempotency
+      .findUnique({ where: { key: scopedKey } })
+      .catch(() => null);
     if (existing && existing.requestHash !== requestHash) {
-      return fail("idempotency_key_reuse", 409, "This idempotency key was used with a different payload.");
+      return fail(
+        "idempotency_key_reuse",
+        409,
+        "This idempotency key was used with a different payload.",
+      );
     }
     if (existing?.responseBody && existing.expiresAt > new Date()) {
-      return NextResponse.json(JSON.parse(existing.responseBody), { status: existing.responseStatus ?? 200 });
+      return NextResponse.json(JSON.parse(existing.responseBody), {
+        status: existing.responseStatus ?? 200,
+      });
     }
     // Claimed but not finished yet (concurrent in-flight request): refuse to
     // double-execute and ask the client to retry.
-    return fail("idempotency_in_progress", 409, "A request with this idempotency key is already in progress.");
+    return fail(
+      "idempotency_in_progress",
+      409,
+      "A request with this idempotency key is already in progress.",
+    );
   }
 
   const r = await fn();
@@ -332,7 +387,10 @@ export function ipOf(req: NextRequest): string {
   // IPs to bypass every rate limit.
   const xff = req.headers.get("x-forwarded-for");
   if (xff) {
-    const parts = xff.split(",").map((s) => s.trim()).filter(Boolean);
+    const parts = xff
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (parts.length > 0) return parts[parts.length - 1];
   }
   return req.headers.get("x-real-ip") || "local";

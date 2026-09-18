@@ -29,31 +29,41 @@ beforeEach(() => {
 describe("withRoute default limiter — distributed layer", () => {
   it("consults the distributed limiter when Redis is configured and its rejection wins with Retry-After", async () => {
     isRedisConfiguredMock.mockReturnValue(true);
-    consumeRateLimitMock.mockResolvedValue({ allowed: false, remaining: 0, resetAt: Date.now() + 30_000 });
+    consumeRateLimitMock.mockResolvedValue({
+      allowed: false,
+      remaining: 0,
+      resetAt: Date.now() + 30_000,
+    });
 
     const handler = withRoute(
       "test.dist-limiter-reject",
       async () => {
         throw new Error("handler must not run when the distributed limiter rejects");
       },
-      { rateLimit: { max: 1000, windowMs: 60_000 } } // pre-filter high so the distributed layer is what rejects
+      { rateLimit: { max: 1000, windowMs: 60_000 } }, // pre-filter high so the distributed layer is what rejects
     );
 
     const res = await handler(req());
     expect(res.status).toBe(429);
     expect(Number(res.headers.get("Retry-After"))).toBeGreaterThan(0);
     expect(consumeRateLimitMock).toHaveBeenCalledTimes(1);
-    expect(String(consumeRateLimitMock.mock.calls[0][0])).toMatch(/^route:test\.dist-limiter-reject:10\.9\.9\.9$/);
+    expect(String(consumeRateLimitMock.mock.calls[0][0])).toMatch(
+      /^route:test\.dist-limiter-reject:10\.9\.9\.9$/,
+    );
   });
 
   it("passes through to the handler when the distributed limiter allows", async () => {
     isRedisConfiguredMock.mockReturnValue(true);
-    consumeRateLimitMock.mockResolvedValue({ allowed: true, remaining: 999, resetAt: Date.now() + 60_000 });
+    consumeRateLimitMock.mockResolvedValue({
+      allowed: true,
+      remaining: 999,
+      resetAt: Date.now() + 60_000,
+    });
 
     const handler = withRoute(
       "test.dist-limiter-allow",
       async () => NextResponse.json({ ok: true }),
-      { rateLimit: { max: 1000, windowMs: 60_000 } }
+      { rateLimit: { max: 1000, windowMs: 60_000 } },
     );
 
     const res = await handler(req());
@@ -65,7 +75,7 @@ describe("withRoute default limiter — distributed layer", () => {
     const handler = withRoute(
       "test.dist-limiter-off",
       async () => NextResponse.json({ ok: true }),
-      { rateLimit: { max: 1000, windowMs: 60_000 } }
+      { rateLimit: { max: 1000, windowMs: 60_000 } },
     );
 
     const res = await handler(req());

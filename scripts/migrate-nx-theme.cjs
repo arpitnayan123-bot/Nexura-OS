@@ -5,7 +5,10 @@ const path = require("path");
 
 const DIR = "/home/z/my-project/src/components/nx";
 const FILES = [
-  ...fs.readdirSync(DIR).filter((f) => /^mod-.*\.tsx$/.test(f)).map((f) => path.join(DIR, f)),
+  ...fs
+    .readdirSync(DIR)
+    .filter((f) => /^mod-.*\.tsx$/.test(f))
+    .map((f) => path.join(DIR, f)),
   path.join(DIR, "bits.tsx"),
 ];
 
@@ -145,7 +148,10 @@ for (const file of FILES) {
   let count = 0;
   for (const [from, to] of MAP) {
     const re = new RegExp(`(?<![\\w-])${from.replace(/\//g, "\\/")}(?![\\w-])`, "g");
-    src = src.replace(re, () => { count++; return to; });
+    src = src.replace(re, () => {
+      count++;
+      return to;
+    });
   }
   // toast bridge: record + focus-aware toasts
   if (src.includes(`from "sonner"`)) {

@@ -39,9 +39,15 @@ export async function POST(req: NextRequest) {
     const bookingId = body.bookingId;
     if (!bookingId) return NextResponse.json({ error: "bookingId is required" }, { status: 400 });
 
-    const booking = await db.bloodBooking.findFirst({ where: { id: bookingId, userId: caller.id } });
+    const booking = await db.bloodBooking.findFirst({
+      where: { id: bookingId, userId: caller.id },
+    });
     if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
-    if (!booking.reportJson) return NextResponse.json({ error: "No report available for this booking yet" }, { status: 400 });
+    if (!booking.reportJson)
+      return NextResponse.json(
+        { error: "No report available for this booking yet" },
+        { status: 400 },
+      );
 
     // ---- Caching: return cached AI interpretation if exists ----
     if (booking.aiInterpretation) {
@@ -54,7 +60,12 @@ export async function POST(req: NextRequest) {
     }
 
     // parse report
-    const report = JSON.parse(booking.reportJson) as { tests: LabTest[]; panelName: string; collectedAt?: string; reportedAt?: string };
+    const report = JSON.parse(booking.reportJson) as {
+      tests: LabTest[];
+      panelName: string;
+      collectedAt?: string;
+      reportedAt?: string;
+    };
     const tests = report.tests ?? [];
 
     // ---- Build user prompt with lab values ----
@@ -62,7 +73,7 @@ export async function POST(req: NextRequest) {
     const testsBlock = tests
       .map(
         (t) =>
-          `- ${t.name}: ${t.value} ${t.unit} (ref: ${t.refRange}) [${t.flag.toUpperCase()}] · ${t.category}`
+          `- ${t.name}: ${t.value} ${t.unit} (ref: ${t.refRange}) [${t.flag.toUpperCase()}] · ${t.category}`,
       )
       .join("\n");
 
@@ -83,7 +94,9 @@ Provide a clear, empathetic clinical interpretation in markdown. Under 300 words
     try {
       interpretation = await runTextRaw(userPrompt, SYSTEM_PROMPT, "portal.ai-interpret");
     } catch (llmErr) {
-      log.warn("portal", "ai_interpret_llm_fallback", { err: llmErr instanceof Error ? llmErr.message : String(llmErr) });
+      log.warn("portal", "ai_interpret_llm_fallback", {
+        err: llmErr instanceof Error ? llmErr.message : String(llmErr),
+      });
       source = "rule-based";
     }
 
@@ -100,7 +113,9 @@ Provide a clear, empathetic clinical interpretation in markdown. Under 300 words
 
     return NextResponse.json({ ok: true, interpretation, source, cached: false });
   } catch (err) {
-    log.error("portal", "ai_interpret_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("portal", "ai_interpret_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "Failed to generate AI interpretation" }, { status: 500 });
   }
 }
@@ -111,13 +126,17 @@ function buildRuleBased(panelName: string, tests: LabTest[]): string {
   const summary: string[] = [];
 
   summary.push(`## 🩺 Nexa AI — Clinical Interpretation\n`);
-  summary.push(`**Overall assessment:** ${abnormals.length === 0 ? "All values are within the normal range. No immediate clinical concerns." : `${abnormals.length} of ${tests.length} parameters are outside the reference range. Detailed findings below.`}\n`);
+  summary.push(
+    `**Overall assessment:** ${abnormals.length === 0 ? "All values are within the normal range. No immediate clinical concerns." : `${abnormals.length} of ${tests.length} parameters are outside the reference range. Detailed findings below.`}\n`,
+  );
 
   if (abnormals.length > 0) {
     summary.push(`### ⚠️ Findings needing attention\n`);
     for (const a of abnormals) {
       const trend = a.flag === "high" ? "elevated" : a.flag === "low" ? "below normal" : a.flag;
-      summary.push(`- **${a.name}** (${a.category}): ${a.value} ${a.unit} — ${trend}. Reference: ${a.refRange}.`);
+      summary.push(
+        `- **${a.name}** (${a.category}): ${a.value} ${a.unit} — ${trend}. Reference: ${a.refRange}.`,
+      );
     }
     summary.push("");
   }
@@ -137,7 +156,9 @@ function buildRuleBased(panelName: string, tests: LabTest[]): string {
   summary.push(`3. Maintain hydration, regular sleep, and a balanced Indian diet.`);
   summary.push(`4. If symptoms persist (fever, fatigue, weight loss), seek in-person evaluation.`);
 
-  summary.push(`\n> ⚠️ **Disclaimer:** This AI-generated summary is informational only and is **not a medical diagnosis**. Please consult a registered medical practitioner. Nexura AI does not replace clinical judgment. In an emergency, call 112.`);
+  summary.push(
+    `\n> ⚠️ **Disclaimer:** This AI-generated summary is informational only and is **not a medical diagnosis**. Please consult a registered medical practitioner. Nexura AI does not replace clinical judgment. In an emergency, call 112.`,
+  );
 
   void panelName;
   return summary.join("\n");

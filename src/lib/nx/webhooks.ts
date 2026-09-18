@@ -42,13 +42,19 @@ function parseEvents(e: string): string[] {
 }
 
 /** Dispatch an event to all matching active endpoints. Non-blocking. */
-export function dispatchWebhooks(hospitalId: string, event: WebhookEvent, payload: Record<string, unknown>): void {
+export function dispatchWebhooks(
+  hospitalId: string,
+  event: WebhookEvent,
+  payload: Record<string, unknown>,
+): void {
   void (async () => {
     try {
       const endpoints = (await db.nxWebhookEndpoint.findMany({
         where: { hospitalId, active: true },
       })) as unknown as EndpointLike[];
-      const targets = endpoints.filter((e) => parseEvents(e.events).includes(event) || parseEvents(e.events).includes("*"));
+      const targets = endpoints.filter(
+        (e) => parseEvents(e.events).includes(event) || parseEvents(e.events).includes("*"),
+      );
       await Promise.all(targets.map((t) => deliver(t, event, payload, 1)));
     } catch (err) {
       log.error("webhooks", "dispatch", { err: err instanceof Error ? err.message : String(err) });
@@ -62,7 +68,8 @@ export function dispatchWebhooks(hospitalId: string, event: WebhookEvent, payloa
  * here (hostname-level check); the 8s abort + status-only storage limit what
  * a malicious endpoint learns even if it passes.
  */
-const BLOCKED_WEBHOOK_HOST = /(^(localhost|127\.|0\.0\.0\.0|10\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)|^(\[)?::1(\])?$|\.local$|\.internal$)/i;
+const BLOCKED_WEBHOOK_HOST =
+  /(^(localhost|127\.|0\.0\.0\.0|10\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)|^(\[)?::1(\])?$|\.local$|\.internal$)/i;
 
 export function isSafeWebhookUrl(raw: string): boolean {
   try {
@@ -75,7 +82,12 @@ export function isSafeWebhookUrl(raw: string): boolean {
   }
 }
 
-async function deliver(endpoint: EndpointLike, event: string, payload: Record<string, unknown>, attempt: number): Promise<void> {
+async function deliver(
+  endpoint: EndpointLike,
+  event: string,
+  payload: Record<string, unknown>,
+  attempt: number,
+): Promise<void> {
   const body = JSON.stringify({
     event,
     deliveredAt: new Date().toISOString(),
@@ -108,28 +120,37 @@ async function deliver(endpoint: EndpointLike, event: string, payload: Record<st
       status = 0;
     }
   }
-  await db.nxWebhookDelivery.create({
-    data: {
-      endpointId: endpoint.id,
-      hospitalId: (endpoint as unknown as { hospitalId: string }).hospitalId,
-      event,
-      targetUrl: endpoint.url,
-      payload: body.slice(0, 8_000),
-      status: status >= 200 && status < 300 ? "delivered" : "failed",
-      attempts: attempt,
-      responseCode: status || null,
-      latencyMs: Date.now() - started,
-      lastAttemptAt: new Date(),
-    },
-  }).catch(() => {});
+  await db.nxWebhookDelivery
+    .create({
+      data: {
+        endpointId: endpoint.id,
+        hospitalId: (endpoint as unknown as { hospitalId: string }).hospitalId,
+        event,
+        targetUrl: endpoint.url,
+        payload: body.slice(0, 8_000),
+        status: status >= 200 && status < 300 ? "delivered" : "failed",
+        attempts: attempt,
+        responseCode: status || null,
+        latencyMs: Date.now() - started,
+        lastAttemptAt: new Date(),
+      },
+    })
+    .catch(() => {});
 
   if (status >= 200 && status < 300) {
     if (endpoint.failureCount) {
-      await db.nxWebhookEndpoint.update({ where: { id: endpoint.id }, data: { failureCount: 0, lastSuccessAt: new Date() } }).catch(() => {});
+      await db.nxWebhookEndpoint
+        .update({
+          where: { id: endpoint.id },
+          data: { failureCount: 0, lastSuccessAt: new Date() },
+        })
+        .catch(() => {});
     }
     return;
   }
-  await db.nxWebhookEndpoint.update({ where: { id: endpoint.id }, data: { failureCount: { increment: 1 } } }).catch(() => {});
+  await db.nxWebhookEndpoint
+    .update({ where: { id: endpoint.id }, data: { failureCount: { increment: 1 } } })
+    .catch(() => {});
   if (attempt < 3) {
     const backoff = attempt === 1 ? 5_000 : 30_000;
     setTimeout(() => void deliver(endpoint, event, payload, attempt + 1), backoff);

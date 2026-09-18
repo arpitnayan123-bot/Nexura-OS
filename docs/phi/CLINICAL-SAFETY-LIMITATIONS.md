@@ -23,11 +23,11 @@
 
 ## 2. Excluded populations and routing cautions
 
-| Population | Behavior implemented | Where |
-|---|---|---|
-| **Children / adolescents (<18)** | Hard routed out. Schema rejects age <18; triage returns `MINOR_ROUTED_OUT` and skips all rule evaluation; UI shows a dedicated `minor` view directing to a pediatrician. | `schemas.ts`, `triage/engine.ts routeMinors()` |
-| **Pregnancy (possible)** | Non-blocking caution: `PREGNANCY_ROUTING` notice; pregnancy-specific red flags (RF-PREG-001) always escalate bleeding / severe abdominal pain / severe headache with visual changes / reduced fetal movement to `EMERGENCY_NOW`. | `triage/engine.ts routePregnancy()`, `ruleset.ts` |
-| **Severe chronic disease** | Non-blocking caution: `SPECIAL_POPULATION_ROUTING` notice when conditions match `active cancer / chemotherapy / immunocompromised / transplant / dialysis / severe * / advanced heart / COPD / kidney failure / renal failure`; RF-DEHYD-002 escalates same-day for 65+ or diabetes/kidney/cardiac conditions. | `triage/engine.ts routeSevereChronic()`, `ruleset.ts` |
+| Population                       | Behavior implemented                                                                                                                                                                                                                                                                                           | Where                                                 |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Children / adolescents (<18)** | Hard routed out. Schema rejects age <18; triage returns `MINOR_ROUTED_OUT` and skips all rule evaluation; UI shows a dedicated `minor` view directing to a pediatrician.                                                                                                                                       | `schemas.ts`, `triage/engine.ts routeMinors()`        |
+| **Pregnancy (possible)**         | Non-blocking caution: `PREGNANCY_ROUTING` notice; pregnancy-specific red flags (RF-PREG-001) always escalate bleeding / severe abdominal pain / severe headache with visual changes / reduced fetal movement to `EMERGENCY_NOW`.                                                                               | `triage/engine.ts routePregnancy()`, `ruleset.ts`     |
+| **Severe chronic disease**       | Non-blocking caution: `SPECIAL_POPULATION_ROUTING` notice when conditions match `active cancer / chemotherapy / immunocompromised / transplant / dialysis / severe * / advanced heart / COPD / kidney failure / renal failure`; RF-DEHYD-002 escalates same-day for 65+ or diabetes/kidney/cardiac conditions. | `triage/engine.ts routeSevereChronic()`, `ruleset.ts` |
 
 The special-routing notices are **advisory text** on the assessment
 (`routingNotice`), not clinical safeguards by themselves.
@@ -78,24 +78,24 @@ The governing bias of the triage layer:
 pattern + vitals + context); all carry full governance metadata with
 `clinicalReviewer: "PENDING"`.
 
-| Rule ID | One-line trigger | Urgency |
-|---|---|---|
-| `RF-NEURO-001` | Possible acute neurological event: sudden severe headache, facial droop, one-sided weakness, slurred speech, confusion, or seizure without prior history | `EMERGENCY_NOW` |
-| `RF-CARDIO-001` | Chest pain/pressure with severity ≥5 or associated sweating, breathlessness, arm/jaw radiation | `EMERGENCY_NOW` |
-| `RF-RESP-001` | Severe breathing difficulty (severity ≥6), blue lips, cannot complete sentences, or SpO2 < 92% | `EMERGENCY_NOW` |
-| `RF-BLEED-001` | Severe bleeding: severity ≥6, faintness, or bleeding that will not stop | `EMERGENCY_NOW` |
-| `RF-ALLERGY-001` | Possible anaphylaxis: allergic-reaction category, or swelling + breathlessness together | `EMERGENCY_NOW` |
-| `RF-DEHYD-001` | Severe dehydration/heat illness: cannot keep fluids down, no urination 12+ hours, confusion, collapse in heat | `EMERGENCY_NOW` |
-| `RF-INFEC-001` | Fever ≥ 39.5 °C with stiff neck, confusion, or non-blanching rash | `EMERGENCY_NOW` |
-| `RF-PREG-001` | Pregnancy danger signs: bleeding, severe abdominal pain, severe headache with vision changes, reduced fetal movement | `EMERGENCY_NOW` |
-| `RF-MH-001` | Self-harm or suicide-related language detected | `EMERGENCY_NOW` (Tele-MANAS 14416 / 9152987821) |
-| `RF-POISON-001` | Overdose or poisoning signal | `EMERGENCY_NOW` (keep container; AIIMS NPIC 1800-116-117) |
-| `RF-TRAUMA-001` | Serious injury/trauma: fall from height, road accident, deep wound, head injury with vomiting/drowsiness, unable to move a limb | `EMERGENCY_NOW` |
-| `RF-VITAL-001` | Dangerous resting vitals: HR <40 or >140; SBP ≥190 or ≤85 with DBP ≤50; temperature ≥41 °C | `EMERGENCY_NOW` |
-| `RF-MH-002` | Severe anxiety/panic with chest symptoms or hopelessness, without immediate-danger language (excluded when RF-MH-001 already fired) | `SAME_DAY_MEDICAL_REVIEW` |
-| `RF-RESP-002` | Worsening cough/fever over days with exertional breathlessness or SpO2 92–94% | `SAME_DAY_MEDICAL_REVIEW` |
-| `RF-DEHYD-002` | Persistent vomiting/diarrhea ≥24 h with weakness, in age 65+ or severe chronic disease | `SAME_DAY_MEDICAL_REVIEW` |
-| `RF-GEN-001` | Severe unexplained symptom (severity ≥8) or rapid worsening — the escalation-over-reassurance catch-all | `SAME_DAY_MEDICAL_REVIEW` |
+| Rule ID          | One-line trigger                                                                                                                                         | Urgency                                                   |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `RF-NEURO-001`   | Possible acute neurological event: sudden severe headache, facial droop, one-sided weakness, slurred speech, confusion, or seizure without prior history | `EMERGENCY_NOW`                                           |
+| `RF-CARDIO-001`  | Chest pain/pressure with severity ≥5 or associated sweating, breathlessness, arm/jaw radiation                                                           | `EMERGENCY_NOW`                                           |
+| `RF-RESP-001`    | Severe breathing difficulty (severity ≥6), blue lips, cannot complete sentences, or SpO2 < 92%                                                           | `EMERGENCY_NOW`                                           |
+| `RF-BLEED-001`   | Severe bleeding: severity ≥6, faintness, or bleeding that will not stop                                                                                  | `EMERGENCY_NOW`                                           |
+| `RF-ALLERGY-001` | Possible anaphylaxis: allergic-reaction category, or swelling + breathlessness together                                                                  | `EMERGENCY_NOW`                                           |
+| `RF-DEHYD-001`   | Severe dehydration/heat illness: cannot keep fluids down, no urination 12+ hours, confusion, collapse in heat                                            | `EMERGENCY_NOW`                                           |
+| `RF-INFEC-001`   | Fever ≥ 39.5 °C with stiff neck, confusion, or non-blanching rash                                                                                        | `EMERGENCY_NOW`                                           |
+| `RF-PREG-001`    | Pregnancy danger signs: bleeding, severe abdominal pain, severe headache with vision changes, reduced fetal movement                                     | `EMERGENCY_NOW`                                           |
+| `RF-MH-001`      | Self-harm or suicide-related language detected                                                                                                           | `EMERGENCY_NOW` (Tele-MANAS 14416 / 9152987821)           |
+| `RF-POISON-001`  | Overdose or poisoning signal                                                                                                                             | `EMERGENCY_NOW` (keep container; AIIMS NPIC 1800-116-117) |
+| `RF-TRAUMA-001`  | Serious injury/trauma: fall from height, road accident, deep wound, head injury with vomiting/drowsiness, unable to move a limb                          | `EMERGENCY_NOW`                                           |
+| `RF-VITAL-001`   | Dangerous resting vitals: HR <40 or >140; SBP ≥190 or ≤85 with DBP ≤50; temperature ≥41 °C                                                               | `EMERGENCY_NOW`                                           |
+| `RF-MH-002`      | Severe anxiety/panic with chest symptoms or hopelessness, without immediate-danger language (excluded when RF-MH-001 already fired)                      | `SAME_DAY_MEDICAL_REVIEW`                                 |
+| `RF-RESP-002`    | Worsening cough/fever over days with exertional breathlessness or SpO2 92–94%                                                                            | `SAME_DAY_MEDICAL_REVIEW`                                 |
+| `RF-DEHYD-002`   | Persistent vomiting/diarrhea ≥24 h with weakness, in age 65+ or severe chronic disease                                                                   | `SAME_DAY_MEDICAL_REVIEW`                                 |
+| `RF-GEN-001`     | Severe unexplained symptom (severity ≥8) or rapid worsening — the escalation-over-reassurance catch-all                                                  | `SAME_DAY_MEDICAL_REVIEW`                                 |
 
 Plus one **engine-level** synthetic alert, not part of the versioned ruleset file:
 `RF-UNCERTAINTY-001` (severe symptom with no matched rule → escalate to
@@ -124,8 +124,8 @@ Non-negotiable gates. The demo build satisfies none of them yet.
    Protection Act 2023 and the DPDP Rules 2025 (India) — consent artifact wording,
    withdrawal propagation, data-deletion SLAs, children's-data provisions (the
    18+ gate must be validated against the statutory definition of a child),
-   breach-notification duties. *(Consult the acts themselves; this document does
-   not cite clause numbers.)*
+   breach-notification duties. _(Consult the acts themselves; this document does
+   not cite clause numbers.)_
 4. **CDSCO SaMD pathway assessment.** Formal classification assessment under the
    Central Drugs Standard Control Organisation's medical-device (Software as a
    Medical Device) framework to determine whether this feature is a regulated
@@ -155,13 +155,13 @@ Non-negotiable gates. The demo build satisfies none of them yet.
 
 ## 8. Review sources to consult (references only)
 
-The demo content and rule text reference the *families* of guidance below as review
+The demo content and rule text reference the _families_ of guidance below as review
 starting points. This repository does not reproduce or verify them, and this document
 intentionally cites no specific clause numbers:
 
-- ICMR-NIN *Dietary Guidelines for Indians 2024* (content catalog demo posture
+- ICMR-NIN _Dietary Guidelines for Indians 2024_ (content catalog demo posture
   cites it as `"ICMR-NIN Dietary Guidelines for Indians 2024 (demo posture)"`).
-- WHO *Ethics and governance of artificial intelligence for health* guiding
+- WHO _Ethics and governance of artificial intelligence for health_ guiding
   principles (2021) — the escalation-over-reassurance bias is consistent with its
   emphasis on human oversight; the RF-GEN-001 evidence note references this family.
 - DPDP Act 2023 and DPDP Rules 2025 (India) — privacy/legal gate for any real

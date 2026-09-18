@@ -18,7 +18,16 @@ export const POST = withRoute("diy.progress.upsert", async (req: NextRequest) =>
   });
   if (g instanceof NextResponse) return g;
 
-  const b = g.body as { date: string; completedTasks: number; skippedTasks: number; symptoms?: string; mood?: number; energy?: number; sleep?: number; userNotes?: string };
+  const b = g.body as {
+    date: string;
+    completedTasks: number;
+    skippedTasks: number;
+    symptoms?: string;
+    mood?: number;
+    energy?: number;
+    sleep?: number;
+    userNotes?: string;
+  };
 
   const row = await db.diyProgressLog.upsert({
     where: { userId_date: { userId: g.userId, date: b.date } },

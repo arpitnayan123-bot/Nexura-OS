@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const MAX_BASE64_LEN = Math.ceil((8 * 1024 * 1024) * 4 / 3) + 1024; // matches 8MB client cap
+const MAX_BASE64_LEN = Math.ceil((8 * 1024 * 1024 * 4) / 3) + 1024; // matches 8MB client cap
 const ALLOWED_MIME = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
 
 // POST /api/know-your-health/lab-analyzer
@@ -20,8 +20,20 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const tests = Array.isArray(body?.tests) ? body.tests : [];
     const clean = tests
-      .filter((t: any) => t && typeof t.name === "string" && t.name.trim() && (t.value !== undefined && t.value !== null && String(t.value).trim() !== ""))
-      .map((t: any) => ({ name: String(t.name).trim(), value: String(t.value).trim(), unit: String(t.unit || "").trim() }));
+      .filter(
+        (t: any) =>
+          t &&
+          typeof t.name === "string" &&
+          t.name.trim() &&
+          t.value !== undefined &&
+          t.value !== null &&
+          String(t.value).trim() !== "",
+      )
+      .map((t: any) => ({
+        name: String(t.name).trim(),
+        value: String(t.value).trim(),
+        unit: String(t.unit || "").trim(),
+      }));
 
     // ---- Path 2: photo of a lab report → vision extraction ----
     let extractedFromImage = false;
@@ -33,18 +45,33 @@ export async function POST(req: NextRequest) {
     if (clean.length === 0) {
       if (!base64 || !mimeType) {
         return NextResponse.json(
-          { error: "no_tests", detail: "Add at least one lab test value, or upload a photo of your lab report." },
-          { status: 400 }
+          {
+            error: "no_tests",
+            detail: "Add at least one lab test value, or upload a photo of your lab report.",
+          },
+          { status: 400 },
         );
       }
       if (!isValidImageBase64(base64)) {
-        return NextResponse.json({ error: "invalid_image", detail: "That image could not be read. Try a clearer photo (JPG or PNG)." }, { status: 415 });
+        return NextResponse.json(
+          {
+            error: "invalid_image",
+            detail: "That image could not be read. Try a clearer photo (JPG or PNG).",
+          },
+          { status: 415 },
+        );
       }
       if (!ALLOWED_MIME.has(mimeType.toLowerCase())) {
-        return NextResponse.json({ error: "unsupported_type", detail: "Upload a JPG, PNG or WebP photo of the report." }, { status: 415 });
+        return NextResponse.json(
+          { error: "unsupported_type", detail: "Upload a JPG, PNG or WebP photo of the report." },
+          { status: 415 },
+        );
       }
       if (base64.length > MAX_BASE64_LEN) {
-        return NextResponse.json({ error: "image_too_large", detail: "Photo is too large (max 8MB)." }, { status: 413 });
+        return NextResponse.json(
+          { error: "image_too_large", detail: "Photo is too large (max 8MB)." },
+          { status: 413 },
+        );
       }
       const extractPrompt = `This is a photo of a medical lab report from India. Read EVERY test result visible in the image.
 Return STRICT JSON only:
@@ -60,16 +87,38 @@ Rules:
       const extracted = await runVision<any>(base64, mimeType, extractPrompt, "kyh.lab-analyzer");
       if (!extracted || !Array.isArray(extracted.tests) || extracted.tests.length === 0) {
         return NextResponse.json(
-          { error: "extraction_failed", detail: "We couldn't read any test values from that photo. Try better lighting, or enter the values manually." },
-          { status: 422 }
+          {
+            error: "extraction_failed",
+            detail:
+              "We couldn't read any test values from that photo. Try better lighting, or enter the values manually.",
+          },
+          { status: 422 },
         );
       }
       sourceTests = extracted.tests
-        .filter((t: any) => t && typeof t.name === "string" && t.name.trim() && t.value !== undefined && t.value !== null && String(t.value).trim() !== "")
+        .filter(
+          (t: any) =>
+            t &&
+            typeof t.name === "string" &&
+            t.name.trim() &&
+            t.value !== undefined &&
+            t.value !== null &&
+            String(t.value).trim() !== "",
+        )
         .slice(0, 40)
-        .map((t: any) => ({ name: String(t.name).trim(), value: String(t.value).trim(), unit: String(t.unit || "").trim() }));
+        .map((t: any) => ({
+          name: String(t.name).trim(),
+          value: String(t.value).trim(),
+          unit: String(t.unit || "").trim(),
+        }));
       if (sourceTests.length === 0) {
-        return NextResponse.json({ error: "extraction_failed", detail: "Couldn't read the values clearly — please enter them manually." }, { status: 422 });
+        return NextResponse.json(
+          {
+            error: "extraction_failed",
+            detail: "Couldn't read the values clearly — please enter them manually.",
+          },
+          { status: 422 },
+        );
       }
       extractedFromImage = true;
     }
@@ -108,7 +157,15 @@ Rules:
     if (extractedFromImage) result.extractedFromImage = true;
     return NextResponse.json(result);
   } catch (err) {
-    log.error("kyh", "lab_analyze_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "lab_analyze_failed", detail: "The lab report could not be analyzed. Please retry." }, { status: 500 });
+    log.error("kyh", "lab_analyze_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "lab_analyze_failed",
+        detail: "The lab report could not be analyzed. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }

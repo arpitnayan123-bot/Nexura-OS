@@ -30,16 +30,33 @@ export const PATCH = withRoute("labs.verify", async (req: NextRequest) => {
   const parsed = VerifySchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return fail("invalid_request", 400, parsed.error.issues[0]?.message);
 
-  const result = await db.labResult.findUnique({ where: { id: parsed.data.resultId }, include: { order: { include: { doctor: true, patient: { select: { id: true, fullName: true, uhid: true } } } } } });
+  const result = await db.labResult.findUnique({
+    where: { id: parsed.data.resultId },
+    include: {
+      order: {
+        include: { doctor: true, patient: { select: { id: true, fullName: true, uhid: true } } },
+      },
+    },
+  });
   if (!result) return fail("not_found", 404, "Result not found.");
-  if (result.order.hospitalId !== hospitalId) return fail("forbidden", 403, "Cross-hospital access denied.");
+  if (result.order.hospitalId !== hospitalId)
+    return fail("forbidden", 403, "Cross-hospital access denied.");
 
   if (parsed.data.action === "verify") {
     const updated = await db.labResult.update({
       where: { id: result.id },
       data: { verificationStatus: "verified", verifiedByStaffId: null, verifiedAt: new Date() },
     });
-    await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "lab.result.verified", entityType: "lab_result", entityId: result.id, patientId: result.order.patientId, detail: { test: result.testName } });
+    await audit({
+      hospitalId,
+      actorName: g.session.name,
+      actorRole: g.session.role,
+      action: "lab.result.verified",
+      entityType: "lab_result",
+      entityId: result.id,
+      patientId: result.order.patientId,
+      detail: { test: result.testName },
+    });
     return NextResponse.json({ data: { result: updated } });
   }
 
@@ -48,7 +65,16 @@ export const PATCH = withRoute("labs.verify", async (req: NextRequest) => {
       where: { id: result.id },
       data: { verificationStatus: "rejected", verifiedAt: null },
     });
-    await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "lab.result.rejected", entityType: "lab_result", entityId: result.id, patientId: result.order.patientId, detail: { note: parsed.data.note } });
+    await audit({
+      hospitalId,
+      actorName: g.session.name,
+      actorRole: g.session.role,
+      action: "lab.result.rejected",
+      entityType: "lab_result",
+      entityId: result.id,
+      patientId: result.order.patientId,
+      detail: { note: parsed.data.note },
+    });
     return NextResponse.json({ data: { result: updated } });
   }
 
@@ -56,7 +82,10 @@ export const PATCH = withRoute("labs.verify", async (req: NextRequest) => {
   if (result.abnormalFlag !== "critical") {
     return fail("invalid_request", 422, "Only results flagged critical can be escalated.");
   }
-  const updated = await db.labResult.update({ where: { id: result.id }, data: { criticalNotifiedAt: new Date() } });
+  const updated = await db.labResult.update({
+    where: { id: result.id },
+    data: { criticalNotifiedAt: new Date() },
+  });
   const doctor = result.order.doctor;
   await db.nxNotification.create({
     data: {
@@ -67,25 +96,61 @@ export const PATCH = withRoute("labs.verify", async (req: NextRequest) => {
       category: "lab",
       link: `patient:${result.order.patientId}`,
       patientId: result.order.patientId,
-      ...(doctor?.id ? await (async () => {
-        const staffUser = await db.nxStaffUser.findFirst({ where: { hospitalId, name: doctor.name }, select: { id: true } });
-        return staffUser ? { userId: staffUser.id } : { roleKey: "doctor" };
-      })() : { roleKey: "doctor" }),
+      ...(doctor?.id
+        ? await (async () => {
+            const staffUser = await db.nxStaffUser.findFirst({
+              where: { hospitalId, name: doctor.name },
+              select: { id: true },
+            });
+            return staffUser ? { userId: staffUser.id } : { roleKey: "doctor" };
+          })()
+        : { roleKey: "doctor" }),
     },
   });
   await db.nxNotification.create({
-    data: { hospitalId, roleKey: "command", title: `Critical result escalated: ${result.testName}`, body: `Patient ${result.order.patient.fullName} (${result.order.patient.uhid})`, level: "critical", category: "lab", link: `patient:${result.order.patientId}`, patientId: result.order.patientId },
+    data: {
+      hospitalId,
+      roleKey: "command",
+      title: `Critical result escalated: ${result.testName}`,
+      body: `Patient ${result.order.patient.fullName} (${result.order.patient.uhid})`,
+      level: "critical",
+      category: "lab",
+      link: `patient:${result.order.patientId}`,
+      patientId: result.order.patientId,
+    },
   });
   await db.nxTask.create({
     data: {
-      hospitalId, title: `Review critical ${result.testName} — ${result.order.patient.fullName}`,
-      type: "result", priority: "critical", status: "new", ownerRole: "doctor",
-      patientId: result.order.patientId, patientName: result.order.patient.fullName, patientUhid: result.order.patient.uhid,
-      sourceModule: "lab", relatedId: result.orderId, reason: "critical lab result", slaMinutes: 30,
+      hospitalId,
+      title: `Review critical ${result.testName} — ${result.order.patient.fullName}`,
+      type: "result",
+      priority: "critical",
+      status: "new",
+      ownerRole: "doctor",
+      patientId: result.order.patientId,
+      patientName: result.order.patient.fullName,
+      patientUhid: result.order.patient.uhid,
+      sourceModule: "lab",
+      relatedId: result.orderId,
+      reason: "critical lab result",
+      slaMinutes: 30,
     },
   });
-  publish({ event: "lab.critical", hospitalId, toRoles: ["doctor", "nurse", "command", "lab_tech", "admin", "hospital_admin"], data: { resultId: result.id, test: result.testName, patient: result.order.patient.fullName } });
-  await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "lab.critical.notified", entityType: "lab_result", entityId: result.id, patientId: result.order.patientId });
+  publish({
+    event: "lab.critical",
+    hospitalId,
+    toRoles: ["doctor", "nurse", "command", "lab_tech", "admin", "hospital_admin"],
+    data: { resultId: result.id, test: result.testName, patient: result.order.patient.fullName },
+  });
+  await audit({
+    hospitalId,
+    actorName: g.session.name,
+    actorRole: g.session.role,
+    action: "lab.critical.notified",
+    entityType: "lab_result",
+    entityId: result.id,
+    patientId: result.order.patientId,
+  });
   return NextResponse.json({ data: { result: updated, notified: true } });
 });
 

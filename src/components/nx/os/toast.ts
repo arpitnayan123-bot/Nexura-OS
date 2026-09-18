@@ -53,5 +53,5 @@ export const toast: NxToast = Object.assign(
     dismiss: sonner.dismiss,
     custom: sonner.custom,
     promise: sonner.promise,
-  }
+  },
 );

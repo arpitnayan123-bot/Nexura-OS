@@ -15,11 +15,16 @@ const UpsertSchema = z.object({
   deptScope: z.array(z.string().max(60)).max(20).optional(),
   wardScope: z.array(z.string().max(60)).max(20).optional(),
   patientScope: z.enum(["any", "assigned", "ward"]).optional(),
-  timeWindows: z.array(z.object({
-    days: z.array(z.number().int().min(1).max(7)).max(7).optional(),
-    from: z.string().regex(/^\d{2}:\d{2}$/),
-    to: z.string().regex(/^\d{2}:\d{2}$/),
-  })).max(6).optional(),
+  timeWindows: z
+    .array(
+      z.object({
+        days: z.array(z.number().int().min(1).max(7)).max(7).optional(),
+        from: z.string().regex(/^\d{2}:\d{2}$/),
+        to: z.string().regex(/^\d{2}:\d{2}$/),
+      }),
+    )
+    .max(6)
+    .optional(),
   active: z.boolean().optional(),
   note: z.string().max(300).optional(),
 });
@@ -29,7 +34,10 @@ export const GET = withRoute("abac.list", async (req: NextRequest, { requestId }
   if ("response" in g) return g.response;
   const hospitalId = g.session.hospitalId;
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
-  const rows = await db.nxAbacPolicy.findMany({ where: { hospitalId }, orderBy: { createdAt: "desc" } });
+  const rows = await db.nxAbacPolicy.findMany({
+    where: { hospitalId },
+    orderBy: { createdAt: "desc" },
+  });
   return ok(
     rows.map((r) => ({
       ...r,
@@ -37,7 +45,7 @@ export const GET = withRoute("abac.list", async (req: NextRequest, { requestId }
       wardScope: JSON.parse(r.wardScope || "[]"),
       timeWindows: JSON.parse(r.timeWindows || "[]"),
     })),
-    { requestId }
+    { requestId },
   );
 });
 

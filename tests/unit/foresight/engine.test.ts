@@ -29,10 +29,27 @@ describe("orchestration", () => {
     const loaded = runForesight({
       ...EMPTY_INPUT,
       profile: { ...EMPTY_INPUT.profile, weightKg: 100, waistCm: 110 },
-      history: { ...EMPTY_INPUT.history, tobacco: "current_smoke", stress: "high", familyHistory: ["diabetes", "heart_disease"] },
-      diet: { ...EMPTY_INPUT.diet, sweetsPerWeek: "daily", friedPerWeek: "daily", salt: "high", sugaryDrinksPerWeek: "daily" },
+      history: {
+        ...EMPTY_INPUT.history,
+        tobacco: "current_smoke",
+        stress: "high",
+        familyHistory: ["diabetes", "heart_disease"],
+      },
+      diet: {
+        ...EMPTY_INPUT.diet,
+        sweetsPerWeek: "daily",
+        friedPerWeek: "daily",
+        salt: "high",
+        sugaryDrinksPerWeek: "daily",
+      },
       activity: { ...EMPTY_INPUT.activity, minutesPerWeek: 0 },
-      sleep: { ...EMPTY_INPUT.sleep, hoursPerNight: 5, quality: "poor", snoring: "loud_regular", daytimeSleepiness: "severe" },
+      sleep: {
+        ...EMPTY_INPUT.sleep,
+        hoursPerNight: 5,
+        quality: "poor",
+        snoring: "loud_regular",
+        daytimeSleepiness: "severe",
+      },
     }).foresightScore;
     expect(loaded).toBeLessThan(healthy);
     expect(healthy - loaded).toBeGreaterThan(15);
@@ -41,7 +58,11 @@ describe("orchestration", () => {
   });
 
   it("a diabetes-range lab drags the composite into attention territory", () => {
-    const r = runForesight({ ...EMPTY_INPUT, labs: { hba1cPct: 8.4 }, vitals: { systolic: 152, diastolic: 98 } });
+    const r = runForesight({
+      ...EMPTY_INPUT,
+      labs: { hba1cPct: 8.4 },
+      vitals: { systolic: 152, diastolic: 98 },
+    });
     expect(r.foresightScore).toBeLessThan(68);
     expect(r.scoreBand === "BUILDING" || r.scoreBand === "ATTENTION").toBe(true);
     const metabolic = r.domains.find((d) => d.id === "metabolic")!;

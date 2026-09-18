@@ -65,9 +65,16 @@ export function Scenery({ className }: { className?: string }) {
           <stop offset="1" stopColor="#2E2A26" stopOpacity="0.22" />
         </radialGradient>
         <filter id="d-grain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.9"
+            numOctaves="2"
+            stitchTiles="stitch"
+          />
           <feColorMatrix type="saturate" values="0" />
-          <feComponentTransfer><feFuncA type="linear" slope="0.05" /></feComponentTransfer>
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="0.05" />
+          </feComponentTransfer>
           <feComposite operator="over" in2="SourceGraphic" />
         </filter>
       </defs>
@@ -130,7 +137,15 @@ export function Scenery({ className }: { className?: string }) {
           />
         </g>
         {/* sun light column on water */}
-        <rect x="1098" y="380" width="84" height="260" fill="#FFE9C4" opacity="0.32" mask="url(#d-water-mask)" />
+        <rect
+          x="1098"
+          y="380"
+          width="84"
+          height="260"
+          fill="#FFE9C4"
+          opacity="0.32"
+          mask="url(#d-water-mask)"
+        />
         {/* shimmer */}
         <g fill="#FFEFD2" className="diy-shimmer">
           <ellipse cx="1140" cy="440" rx="60" ry="3.2" opacity="0.8" />
@@ -152,14 +167,20 @@ export function Scenery({ className }: { className?: string }) {
 
       {/* far-shore tree specks */}
       <g fill="#5E7350" opacity="0.7">
-        <circle cx="120" cy="382" r="5" /><circle cx="140" cy="384" r="4" />
-        <circle cx="700" cy="383" r="4.5" /><circle cx="716" cy="385" r="3.5" />
-        <circle cx="1310" cy="382" r="5" /><circle cx="1330" cy="384" r="4" />
+        <circle cx="120" cy="382" r="5" />
+        <circle cx="140" cy="384" r="4" />
+        <circle cx="700" cy="383" r="4.5" />
+        <circle cx="716" cy="385" r="3.5" />
+        <circle cx="1310" cy="382" r="5" />
+        <circle cx="1330" cy="384" r="4" />
       </g>
 
       {/* left bank + pines + reeds + doe & fawn */}
       <g>
-        <path d="M0 640 L0 470 Q120 440 260 468 Q420 500 560 560 L560 640 Z" fill="url(#d-bank-l)" />
+        <path
+          d="M0 640 L0 470 Q120 440 260 468 Q420 500 560 560 L560 640 Z"
+          fill="url(#d-bank-l)"
+        />
         <g fill="#4C6242">
           <path d="M60 470 L78 414 L96 470 Z M60 452 L78 396 L96 452 Z" />
           <path d="M130 486 L150 424 L170 486 Z M130 466 L150 404 L170 466 Z" />
@@ -194,7 +215,10 @@ export function Scenery({ className }: { className?: string }) {
 
       {/* right bank + pines + stag, fawn, doe */}
       <g>
-        <path d="M1440 640 L1440 462 Q1300 434 1150 462 Q1000 492 880 552 L880 640 Z" fill="url(#d-bank-r)" />
+        <path
+          d="M1440 640 L1440 462 Q1300 434 1150 462 Q1000 492 880 552 L880 640 Z"
+          fill="url(#d-bank-r)"
+        />
         <g fill="#546A48">
           <path d="M1360 476 L1382 410 L1404 476 Z M1360 452 L1382 386 L1404 452 Z" />
           <path d="M1272 496 L1292 438 L1312 496 Z" />
@@ -212,7 +236,13 @@ export function Scenery({ className }: { className?: string }) {
             <rect x="20" y="10" width="5" height="26" rx="2" />
             <path d="M22 -10 q16 -6 20 -20 l6 3 q-6 18 -22 24 Z" />
             <circle cx="50" cy="-30" r="7" />
-            <path d="M44 -37 l-6 -12 M50 -38 l0 -13 M56 -37 l6 -12" stroke="#8A6247" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+            <path
+              d="M44 -37 l-6 -12 M50 -38 l0 -13 M56 -37 l6 -12"
+              stroke="#8A6247"
+              strokeWidth="2.4"
+              fill="none"
+              strokeLinecap="round"
+            />
           </g>
           {/* fawn */}
           <g transform="translate(1148, 528) scale(0.55)">

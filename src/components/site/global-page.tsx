@@ -1,14 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  memo,
-  useState,
-  type FormEvent,
-} from "react";
+import { useCallback, useEffect, useMemo, memo, useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Magnetic, ScrollProgress } from "@/components/premium/kit";
 import {
@@ -155,13 +148,22 @@ const COUNTRIES: { code: string; dial: string; name: string; flag: string }[] = 
 ];
 
 const COUNTRY_FLAGS: Record<string, string> = {
-  UAE: "🇦🇪", "United Arab Emirates": "🇦🇪",
-  "Saudi Arabia": "🇸🇦", UK: "🇬🇧", "United Kingdom": "🇬🇧",
-  Qatar: "🇶🇦", Oman: "🇴🇲", Kenya: "🇰🇪",
-  Brazil: "🇧🇷", Bangladesh: "🇧🇩",
-  Kuwait: "🇰🇼", Bahrain: "🇧🇭",
-  Nigeria: "🇳🇬", Russia: "🇷🇺",
-  "South Africa": "🇿🇦", India: "🇮🇳",
+  UAE: "🇦🇪",
+  "United Arab Emirates": "🇦🇪",
+  "Saudi Arabia": "🇸🇦",
+  UK: "🇬🇧",
+  "United Kingdom": "🇬🇧",
+  Qatar: "🇶🇦",
+  Oman: "🇴🇲",
+  Kenya: "🇰🇪",
+  Brazil: "🇧🇷",
+  Bangladesh: "🇧🇩",
+  Kuwait: "🇰🇼",
+  Bahrain: "🇧🇭",
+  Nigeria: "🇳🇬",
+  Russia: "🇷🇺",
+  "South Africa": "🇿🇦",
+  India: "🇮🇳",
 };
 
 /* ============================================================
@@ -186,9 +188,27 @@ const FALLBACK_HOSPITALS: Hospital[] = [
       rating: 4.7,
     },
     tourismProcedures: [
-      { id: "p1", name: "Coronary Artery Bypass Graft (CABG)", category: "cardiac", priceUSD: 4500, avgStayDays: 10 },
-      { id: "p2", name: "Total Hip Replacement", category: "ortho", priceUSD: 5800, avgStayDays: 8 },
-      { id: "p3", name: "IVF Treatment (1 cycle)", category: "fertility", priceUSD: 2200, avgStayDays: 3 },
+      {
+        id: "p1",
+        name: "Coronary Artery Bypass Graft (CABG)",
+        category: "cardiac",
+        priceUSD: 4500,
+        avgStayDays: 10,
+      },
+      {
+        id: "p2",
+        name: "Total Hip Replacement",
+        category: "ortho",
+        priceUSD: 5800,
+        avgStayDays: 8,
+      },
+      {
+        id: "p3",
+        name: "IVF Treatment (1 cycle)",
+        category: "fertility",
+        priceUSD: 2200,
+        avgStayDays: 3,
+      },
     ],
   },
   {
@@ -211,7 +231,13 @@ const FALLBACK_HOSPITALS: Hospital[] = [
     tourismProcedures: [
       { id: "p4", name: "Kidney Transplant", category: "kidney", priceUSD: 14000, avgStayDays: 21 },
       { id: "p5", name: "Liver Transplant", category: "liver", priceUSD: 35000, avgStayDays: 28 },
-      { id: "p6", name: "Brain Tumour Surgery", category: "neuro", priceUSD: 7500, avgStayDays: 14 },
+      {
+        id: "p6",
+        name: "Brain Tumour Surgery",
+        category: "neuro",
+        priceUSD: 7500,
+        avgStayDays: 14,
+      },
     ],
   },
   {
@@ -230,9 +256,21 @@ const FALLBACK_HOSPITALS: Hospital[] = [
       rating: 4.8,
     },
     tourismProcedures: [
-      { id: "p7", name: "Dental Implants (per tooth)", category: "dental", priceUSD: 800, avgStayDays: 2 },
+      {
+        id: "p7",
+        name: "Dental Implants (per tooth)",
+        category: "dental",
+        priceUSD: 800,
+        avgStayDays: 2,
+      },
       { id: "p8", name: "Liposuction", category: "cosmetic", priceUSD: 2500, avgStayDays: 3 },
-      { id: "p9", name: "Gastric Bypass Surgery", category: "bariatric", priceUSD: 4500, avgStayDays: 7 },
+      {
+        id: "p9",
+        name: "Gastric Bypass Surgery",
+        category: "bariatric",
+        priceUSD: 4500,
+        avgStayDays: 7,
+      },
     ],
   },
 ];
@@ -324,14 +362,16 @@ const I18N = {
     catSub: "Tap a specialty to filter the hospital directory below.",
     catExplore: "Explore",
     hospTitle: "Verified Hospital Directory",
-    hospSub: "Hospitals are being onboarded to Nexura OS Global from India's NABH & JCI-accredited network.",
+    hospSub:
+      "Hospitals are being onboarded to Nexura OS Global from India's NABH & JCI-accredited network.",
     nabhBadge: "NABH",
     jciBadge: "JCI",
     from: "from",
     getEstimate: "Get Free Estimate",
     noHospitals: "No hospitals match this filter yet. Try another procedure category.",
     costTitle: "Transparent Cost Comparison",
-    costSub: "All prices in USD. India column includes surgeon fees, hospital stay, anaesthesia, and standard post-operative care.",
+    costSub:
+      "All prices in USD. India column includes surgeon fees, hospital stay, anaesthesia, and standard post-operative care.",
     costProcedure: "Procedure",
     costIndia: "India (Nexura)",
     costUsa: "USA",
@@ -339,23 +379,30 @@ const I18N = {
     costUae: "UAE",
     saveBadge: "Save up to 90%",
     howTitle: "How It Works",
-    howSub: "From first inquiry to landing in India for treatment — four calm, well-orchestrated steps.",
+    howSub:
+      "From first inquiry to landing in India for treatment — four calm, well-orchestrated steps.",
     step1Title: "Submit Your Inquiry",
-    step1Desc: "Free, no-obligation. Share your condition, medical records, and procedure interest.",
+    step1Desc:
+      "Free, no-obligation. Share your condition, medical records, and procedure interest.",
     step2Title: "Receive Cost Estimate",
-    step2Desc: "Our coordinators prepare a transparent USD estimate with hospital options — targeted within 24 hours of your inquiry.",
+    step2Desc:
+      "Our coordinators prepare a transparent USD estimate with hospital options — targeted within 24 hours of your inquiry.",
     step3Title: "Pre-Travel Video Consultation",
-    step3Desc: "Our coordinator helps arrange a video consultation with your treating doctor before you travel, so you can ask every question. (Service being onboarded.)",
+    step3Desc:
+      "Our coordinator helps arrange a video consultation with your treating doctor before you travel, so you can ask every question. (Service being onboarded.)",
     step4Title: "Arrive for Treatment",
-    step4Desc: "Our coordinator helps arrange medical visa support, airport pickup, accommodation, and translators with partner services as they come onboard.",
+    step4Desc:
+      "Our coordinator helps arrange medical visa support, airport pickup, accommodation, and translators with partner services as they come onboard.",
     step1Badge: "Free",
     step2Badge: "Coordinator",
     step3Badge: "Being onboarded",
     step4Badge: "Coordinator help",
     storiesTitle: "Patient Stories",
-    storiesSub: "Representative stories illustrating the international patient journey via Nexura OS Global — illustrative, not verified testimonials.",
+    storiesSub:
+      "Representative stories illustrating the international patient journey via Nexura OS Global — illustrative, not verified testimonials.",
     verified: "Representative patient story (illustrative)",
-    footerAbout: "Nexura OS Global is the international patient desk for India's NABH & JCI accredited hospital network.",
+    footerAbout:
+      "Nexura OS Global is the international patient desk for India's NABH & JCI accredited hospital network.",
     footerQuick: "Quick Links",
     footerContact: "International Desk",
     footerCompliance: "Compliance & Trust",
@@ -363,19 +410,22 @@ const I18N = {
   },
 };
 
-
-
 /* ============================================================
    STAR RATING
    ============================================================ */
 function Stars({ rating, className = "" }: { rating: number; className?: string }) {
   return (
-    <div className={`flex items-center gap-0.5 ${className}`} aria-label={`${rating} out of 5 stars`}>
+    <div
+      className={`flex items-center gap-0.5 ${className}`}
+      aria-label={`${rating} out of 5 stars`}
+    >
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
           className={`h-3.5 w-3.5 ${
-            i <= Math.round(rating) ? "fill-[#A16207] text-[#A16207]" : "fill-slate-200 text-slate-200"
+            i <= Math.round(rating)
+              ? "fill-[#A16207] text-[#A16207]"
+              : "fill-slate-200 text-slate-200"
           }`}
         />
       ))}
@@ -403,7 +453,9 @@ export function GlobalPage() {
 
   // modal state
   const [modal, setModal] = useState<InquiryModalState>({ open: false, hospital: null });
-  const [submitState, setSubmitState] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [submitState, setSubmitState] = useState<"idle" | "submitting" | "success" | "error">(
+    "idle",
+  );
   const [submitMessage, setSubmitMessage] = useState("");
 
   // mobile nav
@@ -469,7 +521,7 @@ export function GlobalPage() {
       if (activeCategory !== "all") {
         const procs = h.tourismProcedures || [];
         const matchesCat = procs.some(
-          (p) => p.category === activeCategory || p.name.toLowerCase().includes(activeCategory)
+          (p) => p.category === activeCategory || p.name.toLowerCase().includes(activeCategory),
         );
         if (!matchesCat) return false;
       }
@@ -534,14 +586,14 @@ export function GlobalPage() {
           setSubmitState("success");
           setSubmitMessage(
             data.message ||
-              `Thank you ${payload.name}! Your inquiry has been submitted to ${hospital.name}.`
+              `Thank you ${payload.name}! Your inquiry has been submitted to ${hospital.name}.`,
           );
         } else {
           setSubmitState("error");
           setSubmitMessage(
             data.error === "hospital_not_found"
               ? "This hospital is no longer available. Please refresh and try another."
-              : "Something went wrong. Please try again or contact us on WhatsApp."
+              : "Something went wrong. Please try again or contact us on WhatsApp.",
           );
         }
       } catch {
@@ -549,7 +601,7 @@ export function GlobalPage() {
         setSubmitMessage("Network error. Please try again or contact us on WhatsApp.");
       }
     },
-    [modal.hospital]
+    [modal.hospital],
   );
 
   return (
@@ -574,11 +626,7 @@ export function GlobalPage() {
       />
 
       {/* ============== PROCEDURE CATEGORIES ============== */}
-      <ProcedureGrid
-        t={t}
-        activeCategory={activeCategory}
-        setActiveCategory={setActiveCategory}
-      />
+      <ProcedureGrid t={t} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
 
       {/* ============== HOSPITAL DIRECTORY ============== */}
       <HospitalDirectory
@@ -638,7 +686,7 @@ function TopNav({
   mobileNavOpen,
   setMobileNavOpen,
 }: {
-  t: typeof I18N["en"];
+  t: (typeof I18N)["en"];
   onCta: () => void;
   mobileNavOpen: boolean;
   setMobileNavOpen: (b: boolean) => void;
@@ -662,7 +710,9 @@ function TopNav({
   return (
     <header
       className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
-        scrolled ? "bg-white/85 backdrop-blur-xl shadow-[0_4px_24px_-12px_rgba(15,23,42,0.18)] border-b border-slate-200/70" : "bg-transparent"
+        scrolled
+          ? "bg-white/85 backdrop-blur-xl shadow-[0_4px_24px_-12px_rgba(15,23,42,0.18)] border-b border-slate-200/70"
+          : "bg-transparent"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
@@ -765,7 +815,7 @@ function Hero({
   setSelectedCountry,
   onSearch,
 }: {
-  t: typeof I18N["en"];
+  t: (typeof I18N)["en"];
   searchQuery: string;
   setSearchQuery: (s: string) => void;
   selectedCountry: string;
@@ -945,7 +995,7 @@ function ProcedureGrid({
   activeCategory,
   setActiveCategory,
 }: {
-  t: typeof I18N["en"];
+  t: (typeof I18N)["en"];
   activeCategory: string;
   setActiveCategory: (c: string) => void;
 }) {
@@ -964,9 +1014,7 @@ function ProcedureGrid({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.04 }}
                 whileHover={{ y: -4 }}
-                onClick={() =>
-                  setActiveCategory(isActive ? "all" : cat.id)
-                }
+                onClick={() => setActiveCategory(isActive ? "all" : cat.id)}
                 className={`group relative flex flex-col items-start overflow-hidden rounded-2xl border p-5 text-left transition-all ${
                   isActive
                     ? "border-[#A16207] bg-[#FFFBEB] shadow-lg"
@@ -1027,7 +1075,7 @@ const HospitalDirectory = memo(function HospitalDirectory({
   onGetEstimate,
   isDemoDirectory,
 }: {
-  t: typeof I18N["en"];
+  t: (typeof I18N)["en"];
   hospitals: Hospital[];
   activeCategory: string;
   setActiveCategory: (c: string) => void;
@@ -1090,7 +1138,7 @@ function HospitalCard({
   index,
 }: {
   hospital: Hospital;
-  t: typeof I18N["en"];
+  t: (typeof I18N)["en"];
   onGetEstimate: (h: Hospital, p?: string) => void;
   index: number;
 }) {
@@ -1109,7 +1157,10 @@ function HospitalCard({
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-xl"
     >
       {/* gold accent top bar */}
-      <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${GOLD}, #8A5A04)` }} />
+      <div
+        className="h-1 w-full"
+        style={{ background: `linear-gradient(90deg, ${GOLD}, #8A5A04)` }}
+      />
 
       <div className="flex flex-1 flex-col p-6">
         {/* header: name + rating */}
@@ -1134,7 +1185,9 @@ function HospitalCard({
           </div>
           <div className="flex flex-col items-end">
             <Stars rating={rating} />
-            <span className="mt-0.5 text-[0.65rem] font-medium text-slate-500">{rating.toFixed(1)}</span>
+            <span className="mt-0.5 text-[0.65rem] font-medium text-slate-500">
+              {rating.toFixed(1)}
+            </span>
           </div>
         </div>
 
@@ -1205,7 +1258,7 @@ function HospitalCard({
 /* ============================================================
    COST COMPARISON
    ============================================================ */
-function CostComparison({ t, rows }: { t: typeof I18N["en"]; rows: CostRow[] }) {
+function CostComparison({ t, rows }: { t: (typeof I18N)["en"]; rows: CostRow[] }) {
   const maxIndia = rows.length ? Math.max(...rows.map((r) => r.india)) : 1;
 
   return (
@@ -1245,9 +1298,7 @@ function CostComparison({ t, rows }: { t: typeof I18N["en"]; rows: CostRow[] }) 
               </thead>
               <tbody>
                 {rows.map((row, i) => {
-                  const savingsPct = Math.round(
-                    (1 - row.india / Math.max(row.usa, 1)) * 100
-                  );
+                  const savingsPct = Math.round((1 - row.india / Math.max(row.usa, 1)) * 100);
                   return (
                     <tr
                       key={row.procedure}
@@ -1313,7 +1364,7 @@ function CostComparison({ t, rows }: { t: typeof I18N["en"]; rows: CostRow[] }) 
 /* ============================================================
    HOW IT WORKS
    ============================================================ */
-function HowItWorks({ t }: { t: typeof I18N["en"] }) {
+function HowItWorks({ t }: { t: (typeof I18N)["en"] }) {
   const steps = [
     {
       icon: Send,
@@ -1421,7 +1472,7 @@ function Testimonials({
   t,
   testimonials,
 }: {
-  t: typeof I18N["en"];
+  t: (typeof I18N)["en"];
   testimonials: Testimonial[];
 }) {
   return (
@@ -1494,7 +1545,7 @@ function Testimonials({
 /* ============================================================
    FINAL CTA
    ============================================================ */
-function FinalCTA({ t, onCta }: { t: typeof I18N["en"]; onCta: () => void }) {
+function FinalCTA({ t, onCta }: { t: (typeof I18N)["en"]; onCta: () => void }) {
   return (
     <section
       className="relative overflow-hidden py-16"
@@ -1541,7 +1592,7 @@ function FinalCTA({ t, onCta }: { t: typeof I18N["en"]; onCta: () => void }) {
 /* ============================================================
    FOOTER
    ============================================================ */
-function GlobalFooter({ t }: { t: typeof I18N["en"] }) {
+function GlobalFooter({ t }: { t: (typeof I18N)["en"] }) {
   return (
     <footer id="contact" className="border-t border-slate-200 bg-white">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
@@ -1564,9 +1615,7 @@ function GlobalFooter({ t }: { t: typeof I18N["en"] }) {
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-500">{t.footerAbout}</p>
             <div className="mt-5 flex items-center gap-2">
-              <span
-                className="inline-flex items-center gap-1 rounded-full border border-[#A16207]/30 bg-[#FFFBEB] px-2.5 py-1 text-[0.6rem] font-bold text-[#92400E]"
-              >
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#A16207]/30 bg-[#FFFBEB] px-2.5 py-1 text-[0.6rem] font-bold text-[#92400E]">
                 <ShieldCheck className="h-3 w-3" />
                 NABH
               </span>
@@ -1583,26 +1632,50 @@ function GlobalFooter({ t }: { t: typeof I18N["en"] }) {
 
           {/* quick links */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-900">{t.footerQuick}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-900">
+              {t.footerQuick}
+            </p>
             <ul className="mt-4 space-y-2.5 text-sm text-slate-500">
-              <li><a href="#hospitals" className="transition-colors hover:text-slate-900">{t.navHospitals}</a></li>
-              <li><a href="#cost" className="transition-colors hover:text-slate-900">{t.navCost}</a></li>
-              <li><a href="#how" className="transition-colors hover:text-slate-900">{t.navHow}</a></li>
-              <li><a href="#stories" className="transition-colors hover:text-slate-900">{t.navStories}</a></li>
+              <li>
+                <a href="#hospitals" className="transition-colors hover:text-slate-900">
+                  {t.navHospitals}
+                </a>
+              </li>
+              <li>
+                <a href="#cost" className="transition-colors hover:text-slate-900">
+                  {t.navCost}
+                </a>
+              </li>
+              <li>
+                <a href="#how" className="transition-colors hover:text-slate-900">
+                  {t.navHow}
+                </a>
+              </li>
+              <li>
+                <a href="#stories" className="transition-colors hover:text-slate-900">
+                  {t.navStories}
+                </a>
+              </li>
             </ul>
           </div>
 
           {/* contact */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-900">{t.footerContact}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-900">
+              {t.footerContact}
+            </p>
             <ul className="mt-4 space-y-2.5 text-sm text-slate-500">
               <li className="flex items-center gap-2">
                 <Phone className="h-3.5 w-3.5 text-slate-400" />
-                <a href="tel:+919820012345" className="hover:text-slate-900">+91 98200 12345</a>
+                <a href="tel:+919820012345" className="hover:text-slate-900">
+                  +91 98200 12345
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-3.5 w-3.5 text-slate-400" />
-                <a href="mailto:global@nexura.os" className="hover:text-slate-900">global@nexura.os</a>
+                <a href="mailto:global@nexura.os" className="hover:text-slate-900">
+                  global@nexura.os
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <Globe2 className="h-3.5 w-3.5 text-slate-400" />
@@ -1617,13 +1690,26 @@ function GlobalFooter({ t }: { t: typeof I18N["en"] }) {
 
           {/* compliance */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-900">{t.footerCompliance}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-900">
+              {t.footerCompliance}
+            </p>
             <ul className="mt-4 space-y-2.5 text-sm text-slate-500">
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> NABH Accredited Network</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> JCI Certified Partners</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> HIPAA & GDPR Compliant</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> ABDM-ready — alignment in progress</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> Medical Visa Support</li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> NABH Accredited Network
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> JCI Certified Partners
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> HIPAA & GDPR Compliant
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> ABDM-ready — alignment in
+                progress
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-[#15803D]" /> Medical Visa Support
+              </li>
             </ul>
           </div>
         </div>
@@ -1660,7 +1746,7 @@ function WhatsAppButton() {
   const href =
     "https://wa.me/919820012345?text=" +
     encodeURIComponent(
-      "Hello, I'd like to know more about medical treatment in India via Nexura OS"
+      "Hello, I'd like to know more about medical treatment in India via Nexura OS",
     );
 
   return (
@@ -1700,7 +1786,7 @@ function InquiryModal({
   onClose,
   onSubmit,
 }: {
-  t: typeof I18N["en"];
+  t: (typeof I18N)["en"];
   hospital: Hospital;
   procedure?: string;
   submitState: "idle" | "submitting" | "success" | "error";
@@ -1768,13 +1854,15 @@ function InquiryModal({
               <Stethoscope className="h-5 w-5 text-white" strokeWidth={1.9} />
             </span>
             <div>
-              <p className="text-[0.65rem] uppercase tracking-wider text-[#D9B87C]">Free Estimate Request</p>
+              <p className="text-[0.65rem] uppercase tracking-wider text-[#D9B87C]">
+                Free Estimate Request
+              </p>
               <h2 className="font-display text-lg font-bold leading-tight">{hospital.name}</h2>
             </div>
           </div>
           <p className="mt-3 text-xs text-slate-300">
-            Submit your details — a coordinator will respond within 24 hours with a transparent
-            USD cost estimate.
+            Submit your details — a coordinator will respond within 24 hours with a transparent USD
+            cost estimate.
           </p>
         </div>
 
@@ -1883,8 +1971,8 @@ function InquiryModal({
               <div className="flex items-start gap-2 rounded-lg bg-slate-50 p-3 text-xs text-slate-500">
                 <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
                 <span>
-                  Your information is encrypted and shared only with the hospital you select.
-                  Nexura OS is HIPAA & GDPR compliant.
+                  Your information is encrypted and shared only with the hospital you select. Nexura
+                  OS is HIPAA & GDPR compliant.
                 </span>
               </div>
 
@@ -2046,12 +2134,15 @@ function CostSavingsCalculator() {
   const [country, setCountry] = useState("USA");
   const [procedure, setProcedure] = useState(SAVINGS_DATA[0].procedure);
   // Calculate on render (derived state, no effect needed)
-  const data = SAVINGS_DATA.find(d => d.procedure === procedure);
+  const data = SAVINGS_DATA.find((d) => d.procedure === procedure);
   const foreignCost =
-    country === "USA" ? (data?.usa || 0)
-    : country === "UK" ? (data?.uk || 0)
-    : country === "UAE" ? (data?.uae || 0)
-    : Math.round((data?.usa || 0) * (COUNTRY_COST_FACTOR[country] ?? 1));
+    country === "USA"
+      ? data?.usa || 0
+      : country === "UK"
+        ? data?.uk || 0
+        : country === "UAE"
+          ? data?.uae || 0
+          : Math.round((data?.usa || 0) * (COUNTRY_COST_FACTOR[country] ?? 1));
   const indiaCost = data?.india || 0;
   const savings = foreignCost - indiaCost;
   const pct = foreignCost > 0 ? Math.round((savings / foreignCost) * 100) : 0;
@@ -2062,19 +2153,43 @@ function CostSavingsCalculator() {
   return (
     <section className="relative bg-white py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="Calculator" title="Calculate Your Savings" sub="See how much you save by choosing India for your treatment — illustrative estimates, not quotations" />
+        <SectionHeading
+          eyebrow="Calculator"
+          title="Calculate Your Savings"
+          sub="See how much you save by choosing India for your treatment — illustrative estimates, not quotations"
+        />
         <div className="mt-12 mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">I am from</label>
-              <select value={country} onChange={(e) => setCountry(e.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-amber-400">
-                {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                I am from
+              </label>
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-amber-400"
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Procedure</label>
-              <select value={procedure} onChange={(e) => setProcedure(e.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-amber-400">
-                {SAVINGS_DATA.map(d => <option key={d.procedure} value={d.procedure}>{d.procedure}</option>)}
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Procedure
+              </label>
+              <select
+                value={procedure}
+                onChange={(e) => setProcedure(e.target.value)}
+                className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-amber-400"
+              >
+                {SAVINGS_DATA.map((d) => (
+                  <option key={d.procedure} value={d.procedure}>
+                    {d.procedure}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -2087,15 +2202,21 @@ function CostSavingsCalculator() {
             >
               <div className="rounded-xl bg-red-50 p-4">
                 <p className="text-[0.6rem] font-semibold uppercase text-red-500">{country} Cost</p>
-                <p className="mt-1 font-display text-xl font-bold text-red-600">${result.foreign.toLocaleString()}</p>
+                <p className="mt-1 font-display text-xl font-bold text-red-600">
+                  ${result.foreign.toLocaleString()}
+                </p>
               </div>
               <div className="rounded-xl bg-green-50 p-4">
                 <p className="text-[0.6rem] font-semibold uppercase text-green-600">India Cost</p>
-                <p className="mt-1 font-display text-xl font-bold text-green-600">${result.india.toLocaleString()}</p>
+                <p className="mt-1 font-display text-xl font-bold text-green-600">
+                  ${result.india.toLocaleString()}
+                </p>
               </div>
               <div className="rounded-xl bg-amber-50 p-4 ring-2 ring-amber-400">
                 <p className="text-[0.6rem] font-semibold uppercase text-amber-600">You Save</p>
-                <p className="mt-1 font-display text-xl font-bold text-amber-600">${result.savings.toLocaleString()}</p>
+                <p className="mt-1 font-display text-xl font-bold text-amber-600">
+                  ${result.savings.toLocaleString()}
+                </p>
                 <p className="text-[0.55rem] font-bold text-amber-500">{result.pct}% OFF</p>
               </div>
             </motion.div>

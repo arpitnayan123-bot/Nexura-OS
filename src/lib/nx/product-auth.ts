@@ -39,9 +39,7 @@ export interface StaffPrincipal {
 
 export type ProductPrincipal = DemoPrincipal | StaffPrincipal;
 
-export type ProductAuthResult =
-  | { principal: ProductPrincipal }
-  | { response: NextResponse };
+export type ProductAuthResult = { principal: ProductPrincipal } | { response: NextResponse };
 
 /** True when the route name belongs to a pharmacy surface. */
 function surfaceFor(name: string): ProductSurface {
@@ -54,7 +52,7 @@ function surfaceFor(name: string): ProductSurface {
  */
 export async function resolveProductAuth(
   req: NextRequest,
-  surface: ProductSurface
+  surface: ProductSurface,
 ): Promise<ProductAuthResult> {
   if (isDemoMode()) {
     return {
@@ -76,7 +74,7 @@ export async function resolveProductAuth(
         error: "unauthenticated",
         detail: "Sign in as staff to use this console.",
       },
-      { status: 401 }
+      { status: 401 },
     ),
   };
 }
@@ -92,9 +90,9 @@ export function withProductAuth<P = Record<string, string>>(
   name: string,
   handler: (
     req: NextRequest,
-    ctx: { requestId: string; params: Promise<P>; principal: ProductPrincipal }
+    ctx: { requestId: string; params: Promise<P>; principal: ProductPrincipal },
   ) => Promise<NextResponse>,
-  opts?: { rateLimit?: { max: number; windowMs: number } }
+  opts?: { rateLimit?: { max: number; windowMs: number } },
 ) {
   const surface = surfaceFor(name);
   return withRoute<P>(
@@ -107,9 +105,13 @@ export function withProductAuth<P = Record<string, string>>(
       // principal is labelled honestly as "demo" — synthetic posture, not
       // a person (production always resolves a real staff session here).
       const p = auth.principal;
-      setAiActor(p.kind === "staff" ? { userId: p.session.userId, role: p.session.role } : { userId: "demo", role: p.role });
+      setAiActor(
+        p.kind === "staff"
+          ? { userId: p.session.userId, role: p.session.role }
+          : { userId: "demo", role: p.role },
+      );
       return handler(req, { ...rctx, principal: auth.principal });
     },
-    opts
+    opts,
   );
 }

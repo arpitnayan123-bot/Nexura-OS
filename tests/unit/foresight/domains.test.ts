@@ -6,8 +6,7 @@ import { describe, expect, it } from "vitest";
 import { scoreAllDomains } from "@/modules/foresight/domains";
 import { EMPTY_INPUT } from "./fixtures";
 
-const domain = (id: string) =>
-  scoreAllDomains(EMPTY_INPUT).find((d) => d.id === id)!;
+const domain = (id: string) => scoreAllDomains(EMPTY_INPUT).find((d) => d.id === id)!;
 
 describe("metabolic domain", () => {
   it("healthy-weight active adult stays LOW", () => {
@@ -19,7 +18,12 @@ describe("metabolic domain", () => {
       ...EMPTY_INPUT,
       profile: { ...EMPTY_INPUT.profile, weightKg: 78, waistCm: 94, heightCm: 172 }, // BMI 26.4
       history: { ...EMPTY_INPUT.history, familyHistory: ["diabetes"] },
-      diet: { ...EMPTY_INPUT.diet, sweetsPerWeek: "daily", friedPerWeek: "weekly", riceRotiBalance: "rice_heavy" },
+      diet: {
+        ...EMPTY_INPUT.diet,
+        sweetsPerWeek: "daily",
+        friedPerWeek: "weekly",
+        riceRotiBalance: "rice_heavy",
+      },
       activity: { ...EMPTY_INPUT.activity, minutesPerWeek: 20 },
       symptoms: [
         { id: "sym.thirst_excess", severity: 5, onsetDays: 20, worsening: false },
@@ -39,7 +43,9 @@ describe("metabolic domain", () => {
     expect(all.actions[0].title.toLowerCase()).toContain("doctor");
   });
   it("HbA1c 5.2 is protective", () => {
-    const all = scoreAllDomains({ ...EMPTY_INPUT, labs: { hba1cPct: 5.2 } }).find((x) => x.id === "metabolic")!;
+    const all = scoreAllDomains({ ...EMPTY_INPUT, labs: { hba1cPct: 5.2 } }).find(
+      (x) => x.id === "metabolic",
+    )!;
     expect(all.factors.some((f) => f.direction === "protective" && f.id === "m.hba1c")).toBe(true);
   });
 });
@@ -80,7 +86,9 @@ describe("sleep / OSA domain", () => {
 
 describe("thyroid domain", () => {
   it("TSH 9.8 anchors above the screening band", () => {
-    const all = scoreAllDomains({ ...EMPTY_INPUT, labs: { tshMiuL: 9.8 } }).find((x) => x.id === "thyroid")!;
+    const all = scoreAllDomains({ ...EMPTY_INPUT, labs: { tshMiuL: 9.8 } }).find(
+      (x) => x.id === "thyroid",
+    )!;
     expect(all.factors.some((f) => f.id === "th.tsh" && f.direction === "risk")).toBe(true);
     expect(all.confidence).toBe("HIGHER_WITHIN_SCREENING_SCOPE");
   });
@@ -102,8 +110,10 @@ describe("b12 domain", () => {
 
 describe("lungs domain", () => {
   it("severe AQI adds real burden in Delhi-winter profiles", () => {
-    const severe = scoreAllDomains({ ...EMPTY_INPUT, environment: { aqiBand: "severe", sunlightMinutesPerDay: 10 } })
-      .find((x) => x.id === "lungs")!;
+    const severe = scoreAllDomains({
+      ...EMPTY_INPUT,
+      environment: { aqiBand: "severe", sunlightMinutesPerDay: 10 },
+    }).find((x) => x.id === "lungs")!;
     const good = domain("lungs");
     expect(severe.burden).toBeGreaterThan(good.burden);
   });
@@ -150,10 +160,27 @@ describe("universals", () => {
     const loaded = scoreAllDomains({
       ...EMPTY_INPUT,
       profile: { ...EMPTY_INPUT.profile, weightKg: 98, waistCm: 108 },
-      history: { ...EMPTY_INPUT.history, tobacco: "current_smoke", stress: "high", familyHistory: ["diabetes", "heart_disease", "hypertension"] },
-      diet: { ...EMPTY_INPUT.diet, sweetsPerWeek: "daily", friedPerWeek: "daily", salt: "high", sugaryDrinksPerWeek: "daily" },
+      history: {
+        ...EMPTY_INPUT.history,
+        tobacco: "current_smoke",
+        stress: "high",
+        familyHistory: ["diabetes", "heart_disease", "hypertension"],
+      },
+      diet: {
+        ...EMPTY_INPUT.diet,
+        sweetsPerWeek: "daily",
+        friedPerWeek: "daily",
+        salt: "high",
+        sugaryDrinksPerWeek: "daily",
+      },
       activity: { ...EMPTY_INPUT.activity, minutesPerWeek: 0 },
-      sleep: { ...EMPTY_INPUT.sleep, hoursPerNight: 5, quality: "poor", snoring: "loud_regular", daytimeSleepiness: "severe" },
+      sleep: {
+        ...EMPTY_INPUT.sleep,
+        hoursPerNight: 5,
+        quality: "poor",
+        snoring: "loud_regular",
+        daytimeSleepiness: "severe",
+      },
     });
     for (const d of loaded) {
       if (d.level !== "LOW") {
@@ -163,7 +190,17 @@ describe("universals", () => {
       expect(d.burden).toBeGreaterThanOrEqual(0);
       expect(d.burden).toBeLessThanOrEqual(100);
       expect(Object.keys(d).sort()).toEqual(
-        ["actions", "burden", "clinicianQuestions", "confidence", "factors", "headline", "id", "level", "screening"].sort()
+        [
+          "actions",
+          "burden",
+          "clinicianQuestions",
+          "confidence",
+          "factors",
+          "headline",
+          "id",
+          "level",
+          "screening",
+        ].sort(),
       );
     }
   });

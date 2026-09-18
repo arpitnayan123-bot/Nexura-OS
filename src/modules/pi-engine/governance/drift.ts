@@ -14,9 +14,10 @@ export function updateDrift(
   priorEma: number | null,
   observedAccuracy: number,
   alpha = 0.2,
-  epsilon = 0.05
+  epsilon = 0.05,
 ): { ema: number; driftDetected: boolean; message?: string } {
-  const ema = priorEma === null ? observedAccuracy : alpha * observedAccuracy + (1 - alpha) * priorEma;
+  const ema =
+    priorEma === null ? observedAccuracy : alpha * observedAccuracy + (1 - alpha) * priorEma;
   const driftDetected = ema < baseline - epsilon;
   return {
     ema: Number(ema.toFixed(4)),
@@ -72,10 +73,12 @@ export const SAMD_REGISTRY: SamdRegistryEntry[] = [
     version: "1.2.0",
     samdClass: "Class II SaMD",
     stage: "production",
-    trainingWindow: "retrospective cohort n=18,420 encounters, 2024-01..2026-06, 3 tertiary sites (synthetic replay for demo)",
+    trainingWindow:
+      "retrospective cohort n=18,420 encounters, 2024-01..2026-06, 3 tertiary sites (synthetic replay for demo)",
     validation: { sensitivity: 0.86, specificity: 0.79, auroc: 0.88, n: 18420 },
     driftBaseline: 0.85,
-    intendedUse: "24h sepsis deterioration early warning for hospitalized adults; supports — does not replace — clinical judgment.",
+    intendedUse:
+      "24h sepsis deterioration early warning for hospitalized adults; supports — does not replace — clinical judgment.",
     limitations: [
       "Trained on inpatient trajectories; outpatient transferability under validation",
       "Neutropenic presentations under-represented in training data",
@@ -87,7 +90,8 @@ export const SAMD_REGISTRY: SamdRegistryEntry[] = [
     version: "1.1.0",
     samdClass: "Class II SaMD",
     stage: "production",
-    trainingWindow: "retrospective cohort n=9,150 discharges, 2024-06..2026-05 (synthetic replay for demo)",
+    trainingWindow:
+      "retrospective cohort n=9,150 discharges, 2024-06..2026-05 (synthetic replay for demo)",
     validation: { sensitivity: 0.74, specificity: 0.72, auroc: 0.79, n: 9150 },
     driftBaseline: 0.75,
     intendedUse: "7-day post-discharge degradation flagging for care coordination.",
@@ -102,12 +106,18 @@ export const SAMD_REGISTRY: SamdRegistryEntry[] = [
     validation: { auroc: 0.81, n: 5600 },
     driftBaseline: 0.78,
     intendedUse: "12–36 month cumulative-exposure risk for T2DM/HTN/CKD organ damage.",
-    limitations: ["Linear-exposure assumption; acute events modeled separately", "SDoH inputs limited to bundled regional dataset in demo"],
+    limitations: [
+      "Linear-exposure assumption; acute events modeled separately",
+      "SDoH inputs limited to bundled regional dataset in demo",
+    ],
   },
 ];
 
 /** Confidence fail-safe: enforce the 0.8 gate at engine level too. */
-export function enforceConfidenceGate(confidence: number, floor = 0.8): { allowed: boolean; flag?: string } {
+export function enforceConfidenceGate(
+  confidence: number,
+  floor = 0.8,
+): { allowed: boolean; flag?: string } {
   if (confidence < floor) {
     return { allowed: false, flag: "Uncertain — Manual Review Required" };
   }

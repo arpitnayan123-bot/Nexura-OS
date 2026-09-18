@@ -29,7 +29,11 @@ describe("india calibration — determinism & shape", () => {
   });
 
   it("returns three risks in [0.02, 0.85] and an early-warning score in [5, 100]", () => {
-    for (const p of [DEFAULT_PROFILE, profile({ age: 62, smoker: true }), profile({ age: 24, exerciseMinPerDay: 60, sleepHours: 8 })]) {
+    for (const p of [
+      DEFAULT_PROFILE,
+      profile({ age: 62, smoker: true }),
+      profile({ age: 24, exerciseMinPerDay: 60, sleepHours: 8 }),
+    ]) {
       const r = computeOnsetRisk(p);
       for (const v of Object.values(r.risks)) {
         expect(v).toBeGreaterThanOrEqual(0.02);
@@ -59,10 +63,24 @@ describe("india calibration — monotonicity of modifiable factors", () => {
   });
 
   it("each diet flag independently raises type-2 risk", () => {
-    const clean = computeOnsetRisk(profile({ diet: { outsideFoodOften: false, sugaryDrinks: false, lateNightMeals: false } }));
-    expect(computeOnsetRisk(profile({ diet: { outsideFoodOften: true, sugaryDrinks: false, lateNightMeals: false } })).risks.type2).toBeGreaterThan(clean.risks.type2);
-    expect(computeOnsetRisk(profile({ diet: { outsideFoodOften: false, sugaryDrinks: true, lateNightMeals: false } })).risks.type2).toBeGreaterThan(clean.risks.type2);
-    expect(computeOnsetRisk(profile({ diet: { outsideFoodOften: false, sugaryDrinks: false, lateNightMeals: true } })).risks.type2).toBeGreaterThan(clean.risks.type2);
+    const clean = computeOnsetRisk(
+      profile({ diet: { outsideFoodOften: false, sugaryDrinks: false, lateNightMeals: false } }),
+    );
+    expect(
+      computeOnsetRisk(
+        profile({ diet: { outsideFoodOften: true, sugaryDrinks: false, lateNightMeals: false } }),
+      ).risks.type2,
+    ).toBeGreaterThan(clean.risks.type2);
+    expect(
+      computeOnsetRisk(
+        profile({ diet: { outsideFoodOften: false, sugaryDrinks: true, lateNightMeals: false } }),
+      ).risks.type2,
+    ).toBeGreaterThan(clean.risks.type2);
+    expect(
+      computeOnsetRisk(
+        profile({ diet: { outsideFoodOften: false, sugaryDrinks: false, lateNightMeals: true } }),
+      ).risks.type2,
+    ).toBeGreaterThan(clean.risks.type2);
   });
 
   it("worse air never lowers cardiac risk", () => {
@@ -96,13 +114,31 @@ describe("india calibration — Indian anchors", () => {
   });
 
   it("a sedentary 45-year-old with family history lands in the red watch range", () => {
-    const r = computeOnsetRisk(profile({ age: 45, exerciseMinPerDay: 0, sleepHours: 5.5, diet: { outsideFoodOften: true, sugaryDrinks: true, lateNightMeals: true }, familyHistory: true }));
+    const r = computeOnsetRisk(
+      profile({
+        age: 45,
+        exerciseMinPerDay: 0,
+        sleepHours: 5.5,
+        diet: { outsideFoodOften: true, sugaryDrinks: true, lateNightMeals: true },
+        familyHistory: true,
+      }),
+    );
     expect(r.earlyWarning).toBeGreaterThan(60);
     expect(r.risks.type2).toBeGreaterThan(0.28);
   });
 
   it("a fit 28-year-old with clean habits stays low-risk", () => {
-    const r = computeOnsetRisk(profile({ age: 28, exerciseMinPerDay: 60, sleepHours: 8, diet: { outsideFoodOften: false, sugaryDrinks: false, lateNightMeals: false }, familyHistory: false, smoker: false, cityAqi: 60 }));
+    const r = computeOnsetRisk(
+      profile({
+        age: 28,
+        exerciseMinPerDay: 60,
+        sleepHours: 8,
+        diet: { outsideFoodOften: false, sugaryDrinks: false, lateNightMeals: false },
+        familyHistory: false,
+        smoker: false,
+        cityAqi: 60,
+      }),
+    );
     expect(r.earlyWarning).toBeLessThan(30);
     expect(bandOfOnset(r.risks.type2)).toBe("low");
   });
@@ -119,8 +155,18 @@ describe("india calibration — banding & nudges", () => {
     for (const p of [
       DEFAULT_PROFILE,
       profile({ exerciseMinPerDay: 0 }),
-      profile({ sleepHours: 5, diet: { outsideFoodOften: false, sugaryDrinks: false, lateNightMeals: false }, familyHistory: false }),
-      profile({ smoker: true, diet: { outsideFoodOften: false, sugaryDrinks: false, lateNightMeals: false }, familyHistory: false, exerciseMinPerDay: 45, sleepHours: 7.5 }),
+      profile({
+        sleepHours: 5,
+        diet: { outsideFoodOften: false, sugaryDrinks: false, lateNightMeals: false },
+        familyHistory: false,
+      }),
+      profile({
+        smoker: true,
+        diet: { outsideFoodOften: false, sugaryDrinks: false, lateNightMeals: false },
+        familyHistory: false,
+        exerciseMinPerDay: 45,
+        sleepHours: 7.5,
+      }),
     ]) {
       const r = computeOnsetRisk(p);
       const nudge = nudgeFor(p, r);

@@ -160,14 +160,13 @@ export function Specialists() {
             </Reveal>
             <Reveal delay={0.06}>
               <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-                Humans at the{" "}
-                <span className="text-gradient-warm">heart of the system.</span>
+                Humans at the <span className="text-gradient-warm">heart of the system.</span>
               </h2>
             </Reveal>
             <Reveal delay={0.12}>
               <p className="mt-4 text-muted-foreground sm:text-lg">
-                Every Nexura patient is matched with a dedicated clinician —
-                supported, never replaced, by AI.
+                Every Nexura patient is matched with a dedicated clinician — supported, never
+                replaced, by AI.
               </p>
             </Reveal>
           </div>
@@ -198,7 +197,7 @@ export function Specialists() {
                       "relative rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
                       isActive
                         ? "text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
                     )}
                   >
                     {isActive && (
@@ -220,10 +219,7 @@ export function Specialists() {
         <div className="mt-8 min-h-[20rem]">
           <AnimatePresence mode="popLayout">
             {visible.length > 0 ? (
-              <motion.div
-                layout
-                className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
-              >
+              <motion.div layout className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {visible.map((s, i) => (
                   <motion.div
                     key={s.name}

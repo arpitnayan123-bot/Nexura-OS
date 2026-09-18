@@ -4,7 +4,13 @@ import { log } from "@/lib/logger";
 import { isDemoMode } from "@/lib/env";
 import { getSessionFresh } from "@/lib/nx/session";
 import { audit } from "@/lib/nx/audit";
-import { centsToUsd, paiseToRupee, usdToCents, tourismProcedureToWire, tourismInquiryToWire } from "@/lib/money";
+import {
+  centsToUsd,
+  paiseToRupee,
+  usdToCents,
+  tourismProcedureToWire,
+  tourismInquiryToWire,
+} from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,7 +53,9 @@ async function usdInrRate(): Promise<number> {
   } catch (err) {
     // Rate row unavailable — fall back to the documented constant, but keep
     // the failure visible in the structured logs.
-    log.warn("global", "fx_rate_fallback", { err: err instanceof Error ? err.message : String(err) });
+    log.warn("global", "fx_rate_fallback", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return FALLBACK_USD_INR;
   }
 }
@@ -79,7 +87,7 @@ async function deskGate(req: NextRequest): Promise<DeskPrincipal | null> {
 function unauthorized() {
   return NextResponse.json(
     { error: "unauthenticated", detail: "Sign in as staff to use the international desk." },
-    { status: 401 }
+    { status: 401 },
   );
 }
 
@@ -89,8 +97,14 @@ async function buildDeskPayload() {
     db.tourismInquiry.findMany({ orderBy: { createdAt: "desc" }, take: 200 }),
     db.tourismProcedure.findMany({ where: { active: true }, orderBy: { priceUSDCents: "asc" } }),
     db.tourismCoordinator.findMany({ where: { active: true } }),
-    db.tourismTestimonial.findMany({ where: { verified: true }, orderBy: { createdAt: "desc" }, take: 6 }),
-    db.tourismSetting.findFirst({ include: { hospital: { select: { id: true, name: true, district: true } } } }),
+    db.tourismTestimonial.findMany({
+      where: { verified: true },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    }),
+    db.tourismSetting.findFirst({
+      include: { hospital: { select: { id: true, name: true, district: true } } },
+    }),
   ]);
 
   const wireInquiries = inquiries.map(tourismInquiryToWire);
@@ -108,7 +122,7 @@ async function buildDeskPayload() {
   // Integer cents sum; wire converts to USD major (same as before).
   const totalRevenueCents = inquiries.reduce(
     (s, i) => s + (i.totalBilledUSDCents ?? i.estimatedCostUSDCents ?? 0),
-    0
+    0,
   );
   const totalRevenue = Math.round(centsToUsd(totalRevenueCents));
   const conversionRate = totalInquiries > 0 ? Math.round((discharged / totalInquiries) * 100) : 0;
@@ -171,11 +185,24 @@ export async function GET(req: NextRequest) {
         where: { tourismSetting: { tourismReady: true } },
         include: {
           tourismSetting: true,
-          tourismProcedures: { where: { active: true }, take: 3, orderBy: { priceUSDCents: "asc" } },
-          tourismTestimonials: { where: { verified: true }, take: 2, orderBy: { createdAt: "desc" } },
+          tourismProcedures: {
+            where: { active: true },
+            take: 3,
+            orderBy: { priceUSDCents: "asc" },
+          },
+          tourismTestimonials: {
+            where: { verified: true },
+            take: 2,
+            orderBy: { createdAt: "desc" },
+          },
         },
       });
-      return NextResponse.json({ hospitals: hospitals.map((h) => ({ ...h, tourismProcedures: h.tourismProcedures.map(tourismProcedureToWire) })) });
+      return NextResponse.json({
+        hospitals: hospitals.map((h) => ({
+          ...h,
+          tourismProcedures: h.tourismProcedures.map(tourismProcedureToWire),
+        })),
+      });
     }
 
     if (action === "cost_comparison") {
@@ -213,16 +240,35 @@ export async function GET(req: NextRequest) {
       if (!hospital) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
       const settings = await db.tourismSetting.findUnique({ where: { hospitalId } });
-      const procedures = await db.tourismProcedure.findMany({ where: { hospitalId, active: true }, orderBy: { priceUSDCents: "asc" } });
-      const doctors = await db.hospitalDoctor.findMany({ where: { hospitalId, active: true }, select: { id: true, name: true, specialty: true, regNo: true, department: true }, take: 12 });
-      const testimonials = await db.tourismTestimonial.findMany({ where: { hospitalId, verified: true }, orderBy: { createdAt: "desc" }, take: 6 });
+      const procedures = await db.tourismProcedure.findMany({
+        where: { hospitalId, active: true },
+        orderBy: { priceUSDCents: "asc" },
+      });
+      const doctors = await db.hospitalDoctor.findMany({
+        where: { hospitalId, active: true },
+        select: { id: true, name: true, specialty: true, regNo: true, department: true },
+        take: 12,
+      });
+      const testimonials = await db.tourismTestimonial.findMany({
+        where: { hospitalId, verified: true },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+      });
 
-      return NextResponse.json({ hospital, settings, procedures: procedures.map(tourismProcedureToWire), doctors, testimonials });
+      return NextResponse.json({
+        hospital,
+        settings,
+        procedures: procedures.map(tourismProcedureToWire),
+        doctors,
+        testimonials,
+      });
     }
 
     return NextResponse.json({ error: "unknown_action" }, { status: 400 });
   } catch (err) {
-    log.error("global", "global_get_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("global", "global_get_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "global_failed" }, { status: 500 });
   }
 }
@@ -250,7 +296,13 @@ export async function POST(req: NextRequest) {
           conditionDesc: body.condition,
           status: "new",
           sourceUrl: "/global",
-          messages: JSON.stringify([{ from: "patient", text: body.condition || "Inquiry from global discovery page", timestamp: new Date().toISOString() }]),
+          messages: JSON.stringify([
+            {
+              from: "patient",
+              text: body.condition || "Inquiry from global discovery page",
+              timestamp: new Date().toISOString(),
+            },
+          ]),
         },
       });
 
@@ -286,7 +338,13 @@ export async function POST(req: NextRequest) {
         });
         messages = JSON.stringify(arr.slice(-100));
       } catch {
-        messages = JSON.stringify([{ from: "coordinator", text: `Status moved to ${status}`, timestamp: new Date().toISOString() }]);
+        messages = JSON.stringify([
+          {
+            from: "coordinator",
+            text: `Status moved to ${status}`,
+            timestamp: new Date().toISOString(),
+          },
+        ]);
       }
 
       const updated = await db.tourismInquiry.update({
@@ -320,8 +378,13 @@ export async function POST(req: NextRequest) {
       const stayDays = Math.max(1, Math.min(180, Number(body.stayDays) || proc.avgStayDays));
       const extras = Array.isArray(body.extras)
         ? body.extras
-            .filter((e: unknown): e is { name?: string; cost?: number } => !!e && typeof e === "object")
-            .map((e: { name?: string; cost?: number }) => ({ name: String(e.name || "Extra"), cost: Math.max(0, Number(e.cost) || 0) }))
+            .filter(
+              (e: unknown): e is { name?: string; cost?: number } => !!e && typeof e === "object",
+            )
+            .map((e: { name?: string; cost?: number }) => ({
+              name: String(e.name || "Extra"),
+              cost: Math.max(0, Number(e.cost) || 0),
+            }))
             .slice(0, 10)
         : [];
 
@@ -331,11 +394,17 @@ export async function POST(req: NextRequest) {
       // All arithmetic in integer cents; the wire converts to USD major.
       const rate = await usdInrRate();
       const procedureFeeCents = proc.priceUSDCents;
-      const surgeonFeeCents = Math.round(procedureFeeCents * 0.30);
+      const surgeonFeeCents = Math.round(procedureFeeCents * 0.3);
       const roomChargesCents = stayDays * 15000; // $150.00/day, in cents
-      const nursingMedCents = Math.round((procedureFeeCents + surgeonFeeCents + roomChargesCents) * 0.10);
-      const extrasCents = extras.reduce((s: number, e: { cost: number }) => s + usdToCents(e.cost), 0);
-      const totalCents = procedureFeeCents + surgeonFeeCents + roomChargesCents + nursingMedCents + extrasCents;
+      const nursingMedCents = Math.round(
+        (procedureFeeCents + surgeonFeeCents + roomChargesCents) * 0.1,
+      );
+      const extrasCents = extras.reduce(
+        (s: number, e: { cost: number }) => s + usdToCents(e.cost),
+        0,
+      );
+      const totalCents =
+        procedureFeeCents + surgeonFeeCents + roomChargesCents + nursingMedCents + extrasCents;
       const totalINR = Math.round(centsToUsd(totalCents) * rate);
 
       return NextResponse.json({
@@ -366,7 +435,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ error: "unknown_action" }, { status: 400 });
   } catch (err) {
-    log.error("global", "inquiry_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("global", "inquiry_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "inquiry_failed" }, { status: 500 });
   }
 }

@@ -3,8 +3,16 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  CalendarDays, FlaskConical, Receipt, ShieldCheck, Activity,
-  Stethoscope, ChevronRight, FileText, IndianRupee, Beaker,
+  CalendarDays,
+  FlaskConical,
+  Receipt,
+  ShieldCheck,
+  Activity,
+  Stethoscope,
+  ChevronRight,
+  FileText,
+  IndianRupee,
+  Beaker,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DashboardData, TimelineEvent } from "../portal-types";
@@ -51,7 +59,9 @@ export function RecordsTab({ data }: { data: DashboardData }) {
           </span>
           <div>
             <h1 className="font-display text-xl font-semibold text-stone-800">Unified Records</h1>
-            <p className="text-sm text-stone-500">All your health records in one place — sorted by date.</p>
+            <p className="text-sm text-stone-500">
+              All your health records in one place — sorted by date.
+            </p>
           </div>
         </div>
 
@@ -67,16 +77,20 @@ export function RecordsTab({ data }: { data: DashboardData }) {
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all",
                   active
                     ? "bg-[#A16207] text-white shadow-sm"
-                    : "border border-[#E7E5E4] bg-white text-stone-500 hover:bg-[#FAF7F2]"
+                    : "border border-[#E7E5E4] bg-white text-stone-500 hover:bg-[#FAF7F2]",
                 )}
               >
                 <f.icon className="h-3.5 w-3.5" />
                 {f.label}
-                <span className={cn(
-                  "rounded-full px-1.5 py-0.5 text-[0.65rem]",
-                  active ? "bg-white/20" : "bg-stone-100"
-                )}>
-                  {f.id === "all" ? data.timeline.length : data.timeline.filter((e) => e.type === f.id).length}
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-0.5 text-[0.65rem]",
+                    active ? "bg-white/20" : "bg-stone-100",
+                  )}
+                >
+                  {f.id === "all"
+                    ? data.timeline.length
+                    : data.timeline.filter((e) => e.type === f.id).length}
                 </span>
               </button>
             );
@@ -91,7 +105,9 @@ export function RecordsTab({ data }: { data: DashboardData }) {
             <FileText className="h-7 w-7" />
           </div>
           <p className="mt-3 font-display text-lg font-semibold text-stone-800">No records yet</p>
-          <p className="mt-1 text-sm text-stone-500">No {filter === "all" ? "" : filter} records found for this patient.</p>
+          <p className="mt-1 text-sm text-stone-500">
+            No {filter === "all" ? "" : filter} records found for this patient.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -109,7 +125,7 @@ function RecordRow({ event, delay }: { event: TimelineEvent; delay: number }) {
   const Icon = meta.icon;
   const date = new Date(event.date);
   const isBill = event.type === "bill";
-  const billAmount = isBill ? (event.meta?.total as number) ?? 0 : 0;
+  const billAmount = isBill ? ((event.meta?.total as number) ?? 0) : 0;
 
   return (
     <motion.div

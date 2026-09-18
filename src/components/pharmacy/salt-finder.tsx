@@ -49,8 +49,8 @@ export function SaltFinder({
             (i) =>
               i.name.toLowerCase().includes(ql) ||
               i.brand?.toLowerCase().includes(ql) ||
-              i.salts?.toLowerCase().includes(ql)
-          )
+              i.salts?.toLowerCase().includes(ql),
+          ),
       )
       .slice(0, 30);
   }, [inventory, q]);
@@ -113,7 +113,10 @@ export function SaltFinder({
                 </p>
               )}
               {groups.map(({ salt, items }) => (
-                <div key={salt} className="mb-3 rounded-xl border border-border bg-background/50 p-3">
+                <div
+                  key={salt}
+                  className="mb-3 rounded-xl border border-border bg-background/50 p-3"
+                >
                   <div className="mb-2 flex items-center gap-2">
                     <span className="rounded-md bg-accent/60 px-2 py-0.5 text-[0.65rem] font-medium text-foreground">
                       {salt}
@@ -130,7 +133,9 @@ export function SaltFinder({
                           key={p.id}
                           className={cn(
                             "flex items-center gap-2 rounded-lg border px-2.5 py-1.5",
-                            out ? "border-destructive/30 bg-destructive/5 opacity-70" : "border-border bg-card"
+                            out
+                              ? "border-destructive/30 bg-destructive/5 opacity-70"
+                              : "border-border bg-card",
                           )}
                         >
                           <div className="leading-tight">

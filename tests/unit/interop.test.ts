@@ -1,16 +1,26 @@
 import { describe, it, expect } from "vitest";
 import {
-  patientToFHIR, encounterToFHIR, observationToFHIR, medicationRequestToFHIR,
-  capabilityStatement, bundleOf, FHIR_VERSION,
+  patientToFHIR,
+  encounterToFHIR,
+  observationToFHIR,
+  medicationRequestToFHIR,
+  capabilityStatement,
+  bundleOf,
+  FHIR_VERSION,
 } from "@/lib/nx/fhir";
-import {
-  parseHl7, adtFromHl7, oruFromHl7, adtToHl7, oruToHl7,
-} from "@/lib/nx/hl7";
+import { parseHl7, adtFromHl7, oruFromHl7, adtToHl7, oruToHl7 } from "@/lib/nx/hl7";
 
 describe("FHIR R4 mapping", () => {
   const patient = {
-    id: "p1", uhid: "NEX-2024-00123", fullName: "Suresh Nair", gender: "male",
-    dob: "1978-05-12", bloodGroup: "B+", phone: "+919876543210", abhaId: "12-3456-7890-1234", state: "Kerala",
+    id: "p1",
+    uhid: "NEX-2024-00123",
+    fullName: "Suresh Nair",
+    gender: "male",
+    dob: "1978-05-12",
+    bloodGroup: "B+",
+    phone: "+919876543210",
+    abhaId: "12-3456-7890-1234",
+    state: "Kerala",
   };
 
   it("maps patient with ABHA identifier and telecom", () => {
@@ -25,9 +35,13 @@ describe("FHIR R4 mapping", () => {
 
   it("maps encounter status by discharge", () => {
     const a = {
-      id: "e1", patientId: "p1", admissionDate: new Date("2026-09-01"),
-      actualDischargeDate: null as Date | null, admissionType: "emergency",
-      admissionDiagnosis: "Chest pain", status: null as string | null,
+      id: "e1",
+      patientId: "p1",
+      admissionDate: new Date("2026-09-01"),
+      actualDischargeDate: null as Date | null,
+      admissionType: "emergency",
+      admissionDiagnosis: "Chest pain",
+      status: null as string | null,
     };
     expect((encounterToFHIR(a) as any).status).toBe("in-progress");
     a.actualDischargeDate = new Date("2026-09-05");
@@ -38,21 +52,37 @@ describe("FHIR R4 mapping", () => {
 
   it("uses valueQuantity for numeric results and interpretation for criticals", () => {
     const base = {
-      id: "o1", patientId: "p1", testName: "Troponin-I", unit: "ng/mL",
-      abnormalFlag: "critical", reportedAt: new Date(), refRangeMin: 0, refRangeMax: 0.04,
+      id: "o1",
+      patientId: "p1",
+      testName: "Troponin-I",
+      unit: "ng/mL",
+      abnormalFlag: "critical",
+      reportedAt: new Date(),
+      refRangeMin: 0,
+      refRangeMax: 0.04,
     };
     const r = observationToFHIR({ ...base, resultValue: "2.4" }) as Record<string, any>;
     expect(r.valueQuantity.value).toBe(2.4);
     expect(r.interpretation[0].coding[0].code).toBe("AA");
-    const qualitative = observationToFHIR({ ...base, resultValue: "Reactive", abnormalFlag: "normal" }) as Record<string, any>;
+    const qualitative = observationToFHIR({
+      ...base,
+      resultValue: "Reactive",
+      abnormalFlag: "normal",
+    }) as Record<string, any>;
     expect(qualitative.valueString).toBe("Reactive");
   });
 
   it("maps medication request dosage instruction from order details", () => {
     const o = {
-      id: "m1", patientId: "p1", priority: "stat", status: "ordered",
-      createdAt: new Date(), orderingDoctorId: "d1",
-      orderDetails: JSON.stringify({ items: [{ drug: "Paracetamol 650", dose: "650mg", route: "PO", frequency: "TDS" }] }),
+      id: "m1",
+      patientId: "p1",
+      priority: "stat",
+      status: "ordered",
+      createdAt: new Date(),
+      orderingDoctorId: "d1",
+      orderDetails: JSON.stringify({
+        items: [{ drug: "Paracetamol 650", dose: "650mg", route: "PO", frequency: "TDS" }],
+      }),
     };
     const r = medicationRequestToFHIR(o) as Record<string, any>;
     expect(r.resourceType).toBe("MedicationRequest");
@@ -64,7 +94,7 @@ describe("FHIR R4 mapping", () => {
     const cs = capabilityStatement("https://x") as Record<string, any>;
     expect(cs.fhirVersion).toBe(FHIR_VERSION);
     expect(cs.rest[0].resource.map((r: any) => r.type)).toEqual(
-      expect.arrayContaining(["Patient", "Encounter", "Observation", "MedicationRequest"])
+      expect.arrayContaining(["Patient", "Encounter", "Observation", "MedicationRequest"]),
     );
   });
 
@@ -76,7 +106,8 @@ describe("FHIR R4 mapping", () => {
 });
 
 describe("HL7 v2 interface", () => {
-  const ADT_A01 = "MSH|^~\\&|HIS|CENTRAL|NEXURA|WARD|202609101200||ADT^A01|MSG00001|P|2.4\rEVN|A01|202609101200\rPID|1||NEX-2024-00123^^^NEX^MR||Nair^Suresh||19780512|M\rPV1|1|I|ICU-12^^^||||Iyer^Meera";
+  const ADT_A01 =
+    "MSH|^~\\&|HIS|CENTRAL|NEXURA|WARD|202609101200||ADT^A01|MSG00001|P|2.4\rEVN|A01|202609101200\rPID|1||NEX-2024-00123^^^NEX^MR||Nair^Suresh||19780512|M\rPV1|1|I|ICU-12^^^||||Iyer^Meera";
 
   it("parses MSH and routes ADT^A01 with demographics", () => {
     const m = parseHl7(ADT_A01);
@@ -100,7 +131,8 @@ describe("HL7 v2 interface", () => {
   });
 
   it("parses ORU^R01 with flags", () => {
-    const ORU = "MSH|^~\\&|LIS|LAB|NEXURA|NEXURA|202609101205||ORU^R01|MSG00002|P|2.4\rPID|1||NEX-2024-00123^^^NEX^MR\rOBX|1|NM|Potassium||6.2|mmol/L|3.5-5.1|HH|||F";
+    const ORU =
+      "MSH|^~\\&|LIS|LAB|NEXURA|NEXURA|202609101205||ORU^R01|MSG00002|P|2.4\rPID|1||NEX-2024-00123^^^NEX^MR\rOBX|1|NM|Potassium||6.2|mmol/L|3.5-5.1|HH|||F";
     const m = parseHl7(ORU);
     expect(m.ok).toBe(true);
     if (m.ok) {
@@ -114,12 +146,21 @@ describe("HL7 v2 interface", () => {
   });
 
   it("serializes outbound ADT/ORU that round-trip through the parser", () => {
-    const adt = adtToHl7({ uhid: "NEX-2024-00123", fullName: "Suresh Nair", gender: "male", dob: "1978-05-12", ward: "ICU" });
+    const adt = adtToHl7({
+      uhid: "NEX-2024-00123",
+      fullName: "Suresh Nair",
+      gender: "male",
+      dob: "1978-05-12",
+      ward: "ICU",
+    });
     const m = parseHl7(adt);
     expect(m.ok).toBe(true);
     if (m.ok) expect(m.msg.messageType).toBe("ADT^A08");
 
-    const oru = oruToHl7({ uhid: "NEX-2024-00123", results: [{ testName: "Potassium", value: "6.2", unit: "mmol/L", flag: "critical" }] });
+    const oru = oruToHl7({
+      uhid: "NEX-2024-00123",
+      results: [{ testName: "Potassium", value: "6.2", unit: "mmol/L", flag: "critical" }],
+    });
     const m2 = parseHl7(oru);
     expect(m2.ok).toBe(true);
     if (m2.ok) {

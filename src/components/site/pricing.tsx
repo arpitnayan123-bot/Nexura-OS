@@ -74,14 +74,13 @@ export function Pricing() {
           </Reveal>
           <Reveal delay={0.06}>
             <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-              Care that fits your{" "}
-              <span className="text-gradient-warm">life &amp; budget.</span>
+              Care that fits your <span className="text-gradient-warm">life &amp; budget.</span>
             </h2>
           </Reveal>
           <Reveal delay={0.12}>
             <p className="mt-4 text-muted-foreground sm:text-lg">
-              No surprise bills. Cancel anytime. Every plan is HIPAA &amp; GDPR
-              compliant out of the box.
+              No surprise bills. Cancel anytime. Every plan is HIPAA &amp; GDPR compliant out of the
+              box.
             </p>
           </Reveal>
 
@@ -92,7 +91,7 @@ export function Pricing() {
                 onClick={() => setYearly(false)}
                 className={cn(
                   "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-                  !yearly ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  !yearly ? "bg-primary text-primary-foreground" : "text-muted-foreground",
                 )}
               >
                 Monthly
@@ -101,7 +100,7 @@ export function Pricing() {
                 onClick={() => setYearly(true)}
                 className={cn(
                   "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-                  yearly ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  yearly ? "bg-primary text-primary-foreground" : "text-muted-foreground",
                 )}
               >
                 Yearly
@@ -187,7 +186,7 @@ function ComparisonTable() {
           <ChevronDown
             className={cn(
               "h-4 w-4 text-muted-foreground transition-transform",
-              open && "rotate-180"
+              open && "rotate-180",
             )}
           />
         </button>
@@ -210,7 +209,7 @@ function ComparisonTable() {
                       key={p.name}
                       className={cn(
                         "p-3 text-center font-display text-sm font-semibold",
-                        p.highlight && "text-primary"
+                        p.highlight && "text-primary",
                       )}
                     >
                       {p.name}
@@ -230,13 +229,8 @@ function ComparisonTable() {
                       </td>
                     </tr>
                     {group.rows.map((r) => (
-                      <tr
-                        key={r.label}
-                        className="border-b border-border/60 last:border-0"
-                      >
-                        <td className="p-3 font-medium text-foreground/85">
-                          {r.label}
-                        </td>
+                      <tr key={r.label} className="border-b border-border/60 last:border-0">
+                        <td className="p-3 font-medium text-foreground/85">{r.label}</td>
                         <td className="p-3 text-center">
                           <Cell v={r.calm} />
                         </td>
@@ -259,20 +253,11 @@ function ComparisonTable() {
   );
 }
 
-function Cell({
-  v,
-  highlight,
-}: {
-  v: boolean | string;
-  highlight?: boolean;
-}) {
+function Cell({ v, highlight }: { v: boolean | string; highlight?: boolean }) {
   if (typeof v === "string") {
     return (
       <span
-        className={cn(
-          "text-xs font-medium",
-          highlight ? "text-primary" : "text-muted-foreground"
-        )}
+        className={cn("text-xs font-medium", highlight ? "text-primary" : "text-muted-foreground")}
       >
         {v}
       </span>
@@ -280,10 +265,7 @@ function Cell({
   }
   return v ? (
     <Check
-      className={cn(
-        "mx-auto h-4.5 w-4.5",
-        highlight ? "text-primary" : "text-sage"
-      )}
+      className={cn("mx-auto h-4.5 w-4.5", highlight ? "text-primary" : "text-sage")}
       strokeWidth={2.5}
     />
   ) : (
@@ -291,13 +273,7 @@ function Cell({
   );
 }
 
-function PlanCard({
-  plan,
-  yearly,
-}: {
-  plan: (typeof PLANS)[number];
-  yearly: boolean;
-}) {
+function PlanCard({ plan, yearly }: { plan: (typeof PLANS)[number]; yearly: boolean }) {
   const price = yearly ? plan.yearly : plan.monthly;
 
   return (
@@ -308,7 +284,7 @@ function PlanCard({
         "relative flex h-full flex-col overflow-hidden rounded-[2rem] border bg-card p-7",
         plan.highlight
           ? "border-primary/30 shadow-[0_30px_80px_-40px_oklch(0.70_0.145_45/0.5)]"
-          : "border-border"
+          : "border-border",
       )}
     >
       {plan.highlight && (
@@ -351,7 +327,7 @@ function PlanCard({
             "relative mt-6 w-full rounded-full",
             plan.highlight
               ? "bg-primary text-primary-foreground"
-              : "border border-border bg-background text-foreground hover:bg-accent/40"
+              : "border border-border bg-background text-foreground hover:bg-accent/40",
           )}
           variant={plan.highlight ? "default" : "outline"}
         >

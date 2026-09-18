@@ -83,7 +83,11 @@ describe("hourly series", () => {
       { capturedAt: new Date("2026-09-19T13:00:00Z"), value: 60 },
       { capturedAt: new Date("2026-09-19T14:00:00Z"), value: 70 },
     ];
-    expect(buildHourlySeries(samples, 14, now).map((p) => p.t)).toEqual(["13:00", "14:00", "15:00"]);
+    expect(buildHourlySeries(samples, 14, now).map((p) => p.t)).toEqual([
+      "13:00",
+      "14:00",
+      "15:00",
+    ]);
   });
 });
 

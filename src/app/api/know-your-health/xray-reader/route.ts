@@ -8,10 +8,10 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB original file
-const MAX_BASE64_LEN = Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 1024;
+const MAX_BASE64_LEN = Math.ceil((MAX_IMAGE_BYTES * 4) / 3) + 1024;
 
 const BODY_PARTS = ["Chest", "Hand/Wrist", "Knee", "Spine", "Skull", "Abdomen"] as const;
-type BodyPart = typeof BODY_PARTS[number];
+type BodyPart = (typeof BODY_PARTS)[number];
 
 // POST /api/know-your-health/xray-reader
 // body: { image:{base64,mimeType}, bodyPart:string, clinicalContext?:string }
@@ -23,17 +23,31 @@ export async function POST(req: NextRequest) {
     const image = body?.image;
     const base64 = typeof image?.base64 === "string" ? image.base64.trim() : "";
     const mimeType = typeof image?.mimeType === "string" ? image.mimeType.trim() : "";
-    if (!base64 || !mimeType) return NextResponse.json({ error: "no_image", detail: "Upload a photo first (JPG, PNG or WebP, max 8MB)." }, { status: 400 });
-    if (!isValidImageBase64(base64)) return NextResponse.json({ error: "invalid_image" }, { status: 400 });
-    if (base64.length > MAX_BASE64_LEN) return NextResponse.json({ error: "image_too_large" }, { status: 413 });
-    if (!/^image\/(jpeg|png|webp)$/i.test(mimeType)) return NextResponse.json({ error: "unsupported_mime" }, { status: 415 });
+    if (!base64 || !mimeType)
+      return NextResponse.json(
+        { error: "no_image", detail: "Upload a photo first (JPG, PNG or WebP, max 8MB)." },
+        { status: 400 },
+      );
+    if (!isValidImageBase64(base64))
+      return NextResponse.json({ error: "invalid_image" }, { status: 400 });
+    if (base64.length > MAX_BASE64_LEN)
+      return NextResponse.json({ error: "image_too_large" }, { status: 413 });
+    if (!/^image\/(jpeg|png|webp)$/i.test(mimeType))
+      return NextResponse.json({ error: "unsupported_mime" }, { status: 415 });
 
     const rawPart = typeof body?.bodyPart === "string" ? body.bodyPart.trim() : "";
     const bodyPart = BODY_PARTS.find((p) => p.toLowerCase() === rawPart.toLowerCase());
-    if (!bodyPart) return NextResponse.json({ error: "invalid_body_part", allowed: BODY_PARTS }, { status: 400 });
+    if (!bodyPart)
+      return NextResponse.json(
+        { error: "invalid_body_part", allowed: BODY_PARTS },
+        { status: 400 },
+      );
 
-    const clinicalContext = typeof body?.clinicalContext === "string" ? body.clinicalContext.trim().slice(0, 600) : "";
-    const ctxLine = clinicalContext ? `\nClinical context provided by the user: "${clinicalContext}".` : "";
+    const clinicalContext =
+      typeof body?.clinicalContext === "string" ? body.clinicalContext.trim().slice(0, 600) : "";
+    const ctxLine = clinicalContext
+      ? `\nClinical context provided by the user: "${clinicalContext}".`
+      : "";
 
     const prompt = `${INDIA_PREAMBLE}
 
@@ -82,7 +96,15 @@ Rules:
     }
     return NextResponse.json(result);
   } catch (err) {
-    log.error("kyh", "xray_reader_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "xray_reader_failed", detail: "The X-ray could not be analyzed. Please retry with a clearer image." }, { status: 500 });
+    log.error("kyh", "xray_reader_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "xray_reader_failed",
+        detail: "The X-ray could not be analyzed. Please retry with a clearer image.",
+      },
+      { status: 500 },
+    );
   }
 }

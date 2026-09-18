@@ -11,13 +11,26 @@ import { Empty, ErrorState, Loading, Panel, Pill, Stat, StatusPill } from "./bit
    ============================================================ */
 
 interface Rule {
-  id: string; name: string; description: string | null; trigger: string; actions: string[];
-  enabled: boolean; requiresApproval: boolean; lastRunAt: string | null; runCount: number;
+  id: string;
+  name: string;
+  description: string | null;
+  trigger: string;
+  actions: string[];
+  enabled: boolean;
+  requiresApproval: boolean;
+  lastRunAt: string | null;
+  runCount: number;
 }
 interface Run {
-  id: string; ruleName: string; patientUhid: string | null; patientId: string | null; status: string; currentStep: string | null;
+  id: string;
+  ruleName: string;
+  patientUhid: string | null;
+  patientId: string | null;
+  status: string;
+  currentStep: string | null;
   steps: Array<{ name: string; status: string; detail: string; at: string }>;
-  startedAt: string; completedAt: string | null;
+  startedAt: string;
+  completedAt: string | null;
 }
 interface AutomationData {
   rules: Rule[];
@@ -26,7 +39,9 @@ interface AutomationData {
 }
 
 export function AutomationBuilder() {
-  const { data, error, loading, refresh } = useNx<AutomationData>("/api/nx/automations", { pollMs: 30000 });
+  const { data, error, loading, refresh } = useNx<AutomationData>("/api/nx/automations", {
+    pollMs: 30000,
+  });
   const [busyId, setBusyId] = useState<string | null>(null);
 
   async function toggle(id: string, enabled: boolean) {
@@ -63,7 +78,12 @@ export function AutomationBuilder() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-3">
-        <Stat label="Active rules" value={data.stats.activeRules} tone="good" icon={<Workflow className="h-4 w-4" />} />
+        <Stat
+          label="Active rules"
+          value={data.stats.activeRules}
+          tone="good"
+          icon={<Workflow className="h-4 w-4" />}
+        />
         <Stat label="Total runs" value={data.stats.totalRuns} tone="info" />
         <Stat label="Runs (24h)" value={data.stats.runs24h} tone="default" />
       </div>
@@ -84,9 +104,15 @@ export function AutomationBuilder() {
                     className={`relative h-5 w-9 rounded-full transition ${r.enabled ? "bg-good" : "bg-inset"} disabled:opacity-50`}
                     title={r.enabled ? "Disable (admin only)" : "Enable (admin only)"}
                   >
-                    <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all ${r.enabled ? "left-[18px]" : "left-0.5"}`} />
+                    <span
+                      className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all ${r.enabled ? "left-[18px]" : "left-0.5"}`}
+                    />
                   </button>
-                  <button onClick={() => testFire(r.trigger)} title={`Test-fire ${r.trigger}`} className="rounded-md border border-line-2 p-1 text-ink-3 hover:bg-inset hover:text-ink">
+                  <button
+                    onClick={() => testFire(r.trigger)}
+                    title={`Test-fire ${r.trigger}`}
+                    className="rounded-md border border-line-2 p-1 text-ink-3 hover:bg-inset hover:text-ink"
+                  >
                     <Play className="h-3 w-3" />
                   </button>
                 </div>
@@ -97,12 +123,18 @@ export function AutomationBuilder() {
                   <Pill tone="info">trigger: {r.trigger}</Pill>
                   <Pill>{r.runCount} runs</Pill>
                   {r.lastRunAt && <Pill>last {timeAgo(r.lastRunAt)}</Pill>}
-                  {r.requiresApproval && <Pill tone="warn"><Lock className="h-3 w-3" /> approval gate</Pill>}
+                  {r.requiresApproval && (
+                    <Pill tone="warn">
+                      <Lock className="h-3 w-3" /> approval gate
+                    </Pill>
+                  )}
                 </div>
                 <ol className="space-y-1">
                   {r.actions.map((a, i) => (
                     <li key={i} className="flex items-start gap-2 text-[11px] text-ink-3">
-                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-inset text-[9px] font-bold text-ink-3">{i + 1}</span>
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-inset text-[9px] font-bold text-ink-3">
+                        {i + 1}
+                      </span>
                       {a}
                     </li>
                   ))}
@@ -112,7 +144,11 @@ export function AutomationBuilder() {
           ))}
         </div>
 
-        <Panel title="Run history" subtitle="Every execution recorded with step detail" className="self-start">
+        <Panel
+          title="Run history"
+          subtitle="Every execution recorded with step detail"
+          className="self-start"
+        >
           {data.runs.length === 0 ? (
             <Empty title="No runs yet" hint="Use the play button on a rule to test-fire it." />
           ) : (
@@ -123,11 +159,23 @@ export function AutomationBuilder() {
                     <p className="truncate text-xs font-medium text-ink">{run.ruleName}</p>
                     <StatusPill status={run.status} />
                   </div>
-                  <p className="text-[10px] text-ink-3">{run.patientUhid || "hospital-wide"} · started {timeAgo(run.startedAt)}</p>
+                  <p className="text-[10px] text-ink-3">
+                    {run.patientUhid || "hospital-wide"} · started {timeAgo(run.startedAt)}
+                  </p>
                   <div className="mt-1.5 space-y-0.5">
                     {run.steps.map((s, i) => (
                       <div key={i} className="flex items-start gap-1.5 text-[10px]">
-                        <span className={s.status === "done" ? "text-good" : s.status === "awaiting_approval" ? "text-accent" : "text-ink-4"}>●</span>
+                        <span
+                          className={
+                            s.status === "done"
+                              ? "text-good"
+                              : s.status === "awaiting_approval"
+                                ? "text-accent"
+                                : "text-ink-4"
+                          }
+                        >
+                          ●
+                        </span>
                         <span className="text-ink-3">{s.name}</span>
                         <span className="ml-auto shrink-0 text-ink-4">{s.detail}</span>
                       </div>
@@ -142,8 +190,16 @@ export function AutomationBuilder() {
 
       <Panel title="Safety model">
         <div className="grid gap-2 text-xs text-ink-3 md:grid-cols-2">
-          <p className="flex items-start gap-2"><Bot className="mt-0.5 h-4 w-4 shrink-0 text-vio" /> Automations are deterministic code — never AI. They coordinate (tasks, notifications, state) but never make irreversible clinical or financial decisions.</p>
-          <p className="flex items-start gap-2"><Lock className="mt-0.5 h-4 w-4 shrink-0 text-accent" /> Enabling/disabling rules requires administrator approval and is audit-logged. High-risk steps carry explicit human checkpoints and rollback paths.</p>
+          <p className="flex items-start gap-2">
+            <Bot className="mt-0.5 h-4 w-4 shrink-0 text-vio" /> Automations are deterministic code
+            — never AI. They coordinate (tasks, notifications, state) but never make irreversible
+            clinical or financial decisions.
+          </p>
+          <p className="flex items-start gap-2">
+            <Lock className="mt-0.5 h-4 w-4 shrink-0 text-accent" /> Enabling/disabling rules
+            requires administrator approval and is audit-logged. High-risk steps carry explicit
+            human checkpoints and rollback paths.
+          </p>
         </div>
       </Panel>
     </div>

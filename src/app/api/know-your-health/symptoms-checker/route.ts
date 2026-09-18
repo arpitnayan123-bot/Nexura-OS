@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const symptoms = typeof body?.symptoms === "string" ? body.symptoms.trim() : "";
     if (!symptoms) return NextResponse.json({ error: "no_symptoms" }, { status: 400 });
-    if (symptoms.length < 3) return NextResponse.json({ error: "symptoms_too_short" }, { status: 400 });
+    if (symptoms.length < 3)
+      return NextResponse.json({ error: "symptoms_too_short" }, { status: 400 });
 
     const prompt = `A person in India describes these symptoms:
 """
@@ -47,7 +48,12 @@ Rules:
     if (!result || !result.urgency) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
-    log.error("kyh", "symptoms_check_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "symptoms_check_failed", detail: "Symptoms could not be checked. Please retry." }, { status: 500 });
+    log.error("kyh", "symptoms_check_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "symptoms_check_failed", detail: "Symptoms could not be checked. Please retry." },
+      { status: 500 },
+    );
   }
 }

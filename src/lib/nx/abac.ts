@@ -55,7 +55,11 @@ function mins(hhmm: string): number {
   return (h || 0) * 60 + (m || 0);
 }
 
-interface TimeWindow { days?: number[]; from?: string; to?: string }
+interface TimeWindow {
+  days?: number[];
+  from?: string;
+  to?: string;
+}
 
 function parseWindows(raw: string | null): TimeWindow[] {
   try {
@@ -85,14 +89,17 @@ export function inTimeWindow(timeWindowsJson: string | null, now = new Date()): 
 export function evaluateAbac(
   policies: AbacPolicyShape[],
   args: {
-    session: Pick<NxSession, "role" | "department"> & { userId?: string; departmentId?: string | null };
+    session: Pick<NxSession, "role" | "department"> & {
+      userId?: string;
+      departmentId?: string | null;
+    };
     action: AbacAction | "*";
     resource: AbacResource;
     target?: AbacTarget;
     assignedPatientIds?: string[]; // caller-provided assignment scope (e.g. care team)
     wardPatientsVisible?: boolean; // caller: user's current ward equals target ward
     now?: Date;
-  }
+  },
 ): Decision {
   const now = args.now ?? new Date();
   const applicable = policies.filter(
@@ -100,7 +107,7 @@ export function evaluateAbac(
       p.active &&
       (p.resource === "*" || p.resource === args.resource) &&
       (p.action === "*" || p.action === args.action) &&
-      (p.role === null || p.role === args.session.role)
+      (p.role === null || p.role === args.session.role),
   );
   if (!applicable.length) return { allowed: true, reason: "no_policy" };
 
@@ -113,7 +120,9 @@ export function evaluateAbac(
     }
     const depts = safeArr(p.deptScope);
     if (depts.length) {
-      const scope = [args.session.department, args.session.departmentId].filter(Boolean).map(String);
+      const scope = [args.session.department, args.session.departmentId]
+        .filter(Boolean)
+        .map(String);
       if (!depts.some((d) => scope.includes(d))) {
         if (p.effect === "deny") return { allowed: false, reason: `dept_deny:${p.id}` };
         continue;
@@ -128,7 +137,9 @@ export function evaluateAbac(
       }
     }
     if (p.patientScope === "assigned") {
-      const ok = Boolean(args.target?.patientId && args.assignedPatientIds?.includes(args.target.patientId));
+      const ok = Boolean(
+        args.target?.patientId && args.assignedPatientIds?.includes(args.target.patientId),
+      );
       if (!ok) {
         if (p.effect === "deny") return { allowed: false, reason: `assignment_deny:${p.id}` };
         continue;
@@ -176,12 +187,17 @@ export async function abacCheck(
     target?: AbacTarget;
     assignedPatientIds?: string[];
     wardPatientsVisible?: boolean;
-  }
+  },
 ): Promise<Decision> {
   if (!session.hospitalId) return { allowed: false, reason: "no_hospital_context" };
   const policies = await policiesFor(session.hospitalId);
   return evaluateAbac(policies, {
-    session: { userId: session.userId, role: session.role, department: session.department, departmentId: undefined },
+    session: {
+      userId: session.userId,
+      role: session.role,
+      department: session.department,
+      departmentId: undefined,
+    },
     ...args,
   });
 }

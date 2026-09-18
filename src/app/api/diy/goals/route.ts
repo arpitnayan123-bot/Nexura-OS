@@ -34,12 +34,21 @@ export const POST = withRoute("diy.goals.batch", async (req: NextRequest) => {
 
   const { batchId, goals } = g.body as {
     batchId: string;
-    goals: { clientKey: string; rawGoalText: string; category: string; requestedTimeframeDays?: number | null }[];
+    goals: {
+      clientKey: string;
+      rawGoalText: string;
+      category: string;
+      requestedTimeframeDays?: number | null;
+    }[];
   };
 
   // reconcile at category level (first-stated wins)
   const reconciled = reconcile(
-    goals.map((x) => ({ category: x.category, rawGoalText: x.rawGoalText, clientKey: x.clientKey }))
+    goals.map((x) => ({
+      category: x.category,
+      rawGoalText: x.rawGoalText,
+      clientKey: x.clientKey,
+    })),
   );
 
   const created: Awaited<ReturnType<typeof db.diyGoal.create>>[] = [];

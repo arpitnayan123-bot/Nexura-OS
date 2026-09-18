@@ -1,15 +1,37 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, HeartPulse, Stethoscope, Sparkles, Activity, MessageCircle, Loader2 } from "lucide-react";
+import {
+  AlertTriangle,
+  HeartPulse,
+  Stethoscope,
+  Sparkles,
+  Activity,
+  MessageCircle,
+  Loader2,
+} from "lucide-react";
 import { TOOLS_BY_ID } from "@/components/know-your-health/tools";
-import { ToolHeader, ToolTextarea, RunButton, LoadingResult, ResultCard, SeverityBadge, Disclaimer, ResetButton, showError } from "@/components/know-your-health/ui";
+import {
+  ToolHeader,
+  ToolTextarea,
+  RunButton,
+  LoadingResult,
+  ResultCard,
+  SeverityBadge,
+  Disclaimer,
+  ResetButton,
+  showError,
+} from "@/components/know-your-health/ui";
 import { toast } from "sonner";
 
-interface PossibleCause { condition: string; likelihood: "low"|"moderate"|"high"; note: string; }
+interface PossibleCause {
+  condition: string;
+  likelihood: "low" | "moderate" | "high";
+  note: string;
+}
 interface SymptomsResult {
   summary: string;
-  urgency: "low"|"moderate"|"high"|"emergency";
+  urgency: "low" | "moderate" | "high" | "emergency";
   possibleCauses: PossibleCause[];
   recommendedActions: string[];
   redFlags: string[];
@@ -69,11 +91,16 @@ export function SymptomsChecker() {
   };
 
   const run = async () => {
-    if (!symptoms.trim()) { showError("Please describe your symptoms first"); return; }
-    setLoading(true); setResult(null);
+    if (!symptoms.trim()) {
+      showError("Please describe your symptoms first");
+      return;
+    }
+    setLoading(true);
+    setResult(null);
     try {
       const res = await fetch("/api/know-your-health/symptoms-checker", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         signal: AbortSignal.timeout(75_000),
         body: JSON.stringify({ symptoms }),
       });
@@ -85,29 +112,66 @@ export function SymptomsChecker() {
       setResult(data);
     } catch (e) {
       showError(e instanceof Error ? e.message : undefined);
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const reset = () => { setResult(null); setSymptoms(""); setConnected(false); };
+  const reset = () => {
+    setResult(null);
+    setSymptoms("");
+    setConnected(false);
+  };
 
   return (
     <div className="space-y-5">
-      <ToolHeader title={tool.name} tagline={tool.tagline} icon={tool.icon} accent={accent} inspiration={tool.inspiration} />
+      <ToolHeader
+        title={tool.name}
+        tagline={tool.tagline}
+        icon={tool.icon}
+        accent={accent}
+        inspiration={tool.inspiration}
+      />
 
       {!result && !loading && (
-        <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#5C544D]">Describe your symptoms</label>
-            <ToolTextarea value={symptoms} onChange={setSymptoms} placeholder="e.g. I have a throbbing headache on the right side since morning, with mild nausea and sensitivity to light…" rows={5} />
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#5C544D]">
+              Describe your symptoms
+            </label>
+            <ToolTextarea
+              value={symptoms}
+              onChange={setSymptoms}
+              placeholder="e.g. I have a throbbing headache on the right side since morning, with mild nausea and sensitivity to light…"
+              rows={5}
+            />
           </div>
           <div className="flex flex-wrap gap-2">
             {SUGGESTION_CHIPS.map((s) => (
-              <button key={s} onClick={() => setSymptoms(s)} className="rounded-full glass-chip px-3 py-1.5 text-xs text-[#5C544D] transition-all hover:scale-105">{s}</button>
+              <button
+                key={s}
+                onClick={() => setSymptoms(s)}
+                className="rounded-full glass-chip px-3 py-1.5 text-xs text-[#5C544D] transition-all hover:scale-105"
+              >
+                {s}
+              </button>
             ))}
           </div>
           <div className="flex items-center gap-3">
-            <RunButton onClick={run} loading={loading} disabled={!symptoms.trim()} accent={accent} label="Triage with AI" />
-            <span className="text-[0.65rem] text-[#9A8F84]">AI-processed · Indian clinical context</span>
+            <RunButton
+              onClick={run}
+              loading={loading}
+              disabled={!symptoms.trim()}
+              accent={accent}
+              label="Triage with AI"
+            />
+            <span className="text-[0.65rem] text-[#9A8F84]">
+              AI-processed · Indian clinical context
+            </span>
           </div>
           <Disclaimer />
         </motion.div>
@@ -117,12 +181,21 @@ export function SymptomsChecker() {
 
       <AnimatePresence>
         {result && (
-          <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-12}} className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            className="space-y-4"
+          >
             <ResultCard accent={accent} title="Triage Summary">
               <div className="mb-3 flex items-center gap-2">
                 <SeverityBadge level={result.urgency} />
-                <span className="text-[0.65rem] uppercase tracking-wider text-[#9A8F84]">Suggested specialty</span>
-                <span className="rounded-full glass-chip px-2 py-0.5 text-[0.65rem] font-medium text-[#5C544D]">{result.specialty}</span>
+                <span className="text-[0.65rem] uppercase tracking-wider text-[#9A8F84]">
+                  Suggested specialty
+                </span>
+                <span className="rounded-full glass-chip px-2 py-0.5 text-[0.65rem] font-medium text-[#5C544D]">
+                  {result.specialty}
+                </span>
               </div>
               <p className="text-sm leading-relaxed text-[#1F1B17]">{result.summary}</p>
             </ResultCard>
@@ -131,12 +204,25 @@ export function SymptomsChecker() {
               <ResultCard accent={accent} title="Possible Causes">
                 <div className="space-y-2.5">
                   {result.possibleCauses.map((c, i) => (
-                    <div key={i} className="flex items-start gap-3 rounded-xl bg-[#FAF7F2]/60 p-2.5">
-                      <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg" style={{ background:`${accent}15`, color:accent }}><Stethoscope className="h-3.5 w-3.5" /></span>
+                    <div
+                      key={i}
+                      className="flex items-start gap-3 rounded-xl bg-[#FAF7F2]/60 p-2.5"
+                    >
+                      <span
+                        className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg"
+                        style={{ background: `${accent}15`, color: accent }}
+                      >
+                        <Stethoscope className="h-3.5 w-3.5" />
+                      </span>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-semibold text-[#1F1B17]">{c.condition}</p>
-                          <span className="rounded-full px-2 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider" style={{ background:`${accent}15`, color:accent }}>{c.likelihood}</span>
+                          <span
+                            className="rounded-full px-2 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider"
+                            style={{ background: `${accent}15`, color: accent }}
+                          >
+                            {c.likelihood}
+                          </span>
                         </div>
                         <p className="mt-0.5 text-xs text-[#5C544D]">{c.note}</p>
                       </div>
@@ -173,22 +259,34 @@ export function SymptomsChecker() {
             )}
 
             {/* Nexura Connect — Chat with a Doctor CTA */}
-            {(result.urgency === "moderate" || result.urgency === "high" || result.urgency === "emergency") && (
+            {(result.urgency === "moderate" ||
+              result.urgency === "high" ||
+              result.urgency === "emergency") && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="overflow-hidden rounded-2xl glass-soft shadow-depth"
               >
-                <div className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white" style={{ background: "linear-gradient(135deg, #A16207, #B8860B)" }}>
+                <div
+                  className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white"
+                  style={{ background: "linear-gradient(135deg, #A16207, #B8860B)" }}
+                >
                   <MessageCircle className="h-3.5 w-3.5" /> Nexura Connect — Consult a doctor
                 </div>
                 <div className="p-4">
                   <div className="flex items-start gap-3">
-                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#A16207] to-[#8F5E06] font-serif text-base font-bold text-white shadow-depth">AK</span>
+                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#A16207] to-[#8F5E06] font-serif text-base font-bold text-white shadow-depth">
+                      AK
+                    </span>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-[#1F1B17]">Dr. Aanya Kapoor</p>
-                      <p className="text-[0.7rem] text-[#9A8F84]">General Physician · via Nexura Connect</p>
-                      <p className="mt-1.5 text-xs text-[#5C544D]">Your symptoms suggest it would help to talk to a doctor. Create a connection and follow up in Nexura Connect.</p>
+                      <p className="text-[0.7rem] text-[#9A8F84]">
+                        General Physician · via Nexura Connect
+                      </p>
+                      <p className="mt-1.5 text-xs text-[#5C544D]">
+                        Your symptoms suggest it would help to talk to a doctor. Create a connection
+                        and follow up in Nexura Connect.
+                      </p>
                     </div>
                   </div>
                   <button
@@ -197,16 +295,26 @@ export function SymptomsChecker() {
                     className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#A16207] to-[#C9962E] px-4 py-2.5 text-sm font-semibold text-white shadow-depth transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {connecting ? (
-                      <><Loader2 className="h-4 w-4 animate-spin" /> Connecting…</>
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" /> Connecting…
+                      </>
                     ) : connected ? (
-                      <><Sparkles className="h-4 w-4" /> Connected — open Nexura Connect</>
+                      <>
+                        <Sparkles className="h-4 w-4" /> Connected — open Nexura Connect
+                      </>
                     ) : (
-                      <><MessageCircle className="h-4 w-4" /> Chat with Dr. Aanya Kapoor</>
+                      <>
+                        <MessageCircle className="h-4 w-4" /> Chat with Dr. Aanya Kapoor
+                      </>
                     )}
                   </button>
                   {connected && (
                     <p className="mt-2 text-center text-[0.65rem] text-[#5A7A5B]">
-                      ✓ Connection created — visit <a href="/connect/patient" className="font-semibold underline">Nexura Connect</a> to start chatting
+                      ✓ Connection created — visit{" "}
+                      <a href="/connect/patient" className="font-semibold underline">
+                        Nexura Connect
+                      </a>{" "}
+                      to start chatting
                     </p>
                   )}
                 </div>
@@ -215,7 +323,10 @@ export function SymptomsChecker() {
 
             <div className="flex items-center gap-3">
               <ResetButton onClick={reset} />
-              <span className="flex items-center gap-1 text-[0.65rem] text-[#9A8F84]"><HeartPulse className="h-3 w-3" /> {result.disclaimer || "Informational only — consult a doctor for diagnosis"}</span>
+              <span className="flex items-center gap-1 text-[0.65rem] text-[#9A8F84]">
+                <HeartPulse className="h-3 w-3" />{" "}
+                {result.disclaimer || "Informational only — consult a doctor for diagnosis"}
+              </span>
             </div>
             <Disclaimer />
           </motion.div>

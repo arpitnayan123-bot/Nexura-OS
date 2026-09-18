@@ -1,5 +1,11 @@
 import { describe, it, expect, afterAll } from "vitest";
-import { publish, verifyEventSignature, signingKeyFor, subscribe, connectionCount } from "@/lib/nx/bus";
+import {
+  publish,
+  verifyEventSignature,
+  signingKeyFor,
+  subscribe,
+  connectionCount,
+} from "@/lib/nx/bus";
 import { isRedisConfigured } from "@/lib/redis";
 
 /* ============================================================
@@ -63,13 +69,13 @@ describe("event signatures", () => {
 
   it("local delivery still honors tenant + audience isolation while Redis is configured", () => {
     const seen: string[] = [];
-    unsubscribers.push(subscribe("sig-conn-1", { ...SCOPE, userId: "u1" }, (ev) => seen.push(ev.event)));
     unsubscribers.push(
-      subscribe(
-        "sig-conn-2",
-        { ...SCOPE, userId: "u2", hospitalId: "other-hospital" },
-        (ev) => seen.push(ev.event)
-      )
+      subscribe("sig-conn-1", { ...SCOPE, userId: "u1" }, (ev) => seen.push(ev.event)),
+    );
+    unsubscribers.push(
+      subscribe("sig-conn-2", { ...SCOPE, userId: "u2", hospitalId: "other-hospital" }, (ev) =>
+        seen.push(ev.event),
+      ),
     );
     publish({ event: "sig.isolated", hospitalId: SCOPE.hospitalId, data: null });
     expect(seen).toEqual(["sig.isolated"]); // other-hospital subscriber saw nothing

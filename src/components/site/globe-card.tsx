@@ -129,10 +129,10 @@ export function GlobeCard() {
           <div
             className="relative overflow-hidden rounded-[2rem] border"
             style={{
-              background:
-                "linear-gradient(180deg, #FFFCF6 0%, #FBF0DE 58%, #F6E7CF 100%)",
+              background: "linear-gradient(180deg, #FFFCF6 0%, #FBF0DE 58%, #F6E7CF 100%)",
               borderColor: "#EFE9E0",
-              boxShadow: "0 1px 2px rgba(46,42,38,0.05), 0 0 0 1px color-mix(in srgb, #0E7490 8%, transparent), 0 18px 44px -24px color-mix(in srgb, #1D4ED8 26%, transparent)",
+              boxShadow:
+                "0 1px 2px rgba(46,42,38,0.05), 0 0 0 1px color-mix(in srgb, #0E7490 8%, transparent), 0 18px 44px -24px color-mix(in srgb, #1D4ED8 26%, transparent)",
             }}
           >
             {/* MATERIAL SPECTRUM — dawn aurora sky: teal → blue → violet */}
@@ -255,9 +255,9 @@ export function GlobeCard() {
                   Booked from everywhere.
                 </h2>
                 <p className="mt-4 max-w-md text-[0.95rem] leading-relaxed text-[#5E5A52]">
-                  A coordinator desk for patients abroad considering Indian
-                  care — discover procedures, compare honest cost estimates in
-                  your own currency, and plan the journey with a real human.
+                  A coordinator desk for patients abroad considering Indian care — discover
+                  procedures, compare honest cost estimates in your own currency, and plan the
+                  journey with a real human.
                 </p>
 
                 <ul className="mt-5 space-y-2.5 text-sm text-[#2E2A26]/85">
@@ -307,8 +307,8 @@ export function GlobeCard() {
                   />
                 </div>
                 <p className="relative mt-1 text-center text-xs text-[#5E5A52]">
-                  Mumbai · Delhi · Bengaluru · Chennai · Hyderabad · Kochi —
-                  serving families from Dubai to London to Singapore
+                  Mumbai · Delhi · Bengaluru · Chennai · Hyderabad · Kochi — serving families from
+                  Dubai to London to Singapore
                 </p>
               </div>
             </div>

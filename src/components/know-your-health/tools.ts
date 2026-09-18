@@ -1,36 +1,244 @@
 import {
-  Stethoscope, FlaskConical, HeartPulse, Flower2, ScanLine, Leaf,
-  Brain, ShieldAlert, Activity, Apple, UtensilsCrossed,
-  Moon, Droplet, Pill, Sparkles, type LucideIcon,
+  Stethoscope,
+  FlaskConical,
+  HeartPulse,
+  Flower2,
+  ScanLine,
+  Leaf,
+  Brain,
+  ShieldAlert,
+  Activity,
+  Apple,
+  UtensilsCrossed,
+  Moon,
+  Droplet,
+  Pill,
+  Sparkles,
+  type LucideIcon,
 } from "lucide-react";
 
 export type ToolCategory = "analyze" | "scan" | "manage" | "learn";
 export type Tool = {
-  id: string; name: string; tagline: string; description: string;
-  icon: LucideIcon; category: ToolCategory; accent: string; gradient: string;
-  poweredBy: string; inspiration: string; vision?: boolean;
+  id: string;
+  name: string;
+  tagline: string;
+  description: string;
+  icon: LucideIcon;
+  category: ToolCategory;
+  accent: string;
+  gradient: string;
+  poweredBy: string;
+  inspiration: string;
+  vision?: boolean;
 };
 
 export const CATEGORY_LABEL: Record<ToolCategory, string> = {
-  analyze: "Analyze", scan: "Scan with AI", manage: "Manage", learn: "Learn",
+  analyze: "Analyze",
+  scan: "Scan with AI",
+  manage: "Manage",
+  learn: "Learn",
 };
 
 export const TOOLS: Tool[] = [
-  { id:"symptoms-checker", name:"Symptom Checker", tagline:"AI triage guidance in plain language", description:"Describe your symptoms — the AI reviews them in an Indian healthcare context and suggests possible causes, an urgency level, red flags to watch, practical next steps, and which specialist to consult.", icon:Stethoscope, category:"analyze", accent:"#A16207", gradient:"linear-gradient(135deg, #A16207 0%, #8A5A04 100%)", poweredBy:"Nexura AI", inspiration:"Infermedica · Ada Health" },
-  { id:"lab-analyzer", name:"Lab Report Analyzer", tagline:"Upload a blood report — get its plain-English meaning", description:"Snap a photo of your lab report or type the values in — the AI reads the visible results, flags abnormal ones against ICMR Indian reference ranges, and explains what each means in plain English. Double-check photo-read values against your report.", icon:FlaskConical, category:"analyze", accent:"#9DB89E", gradient:"linear-gradient(135deg, #9DB89E 0%, #7A9A7B 100%)", poweredBy:"Nexura AI Vision", inspiration:"Tata 1mg · Apollo 24/7", vision:true },
-  { id:"disease-risk", name:"Disease Risk Predictor", tagline:"10-year risk estimate: diabetes, heart, kidney", description:"Answer a short form about your age, vitals, habits, and family history — the AI estimates your 10-year risk for Type 2 diabetes, cardiovascular disease, and chronic kidney disease using ICMR-INDIAB, ASCVD-style, and KFRE-style reasoning. An educational estimate, not a diagnosis.", icon:ShieldAlert, category:"analyze", accent:"#B8860B", gradient:"linear-gradient(135deg, #B8860B 0%, #A96A5A 100%)", poweredBy:"Nexura AI", inspiration:"ASCVD Risk Estimator+ · QDiabetes" },
-  { id:"derma-scan", name:"Derma Scan", tagline:"Skin concerns — an educational AI read", description:"Upload a close-up of a skin concern — the AI describes the visible features, suggests possible conditions with confidence levels, and rates urgency, plus guidance on when to see a dermatologist. Educational read — not a diagnosis.", icon:ScanLine, category:"scan", accent:"#C9962E", gradient:"linear-gradient(135deg, #C9962E 0%, #D09A60 100%)", poweredBy:"Nexura AI Vision", inspiration:"SkinVision · FirstDerm", vision:true },
-  { id:"xray-reader", name:"X-Ray AI Reader", tagline:"Educational X-ray read — not a report", description:"Upload an X-ray (chest, hand/wrist, knee, spine, skull, or abdomen) — the AI describes the visible anatomy, notes possible abnormalities with likelihoods, and flags whether a radiologist should review it. Educational overview — not a radiologist's report.", icon:Activity, category:"scan", accent:"#7A9A7B", gradient:"linear-gradient(135deg, #7A9A7B 0%, #5A7A5B 100%)", poweredBy:"Nexura AI Vision", inspiration:"Qure.ai · Google LYNA", vision:true },
-  { id:"food-scan", name:"Food & Nutrition Scan", tagline:"Snap your plate — get the estimated macros", description:"Upload a photo of any meal — the AI identifies the dish, estimates the portion, and breaks down approximate calories, protein, carbs, fat, and fibre, with a 1-10 balance score and healthier swaps. Nutrition values are visual estimates.", icon:Apple, category:"scan", accent:"#9DB89E", gradient:"linear-gradient(135deg, #9DB89E 0%, #B5C9A6 100%)", poweredBy:"Nexura AI Vision", inspiration:"MyFitnessPal · Calorie Mama", vision:true },
-  { id:"diet-planner", name:"AI Diet Planner", tagline:"A personalised Indian meal plan", description:"Tell the AI your goal, dietary preference, allergies, and calorie target — get a 7-day Indian meal plan with per-meal recipes, a grocery list, a macro split, and a hydration target. General wellness guidance, not a prescribed diet.", icon:UtensilsCrossed, category:"manage", accent:"#A16207", gradient:"linear-gradient(135deg, #A16207 0%, #C9962E 100%)", poweredBy:"Nexura AI", inspiration:"Eat This Much · Healthify" },
-  { id:"diabetes-care", name:"Diabetes Care Coach", tagline:"Make sense of your T2D numbers", description:"Log today's fasting and post-meal sugar, HbA1c, meals, and activity — the AI interprets them against ICMR-INDIAB targets, flags patterns that may need a doctor's attention, and shares Indian diet tips. It never suggests medication changes.", icon:HeartPulse, category:"manage", accent:"#B8860B", gradient:"linear-gradient(135deg, #B8860B 0%, #A16207 100%)", poweredBy:"Nexura AI", inspiration:"BeatO · MySugr" },
-  { id:"womens-care", name:"Women's Care", tagline:"Cycle, fertility, pregnancy & PCOS questions", description:"Describe a period, fertility, PCOS, or pregnancy concern — the AI responds with warm, informational Indian-context guidance, lifestyle tips, when to see a gynaecologist, and a PCOS risk indicator where relevant. Not a diagnosis.", icon:Flower2, category:"manage", accent:"#C9962E", gradient:"linear-gradient(135deg, #C9962E 0%, #F0C0A0 100%)", poweredBy:"Nexura AI", inspiration:"Flo · Clue" },
-  { id:"ayurveda", name:"Ayurveda Prakriti", tagline:"Explore your dosha constitution", description:"Answer 20 questions about your body, digestion, sleep, and temperament — the AI maps your Prakriti (dominant dosha) and suggests foods, lifestyle habits, and dinacharya. A traditional wellness framework for self-reflection, not a medical assessment.", icon:Leaf, category:"learn", accent:"#9DB89E", gradient:"linear-gradient(135deg, #9DB89E 0%, #A8C8A9 100%)", poweredBy:"Nexura AI", inspiration:"NIIMH Ayurveda" },
-  { id:"health-quiz", name:"Health Quiz", tagline:"10 questions. How health-smart are you?", description:"A fun, gamified 10-question quiz covering nutrition, hygiene, common diseases, and first aid — adapted for India. Fresh AI-generated questions each session, and every answer comes with an explanation.", icon:Brain, category:"learn", accent:"#A16207", gradient:"linear-gradient(135deg, #A16207 0%, #F0A090 100%)", poweredBy:"Nexura AI", inspiration:"Khan Academy · Health IQ" },
-  { id:"mental-wellness", name:"Mental Wellness Check", tagline:"PHQ-9 + GAD-7 screening + AI reflection", description:"Take the standard PHQ-9 and GAD-7 screenings, then the AI adds a warm, supportive reflection with grounding exercises, next steps, and Indian crisis-line resources. A screening aid — not a diagnosis.", icon:Sparkles, category:"manage", accent:"#7A9A7B", gradient:"linear-gradient(135deg, #7A9A7B 0%, #9DB89E 100%)", poweredBy:"Nexura AI", inspiration:"Wysa · Headspace" },
-  { id:"bp-analyzer", name:"Blood Pressure Analyzer", tagline:"Understand your BP readings", description:"Log a series of BP readings — averages are computed server-side and the AI classifies them per ACC/AHA 2017 + ICMR guidelines, notes the trend, and flags when a white-coat pattern seems likely. Educational classification — not a hypertension diagnosis.", icon:Droplet, category:"analyze", accent:"#B8860B", gradient:"linear-gradient(135deg, #B8860B 0%, #C9962E 100%)", poweredBy:"Nexura AI", inspiration:"Omron Connect · SmartBP" },
-  { id:"sleep-quality", name:"Sleep Quality Analyzer", tagline:"Why you might wake up tired", description:"Log bedtime, wake time, awakenings, and how you feel — the AI estimates your sleep efficiency, identifies pattern issues, and suggests Indian-context sleep-hygiene fixes.", icon:Moon, category:"analyze", accent:"#5A7A5B", gradient:"linear-gradient(135deg, #5A7A5B 0%, #7A9A7B 100%)", poweredBy:"Nexura AI", inspiration:"Sleep Cycle · Rise" },
-  { id:"med-interaction", name:"Med Interaction Checker", tagline:"Could these medicines interact?", description:"List at least two medicines — the AI checks for known drug-drug interactions and medicine-condition warnings, rates severity, and suggests what to discuss with your doctor or pharmacist. Informational only — never a reason to stop prescribed medication.", icon:Pill, category:"analyze", accent:"#C9962E", gradient:"linear-gradient(135deg, #C9962E 0%, #A16207 100%)", poweredBy:"Nexura AI", inspiration:"Drugs.com · Medscape" },
+  {
+    id: "symptoms-checker",
+    name: "Symptom Checker",
+    tagline: "AI triage guidance in plain language",
+    description:
+      "Describe your symptoms — the AI reviews them in an Indian healthcare context and suggests possible causes, an urgency level, red flags to watch, practical next steps, and which specialist to consult.",
+    icon: Stethoscope,
+    category: "analyze",
+    accent: "#A16207",
+    gradient: "linear-gradient(135deg, #A16207 0%, #8A5A04 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "Infermedica · Ada Health",
+  },
+  {
+    id: "lab-analyzer",
+    name: "Lab Report Analyzer",
+    tagline: "Upload a blood report — get its plain-English meaning",
+    description:
+      "Snap a photo of your lab report or type the values in — the AI reads the visible results, flags abnormal ones against ICMR Indian reference ranges, and explains what each means in plain English. Double-check photo-read values against your report.",
+    icon: FlaskConical,
+    category: "analyze",
+    accent: "#9DB89E",
+    gradient: "linear-gradient(135deg, #9DB89E 0%, #7A9A7B 100%)",
+    poweredBy: "Nexura AI Vision",
+    inspiration: "Tata 1mg · Apollo 24/7",
+    vision: true,
+  },
+  {
+    id: "disease-risk",
+    name: "Disease Risk Predictor",
+    tagline: "10-year risk estimate: diabetes, heart, kidney",
+    description:
+      "Answer a short form about your age, vitals, habits, and family history — the AI estimates your 10-year risk for Type 2 diabetes, cardiovascular disease, and chronic kidney disease using ICMR-INDIAB, ASCVD-style, and KFRE-style reasoning. An educational estimate, not a diagnosis.",
+    icon: ShieldAlert,
+    category: "analyze",
+    accent: "#B8860B",
+    gradient: "linear-gradient(135deg, #B8860B 0%, #A96A5A 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "ASCVD Risk Estimator+ · QDiabetes",
+  },
+  {
+    id: "derma-scan",
+    name: "Derma Scan",
+    tagline: "Skin concerns — an educational AI read",
+    description:
+      "Upload a close-up of a skin concern — the AI describes the visible features, suggests possible conditions with confidence levels, and rates urgency, plus guidance on when to see a dermatologist. Educational read — not a diagnosis.",
+    icon: ScanLine,
+    category: "scan",
+    accent: "#C9962E",
+    gradient: "linear-gradient(135deg, #C9962E 0%, #D09A60 100%)",
+    poweredBy: "Nexura AI Vision",
+    inspiration: "SkinVision · FirstDerm",
+    vision: true,
+  },
+  {
+    id: "xray-reader",
+    name: "X-Ray AI Reader",
+    tagline: "Educational X-ray read — not a report",
+    description:
+      "Upload an X-ray (chest, hand/wrist, knee, spine, skull, or abdomen) — the AI describes the visible anatomy, notes possible abnormalities with likelihoods, and flags whether a radiologist should review it. Educational overview — not a radiologist's report.",
+    icon: Activity,
+    category: "scan",
+    accent: "#7A9A7B",
+    gradient: "linear-gradient(135deg, #7A9A7B 0%, #5A7A5B 100%)",
+    poweredBy: "Nexura AI Vision",
+    inspiration: "Qure.ai · Google LYNA",
+    vision: true,
+  },
+  {
+    id: "food-scan",
+    name: "Food & Nutrition Scan",
+    tagline: "Snap your plate — get the estimated macros",
+    description:
+      "Upload a photo of any meal — the AI identifies the dish, estimates the portion, and breaks down approximate calories, protein, carbs, fat, and fibre, with a 1-10 balance score and healthier swaps. Nutrition values are visual estimates.",
+    icon: Apple,
+    category: "scan",
+    accent: "#9DB89E",
+    gradient: "linear-gradient(135deg, #9DB89E 0%, #B5C9A6 100%)",
+    poweredBy: "Nexura AI Vision",
+    inspiration: "MyFitnessPal · Calorie Mama",
+    vision: true,
+  },
+  {
+    id: "diet-planner",
+    name: "AI Diet Planner",
+    tagline: "A personalised Indian meal plan",
+    description:
+      "Tell the AI your goal, dietary preference, allergies, and calorie target — get a 7-day Indian meal plan with per-meal recipes, a grocery list, a macro split, and a hydration target. General wellness guidance, not a prescribed diet.",
+    icon: UtensilsCrossed,
+    category: "manage",
+    accent: "#A16207",
+    gradient: "linear-gradient(135deg, #A16207 0%, #C9962E 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "Eat This Much · Healthify",
+  },
+  {
+    id: "diabetes-care",
+    name: "Diabetes Care Coach",
+    tagline: "Make sense of your T2D numbers",
+    description:
+      "Log today's fasting and post-meal sugar, HbA1c, meals, and activity — the AI interprets them against ICMR-INDIAB targets, flags patterns that may need a doctor's attention, and shares Indian diet tips. It never suggests medication changes.",
+    icon: HeartPulse,
+    category: "manage",
+    accent: "#B8860B",
+    gradient: "linear-gradient(135deg, #B8860B 0%, #A16207 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "BeatO · MySugr",
+  },
+  {
+    id: "womens-care",
+    name: "Women's Care",
+    tagline: "Cycle, fertility, pregnancy & PCOS questions",
+    description:
+      "Describe a period, fertility, PCOS, or pregnancy concern — the AI responds with warm, informational Indian-context guidance, lifestyle tips, when to see a gynaecologist, and a PCOS risk indicator where relevant. Not a diagnosis.",
+    icon: Flower2,
+    category: "manage",
+    accent: "#C9962E",
+    gradient: "linear-gradient(135deg, #C9962E 0%, #F0C0A0 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "Flo · Clue",
+  },
+  {
+    id: "ayurveda",
+    name: "Ayurveda Prakriti",
+    tagline: "Explore your dosha constitution",
+    description:
+      "Answer 20 questions about your body, digestion, sleep, and temperament — the AI maps your Prakriti (dominant dosha) and suggests foods, lifestyle habits, and dinacharya. A traditional wellness framework for self-reflection, not a medical assessment.",
+    icon: Leaf,
+    category: "learn",
+    accent: "#9DB89E",
+    gradient: "linear-gradient(135deg, #9DB89E 0%, #A8C8A9 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "NIIMH Ayurveda",
+  },
+  {
+    id: "health-quiz",
+    name: "Health Quiz",
+    tagline: "10 questions. How health-smart are you?",
+    description:
+      "A fun, gamified 10-question quiz covering nutrition, hygiene, common diseases, and first aid — adapted for India. Fresh AI-generated questions each session, and every answer comes with an explanation.",
+    icon: Brain,
+    category: "learn",
+    accent: "#A16207",
+    gradient: "linear-gradient(135deg, #A16207 0%, #F0A090 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "Khan Academy · Health IQ",
+  },
+  {
+    id: "mental-wellness",
+    name: "Mental Wellness Check",
+    tagline: "PHQ-9 + GAD-7 screening + AI reflection",
+    description:
+      "Take the standard PHQ-9 and GAD-7 screenings, then the AI adds a warm, supportive reflection with grounding exercises, next steps, and Indian crisis-line resources. A screening aid — not a diagnosis.",
+    icon: Sparkles,
+    category: "manage",
+    accent: "#7A9A7B",
+    gradient: "linear-gradient(135deg, #7A9A7B 0%, #9DB89E 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "Wysa · Headspace",
+  },
+  {
+    id: "bp-analyzer",
+    name: "Blood Pressure Analyzer",
+    tagline: "Understand your BP readings",
+    description:
+      "Log a series of BP readings — averages are computed server-side and the AI classifies them per ACC/AHA 2017 + ICMR guidelines, notes the trend, and flags when a white-coat pattern seems likely. Educational classification — not a hypertension diagnosis.",
+    icon: Droplet,
+    category: "analyze",
+    accent: "#B8860B",
+    gradient: "linear-gradient(135deg, #B8860B 0%, #C9962E 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "Omron Connect · SmartBP",
+  },
+  {
+    id: "sleep-quality",
+    name: "Sleep Quality Analyzer",
+    tagline: "Why you might wake up tired",
+    description:
+      "Log bedtime, wake time, awakenings, and how you feel — the AI estimates your sleep efficiency, identifies pattern issues, and suggests Indian-context sleep-hygiene fixes.",
+    icon: Moon,
+    category: "analyze",
+    accent: "#5A7A5B",
+    gradient: "linear-gradient(135deg, #5A7A5B 0%, #7A9A7B 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "Sleep Cycle · Rise",
+  },
+  {
+    id: "med-interaction",
+    name: "Med Interaction Checker",
+    tagline: "Could these medicines interact?",
+    description:
+      "List at least two medicines — the AI checks for known drug-drug interactions and medicine-condition warnings, rates severity, and suggests what to discuss with your doctor or pharmacist. Informational only — never a reason to stop prescribed medication.",
+    icon: Pill,
+    category: "analyze",
+    accent: "#C9962E",
+    gradient: "linear-gradient(135deg, #C9962E 0%, #A16207 100%)",
+    poweredBy: "Nexura AI",
+    inspiration: "Drugs.com · Medscape",
+  },
 ];
 
 export const TOOLS_BY_ID = Object.fromEntries(TOOLS.map((t) => [t.id, t]));

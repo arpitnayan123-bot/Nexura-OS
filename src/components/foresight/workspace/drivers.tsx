@@ -25,7 +25,7 @@ function DriverBar({ row }: { row: DriverRow }) {
         transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] }}
         className={cn(
           "nxf-bar-fill h-full rounded-full bg-gradient-to-r",
-          risk ? "from-amber-400 to-rose-400" : "from-emerald-400 to-teal-300"
+          risk ? "from-amber-400 to-rose-400" : "from-emerald-400 to-teal-300",
         )}
       />
     </div>
@@ -46,12 +46,19 @@ export function DriversPanel({ drivers, total }: { drivers: DriverRow[]; total: 
       />
       <div className="nxf-glass rounded-3xl p-4 sm:p-6">
         {drivers.length === 0 ? (
-          <p className="text-[13px] nxf-dim">No weighted factors — share more at your next check-in for a driver read.</p>
+          <p className="text-[13px] nxf-dim">
+            No weighted factors — share more at your next check-in for a driver read.
+          </p>
         ) : (
           <ol className="space-y-3.5">
             {visible.map((d, i) => (
-              <li key={d.key} className="grid grid-cols-[minmax(0,1fr)_92px] items-center gap-x-4 gap-y-1.5 sm:grid-cols-[28px_minmax(0,1fr)_150px]">
-                <span className="nxf-mono hidden text-[11px] nxf-mute sm:block">{String(i + 1).padStart(2, "0")}</span>
+              <li
+                key={d.key}
+                className="grid grid-cols-[minmax(0,1fr)_92px] items-center gap-x-4 gap-y-1.5 sm:grid-cols-[28px_minmax(0,1fr)_150px]"
+              >
+                <span className="nxf-mono hidden text-[11px] nxf-mute sm:block">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] font-semibold leading-snug nxf-hi">
                     {d.direction === "risk" ? (
@@ -70,7 +77,9 @@ export function DriversPanel({ drivers, total }: { drivers: DriverRow[]; total: 
                     <span
                       className={cn(
                         "rounded-full border px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.1em]",
-                        d.direction === "risk" ? "border-amber-300/40 text-amber-200" : "border-emerald-300/40 text-emerald-200"
+                        d.direction === "risk"
+                          ? "border-amber-300/40 text-amber-200"
+                          : "border-emerald-300/40 text-emerald-200",
                       )}
                     >
                       {d.direction === "risk" ? "adds burden" : "protective"}
@@ -84,7 +93,9 @@ export function DriversPanel({ drivers, total }: { drivers: DriverRow[]; total: 
                 </div>
                 <div className="col-span-2 sm:col-span-1">
                   <div className="mb-1 flex items-center justify-between text-[10.5px] nxf-mute sm:justify-end sm:gap-2">
-                    <span className="sm:hidden">{d.direction === "risk" ? "weight" : "credit"}</span>
+                    <span className="sm:hidden">
+                      {d.direction === "risk" ? "weight" : "credit"}
+                    </span>
                     <span className="nxf-mono">{d.share}%</span>
                   </div>
                   <DriverBar row={d} />
@@ -105,7 +116,8 @@ export function DriversPanel({ drivers, total }: { drivers: DriverRow[]; total: 
         )}
         {showAll && total > 8 && (
           <p className="mt-3 text-[11.5px] nxf-mute">
-            Showing all {riskCount} burden-adding and {drivers.length - riskCount} protective signals the engine weighted on this run.
+            Showing all {riskCount} burden-adding and {drivers.length - riskCount} protective
+            signals the engine weighted on this run.
           </p>
         )}
       </div>

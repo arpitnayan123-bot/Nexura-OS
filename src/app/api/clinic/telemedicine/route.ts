@@ -23,8 +23,13 @@ async function GET_impl(req: NextRequest) {
 
     return NextResponse.json({ consults, count: consults.length });
   } catch (err) {
-    log.error("clinic", "telemedicine_list_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "telemedicine_failed", detail: "Consultations could not be loaded. Please retry." }, { status: 500 });
+    log.error("clinic", "telemedicine_list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "telemedicine_failed", detail: "Consultations could not be loaded. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -44,9 +49,20 @@ async function POST_impl(req: NextRequest) {
       followUpDate?: string;
       patientConsent?: boolean;
     };
-    const { patientId, doctorName, doctorRegNo, consultMode, chiefComplaint, diagnosis, prescription, followUpDate, patientConsent } = body;
+    const {
+      patientId,
+      doctorName,
+      doctorRegNo,
+      consultMode,
+      chiefComplaint,
+      diagnosis,
+      prescription,
+      followUpDate,
+      patientConsent,
+    } = body;
 
-    if (!doctorName || !doctorRegNo) return NextResponse.json({ error: "doctor_reg_required" }, { status: 400 });
+    if (!doctorName || !doctorRegNo)
+      return NextResponse.json({ error: "doctor_reg_required" }, { status: 400 });
     // NMC Guideline: doctor must have valid MCI/NMC registration
     // NMC Guideline: patient consent for telemedicine is mandatory
 
@@ -63,15 +79,24 @@ async function POST_impl(req: NextRequest) {
         prescription: prescription || null,
         followUpDate: followUpDate || null,
         patientConsent: patientConsent !== false,
-        consentText: "Patient consented to telemedicine consultation as per NMC Telemedicine Guidelines, 2020",
+        consentText:
+          "Patient consented to telemedicine consultation as per NMC Telemedicine Guidelines, 2020",
         status: "scheduled",
       },
     });
 
     return NextResponse.json({ ok: true, consult });
   } catch (err) {
-    log.error("clinic", "telemedicine_create_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "telemedicine_create_failed", detail: "The consultation could not be created. Please retry." }, { status: 500 });
+    log.error("clinic", "telemedicine_create_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "telemedicine_create_failed",
+        detail: "The consultation could not be created. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -102,8 +127,16 @@ async function PATCH_impl(req: NextRequest) {
     const consult = await db.telemedicineConsult.update({ where: { id: consultId }, data });
     return NextResponse.json({ ok: true, consult });
   } catch (err) {
-    log.error("clinic", "telemedicine_update_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "telemedicine_update_failed", detail: "The consultation could not be updated. Please retry." }, { status: 500 });
+    log.error("clinic", "telemedicine_update_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "telemedicine_update_failed",
+        detail: "The consultation could not be updated. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }
 

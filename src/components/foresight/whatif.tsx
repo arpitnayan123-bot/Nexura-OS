@@ -46,8 +46,12 @@ export const SCENARIOS: Scenario[] = [
     id: "sleep",
     label: "7–8 h sleep, regular schedule",
     hint: "screens off before bed, steady rhythm",
-    available: (i) => i.sleep.hoursPerNight < 7 || i.sleep.hoursPerNight > 9 || i.sleep.schedule === "irregular",
-    apply: (i) => ({ ...i, sleep: { ...i.sleep, hoursPerNight: 7.5, schedule: "regular", screensBeforeBed: false } }),
+    available: (i) =>
+      i.sleep.hoursPerNight < 7 || i.sleep.hoursPerNight > 9 || i.sleep.schedule === "irregular",
+    apply: (i) => ({
+      ...i,
+      sleep: { ...i.sleep, hoursPerNight: 7.5, schedule: "regular", screensBeforeBed: false },
+    }),
   },
   {
     id: "sugary",
@@ -135,26 +139,48 @@ export function ScenarioLab({
   onCustomIds: (ids: string[]) => void;
   simReport: ForesightReport | null;
 }) {
-  const availableIds = useMemo(() => SCENARIOS.filter((s) => s.available(baseInput)).map((s) => s.id), [baseInput]);
+  const availableIds = useMemo(
+    () => SCENARIOS.filter((s) => s.available(baseInput)).map((s) => s.id),
+    [baseInput],
+  );
 
   const delta = simReport ? simReport.foresightScore - baseReport.foresightScore : 0;
   const bandMove = simReport ? bandOrd(simReport.scoreBand) - bandOrd(baseReport.scoreBand) : 0;
 
   /* scenario endpoint comparison (engine's own trajectory endpoints) */
-  const scenarios: { key: ScenarioMode; name: string; today: number; at: number; note: string }[] = useMemo(() => {
-    const planReport = runForesight(applyScenarios(baseInput, availableIds));
-    return [
-      { key: "baseline", name: "Baseline — as shared", today: baseReport.foresightScore, at: baseReport.trajectory.unchangedScore, note: "your current pattern, five years out" },
-      { key: "plan", name: "Committed plan", today: planReport.foresightScore, at: planReport.trajectory.withActionsScore, note: `all ${availableIds.length} available levers held for five years` },
-      {
-        key: "custom",
-        name: "Custom mix",
-        today: simReport && customIds.length ? simReport.foresightScore : baseReport.foresightScore,
-        at: simReport && customIds.length ? simReport.trajectory.unchangedScore : baseReport.trajectory.unchangedScore,
-        note: customIds.length ? `${customIds.length} lever${customIds.length === 1 ? "" : "s"} of your choosing` : "toggle levers below to build yours",
-      },
-    ];
-  }, [baseInput, baseReport, availableIds, simReport, customIds]);
+  const scenarios: { key: ScenarioMode; name: string; today: number; at: number; note: string }[] =
+    useMemo(() => {
+      const planReport = runForesight(applyScenarios(baseInput, availableIds));
+      return [
+        {
+          key: "baseline",
+          name: "Baseline — as shared",
+          today: baseReport.foresightScore,
+          at: baseReport.trajectory.unchangedScore,
+          note: "your current pattern, five years out",
+        },
+        {
+          key: "plan",
+          name: "Committed plan",
+          today: planReport.foresightScore,
+          at: planReport.trajectory.withActionsScore,
+          note: `all ${availableIds.length} available levers held for five years`,
+        },
+        {
+          key: "custom",
+          name: "Custom mix",
+          today:
+            simReport && customIds.length ? simReport.foresightScore : baseReport.foresightScore,
+          at:
+            simReport && customIds.length
+              ? simReport.trajectory.unchangedScore
+              : baseReport.trajectory.unchangedScore,
+          note: customIds.length
+            ? `${customIds.length} lever${customIds.length === 1 ? "" : "s"} of your choosing`
+            : "toggle levers below to build yours",
+        },
+      ];
+    }, [baseInput, baseReport, availableIds, simReport, customIds]);
 
   const domainDeltas: { d: DomainResult; diff: number }[] = useMemo(() => {
     if (!simReport || customIds.length === 0) return [];
@@ -186,8 +212,8 @@ export function ScenarioLab({
             Three futures, one honest engine
           </h2>
           <p className="mt-1 max-w-xl text-[13px] leading-relaxed nxf-dim">
-            Pick a scenario and the same versioned engine re-runs instantly on your signals — the halo, the
-            forecast chart and every metric above move together. Direction, not destiny.
+            Pick a scenario and the same versioned engine re-runs instantly on your signals — the
+            halo, the forecast chart and every metric above move together. Direction, not destiny.
           </p>
         </div>
         <FlaskConical className="hidden h-6 w-6 nxf-gold sm:block" aria-hidden="true" />
@@ -195,11 +221,13 @@ export function ScenarioLab({
 
       {/* scenario selector */}
       <div className="nxf-seg mt-5 w-fit" role="radiogroup" aria-label="Scenario">
-        {([
-          { key: "baseline", label: "Baseline" },
-          { key: "plan", label: "Committed plan" },
-          { key: "custom", label: "Custom mix" },
-        ] as const).map((s) => (
+        {(
+          [
+            { key: "baseline", label: "Baseline" },
+            { key: "plan", label: "Committed plan" },
+            { key: "custom", label: "Custom mix" },
+          ] as const
+        ).map((s) => (
           <button
             key={s.key}
             type="button"
@@ -224,27 +252,48 @@ export function ScenarioLab({
               key={s.key}
               className={cn(
                 "rounded-2xl border p-4 transition",
-                active ? "border-amber-300/55 bg-amber-300/[0.08]" : "border-white/[0.09] bg-white/[0.03]"
+                active
+                  ? "border-amber-300/55 bg-amber-300/[0.08]"
+                  : "border-white/[0.09] bg-white/[0.03]",
               )}
             >
               <p className="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-[0.12em] nxf-mute">
                 {s.name}
-                {active && <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-300 nxf-pulse-dot" />}
+                {active && (
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 rounded-full bg-amber-300 nxf-pulse-dot"
+                  />
+                )}
               </p>
               <p className="mt-2 flex items-baseline gap-1.5">
-                <span className="font-display text-[1.65rem] font-semibold leading-none nxf-hi">{s.today}</span>
+                <span className="font-display text-[1.65rem] font-semibold leading-none nxf-hi">
+                  {s.today}
+                </span>
                 <span className="text-[11.5px] nxf-mute">today</span>
                 {dToday !== 0 && (
-                  <span className={cn("text-[11.5px] font-bold", dToday > 0 ? "nxf-teal" : "text-rose-300")}>
+                  <span
+                    className={cn(
+                      "text-[11.5px] font-bold",
+                      dToday > 0 ? "nxf-teal" : "text-rose-300",
+                    )}
+                  >
                     {dToday > 0 ? `+${dToday}` : dToday}
                   </span>
                 )}
               </p>
               <p className="mt-1 flex items-baseline gap-1.5">
-                <span className="font-display text-[1.65rem] font-semibold leading-none nxf-hi">{s.at}</span>
+                <span className="font-display text-[1.65rem] font-semibold leading-none nxf-hi">
+                  {s.at}
+                </span>
                 <span className="text-[11.5px] nxf-mute">at +5y</span>
                 {dAt !== 0 && (
-                  <span className={cn("text-[11.5px] font-bold", dAt > 0 ? "nxf-teal" : "text-rose-300")}>
+                  <span
+                    className={cn(
+                      "text-[11.5px] font-bold",
+                      dAt > 0 ? "nxf-teal" : "text-rose-300",
+                    )}
+                  >
                     {dAt > 0 ? `+${dAt}` : dAt}
                   </span>
                 )}
@@ -272,10 +321,13 @@ export function ScenarioLab({
                 className={cn(
                   "nxf-pill",
                   on && "!border-amber-300/70 !bg-amber-300/[0.16]",
-                  !usable && "cursor-default opacity-45"
+                  !usable && "cursor-default opacity-45",
                 )}
               >
-                <span aria-hidden="true" className={cn("text-[11px]", on ? "nxf-gold" : "nxf-mute")}>
+                <span
+                  aria-hidden="true"
+                  className={cn("text-[11px]", on ? "nxf-gold" : "nxf-mute")}
+                >
                   {usable ? (on ? "✦" : "○") : "✓"}
                 </span>
                 <span>{s.label}</span>
@@ -288,11 +340,14 @@ export function ScenarioLab({
       {/* assumptions + readout */}
       <div className="mt-5 flex flex-wrap items-center gap-4">
         <div className="min-w-0 flex-1 rounded-2xl border border-white/[0.09] bg-white/[0.03] p-4">
-          <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] nxf-mute">Assumptions in this scenario</p>
+          <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] nxf-mute">
+            Assumptions in this scenario
+          </p>
           <p className="mt-1.5 text-[12.5px] leading-relaxed nxf-dim">
             {appliedLevers.length === 0
               ? "None — your pattern exactly as you shared it. Labs, vitals and symptoms stay fixed in every scenario; the engine will not pretend a test result away."
-              : appliedLevers.map((l) => l.label).join(" · ") + ". Labs, vitals and symptoms stay fixed — no simulated test results."}
+              : appliedLevers.map((l) => l.label).join(" · ") +
+                ". Labs, vitals and symptoms stay fixed — no simulated test results."}
           </p>
         </div>
 
@@ -305,12 +360,16 @@ export function ScenarioLab({
             className="flex items-baseline gap-2 rounded-2xl border border-amber-300/40 bg-amber-300/[0.10] px-4 py-3"
           >
             <TrendingUp className="h-5 w-5 self-center nxf-gold" aria-hidden="true" />
-            <span className="nxf-mono text-3xl font-bold nxf-gold">{delta > 0 ? `+${delta}` : delta}</span>
+            <span className="nxf-mono text-3xl font-bold nxf-gold">
+              {delta > 0 ? `+${delta}` : delta}
+            </span>
             <span className="text-[12px] nxf-dim">
               vs your saved run
               <br />
               {bandMove > 0 ? (
-                <span className="font-semibold nxf-gold">band improved → {simReport.scoreBand}</span>
+                <span className="font-semibold nxf-gold">
+                  band improved → {simReport.scoreBand}
+                </span>
               ) : bandMove < 0 ? (
                 <span className="font-semibold text-rose-300">band slipped — review levers</span>
               ) : (
@@ -323,7 +382,10 @@ export function ScenarioLab({
         {mode !== "baseline" && (
           <button
             type="button"
-            onClick={() => { onMode("baseline"); onCustomIds([]); }}
+            onClick={() => {
+              onMode("baseline");
+              onCustomIds([]);
+            }}
             className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-[12.5px] font-semibold nxf-body transition hover:border-amber-300/50 hover:text-amber-100"
           >
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" /> Reset to baseline
@@ -341,7 +403,7 @@ export function ScenarioLab({
                 "rounded-full border px-3 py-1.5 text-[11.5px] font-semibold",
                 diff > 0
                   ? "border-emerald-300/35 bg-emerald-300/[0.08] text-emerald-200"
-                  : "border-rose-300/30 bg-rose-300/[0.06] text-rose-200"
+                  : "border-rose-300/30 bg-rose-300/[0.06] text-rose-200",
               )}
             >
               {DOMAIN_META[d.id]?.label ?? d.id} burden {diff > 0 ? "−" : "+"}
@@ -353,9 +415,9 @@ export function ScenarioLab({
 
       <p className="mt-4 text-[11.5px] leading-relaxed nxf-mute">
         Simulations replay the exact versioned engine on the signals you shared today — they are not
-        predictions of outcomes and not medical advice. Labs anchor your map: when a lab signal dominates,
-        lifestyle levers move the composite less, because pretending otherwise would be a lie. Re-run a real
-        check-in after 8–12 weeks of change and compare the two maps.
+        predictions of outcomes and not medical advice. Labs anchor your map: when a lab signal
+        dominates, lifestyle levers move the composite less, because pretending otherwise would be a
+        lie. Re-run a real check-in after 8–12 weeks of change and compare the two maps.
       </p>
     </GlassCard>
   );

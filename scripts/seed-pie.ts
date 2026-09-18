@@ -16,14 +16,15 @@ import { PrismaClient } from "@prisma/client";
    database by accident. Override requires an explicit, intentional flag. */
 if (process.env.NODE_ENV === "production" && process.env.SEED_DEMO_OVERRIDE !== "true") {
   console.error(
-    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true."
+    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true.",
   );
   process.exit(1);
 }
 
 const db = new PrismaClient();
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
-const daysAgo = (d: number, hourJitter = true) => new Date(Date.now() - d * 86_400_000 - (hourJitter ? rand(0, 20 * 3_600_000) : 0));
+const daysAgo = (d: number, hourJitter = true) =>
+  new Date(Date.now() - d * 86_400_000 - (hourJitter ? rand(0, 20 * 3_600_000) : 0));
 
 async function main() {
   const hospital = await db.hospital.findFirst();
@@ -59,7 +60,7 @@ async function main() {
   const stable2 = patients[4 % patients.length];
 
   interface Traj {
-    p: typeof patients[number];
+    p: (typeof patients)[number];
     hr: (d: number) => number;
     temp: (d: number) => number;
     sbp: (d: number) => number;
@@ -72,7 +73,8 @@ async function main() {
   }
 
   const trajs: Traj[] = [
-    { // SEPSIS — deteriorating over the LAST 4 days (d counts days ago)
+    {
+      // SEPSIS — deteriorating over the LAST 4 days (d counts days ago)
       p: septic,
       hr: (d) => (d < 4 ? 84 + (4 - d) * 5.2 + rand(-3, 3) : rand(72, 84)),
       temp: (d) => (d < 4 ? 36.8 + (4 - d) * 0.35 + rand(-0.15, 0.15) : rand(36.4, 36.9)),
@@ -84,7 +86,8 @@ async function main() {
       conditions: ["E11", "I10"],
       adherence: [1, 1, 0.8, 0.6, 0.4, 0.3],
     },
-    { // READMISSION — discharged 3 days ago, degrading
+    {
+      // READMISSION — discharged 3 days ago, degrading
       p: readmit,
       hr: (d) => 78 + Math.max(0, 3 - d) * 3.5 + rand(-3, 3),
       temp: () => rand(36.3, 37.0),
@@ -96,7 +99,8 @@ async function main() {
       conditions: ["I50", "N18", "E11"],
       adherence: [0.9, 0.5, 0.35, 0.3, 0.25, 0.3],
     },
-    { // CHRONIC — T2DM + HTN slow worsening
+    {
+      // CHRONIC — T2DM + HTN slow worsening
       p: chronic,
       hr: () => rand(74, 84),
       temp: () => rand(36.4, 36.8),
@@ -108,7 +112,8 @@ async function main() {
       conditions: ["E11", "I10", "N18"],
       adherence: [0.7, 0.75, 0.6, 0.65, 0.55, 0.6],
     },
-    { // STABLE
+    {
+      // STABLE
       p: stable1,
       hr: () => rand(66, 76),
       temp: () => rand(36.4, 36.8),
@@ -120,7 +125,8 @@ async function main() {
       conditions: ["E11"],
       adherence: [1, 0.9, 1, 1, 0.9, 1],
     },
-    { // STABLE
+    {
+      // STABLE
       p: stable2,
       hr: () => rand(64, 74),
       temp: () => rand(36.3, 36.7),
@@ -157,14 +163,40 @@ async function main() {
     }
     // wearable bio-signals: HRV + sleep stages (last 14 nights)
     const device = await db.nxWearableDevice.create({
-      data: { hospitalId: hospital.id, patientId: t.p.id, source: "fitbit", model: "Charge 6 (demo)" },
+      data: {
+        hospitalId: hospital.id,
+        patientId: t.p.id,
+        source: "fitbit",
+        model: "Charge 6 (demo)",
+      },
     });
-    const bio: { deviceId: string; patientId: string; metric: string; value: number; unit: string; capturedAt: Date }[] = [];
+    const bio: {
+      deviceId: string;
+      patientId: string;
+      metric: string;
+      value: number;
+      unit: string;
+      capturedAt: Date;
+    }[] = [];
     for (let d = 14; d >= 0; d--) {
-      bio.push({ deviceId: device.id, patientId: t.p.id, metric: "hrv", value: t.p.id === septic.id && d < 3 ? rand(12, 22) : rand(28, 65), unit: "ms", capturedAt: daysAgo(d) });
+      bio.push({
+        deviceId: device.id,
+        patientId: t.p.id,
+        metric: "hrv",
+        value: t.p.id === septic.id && d < 3 ? rand(12, 22) : rand(28, 65),
+        unit: "ms",
+        capturedAt: daysAgo(d),
+      });
       for (let e = 0; e < 84; e++) {
         const stage = e < 20 ? 1 : e < 62 ? 2 : e < 76 ? 3 : 0;
-        bio.push({ deviceId: device.id, patientId: t.p.id, metric: "sleep_stage", value: stage, unit: "stage", capturedAt: new Date(daysAgo(d).getTime() + e * 5 * 60_000) });
+        bio.push({
+          deviceId: device.id,
+          patientId: t.p.id,
+          metric: "sleep_stage",
+          value: stage,
+          unit: "stage",
+          capturedAt: new Date(daysAgo(d).getTime() + e * 5 * 60_000),
+        });
       }
     }
     await db.pieBioSignal.createMany({ data: bio });
@@ -174,20 +206,35 @@ async function main() {
     t.adherence.forEach((score, i) => {
       const n = 6;
       for (let k = 0; k < n; k++) {
-        adher.push({ patientId: t.p.id, kind: k / n < score ? (k % 2 ? "med_logged" : "app_login") : "med_missed", ts: daysAgo(i * 2 + 1) });
+        adher.push({
+          patientId: t.p.id,
+          kind: k / n < score ? (k % 2 ? "med_logged" : "app_login") : "med_missed",
+          ts: daysAgo(i * 2 + 1),
+        });
       }
     });
     await db.pieAdherenceEvent.createMany({ data: adher });
 
     // chronic conditions onto the patient record (for the twin)
     if (t.conditions.length) {
-      await db.hospitalPatient.update({ where: { id: t.p.id }, data: { chronicConditions: JSON.stringify(t.conditions) } });
+      await db.hospitalPatient.update({
+        where: { id: t.p.id },
+        data: { chronicConditions: JSON.stringify(t.conditions) },
+      });
     }
 
     // labs — raise twin data completeness (confidence gate needs labs)
-    const labSets: Record<string, Array<{ testName: string; resultValue: string; unit: string; flag?: string }>> = {
+    const labSets: Record<
+      string,
+      Array<{ testName: string; resultValue: string; unit: string; flag?: string }>
+    > = {
       septic: [
-        { testName: "Total Leucocyte Count (WBC)", resultValue: "14.2", unit: "×10⁹/L", flag: "high" },
+        {
+          testName: "Total Leucocyte Count (WBC)",
+          resultValue: "14.2",
+          unit: "×10⁹/L",
+          flag: "high",
+        },
         { testName: "Serum Creatinine", resultValue: "1.35", unit: "mg/dL", flag: "high" },
         { testName: "Blood Glucose Fasting", resultValue: "168", unit: "mg/dL", flag: "high" },
         { testName: "Serum Potassium", resultValue: "4.4", unit: "mEq/L" },
@@ -211,7 +258,16 @@ async function main() {
         { testName: "Serum Creatinine", resultValue: "0.88", unit: "mg/dL" },
       ],
     };
-    const keyFor = (p: typeof septic) => (p.id === septic.id ? "septic" : p.id === readmit.id ? "readmit" : p.id === chronic.id ? "chronic" : p.id === stable1.id ? "stable1" : "stable2");
+    const keyFor = (p: typeof septic) =>
+      p.id === septic.id
+        ? "septic"
+        : p.id === readmit.id
+          ? "readmit"
+          : p.id === chronic.id
+            ? "chronic"
+            : p.id === stable1.id
+              ? "stable1"
+              : "stable2";
     const labList = labSets[keyFor(t.p)];
     if (labList) {
       const order = await db.hospitalOrder.create({
@@ -250,10 +306,13 @@ async function main() {
           signedAt: daysAgo(1),
           signedByName: "Dr. Rajesh Sharma",
           signedByRole: "doctor",
-          subjective: "Reports worsening fever and shortness of breath since yesterday. Reduced urine output noted.",
-          assessment: "Suspected urinary tract infection, concern for emerging sepsis. Confusion episodes reported by family.",
+          subjective:
+            "Reports worsening fever and shortness of breath since yesterday. Reduced urine output noted.",
+          assessment:
+            "Suspected urinary tract infection, concern for emerging sepsis. Confusion episodes reported by family.",
           plan: "Start empiricals, blood cultures, close monitoring.",
-          fullText: "Worsening fever, dyspnea, oliguria. Suspected sepsis from UTI. Confusion noted.",
+          fullText:
+            "Worsening fever, dyspnea, oliguria. Suspected sepsis from UTI. Confusion noted.",
         },
       });
     }
@@ -268,7 +327,8 @@ async function main() {
           signedAt: daysAgo(3),
           signedByName: "Dr. Meera Joshi",
           signedByRole: "doctor",
-          subjective: "Patient discharged after heart failure stabilization. Counselled on daily weights and salt restriction.",
+          subjective:
+            "Patient discharged after heart failure stabilization. Counselled on daily weights and salt restriction.",
           assessment: "Stable CHF (I50) with CKD stage 3 (N18) and T2DM (E11).",
           plan: "Follow-up in 7 days. Patient has been non-adherent with medications previously; family to support.",
           fullText: "CHF discharge. Non-adherent risk factors discussed.",

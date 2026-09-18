@@ -4,11 +4,11 @@ This is the click-by-click version of [docs/DEPLOYMENT.md](DEPLOYMENT.md). It ta
 
 **What you'll create:**
 
-| Service | Purpose | Free tier covers |
-|---|---|---|
-| [Vercel](https://vercel.com) | Hosting (Next.js + API routes) | Hobby plan, non-commercial |
-| [Neon](https://neon.tech) | Postgres 17 database | ~0.5 GB storage, autosuspend |
-| [Upstash](https://upstash.com) | Redis 7 (rate limiting, SSE bus, leases) | 10k commands/day |
+| Service                        | Purpose                                  | Free tier covers             |
+| ------------------------------ | ---------------------------------------- | ---------------------------- |
+| [Vercel](https://vercel.com)   | Hosting (Next.js + API routes)           | Hobby plan, non-commercial   |
+| [Neon](https://neon.tech)      | Postgres 17 database                     | ~0.5 GB storage, autosuspend |
+| [Upstash](https://upstash.com) | Redis 7 (rate limiting, SSE bus, leases) | 10k commands/day             |
 
 > **Heads-up before you start:** this stack runs the app in **demo capacity** — synthetic data, demo logins, no real patient records. Putting real patient data behind a healthcare compliance umbrella (BAA, DPDP/HIPAA controls, audit review) is a different conversation; see [docs/SECURITY.md](SECURITY.md) first.
 
@@ -57,11 +57,11 @@ That's your `JWT_SECRET`. It signs session cookies — treat it like a password.
 
 Back in the Vercel import tab, paste the values:
 
-| Field | Value |
-|---|---|
+| Field          | Value                                 |
+| -------------- | ------------------------------------- |
 | `DATABASE_URL` | the Neon **pooled** connection string |
-| `REDIS_URL` | the Upstash `rediss://` URL |
-| `JWT_SECRET` | the `openssl rand -hex 32` output |
+| `REDIS_URL`    | the Upstash `rediss://` URL           |
+| `JWT_SECRET`   | the `openssl rand -hex 32` output     |
 
 Click **Deploy**. First build takes 2–4 minutes (bun install → `prisma generate` → `next build`). When it finishes you'll get a URL like `https://nexura-os.vercel.app` — the app is running, but the database is **empty** (no schema yet). That's the next step.
 
@@ -93,12 +93,12 @@ This loads the complete demo dataset in the right order: base hospital + staff, 
 
 ## Step 8 · Verify the deployment
 
-| Check | Expected |
-|---|---|
-| `https://your-url.vercel.app/api/health` | `{"status":"ok"…}` |
-| `https://your-url.vercel.app` | marketing homepage, linen theme |
+| Check                                                       | Expected                                  |
+| ----------------------------------------------------------- | ----------------------------------------- |
+| `https://your-url.vercel.app/api/health`                    | `{"status":"ok"…}`                        |
+| `https://your-url.vercel.app`                               | marketing homepage, linen theme           |
 | `/hospital` → "Explore demo roles" → sign in as `DR.RAJESH` | clinical workspace loads, live SSE alerts |
-| Open a patient record, check the audit page | your access is already audited |
+| Open a patient record, check the audit page                 | your access is already audited            |
 
 Boot-gate note: if any of the three variables were wrong or missing, the production boot gate (`assertProductionEnv`) **refuses to start** — you'll see a startup error naming the missing variable in Vercel → Deployments → Runtime Logs. Nothing half-configured ever serves traffic.
 
@@ -106,14 +106,14 @@ Boot-gate note: if any of the three variables were wrong or missing, the product
 
 ## Troubleshooting
 
-| Symptom | Cause | Fix |
-|---|---|---|
-| Runtime log: `assertProductionEnv` error | Missing/malformed env var | Vercel → Settings → Environment Variables; redeploy after fixing |
-| `P1001: can't reach database` | Non-pooled Neon string, or typo | Use the **pooled** connection string, keep `?sslmode=require` |
-| `WRONGPASS` / Redis connect fail | Copied non-TLS URL or stale password | Re-copy the `rediss://` URL from Upstash Details |
-| Functions time out on first paint | Cold start + autosuspended Neon | First request wakes Neon (~1 s); enable Neon autoscale if it bothers you |
-| Demo sign-in says account not found | Step 7 skipped or wrong DB | Re-run `seed:suite` against the **same** `DATABASE_URL` as the deployment |
-| 429s on API routes | Upstash free tier 10k cmds/day | Expected at hobby scale; upgrade or burst-limit your testing |
+| Symptom                                  | Cause                                | Fix                                                                       |
+| ---------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------- |
+| Runtime log: `assertProductionEnv` error | Missing/malformed env var            | Vercel → Settings → Environment Variables; redeploy after fixing          |
+| `P1001: can't reach database`            | Non-pooled Neon string, or typo      | Use the **pooled** connection string, keep `?sslmode=require`             |
+| `WRONGPASS` / Redis connect fail         | Copied non-TLS URL or stale password | Re-copy the `rediss://` URL from Upstash Details                          |
+| Functions time out on first paint        | Cold start + autosuspended Neon      | First request wakes Neon (~1 s); enable Neon autoscale if it bothers you  |
+| Demo sign-in says account not found      | Step 7 skipped or wrong DB           | Re-run `seed:suite` against the **same** `DATABASE_URL` as the deployment |
+| 429s on API routes                       | Upstash free tier 10k cmds/day       | Expected at hobby scale; upgrade or burst-limit your testing              |
 
 ## What to change before real users
 

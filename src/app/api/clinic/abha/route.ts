@@ -16,8 +16,12 @@ async function POST_impl(req: NextRequest) {
        human — production returns 501 until the real ABDM integration lands. */
     if (!isDemoMode()) {
       return NextResponse.json(
-        { error: "abdm_not_integrated", detail: "ABDM registry integration is not connected. Synthetic ABHA lookup is disabled outside demo mode." },
-        { status: 501 }
+        {
+          error: "abdm_not_integrated",
+          detail:
+            "ABDM registry integration is not connected. Synthetic ABHA lookup is disabled outside demo mode.",
+        },
+        { status: 501 },
       );
     }
     const body = await req.json().catch(() => ({}));
@@ -29,7 +33,14 @@ async function POST_impl(req: NextRequest) {
     // Simulated ABDM registry fetch — in production: GET https://healthids.abdm.gov.in/api/v1/healthid/{abhaId}
     // For demo, we deterministically derive a profile from the ABHA ID
     const hash = abhaId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-    const names = ["Rajesh Kumar", "Sunita Devi", "Mohammed Iqbal", "Priya Sharma", "Anand Menon", "Lakshmi Reddy"];
+    const names = [
+      "Rajesh Kumar",
+      "Sunita Devi",
+      "Mohammed Iqbal",
+      "Priya Sharma",
+      "Anand Menon",
+      "Lakshmi Reddy",
+    ];
     const genders = ["male", "female"];
     const cities = ["Mumbai", "Pune", "Bengaluru", "Hyderabad", "Chennai", "Delhi"];
     const bloodGroups = ["A+", "B+", "O+", "AB+", "A-", "B-", "O-"];
@@ -48,8 +59,13 @@ async function POST_impl(req: NextRequest) {
 
     return NextResponse.json({ profile });
   } catch (err) {
-    log.error("clinic", "abha_lookup_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "abha_failed", detail: "The ABHA profile could not be looked up. Please retry." }, { status: 500 });
+    log.error("clinic", "abha_lookup_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "abha_failed", detail: "The ABHA profile could not be looked up. Please retry." },
+      { status: 500 },
+    );
   }
 }
 

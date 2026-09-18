@@ -42,7 +42,11 @@ function otpHash(phone: string, code: string): string {
 
 function issueOtp(phone: string): string {
   const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
-  otpStore.set(phone, { hash: otpHash(phone, code), expiresAt: Date.now() + OTP_TTL_MS, attempts: 0 });
+  otpStore.set(phone, {
+    hash: otpHash(phone, code),
+    expiresAt: Date.now() + OTP_TTL_MS,
+    attempts: 0,
+  });
   // Opportunistic sweep of expired entries
   if (otpStore.size > 500) {
     const now = Date.now();
@@ -140,7 +144,10 @@ export async function POST(req: NextRequest) {
       }
       const rl = rateLimit(`portal-otp:${ip}`, 5, 15 * 60_000);
       if (!rl.allowed) {
-        return NextResponse.json({ error: "Too many OTP requests. Try again later." }, { status: 429 });
+        return NextResponse.json(
+          { error: "Too many OTP requests. Try again later." },
+          { status: 429 },
+        );
       }
       const code = issueOtp(phone);
       if (demo) {
@@ -149,7 +156,10 @@ export async function POST(req: NextRequest) {
       }
       // Production integration point: deliver `code` via SMS/EMAIL provider
       // (EMAIL_TRANSPORT). It is never echoed in the API response.
-      log.info("portal", "otp.issued", { phoneMasked: phone.slice(0, 4) + "***", transport: "console" });
+      log.info("portal", "otp.issued", {
+        phoneMasked: phone.slice(0, 4) + "***",
+        transport: "console",
+      });
       return NextResponse.json({ sent: true });
     }
 

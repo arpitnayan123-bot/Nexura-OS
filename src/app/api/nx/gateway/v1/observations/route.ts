@@ -28,11 +28,23 @@ export const GET = withRoute("gateway.v1.observations", async (req: NextRequest,
   const results = await db.labResult.findMany({
     where: { orderId: { in: orders.map((o) => o.id) } },
     select: {
-      id: true, testName: true, resultValue: true, unit: true, abnormalFlag: true,
-      verificationStatus: true, reportedAt: true,
+      id: true,
+      testName: true,
+      resultValue: true,
+      unit: true,
+      abnormalFlag: true,
+      verificationStatus: true,
+      reportedAt: true,
     },
     orderBy: { createdAt: "desc" },
     take: 50,
   });
-  return ok({ patient: { id: patient.id, uhid: patient.uhid }, observations: results, tenant: auth.auth.tenantCode }, { requestId });
+  return ok(
+    {
+      patient: { id: patient.id, uhid: patient.uhid },
+      observations: results,
+      tenant: auth.auth.tenantCode,
+    },
+    { requestId },
+  );
 });

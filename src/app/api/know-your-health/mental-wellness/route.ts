@@ -21,14 +21,34 @@ export async function POST(req: NextRequest) {
     const body = (await req.json().catch(() => ({}))) as Partial<Input>;
     const phq9 = Array.isArray(body?.phq9) ? body.phq9 : [];
     const gad7 = Array.isArray(body?.gad7) ? body.gad7 : [];
-    if (phq9.length !== 9 || gad7.length !== 7) return NextResponse.json({ error: "invalid_input", detail: "phq9 needs 9 items, gad7 needs 7 items" }, { status: 400 });
+    if (phq9.length !== 9 || gad7.length !== 7)
+      return NextResponse.json(
+        { error: "invalid_input", detail: "phq9 needs 9 items, gad7 needs 7 items" },
+        { status: 400 },
+      );
 
     // clinical scoring done server-side for reliability
     const phq9Score = phq9.reduce((a, b) => a + (Number(b) || 0), 0);
     const gad7Score = gad7.reduce((a, b) => a + (Number(b) || 0), 0);
 
-    const phq9Level = phq9Score >= 20 ? "severe" : phq9Score >= 15 ? "moderately severe" : phq9Score >= 10 ? "moderate" : phq9Score >= 5 ? "mild" : "minimal";
-    const gad7Level = gad7Score >= 15 ? "severe" : gad7Score >= 10 ? "moderate" : gad7Score >= 5 ? "mild" : "minimal";
+    const phq9Level =
+      phq9Score >= 20
+        ? "severe"
+        : phq9Score >= 15
+          ? "moderately severe"
+          : phq9Score >= 10
+            ? "moderate"
+            : phq9Score >= 5
+              ? "mild"
+              : "minimal";
+    const gad7Level =
+      gad7Score >= 15
+        ? "severe"
+        : gad7Score >= 10
+          ? "moderate"
+          : gad7Score >= 5
+            ? "mild"
+            : "minimal";
 
     const prompt = `A person in India completed mental health screenings.
 PHQ-9 score: ${phq9Score}/27 → ${phq9Level} depression severity.
@@ -59,7 +79,11 @@ Rules:
 
     const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.mental-wellness");
     // ensure crisis resources are always present even if model omits
-    if (!result?.crisisResources || !Array.isArray(result.crisisResources) || result.crisisResources.length === 0) {
+    if (
+      !result?.crisisResources ||
+      !Array.isArray(result.crisisResources) ||
+      result.crisisResources.length === 0
+    ) {
       result.crisisResources = [
         { name: "iCall", phone: "9152987821", hours: "Mon-Sat 8am-10pm" },
         { name: "Vandrevala Foundation", phone: "1860-2662-345", hours: "24x7" },
@@ -68,7 +92,15 @@ Rules:
     }
     return NextResponse.json(result);
   } catch (err) {
-    log.error("kyh", "mental_wellness_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "mental_wellness_failed", detail: "The wellness assessment could not be completed. Please retry." }, { status: 500 });
+    log.error("kyh", "mental_wellness_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "mental_wellness_failed",
+        detail: "The wellness assessment could not be completed. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }

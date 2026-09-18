@@ -85,8 +85,7 @@ async function POST_impl(req: NextRequest) {
       if (!product) continue;
 
       // pick batch: explicit or FEFO
-      let batch =
-        product.batches.find((b) => b.id === it.batchId) ?? product.batches[0];
+      let batch = product.batches.find((b) => b.id === it.batchId) ?? product.batches[0];
       if (!batch) continue;
 
       const qtyStrips = it.qtyStrips;
@@ -208,13 +207,16 @@ async function POST_impl(req: NextRequest) {
           const hReq = new Map<string, Record<string, unknown>>();
           for (const it of items as Array<Record<string, unknown>>) {
             if (it && typeof it === "object" && it.scheduleH && it.productId && it.batchId) {
-              hReq.set(`${String(it.productId)}:${String(it.batchId)}`, it.scheduleH as Record<string, unknown>);
+              hReq.set(
+                `${String(it.productId)}:${String(it.batchId)}`,
+                it.scheduleH as Record<string, unknown>,
+              );
             }
           }
           const hSaleItems = created.items.filter(
             (si: (typeof created.items)[number]) =>
               (si.product as { schedule?: string }).schedule === "H" ||
-              (si.product as { schedule?: string }).schedule === "H1"
+              (si.product as { schedule?: string }).schedule === "H1",
           );
           if (hSaleItems.length > 0) {
             let serial = await tx.scheduleHEntry.count({ where: { branchId: ctx.branch.id } });
@@ -234,7 +236,9 @@ async function POST_impl(req: NextRequest) {
                   patientPhone: (h.patientPhone as string) ?? null,
                   doctorName: String(h.doctorName ?? "Unknown"),
                   doctorRegNo: String(h.doctorRegNo ?? "—"),
-                  prescriptionDate: String(h.prescriptionDate ?? new Date().toISOString().slice(0, 10)),
+                  prescriptionDate: String(
+                    h.prescriptionDate ?? new Date().toISOString().slice(0, 10),
+                  ),
                   medicineName: prod.name ?? "Unknown medicine",
                   batchNo: (si.batch as { batchNo?: string } | null)?.batchNo ?? null,
                   qtyStrips: si.qtyStrips,
@@ -252,8 +256,11 @@ async function POST_impl(req: NextRequest) {
       } catch (txErr) {
         if (txErr instanceof InsufficientStockError) {
           return NextResponse.json(
-            { error: "insufficient_stock", detail: "One or more items exceed available batch stock." },
-            { status: 422 }
+            {
+              error: "insufficient_stock",
+              detail: "One or more items exceed available batch stock.",
+            },
+            { status: 422 },
           );
         }
         if (
@@ -268,10 +275,12 @@ async function POST_impl(req: NextRequest) {
     }
   } catch (err) {
     // Never leak internal error strings (Prisma/connection details) to clients.
-    log.error("pharmacy", "billing.sale_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("pharmacy", "billing.sale_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "billing_failed", detail: "The sale could not be completed. Please retry." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -297,10 +306,15 @@ async function GET_impl() {
     });
     return NextResponse.json({ sales: sales.map((s) => saleWithItemsToRupees(s)) });
   } catch (err) {
-    log.error("pharmacy", "billing.list_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("pharmacy", "billing.list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
-      { error: "billing_list_failed", detail: "Recent invoices could not be loaded. Please retry." },
-      { status: 500 }
+      {
+        error: "billing_list_failed",
+        detail: "Recent invoices could not be loaded. Please retry.",
+      },
+      { status: 500 },
     );
   }
 }

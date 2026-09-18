@@ -23,11 +23,17 @@ async function POST_impl(req: NextRequest) {
     // here: this route returns free-text prose and the client renders
     // `text` as a string, so a JSON parse would corrupt every answer —
     // runTextRaw keeps the { text, query } contract byte-identical.
-    const text = (await runTextRaw(query, SYSTEM_PROMPT, "pharmacy.ai-query")).trim() || "No data found";
+    const text =
+      (await runTextRaw(query, SYSTEM_PROMPT, "pharmacy.ai-query")).trim() || "No data found";
     return NextResponse.json({ text, query });
   } catch (err) {
-    log.error("pharmacy", "ai_query_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "ai_query_failed", detail: "The AI query could not be processed. Please retry." }, { status: 500 });
+    log.error("pharmacy", "ai_query_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "ai_query_failed", detail: "The AI query could not be processed. Please retry." },
+      { status: 500 },
+    );
   }
 }
 

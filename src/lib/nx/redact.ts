@@ -8,13 +8,25 @@
 
 const PATTERNS: { name: string; re: RegExp; mask: (m: string) => string }[] = [
   // UHID like NEX-2024-00123 or NX-000123
-  { name: "uhid", re: /\b[A-Z]{2,4}-\d{2,4}-\d{3,6}\b/g, mask: (m) => `${m.slice(0, 3)}-••••-${m.slice(-2)}` },
+  {
+    name: "uhid",
+    re: /\b[A-Z]{2,4}-\d{2,4}-\d{3,6}\b/g,
+    mask: (m) => `${m.slice(0, 3)}-••••-${m.slice(-2)}`,
+  },
   // ABHA 14-digit
   { name: "abha", re: /\b\d{2}-\d{4}-\d{4}-\d{4}\b/g, mask: () => "••-••••-••••-••••" },
   // Indian phones +10 digits
-  { name: "phone", re: /(?<!\d)(?:\+91[- ]?)?[6-9]\d{9}(?!\d)/g, mask: (m) => `${m.slice(0, 3)}•••••${m.slice(-2)}` },
+  {
+    name: "phone",
+    re: /(?<!\d)(?:\+91[- ]?)?[6-9]\d{9}(?!\d)/g,
+    mask: (m) => `${m.slice(0, 3)}•••••${m.slice(-2)}`,
+  },
   // emails
-  { name: "email", re: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, mask: (m) => `${m.split("@")[0].slice(0, 2)}•••@${m.split("@")[1]}` },
+  {
+    name: "email",
+    re: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+    mask: (m) => `${m.split("@")[0].slice(0, 2)}•••@${m.split("@")[1]}`,
+  },
 ];
 
 export function redactString(input: string): string {

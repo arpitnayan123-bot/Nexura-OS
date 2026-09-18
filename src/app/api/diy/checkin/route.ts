@@ -26,9 +26,21 @@ export const POST = withRoute("diy.checkin.post", async (req: NextRequest) => {
   const b = g.body as { mood: number; energy: number; sleep: number; userNotes?: string };
   const row = await db.diyProgressLog.upsert({
     where: { userId_date: { userId: g.userId, date: today() } },
-    create: { userId: g.userId, date: today(), mood: b.mood, energy: b.energy, sleep: b.sleep, userNotes: b.userNotes, completedTasks: 0, skippedTasks: 0 },
+    create: {
+      userId: g.userId,
+      date: today(),
+      mood: b.mood,
+      energy: b.energy,
+      sleep: b.sleep,
+      userNotes: b.userNotes,
+      completedTasks: 0,
+      skippedTasks: 0,
+    },
     update: { mood: b.mood, energy: b.energy, sleep: b.sleep, userNotes: b.userNotes },
   });
 
-  return NextResponse.json({ ok: true, checkin: { date: row.date, mood: row.mood, energy: row.energy, sleep: row.sleep } });
+  return NextResponse.json({
+    ok: true,
+    checkin: { date: row.date, mood: row.mood, energy: row.energy, sleep: row.sleep },
+  });
 });

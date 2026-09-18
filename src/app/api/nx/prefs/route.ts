@@ -12,7 +12,11 @@ export const GET = withRoute("prefs.get", async (req: NextRequest) => {
   const g = await guard(req, "patient.demographics.view");
   if ("response" in g) return g.response;
   const prefs = await db.nxUserPrefs.findUnique({ where: { userId: g.session.userId } });
-  return ok({ prefs: prefs ? { widgets: JSON.parse(prefs.widgets || "{}"), density: prefs.density } : { widgets: {}, density: null } });
+  return ok({
+    prefs: prefs
+      ? { widgets: JSON.parse(prefs.widgets || "{}"), density: prefs.density }
+      : { widgets: {}, density: null },
+  });
 });
 
 const SaveSchema = z.object({
@@ -25,7 +29,10 @@ export const PUT = withRoute("prefs.save", async (req: NextRequest) => {
   if ("response" in g) return g.response;
   const body = await parseBody(req, SaveSchema);
   if ("response" in body) return body.response;
-  const data = { widgets: body.data.widgets ? JSON.stringify(body.data.widgets) : undefined, density: body.data.density };
+  const data = {
+    widgets: body.data.widgets ? JSON.stringify(body.data.widgets) : undefined,
+    density: body.data.density,
+  };
   await db.nxUserPrefs.upsert({
     where: { userId: g.session.userId },
     update: data,

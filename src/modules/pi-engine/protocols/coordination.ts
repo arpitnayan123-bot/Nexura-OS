@@ -31,7 +31,7 @@ export interface CoordinationResult {
 /** Build the task list + notifications an approved protocol creates. */
 export function planCoordination(
   spec: PreEmptiveProtocolSpec,
-  patientLabel: string
+  patientLabel: string,
 ): CoordinationResult {
   const tasks: CoordinationTask[] = [];
   for (const a of spec.immediate) {
@@ -57,8 +57,16 @@ export function planCoordination(
   return {
     tasks,
     notifications: [
-      { audience: "attending_physician", message: `PIE protocol "${spec.title}" needs your approval for ${patientLabel}.`, channel: "in_app" },
-      { audience: "charge_nurse", message: `Pre-emptive protocol tasks created for ${patientLabel}.`, channel: "in_app" },
+      {
+        audience: "attending_physician",
+        message: `PIE protocol "${spec.title}" needs your approval for ${patientLabel}.`,
+        channel: "in_app",
+      },
+      {
+        audience: "charge_nurse",
+        message: `Pre-emptive protocol tasks created for ${patientLabel}.`,
+        channel: "in_app",
+      },
     ],
   };
 }
@@ -69,8 +77,14 @@ function shorten(s: string, max = 64): string {
 
 /** Adapter surface the API route fulfills with Prisma. */
 export interface CoordinationSink {
-  createTasks(tasks: CoordinationTask[], ctx: { patientId: string; protocolId: string }): Promise<number>;
-  notify(items: NotificationStub[], ctx: { patientId: string; protocolId: string }): Promise<number>;
+  createTasks(
+    tasks: CoordinationTask[],
+    ctx: { patientId: string; protocolId: string },
+  ): Promise<number>;
+  notify(
+    items: NotificationStub[],
+    ctx: { patientId: string; protocolId: string },
+  ): Promise<number>;
 }
 
 /**
@@ -80,17 +94,24 @@ export interface CoordinationSink {
 export async function executeCoordination(
   sink: CoordinationSink,
   spec: PreEmptiveProtocolSpec,
-  ctx: { patientId: string; patientLabel: string; protocolId: string }
+  ctx: { patientId: string; patientLabel: string; protocolId: string },
 ): Promise<{ tasks: number; notifications: number }> {
   const plan = planCoordination(spec, ctx.patientLabel);
-  let tasks = 0, notifications = 0;
+  let tasks = 0,
+    notifications = 0;
   try {
-    tasks = await sink.createTasks(plan.tasks, { patientId: ctx.patientId, protocolId: ctx.protocolId });
+    tasks = await sink.createTasks(plan.tasks, {
+      patientId: ctx.patientId,
+      protocolId: ctx.protocolId,
+    });
   } catch {
     tasks = 0;
   }
   try {
-    notifications = await sink.notify(plan.notifications, { patientId: ctx.patientId, protocolId: ctx.protocolId });
+    notifications = await sink.notify(plan.notifications, {
+      patientId: ctx.patientId,
+      protocolId: ctx.protocolId,
+    });
   } catch {
     notifications = 0;
   }

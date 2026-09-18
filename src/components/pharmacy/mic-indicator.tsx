@@ -20,8 +20,8 @@ export function MicIndicator({
     state === "listening"
       ? "bg-destructive text-white"
       : state === "processing"
-      ? "bg-honey text-foreground"
-      : "bg-card text-muted-foreground border border-border";
+        ? "bg-honey text-foreground"
+        : "bg-card text-muted-foreground border border-border";
 
   return (
     <div className="pointer-events-none fixed left-1/2 top-16 z-50 -translate-x-1/2">
@@ -34,7 +34,7 @@ export function MicIndicator({
           transition={{ duration: 0.25 }}
           className={cn(
             "flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold shadow-lg",
-            color
+            color,
           )}
         >
           {state === "listening" && (

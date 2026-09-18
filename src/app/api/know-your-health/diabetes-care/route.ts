@@ -17,7 +17,14 @@ export async function POST(req: NextRequest) {
     const fasting = Number(body?.fastingSugar);
     const postMeal = Number(body?.postMealSugar);
     const hba1c = body?.hba1c ? Number(body.hba1c) : undefined;
-    if (!fasting && !postMeal && !hba1c) return NextResponse.json({ error: "no_values", detail: "Enter at least one value: fasting sugar, post-meal sugar or HbA1c." }, { status: 400 });
+    if (!fasting && !postMeal && !hba1c)
+      return NextResponse.json(
+        {
+          error: "no_values",
+          detail: "Enter at least one value: fasting sugar, post-meal sugar or HbA1c.",
+        },
+        { status: 400 },
+      );
 
     const profile = {
       fastingSugar: fasting || null,
@@ -58,10 +65,22 @@ Rules:
     // Normalize the status to the 3-value contract the UI renders — a model
     // returning "Controlled" / "Partially controlled" must never crash the view.
     const raw = String(result.status).toLowerCase();
-    result.status = raw.includes("uncontrol") ? "uncontrolled" : raw.includes("border") || raw.includes("partial") ? "borderline" : "controlled";
+    result.status = raw.includes("uncontrol")
+      ? "uncontrolled"
+      : raw.includes("border") || raw.includes("partial")
+        ? "borderline"
+        : "controlled";
     return NextResponse.json(result);
   } catch (err) {
-    log.error("kyh", "diabetes_care_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "diabetes_care_failed", detail: "The diabetes guidance could not be generated. Please retry." }, { status: 500 });
+    log.error("kyh", "diabetes_care_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "diabetes_care_failed",
+        detail: "The diabetes guidance could not be generated. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }

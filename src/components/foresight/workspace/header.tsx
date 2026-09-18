@@ -57,13 +57,18 @@ export function WorkspaceHeader({
       await navigator.clipboard.writeText(briefText);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2400);
-    } catch { /* clipboard blocked — no-op */ }
+    } catch {
+      /* clipboard blocked — no-op */
+    }
   };
 
   const downloadJson = () => {
-    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), report }, null, 2)], {
-      type: "application/json",
-    });
+    const blob = new Blob(
+      [JSON.stringify({ exportedAt: new Date().toISOString(), report }, null, 2)],
+      {
+        type: "application/json",
+      },
+    );
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -78,9 +83,13 @@ export function WorkspaceHeader({
     <section aria-label="Predictive Analysis workspace header" className="pt-1">
       <p className="text-[11px] font-medium tracking-wide nxf-mute">
         <span>Hospital OS</span>
-        <span aria-hidden="true" className="mx-1.5 nxf-gold">/</span>
+        <span aria-hidden="true" className="mx-1.5 nxf-gold">
+          /
+        </span>
         <span>Predictive</span>
-        <span aria-hidden="true" className="mx-1.5 nxf-gold">/</span>
+        <span aria-hidden="true" className="mx-1.5 nxf-gold">
+          /
+        </span>
         <span className="nxf-body">Foresight Map</span>
       </p>
 
@@ -91,8 +100,8 @@ export function WorkspaceHeader({
             Predictive Analysis
           </h1>
           <p className="mt-1.5 max-w-xl text-[13.5px] leading-relaxed nxf-dim">
-            What your signals say about the next five years — forecast, confidence, drivers, risks and the
-            actions that bend the curve.
+            What your signals say about the next five years — forecast, confidence, drivers, risks
+            and the actions that bend the curve.
           </p>
         </div>
 
@@ -105,10 +114,16 @@ export function WorkspaceHeader({
               "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em]",
               simActive
                 ? "border-amber-300/60 bg-amber-300/[0.14] nxf-gold"
-                : "border-emerald-300/35 bg-emerald-300/[0.08] text-emerald-200"
+                : "border-emerald-300/35 bg-emerald-300/[0.08] text-emerald-200",
             )}
           >
-            <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", simActive ? "bg-amber-300 nxf-pulse-dot" : "bg-emerald-300")} />
+            <span
+              aria-hidden="true"
+              className={cn(
+                "h-1.5 w-1.5 rounded-full",
+                simActive ? "bg-amber-300 nxf-pulse-dot" : "bg-emerald-300",
+              )}
+            />
             {simActive ? "simulation live" : "current"}
           </span>
           <span className="text-[11.5px] nxf-mute">
@@ -120,7 +135,9 @@ export function WorkspaceHeader({
       {/* control rail */}
       <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-white/[0.09] bg-white/[0.03] px-4 py-3">
         <div role="group" aria-label="Forecast horizon" className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] nxf-mute">Horizon</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] nxf-mute">
+            Horizon
+          </span>
           <div className="nxf-seg" role="radiogroup" aria-label="Forecast horizon in years">
             {HORIZONS.map((h) => (
               <button
@@ -141,7 +158,11 @@ export function WorkspaceHeader({
 
         <div className="flex flex-wrap items-center gap-2">
           <button type="button" className="nxf-pill !py-2" onClick={() => void copyBrief()}>
-            {copied ? <Check className="h-3.5 w-3.5 nxf-teal" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5 nxf-mute" aria-hidden="true" />}
+            {copied ? (
+              <Check className="h-3.5 w-3.5 nxf-teal" aria-hidden="true" />
+            ) : (
+              <Copy className="h-3.5 w-3.5 nxf-mute" aria-hidden="true" />
+            )}
             <span>{copied ? "Brief copied" : "Copy executive brief"}</span>
           </button>
           <button type="button" className="nxf-pill !py-2" onClick={downloadJson}>

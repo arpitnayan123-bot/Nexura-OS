@@ -16,10 +16,15 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const concern = typeof body?.concern === "string" ? body.concern.trim() : "";
     const symptoms = typeof body?.symptoms === "string" ? body.symptoms.trim() : "";
-    if (!concern && !symptoms) return NextResponse.json({ error: "no_input", detail: "Describe your concern so we can help." }, { status: 400 });
+    if (!concern && !symptoms)
+      return NextResponse.json(
+        { error: "no_input", detail: "Describe your concern so we can help." },
+        { status: 400 },
+      );
 
     const profile = {
-      concern, age: Number(body?.age) || null,
+      concern,
+      age: Number(body?.age) || null,
       cycleInfo: String(body?.cycleInfo || ""),
       symptoms,
       pregnancyStatus: String(body?.pregnancyStatus || ""),
@@ -52,7 +57,15 @@ Rules:
     if (!result?.assessment) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
-    log.error("kyh", "womens_care_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "womens_care_failed", detail: "The care plan could not be generated. Please retry." }, { status: 500 });
+    log.error("kyh", "womens_care_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "womens_care_failed",
+        detail: "The care plan could not be generated. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }

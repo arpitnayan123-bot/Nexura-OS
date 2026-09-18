@@ -115,16 +115,27 @@ async function claimDueJobs(limit: number): Promise<NxJobRecord[]> {
       }
       if (staleIds.length) {
         await tx.nxJob.updateMany({
-          where: { id: { in: staleIds }, status: "running", startedAt: { lt: new Date(Date.now() - STALE_RUNNING_MIN * 60_000) } },
+          where: {
+            id: { in: staleIds },
+            status: "running",
+            startedAt: { lt: new Date(Date.now() - STALE_RUNNING_MIN * 60_000) },
+          },
           data: { status: "running", startedAt: new Date() }, // re-arm, attempts unchanged
         });
       }
       return tx.nxJob.findMany({
         where: { id: { in: [...freshIds, ...staleIds] }, status: "running" },
-        select: { id: true, type: true, dedupeKey: true, payload: true, attempts: true, maxAttempts: true },
+        select: {
+          id: true,
+          type: true,
+          dedupeKey: true,
+          payload: true,
+          attempts: true,
+          maxAttempts: true,
+        },
       });
     },
-    { maxWait: 2_000, timeout: 8_000 }
+    { maxWait: 2_000, timeout: 8_000 },
   );
 }
 
@@ -171,7 +182,9 @@ registerJob("retention-purge", async () => {
       },
     }),
     db.nxAuditEvent.deleteMany({ where: { createdAt: { lt: auditCutoff } } }),
-    db.nxJob.deleteMany({ where: { status: { in: ["done", "dead"] }, finishedAt: { lt: jobCutoff } } }),
+    db.nxJob.deleteMany({
+      where: { status: { in: ["done", "dead"] }, finishedAt: { lt: jobCutoff } },
+    }),
   ]);
   if (sessions.count || audits.count || jobs.count) {
     log.info("jobs", "retention purge complete", {

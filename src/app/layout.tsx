@@ -66,7 +66,14 @@ export const metadata: Metadata = {
       "AI diagnostics, continuous monitoring, and human care — unified in one warm, intelligent platform.",
     siteName: "Nexura",
     type: "website",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Nexura — A Calmer Operating System for Health" }],
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Nexura — A Calmer Operating System for Health",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -118,7 +125,13 @@ export default function RootLayout({
           {/* Single sonner viewport for the entire app — mounting more than one
               renders every toast twice. top-center clears the OS system bar
               (46px) and never overlaps the dock or the mobile back FAB. */}
-          <SonnerToaster position="top-center" offset={56} richColors closeButton visibleToasts={3} />
+          <SonnerToaster
+            position="top-center"
+            offset={56}
+            richColors
+            closeButton
+            visibleToasts={3}
+          />
           <CommandPalette />
           <PwaRegister />
           <ErrorSentinel />

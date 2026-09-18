@@ -22,8 +22,17 @@ export interface LifeStreamPoint {
 }
 
 export type BioMetric =
-  | "heart_rate" | "hrv" | "spo2" | "resp_rate" | "temp"
-  | "glucose" | "systolic" | "diastolic" | "sleep_stage" | "steps" | "weight";
+  | "heart_rate"
+  | "hrv"
+  | "spo2"
+  | "resp_rate"
+  | "temp"
+  | "glucose"
+  | "systolic"
+  | "diastolic"
+  | "sleep_stage"
+  | "steps"
+  | "weight";
 
 export interface BioSample {
   metric: BioMetric;
@@ -97,7 +106,8 @@ export interface SeriesModelWeights {
   version: string;
 }
 
-export type RiskDomain = "sepsis" | "readmission" | "chronic_deterioration" | "cardiac" | "composite";
+export type RiskDomain =
+  "sepsis" | "readmission" | "chronic_deterioration" | "cardiac" | "composite";
 export type RiskBand = "green" | "yellow" | "red";
 
 export interface RiskDriver {

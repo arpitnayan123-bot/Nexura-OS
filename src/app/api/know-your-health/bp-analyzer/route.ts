@@ -7,8 +7,19 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-interface Reading { systolic: number; diastolic: number; date?: string; time?: string; arm?: string; position?: string; }
-interface Input { readings: Reading[]; age: number; gender: string; }
+interface Reading {
+  systolic: number;
+  diastolic: number;
+  date?: string;
+  time?: string;
+  arm?: string;
+  position?: string;
+}
+interface Input {
+  readings: Reading[];
+  age: number;
+  gender: string;
+}
 
 // POST /api/know-your-health/bp-analyzer
 export async function POST(req: NextRequest) {
@@ -18,9 +29,30 @@ export async function POST(req: NextRequest) {
     const body = (await req.json().catch(() => ({}))) as Partial<Input>;
     const readings = Array.isArray(body?.readings) ? body.readings : [];
     const clean = readings
-      .filter((r) => r && Number(r.systolic) > 50 && Number(r.systolic) < 300 && Number(r.diastolic) > 30 && Number(r.diastolic) < 200)
-      .map((r) => ({ systolic: Number(r.systolic), diastolic: Number(r.diastolic), date: String(r.date || ""), time: String(r.time || ""), arm: String(r.arm || ""), position: String(r.position || "") }));
-    if (clean.length === 0) return NextResponse.json({ error: "no_valid_readings", detail: "Enter at least one blood-pressure reading (systolic 50–300, diastolic 30–200)." }, { status: 400 });
+      .filter(
+        (r) =>
+          r &&
+          Number(r.systolic) > 50 &&
+          Number(r.systolic) < 300 &&
+          Number(r.diastolic) > 30 &&
+          Number(r.diastolic) < 200,
+      )
+      .map((r) => ({
+        systolic: Number(r.systolic),
+        diastolic: Number(r.diastolic),
+        date: String(r.date || ""),
+        time: String(r.time || ""),
+        arm: String(r.arm || ""),
+        position: String(r.position || ""),
+      }));
+    if (clean.length === 0)
+      return NextResponse.json(
+        {
+          error: "no_valid_readings",
+          detail: "Enter at least one blood-pressure reading (systolic 50–300, diastolic 30–200).",
+        },
+        { status: 400 },
+      );
 
     const avgSys = Math.round(clean.reduce((a, r) => a + r.systolic, 0) / clean.length);
     const avgDia = Math.round(clean.reduce((a, r) => a + r.diastolic, 0) / clean.length);
@@ -67,7 +99,15 @@ Rules:
     if (!result?.classification) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
-    log.error("kyh", "bp_analyze_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "bp_analyze_failed", detail: "The blood pressure reading could not be analyzed. Please retry." }, { status: 500 });
+    log.error("kyh", "bp_analyze_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "bp_analyze_failed",
+        detail: "The blood pressure reading could not be analyzed. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }

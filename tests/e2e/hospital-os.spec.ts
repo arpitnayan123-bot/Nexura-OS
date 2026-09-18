@@ -18,13 +18,21 @@ async function signIn(page: Page, email: string) {
 }
 
 async function signOut(page: Page) {
-  await page.getByRole("button", { name: /sign out|dr\.|ms\.|mr\./i }).first().click();
-  await page.getByRole("menuitem", { name: /sign out/i }).click().catch(() => {});
+  await page
+    .getByRole("button", { name: /sign out|dr\.|ms\.|mr\./i })
+    .first()
+    .click();
+  await page
+    .getByRole("menuitem", { name: /sign out/i })
+    .click()
+    .catch(() => {});
   await expect(page.getByText(/staff sign-in/i)).toBeVisible({ timeout: 15000 });
 }
 
 test.describe("Hospital OS critical journeys", () => {
-  test("1+2+3 — demo sign-in as hospital administrator, doctor and nurse; every role sees its own OS", async ({ page }) => {
+  test("1+2+3 — demo sign-in as hospital administrator, doctor and nurse; every role sees its own OS", async ({
+    page,
+  }) => {
     await signIn(page, "admin@demo.nexura.health");
     await expect(page.getByText(/hospital os/i).first()).toBeVisible();
     await signOut(page);
@@ -39,7 +47,9 @@ test.describe("Hospital OS critical journeys", () => {
     await page.getByPlaceholder(/search apps/i).fill("Patient Records");
     await page.getByText("Patient Records").first().click();
     await page.getByText(/UHID-/).first().click();
-    await expect(page.getByText(/timeline|vitals|admission/i).first()).toBeVisible({ timeout: 20000 });
+    await expect(page.getByText(/timeline|vitals|admission/i).first()).toBeVisible({
+      timeout: 20000,
+    });
   });
 
   test("5 — create and complete a task in the Work Queue", async ({ page }) => {
@@ -71,16 +81,22 @@ test.describe("Hospital OS critical journeys", () => {
     await page.keyboard.press("Control+j");
     await page.getByPlaceholder(/search apps/i).fill("Scheduling");
     await page.getByText("Scheduling").first().click();
-    await expect(page.getByText(/appointment|today|scheduled/i).first()).toBeVisible({ timeout: 20000 });
+    await expect(page.getByText(/appointment|today|scheduled/i).first()).toBeVisible({
+      timeout: 20000,
+    });
   });
 
-  test("10 — unauthorized action is denied (nurse cannot open Administration)", async ({ page }) => {
+  test("10 — unauthorized action is denied (nurse cannot open Administration)", async ({
+    page,
+  }) => {
     await signIn(page, "nurse@demo.nexura.health");
     // Administration app is not in the nurse launcher — try deep link instead
     await page.evaluate(() => window.location.assign("/hospital#m=admin"));
     await page.reload();
     // Either the app does not open or a permission-denied state is shown — nurse must not see admin data
-    await expect(page.getByText(/staff directory|permission matrix/i)).toHaveCount(0, { timeout: 15000 });
+    await expect(page.getByText(/staff directory|permission matrix/i)).toHaveCount(0, {
+      timeout: 15000,
+    });
   });
 
   test("12 — sign out revokes the session (reload stays logged out)", async ({ page }) => {

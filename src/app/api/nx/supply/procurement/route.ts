@@ -21,11 +21,30 @@ export const GET = withRoute("procurement.list", async (req: NextRequest) => {
   const kind = req.nextUrl.searchParams.get("kind") ?? "all";
 
   const [vendors, purchaseOrders, recentTxns, allItems, expiring] = await Promise.all([
-    kind === "all" || kind === "vendors" ? db.nxVendor.findMany({ where: { hospitalId }, orderBy: { name: "asc" }, take: 100 }) : [],
-    kind === "all" || kind === "orders" ? db.nxPurchaseOrder.findMany({ where: { hospitalId }, orderBy: { createdAt: "desc" }, take: 50 }) : [],
-    kind === "all" || kind === "txns" ? db.nxStockTxn.findMany({ where: { hospitalId }, orderBy: { createdAt: "desc" }, take: 40, include: { item: { select: { name: true, unit: true } } } }) : [],
+    kind === "all" || kind === "vendors"
+      ? db.nxVendor.findMany({ where: { hospitalId }, orderBy: { name: "asc" }, take: 100 })
+      : [],
+    kind === "all" || kind === "orders"
+      ? db.nxPurchaseOrder.findMany({
+          where: { hospitalId },
+          orderBy: { createdAt: "desc" },
+          take: 50,
+        })
+      : [],
+    kind === "all" || kind === "txns"
+      ? db.nxStockTxn.findMany({
+          where: { hospitalId },
+          orderBy: { createdAt: "desc" },
+          take: 40,
+          include: { item: { select: { name: true, unit: true } } },
+        })
+      : [],
     db.nxSupplyItem.findMany({ where: { hospitalId }, orderBy: { name: "asc" } }),
-    db.nxSupplyItem.findMany({ where: { hospitalId, expiryDate: { lte: new Date(Date.now() + 90 * 24 * 3600_000) } }, orderBy: { expiryDate: "asc" }, take: 20 }),
+    db.nxSupplyItem.findMany({
+      where: { hospitalId, expiryDate: { lte: new Date(Date.now() + 90 * 24 * 3600_000) } },
+      orderBy: { expiryDate: "asc" },
+      take: 20,
+    }),
   ]);
 
   return NextResponse.json({
@@ -34,14 +53,33 @@ export const GET = withRoute("procurement.list", async (req: NextRequest) => {
       purchaseOrders: purchaseOrders.map((po) => ({ ...po, items: JSON.parse(po.items || "[]") })),
       recentTxns,
       alerts: {
-        lowStock: allItems.filter((i) => i.onHand <= i.reorderLevel).map((i) => ({ id: i.id, name: i.name, onHand: i.onHand, reorderLevel: i.reorderLevel, unit: i.unit })),
-        expiring: expiring.map((i) => ({ id: i.id, name: i.name, expiryDate: i.expiryDate, batchNo: i.batchNo })),
+        lowStock: allItems
+          .filter((i) => i.onHand <= i.reorderLevel)
+          .map((i) => ({
+            id: i.id,
+            name: i.name,
+            onHand: i.onHand,
+            reorderLevel: i.reorderLevel,
+            unit: i.unit,
+          })),
+        expiring: expiring.map((i) => ({
+          id: i.id,
+          name: i.name,
+          expiryDate: i.expiryDate,
+          batchNo: i.batchNo,
+        })),
       },
     },
   });
 });
 
-const VendorSchema = z.object({ name: z.string().min(2).max(120), contactName: z.string().max(80).optional(), phone: z.string().max(20).optional(), email: z.string().email().optional(), gstin: z.string().max(20).optional() });
+const VendorSchema = z.object({
+  name: z.string().min(2).max(120),
+  contactName: z.string().max(80).optional(),
+  phone: z.string().max(20).optional(),
+  email: z.string().email().optional(),
+  gstin: z.string().max(20).optional(),
+});
 
 export const POST = withRoute("procurement.vendor.create", async (req: NextRequest) => {
   const g = await guard(req, "inventory.manage");
@@ -51,13 +89,30 @@ export const POST = withRoute("procurement.vendor.create", async (req: NextReque
   const parsed = VendorSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return fail("invalid_request", 400, parsed.error.issues[0]?.message);
   const vendor = await db.nxVendor.create({ data: { ...parsed.data, hospitalId } });
-  await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "inventory.vendor.create", entityType: "nx_vendor", entityId: vendor.id });
+  await audit({
+    hospitalId,
+    actorName: g.session.name,
+    actorRole: g.session.role,
+    action: "inventory.vendor.create",
+    entityType: "nx_vendor",
+    entityId: vendor.id,
+  });
   return NextResponse.json({ data: { vendor } }, { status: 201 });
 });
 
 const POSchema = z.object({
   vendorId: z.string().min(3),
-  items: z.array(z.object({ name: z.string().min(1), qty: z.number().int().min(1), unit: z.string().default("units"), unitPrice: z.number().int().min(0) })).min(1).max(50),
+  items: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        qty: z.number().int().min(1),
+        unit: z.string().default("units"),
+        unitPrice: z.number().int().min(0),
+      }),
+    )
+    .min(1)
+    .max(50),
   expectedAt: z.string().datetime().optional(),
   notes: z.string().max(500).optional(),
 });
@@ -75,13 +130,27 @@ export const PUT = withRoute("procurement.po.create", async (req: NextRequest) =
   const total = parsed.data.items.reduce((s, i) => s + i.qty * i.unitPrice, 0);
   const po = await db.nxPurchaseOrder.create({
     data: {
-      hospitalId, vendorId: vendor.id, vendorName: vendor.name,
+      hospitalId,
+      vendorId: vendor.id,
+      vendorName: vendor.name,
       poNumber: `PO-${Date.now().toString(36).toUpperCase()}`,
-      status: "submitted", items: JSON.stringify(parsed.data.items), totalValue: total,
-      raisedBy: g.session.name, expectedAt: parsed.data.expectedAt ? new Date(parsed.data.expectedAt) : null, notes: parsed.data.notes,
+      status: "submitted",
+      items: JSON.stringify(parsed.data.items),
+      totalValue: total,
+      raisedBy: g.session.name,
+      expectedAt: parsed.data.expectedAt ? new Date(parsed.data.expectedAt) : null,
+      notes: parsed.data.notes,
     },
   });
-  await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "inventory.po.create", entityType: "nx_purchase_order", entityId: po.id, detail: { total, items: parsed.data.items.length } });
+  await audit({
+    hospitalId,
+    actorName: g.session.name,
+    actorRole: g.session.role,
+    action: "inventory.po.create",
+    entityType: "nx_purchase_order",
+    entityId: po.id,
+    detail: { total, items: parsed.data.items.length },
+  });
   return NextResponse.json({ data: { po } }, { status: 201 });
 });
 
@@ -94,7 +163,14 @@ const TxnSchema = z.object({
   poId: z.string().optional(),
 });
 
-const DELTA: Record<string, number> = { receipt: 1, transfer_in: 1, issue: -1, adjust: 0, wastage: -1, transfer_out: -1 };
+const DELTA: Record<string, number> = {
+  receipt: 1,
+  transfer_in: 1,
+  issue: -1,
+  adjust: 0,
+  wastage: -1,
+  transfer_out: -1,
+};
 
 export const PATCH = withRoute("procurement.txn", async (req: NextRequest) => {
   const g = await guard(req, "inventory.manage");
@@ -107,9 +183,11 @@ export const PATCH = withRoute("procurement.txn", async (req: NextRequest) => {
   const item = await db.nxSupplyItem.findFirst({ where: { id: parsed.data.itemId, hospitalId } });
   if (!item) return fail("not_found", 404, "Item not found.");
   const sign = DELTA[parsed.data.kind];
-  const delta = parsed.data.kind === "adjust" ? parsed.data.qty - item.onHand : sign * parsed.data.qty;
+  const delta =
+    parsed.data.kind === "adjust" ? parsed.data.qty - item.onHand : sign * parsed.data.qty;
   const newOnHand = item.onHand + delta;
-  if (newOnHand < 0) return fail("insufficient_stock", 422, `Only ${item.onHand} ${item.unit} on hand.`);
+  if (newOnHand < 0)
+    return fail("insufficient_stock", 422, `Only ${item.onHand} ${item.unit} on hand.`);
 
   /* The stock mutation is conditional INSIDE the transaction — the historical
      code read `onHand`, computed `newOnHand`, then wrote it back, so two
@@ -118,7 +196,17 @@ export const PATCH = withRoute("procurement.txn", async (req: NextRequest) => {
      (issue/wastage/transfer_out) additionally re-check sufficiency in the
      UPDATE's where-clause; `adjust` is a compare-and-set on the read value. */
   const txn = await db.$transaction(async (tx) => {
-    const created = await tx.nxStockTxn.create({ data: { hospitalId, itemId: item.id, kind: parsed.data.kind, qty: parsed.data.qty, batchNo: parsed.data.batchNo, reason: parsed.data.reason, actorName: g.session.name } });
+    const created = await tx.nxStockTxn.create({
+      data: {
+        hospitalId,
+        itemId: item.id,
+        kind: parsed.data.kind,
+        qty: parsed.data.qty,
+        batchNo: parsed.data.batchNo,
+        reason: parsed.data.reason,
+        actorName: g.session.name,
+      },
+    });
     let applied: { count: number };
     if (delta < 0) {
       applied = await tx.nxSupplyItem.updateMany({
@@ -139,15 +227,37 @@ export const PATCH = withRoute("procurement.txn", async (req: NextRequest) => {
     if (applied.count === 0) return null;
     return created;
   });
-  if (!txn) return fail("stock_conflict", 409, "Stock changed concurrently — re-check the item and retry.");
+  if (!txn)
+    return fail("stock_conflict", 409, "Stock changed concurrently — re-check the item and retry.");
 
   if (parsed.data.poId && parsed.data.kind === "receipt") {
-    await db.nxPurchaseOrder.updateMany({ where: { id: parsed.data.poId, hospitalId, status: { in: ["submitted", "partially_received"] } }, data: { status: "received", receivedAt: new Date() } }).catch(() => {});
+    await db.nxPurchaseOrder
+      .updateMany({
+        where: {
+          id: parsed.data.poId,
+          hospitalId,
+          status: { in: ["submitted", "partially_received"] },
+        },
+        data: { status: "received", receivedAt: new Date() },
+      })
+      .catch(() => {});
   }
 
   const alerts: string[] = [];
-  if (newOnHand <= item.reorderLevel) alerts.push(`LOW STOCK: ${item.name} at ${newOnHand} ${item.unit} (reorder at ${item.reorderLevel})`);
-  await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: `inventory.${parsed.data.kind}`, entityType: "nx_stock_txn", entityId: txn.id, detail: { item: item.name, qty: parsed.data.qty, newOnHand } });
+  if (newOnHand <= item.reorderLevel)
+    alerts.push(
+      `LOW STOCK: ${item.name} at ${newOnHand} ${item.unit} (reorder at ${item.reorderLevel})`,
+    );
+  await audit({
+    hospitalId,
+    actorName: g.session.name,
+    actorRole: g.session.role,
+    action: `inventory.${parsed.data.kind}`,
+    entityType: "nx_stock_txn",
+    entityId: txn.id,
+    detail: { item: item.name, qty: parsed.data.qty, newOnHand },
+  });
   return NextResponse.json({ data: { txn, onHand: newOnHand, alerts } });
 });
-void guard; void withRoute;
+void guard;
+void withRoute;

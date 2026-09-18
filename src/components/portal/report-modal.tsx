@@ -3,11 +3,27 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  Download, Sparkles, Loader2, AlertTriangle, CheckCircle2, XCircle,
-  Activity, FileText, Calendar, MapPin, User, Phone, Droplet, Info,
+  Download,
+  Sparkles,
+  Loader2,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Activity,
+  FileText,
+  Calendar,
+  MapPin,
+  User,
+  Phone,
+  Droplet,
+  Info,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
@@ -45,9 +61,17 @@ interface LabTest {
   category: string;
 }
 
-const FLAG_STYLES: Record<string, { bg: string; text: string; label: string; icon: typeof CheckCircle2 }> = {
+const FLAG_STYLES: Record<
+  string,
+  { bg: string; text: string; label: string; icon: typeof CheckCircle2 }
+> = {
   normal: { bg: "bg-[#9DB89E]/15", text: "text-[#5E8A60]", label: "Normal", icon: CheckCircle2 },
-  borderline: { bg: "bg-[#C9962E]/20", text: "text-[#A87C45]", label: "Borderline", icon: AlertTriangle },
+  borderline: {
+    bg: "bg-[#C9962E]/20",
+    text: "text-[#A87C45]",
+    label: "Borderline",
+    icon: AlertTriangle,
+  },
   high: { bg: "bg-[#A16207]/15", text: "text-[#B85A3F]", label: "High", icon: AlertTriangle },
   low: { bg: "bg-[#0EA5E9]/15", text: "text-[#0284C7]", label: "Low", icon: AlertTriangle },
   critical: { bg: "bg-red-100", text: "text-red-700", label: "Critical", icon: AlertTriangle },
@@ -75,7 +99,15 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
     }
   }, [open, booking]);
 
-  const report = booking?.reportJson ? (JSON.parse(booking.reportJson) as { tests: LabTest[]; panelName: string; collectedAt?: string; reportedAt?: string; labName?: string }) : null;
+  const report = booking?.reportJson
+    ? (JSON.parse(booking.reportJson) as {
+        tests: LabTest[];
+        panelName: string;
+        collectedAt?: string;
+        reportedAt?: string;
+        labName?: string;
+      })
+    : null;
   const tests = report?.tests ?? [];
 
   const abnormals = tests.filter((t) => t.flag !== "normal");
@@ -133,8 +165,30 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
           </DialogHeader>
 
           <div className="relative mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <InfoChip icon={Calendar} label="Collected" value={booking.sampleCollectedAt ? new Date(booking.sampleCollectedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "—"} />
-            <InfoChip icon={Activity} label="Reported" value={booking.reportReadyAt ? new Date(booking.reportReadyAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "—"} />
+            <InfoChip
+              icon={Calendar}
+              label="Collected"
+              value={
+                booking.sampleCollectedAt
+                  ? new Date(booking.sampleCollectedAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                    })
+                  : "—"
+              }
+            />
+            <InfoChip
+              icon={Activity}
+              label="Reported"
+              value={
+                booking.reportReadyAt
+                  ? new Date(booking.reportReadyAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                    })
+                  : "—"
+              }
+            />
             <InfoChip icon={User} label="Phlebotomist" value={booking.phlebotomistName ?? "—"} />
             <InfoChip icon={Droplet} label="Tests" value={`${tests.length}`} />
           </div>
@@ -142,7 +196,10 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
           {abnormals.length > 0 && (
             <div className="relative mt-3 flex items-center gap-2 rounded-xl bg-white/15 px-3 py-2 text-xs backdrop-blur">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-100" />
-              <span className="font-medium">{abnormals.length} abnormal result{abnormals.length > 1 ? "s" : ""} detected — review below.</span>
+              <span className="font-medium">
+                {abnormals.length} abnormal result{abnormals.length > 1 ? "s" : ""} detected —
+                review below.
+              </span>
             </div>
           )}
         </div>
@@ -172,14 +229,28 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
                         const flag = FLAG_STYLES[t.flag] ?? FLAG_STYLES.normal;
                         const Icon = flag.icon;
                         return (
-                          <tr key={t.name} className={cn("border-t border-[#E7E5E4]", i === 0 && "border-t-0")}>
+                          <tr
+                            key={t.name}
+                            className={cn("border-t border-[#E7E5E4]", i === 0 && "border-t-0")}
+                          >
                             <td className="px-3 py-2 font-medium text-stone-800">{t.name}</td>
                             <td className="px-3 py-2 text-right font-semibold text-stone-800">
-                              {t.value}<span className="ml-1 text-[0.7rem] font-normal text-stone-400">{t.unit}</span>
+                              {t.value}
+                              <span className="ml-1 text-[0.7rem] font-normal text-stone-400">
+                                {t.unit}
+                              </span>
                             </td>
-                            <td className="hidden px-3 py-2 text-stone-500 sm:table-cell">{t.refRange}</td>
+                            <td className="hidden px-3 py-2 text-stone-500 sm:table-cell">
+                              {t.refRange}
+                            </td>
                             <td className="px-3 py-2 text-right">
-                              <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-semibold", flag.bg, flag.text)}>
+                              <span
+                                className={cn(
+                                  "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-semibold",
+                                  flag.bg,
+                                  flag.text,
+                                )}
+                              >
                                 <Icon className="h-3 w-3" />
                                 {flag.label}
                               </span>
@@ -203,19 +274,23 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
             <ul className="mt-2.5 space-y-2 text-xs leading-snug text-stone-600">
               <li className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#A16207]" />
-                Read each value against its printed reference range — normal ranges vary slightly between labs.
+                Read each value against its printed reference range — normal ranges vary slightly
+                between labs.
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9962E]" />
-                Note whether the test was fasting or non-fasting — sugar and lipid values shift after food.
+                Note whether the test was fasting or non-fasting — sugar and lipid values shift
+                after food.
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#9DB89E]" />
-                One abnormal reading isn&apos;t a verdict — doctors usually repeat the test before drawing conclusions.
+                One abnormal reading isn&apos;t a verdict — doctors usually repeat the test before
+                drawing conclusions.
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#0EA5E9]" />
-                Share the full report with your doctor — this screen helps you read it, not diagnose it.
+                Share the full report with your doctor — this screen helps you read it, not diagnose
+                it.
               </li>
             </ul>
           </div>
@@ -238,7 +313,11 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
                   disabled={generating}
                   className="inline-flex items-center gap-1.5 rounded-full bg-[#A16207] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#8A5A04] active:scale-95 disabled:opacity-60"
                 >
-                  {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                  {generating ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3.5 w-3.5" />
+                  )}
                   {generating ? "Generating…" : "Generate"}
                 </button>
               )}
@@ -263,9 +342,12 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
                     className="flex flex-col items-center gap-2 py-6 text-center"
                   >
                     <Sparkles className="h-7 w-7 text-[#9DB89E]" />
-                    <p className="text-sm font-medium text-stone-700">AI interpretation not generated yet</p>
+                    <p className="text-sm font-medium text-stone-700">
+                      AI interpretation not generated yet
+                    </p>
                     <p className="max-w-xs text-xs text-stone-500">
-                      Click Generate to analyze lab values via GLM-4-Plus. Always consult your physician before acting on AI insights.
+                      Click Generate to analyze lab values via GLM-4-Plus. Always consult your
+                      physician before acting on AI insights.
                     </p>
                   </motion.div>
                 )}
@@ -280,7 +362,9 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
                 <MapPin className="h-3 w-3" /> Collection address
               </div>
               <p className="mt-1 font-medium text-stone-700">{booking.address}</p>
-              <p className="text-stone-500">{booking.city} · {booking.pincode}</p>
+              <p className="text-stone-500">
+                {booking.city} · {booking.pincode}
+              </p>
             </div>
             {booking.phlebotomistPhone && (
               <div className="rounded-2xl border border-[#E7E5E4] bg-white p-3 text-xs">
@@ -315,7 +399,15 @@ export function ReportModal({ open, booking, onOpenChange, onChanged }: Props) {
   );
 }
 
-function InfoChip({ icon: Icon, label, value }: { icon: typeof Calendar; label: string; value: string }) {
+function InfoChip({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Calendar;
+  label: string;
+  value: string;
+}) {
   return (
     <div className="rounded-xl bg-white/15 p-2 backdrop-blur">
       <div className="flex items-center gap-1 text-[0.65rem] uppercase tracking-wider text-white/75">

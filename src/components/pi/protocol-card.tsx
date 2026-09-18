@@ -8,7 +8,15 @@
  * ============================================================ */
 
 import { useState } from "react";
-import { AlertTriangle, CheckCircle2, Clock3, FlaskConical, GraduationCap, Stethoscope, XCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock3,
+  FlaskConical,
+  GraduationCap,
+  Stethoscope,
+  XCircle,
+} from "lucide-react";
 
 export interface ProtocolActionItem {
   action: string;
@@ -83,7 +91,9 @@ export function ProtocolCard({
     <div className="rounded-2xl border border-black/8 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2.5">
-          <div className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl ${protocol.uncertain ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300" : "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300"}`}>
+          <div
+            className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl ${protocol.uncertain ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300" : "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300"}`}
+          >
             <AlertTriangle className="h-4 w-4" />
           </div>
           <div>
@@ -117,7 +127,9 @@ export function ProtocolCard({
         <>
           {protocol.immediate.length > 0 && (
             <div className="mt-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">Immediate</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
+                Immediate
+              </p>
               <ul className="mt-1 space-y-1">
                 {protocol.immediate.map((a, i) => (
                   <ActionRow key={i} item={a} />
@@ -127,7 +139,9 @@ export function ProtocolCard({
           )}
           {protocol.monitoring.length > 0 && (
             <div className="mt-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">Monitoring</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
+                Monitoring
+              </p>
               <ul className="mt-1 space-y-1">
                 {protocol.monitoring.map((a, i) => (
                   <ActionRow key={i} item={a} />
@@ -143,7 +157,10 @@ export function ProtocolCard({
           <div className="mt-3 flex items-start gap-1.5 rounded-xl border border-dashed border-black/10 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground dark:border-white/10">
             <GraduationCap className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span>
-              {protocol.evidence} <span className="opacity-70">(confidence {(protocol.confidence * 100).toFixed(0)}%)</span>
+              {protocol.evidence}{" "}
+              <span className="opacity-70">
+                (confidence {(protocol.confidence * 100).toFixed(0)}%)
+              </span>
             </span>
           </div>
         </>
@@ -173,12 +190,15 @@ export function ProtocolCard({
       )}
       {localStatus === "pending_approval" && protocol.uncertain && (
         <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-[11px] font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-          Uncertain — Manual Review Required. PIE did not auto-generate actions below the 80% confidence gate.
+          Uncertain — Manual Review Required. PIE did not auto-generate actions below the 80%
+          confidence gate.
         </p>
       )}
       {decided && (
         <p className="mt-3 text-[11px] text-muted-foreground">
-          {localStatus === "executed" ? "Approved — tasks routed to nurse / pharmacy / lab queues." : "Decision recorded in the audit trail."}
+          {localStatus === "executed"
+            ? "Approved — tasks routed to nurse / pharmacy / lab queues."
+            : "Decision recorded in the audit trail."}
         </p>
       )}
     </div>

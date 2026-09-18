@@ -37,7 +37,10 @@ const REPLS = [
   ["from-[#D98B6E]/60 to-[#C98A7A]/60", "from-[#A16207]/60 to-[#8F5E06]/60"],
   ["from-[#D98B6E]/40 to-[#C98A7A]/40", "from-[#A16207]/40 to-[#8F5E06]/40"],
   ["from-[#D98B6E]/15 to-[#9DB89E]/15", "from-[#A16207]/15 to-[#7A9A7B]/15"],
-  ["from-[#D98B6E]/10 via-[#E0B080]/5 to-[#9DB89E]/10", "from-[#A16207]/10 via-[#C9962E]/5 to-[#7A9A7B]/10"],
+  [
+    "from-[#D98B6E]/10 via-[#E0B080]/5 to-[#9DB89E]/10",
+    "from-[#A16207]/10 via-[#C9962E]/5 to-[#7A9A7B]/10",
+  ],
   ["from-[#D98B6E]/10 to-[#9DB89E]/5", "from-[#A16207]/10 to-[#7A9A7B]/5"],
   ["from-[#D98B6E]/8 to-[#E0B080]/8", "from-[#A16207]/8 to-[#C9962E]/8"],
   ["hover:bg-[#C97759]", "hover:bg-[#8A5A04]"],
@@ -52,8 +55,14 @@ const REPLS = [
   ["#C98A7A20", "#A1620720"],
   ["#C98A7A18, #C98A7A08", "#A1620718, #A1620708"],
   // 3) qualified solid bg with white ink (rose → deep gold)
-  ["bg-[#C98A7A] font-serif text-base font-bold text-white", "bg-[#A16207] font-serif text-base font-bold text-[#FFFDF6]"],
-  ["bg-[#C98A7A] font-serif text-4xl font-bold text-white", "bg-[#A16207] font-serif text-4xl font-bold text-[#FFFDF6]"],
+  [
+    "bg-[#C98A7A] font-serif text-base font-bold text-white",
+    "bg-[#A16207] font-serif text-base font-bold text-[#FFFDF6]",
+  ],
+  [
+    "bg-[#C98A7A] font-serif text-4xl font-bold text-white",
+    "bg-[#A16207] font-serif text-4xl font-bold text-[#FFFDF6]",
+  ],
   // 4) flat tokens
   ["#D98B6E", "#A16207"],
   ["#C97759", "#8A5A04"],

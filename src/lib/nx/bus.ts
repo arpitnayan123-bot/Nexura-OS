@@ -141,10 +141,14 @@ function startRelay(): void {
   g.__nxRelayStarted = true;
   sub
     .subscribe(BUS_CHANNEL)
-    .then(() => log.info("bus", "redis relay subscribed", { channel: BUS_CHANNEL, instance: INSTANCE }))
+    .then(() =>
+      log.info("bus", "redis relay subscribed", { channel: BUS_CHANNEL, instance: INSTANCE }),
+    )
     .catch((err) => {
       g.__nxRelayStarted = false;
-      log.error("bus", "redis relay subscribe failed — running local-only", { err: err instanceof Error ? err.message : String(err) });
+      log.error("bus", "redis relay subscribe failed — running local-only", {
+        err: err instanceof Error ? err.message : String(err),
+      });
     });
   sub.on("message", (_channel: string, payload: string) => {
     try {
@@ -176,14 +180,20 @@ export function publish(ev: Omit<NxEvent, "at" | "seq" | "sig" | "from">): NxEve
       // cannot PUBLISH). Local delivery already succeeded; a Redis hiccup
       // degrades other instances' visibility, never this request's latency.
       client.publish(BUS_CHANNEL, JSON.stringify(full)).catch((err) => {
-        log.error("bus", "redis publish failed (event delivered locally only)", { err: err instanceof Error ? err.message : String(err) });
+        log.error("bus", "redis publish failed (event delivered locally only)", {
+          err: err instanceof Error ? err.message : String(err),
+        });
       });
     }
   }
   return full;
 }
 
-export function subscribe(id: string, scope: SubscriberScope, send: (event: NxEvent) => void): () => void {
+export function subscribe(
+  id: string,
+  scope: SubscriberScope,
+  send: (event: NxEvent) => void,
+): () => void {
   // Enforce the per-user connection cap: drop this user's oldest connections first.
   const mine = [...conns.values()].filter((c) => c.scope.userId === scope.userId);
   if (mine.length >= MAX_CONNS_PER_USER) {
@@ -202,6 +212,13 @@ export function connectionCount(): number {
 }
 
 /** Subscribe scoped to a role-key list — used by the SSE route. */
-export function subscriberScope(opts: { userId: string; role: string; hospitalId: string; roleKeys: string[]; channels?: string[]; clinicalAll?: boolean }): SubscriberScope {
+export function subscriberScope(opts: {
+  userId: string;
+  role: string;
+  hospitalId: string;
+  roleKeys: string[];
+  channels?: string[];
+  clinicalAll?: boolean;
+}): SubscriberScope {
   return opts;
 }

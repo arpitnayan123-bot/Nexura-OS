@@ -57,10 +57,18 @@ export const GET = withRoute("diy.dashboard.get", async (req: NextRequest) => {
     }),
     db.diyPlan.findMany({
       where: { userId: g.userId, status: "ACTIVE" },
-      include: { tasks: { where: { active: true }, orderBy: { id: "asc" } }, milestones: { orderBy: { targetDay: "asc" } }, goal: true },
+      include: {
+        tasks: { where: { active: true }, orderBy: { id: "asc" } },
+        milestones: { orderBy: { targetDay: "asc" } },
+        goal: true,
+      },
     }),
     db.diyTaskCompletion.findMany({ where: { userId: g.userId, date: day } }),
-    db.diyGoalConflict.findMany({ where: { userId: g.userId }, orderBy: { createdAt: "desc" }, take: 10 }),
+    db.diyGoalConflict.findMany({
+      where: { userId: g.userId },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    }),
     db.diyProgressLog.findUnique({ where: { userId_date: { userId: g.userId, date: day } } }),
     db.diyTaskCompletion.findMany({
       where: { userId: g.userId, status: "DONE", date: { gte: istDayKey(since) } },
@@ -74,8 +82,12 @@ export const GET = withRoute("diy.dashboard.get", async (req: NextRequest) => {
 
   const doneTaskIds = new Set(completions.map((c) => c.taskId));
 
-  const dailyTaskIds = new Set(plans.flatMap((p) => p.tasks.filter((t) => t.cadence === "DAILY").map((t) => t.id)));
-  const weeklyTaskIds = new Set(plans.flatMap((p) => p.tasks.filter((t) => t.cadence === "WEEKLY").map((t) => t.id)));
+  const dailyTaskIds = new Set(
+    plans.flatMap((p) => p.tasks.filter((t) => t.cadence === "DAILY").map((t) => t.id)),
+  );
+  const weeklyTaskIds = new Set(
+    plans.flatMap((p) => p.tasks.filter((t) => t.cadence === "WEEKLY").map((t) => t.id)),
+  );
 
   const todayTasks = plans.flatMap((p) =>
     p.tasks
@@ -87,12 +99,27 @@ export const GET = withRoute("diy.dashboard.get", async (req: NextRequest) => {
         estMinutes: t.estMinutes,
         category: t.category,
         goalText: p.goal.rawGoalText,
-        status: doneTaskIds.has(t.id) ? (completions.find((c) => c.taskId === t.id)?.status ?? "PENDING") : "PENDING",
+        status: doneTaskIds.has(t.id)
+          ? (completions.find((c) => c.taskId === t.id)?.status ?? "PENDING")
+          : "PENDING",
         note: completions.find((c) => c.taskId === t.id)?.note ?? null,
-      }))
+      })),
   );
 
-  const weekly = plans.flatMap((p) => p.tasks.filter((t) => t.cadence === "WEEKLY").map((t) => ({ id: t.id, title: t.title, detail: t.detail, category: t.category, goalText: p.goal.rawGoalText, status: doneTaskIds.has(t.id) ? (completions.find((c) => c.taskId === t.id)?.status ?? "PENDING") : "PENDING" })));
+  const weekly = plans.flatMap((p) =>
+    p.tasks
+      .filter((t) => t.cadence === "WEEKLY")
+      .map((t) => ({
+        id: t.id,
+        title: t.title,
+        detail: t.detail,
+        category: t.category,
+        goalText: p.goal.rawGoalText,
+        status: doneTaskIds.has(t.id)
+          ? (completions.find((c) => c.taskId === t.id)?.status ?? "PENDING")
+          : "PENDING",
+      })),
+  );
 
   /* done/skipped count DAILY tasks only — the rhythm bar's denominator is
      todayTasks.length, and weekly completions leaking in produced
@@ -100,10 +127,19 @@ export const GET = withRoute("diy.dashboard.get", async (req: NextRequest) => {
   return NextResponse.json({
     date: day,
     streak,
-    goals: goals.map((x) => ({ id: x.id, text: x.rawGoalText, category: x.category, status: x.status, timeframeDays: x.timeframeDays })),
+    goals: goals.map((x) => ({
+      id: x.id,
+      text: x.rawGoalText,
+      category: x.category,
+      status: x.status,
+      timeframeDays: x.timeframeDays,
+    })),
     plans: plans.map((p) => {
       const startedDay = istDayKey(p.createdAt);
-      const dayNumber = Math.min(Math.max(dayDiff(startedDay, day) + 1, 1), Math.max(p.goal.timeframeDays ?? 1, 1));
+      const dayNumber = Math.min(
+        Math.max(dayDiff(startedDay, day) + 1, 1),
+        Math.max(p.goal.timeframeDays ?? 1, 1),
+      );
       return {
         id: p.id,
         goalId: p.goalId,
@@ -116,15 +152,28 @@ export const GET = withRoute("diy.dashboard.get", async (req: NextRequest) => {
         startedAt: startedDay,
         dayNumber,
         totalDays: p.goal.timeframeDays,
-        milestones: p.milestones.map((m) => ({ id: m.id, title: m.title, detail: m.detail, targetDay: m.targetDay, reached: dayNumber >= m.targetDay })),
+        milestones: p.milestones.map((m) => ({
+          id: m.id,
+          title: m.title,
+          detail: m.detail,
+          targetDay: m.targetDay,
+          reached: dayNumber >= m.targetDay,
+        })),
       };
     }),
     todayTasks,
     weekly,
     doneCount: completions.filter((c) => c.status === "DONE" && dailyTaskIds.has(c.taskId)).length,
-    skippedCount: completions.filter((c) => c.status !== "DONE" && dailyTaskIds.has(c.taskId)).length,
-    weeklyDone: completions.filter((c) => c.status === "DONE" && weeklyTaskIds.has(c.taskId)).length,
-    conflicts: conflicts.map((c) => ({ id: c.id, rule: c.rule, explanation: c.explanation, resolution: c.resolution })),
+    skippedCount: completions.filter((c) => c.status !== "DONE" && dailyTaskIds.has(c.taskId))
+      .length,
+    weeklyDone: completions.filter((c) => c.status === "DONE" && weeklyTaskIds.has(c.taskId))
+      .length,
+    conflicts: conflicts.map((c) => ({
+      id: c.id,
+      rule: c.rule,
+      explanation: c.explanation,
+      resolution: c.resolution,
+    })),
     progressToday: progress,
   });
 });

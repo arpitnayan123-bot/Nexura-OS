@@ -38,23 +38,48 @@ import {
 
 const SWAPS_BY_CUISINE: Record<string, { from: string; to: string; note?: string }[]> = {
   north: [
-    { from: "Tandoori/naan (maida) rotis", to: "Tandoori roti or missi roti (whole wheat + besan)", note: "Maida is the silent load in restaurant North-Indian meals" },
-    { from: "Creamy gravies (butter chicken, malai kofta)", to: "Tomato/onion-based gravies (tawa, kadhai style)", note: "Same spice, a fraction of the cream" },
+    {
+      from: "Tandoori/naan (maida) rotis",
+      to: "Tandoori roti or missi roti (whole wheat + besan)",
+      note: "Maida is the silent load in restaurant North-Indian meals",
+    },
+    {
+      from: "Creamy gravies (butter chicken, malai kofta)",
+      to: "Tomato/onion-based gravies (tawa, kadhai style)",
+      note: "Same spice, a fraction of the cream",
+    },
     { from: "Halwa/kheer daily", to: "Kheer with less sugar, in a katori, 2-3×/week" },
   ],
   south: [
-    { from: "Plain white rice pile (2-3 cups)", to: "Half rice + millets (ragi mudde / foxtail / little millet)", note: "Millets carry a far lower glucose spike" },
-    { from: "Deep-fried snacks (medu vada, bajji)", to: "Steamed/idli-style options (idli, sandige-lite)" },
-    { from: "Rice-heavy breakfast", to: "Protein-forward: dosa+sambar with extra dal, or eggs/moong chilla" },
+    {
+      from: "Plain white rice pile (2-3 cups)",
+      to: "Half rice + millets (ragi mudde / foxtail / little millet)",
+      note: "Millets carry a far lower glucose spike",
+    },
+    {
+      from: "Deep-fried snacks (medu vada, bajji)",
+      to: "Steamed/idli-style options (idli, sandige-lite)",
+    },
+    {
+      from: "Rice-heavy breakfast",
+      to: "Protein-forward: dosa+sambar with extra dal, or eggs/moong chilla",
+    },
   ],
   east: [
     { from: "Fried snacks (singhara, beguni) with tea", to: "Roasted chana/muri mixture" },
     { from: "White rice at every meal", to: "Rice at lunch, lighter (roti/vegetables) at dinner" },
-    { from: "Sweets after daily meals (rosogolla/sandesh)", to: "2-3×/week, one piece, after the largest meal" },
+    {
+      from: "Sweets after daily meals (rosogolla/sandesh)",
+      to: "2-3×/week, one piece, after the largest meal",
+    },
   ],
   west: [
     { from: "Farsan/namkeen with chai", to: "Roasted khakhra or bhel (no sev)" },
-    { from: "White bhakri/rice dominance", to: "Jowar/bajra bhakri 3-4×/week", note: "Millet bhakris are the traditional upgrade" },
+    {
+      from: "White bhakri/rice dominance",
+      to: "Jowar/bajra bhakri 3-4×/week",
+      note: "Millet bhakris are the traditional upgrade",
+    },
     { from: "Fried farsan in tiffin", to: "Dhokla/idada (steamed)" },
   ],
   northeast: [
@@ -63,7 +88,10 @@ const SWAPS_BY_CUISINE: Record<string, { from: string; to: string; note?: string
     { from: "Fried momos", to: "Steamed momos with clear soup" },
   ],
   mixed: [
-    { from: "Whatever is fried and available", to: "Steamed/grilled/roasted version of the same dish" },
+    {
+      from: "Whatever is fried and available",
+      to: "Steamed/grilled/roasted version of the same dish",
+    },
     { from: "Sugary drinks with meals", to: "Chaas/nimbu-pani (no sugar) or plain water" },
     { from: "Dessert daily", to: "Fruit first, dessert 2-3×/week in a katori" },
   ],
@@ -81,10 +109,17 @@ function dietPrescription(input: ForesightInput): ForesightReport["diet"] {
     ...(SWAPS_BY_CUISINE[input.diet.cuisine] ?? SWAPS_BY_CUISINE.mixed),
   ];
   if (input.diet.sweetsPerWeek === "daily") {
-    swaps.unshift({ from: "Sweets daily", to: "Sweet 3×/week, eaten after a meal (never on empty stomach)", note: "Katori rule: one katori = one serving" });
+    swaps.unshift({
+      from: "Sweets daily",
+      to: "Sweet 3×/week, eaten after a meal (never on empty stomach)",
+      note: "Katori rule: one katori = one serving",
+    });
   }
   if (input.diet.salt === "high") {
-    swaps.unshift({ from: "Pickle + papad at every meal", to: "Pickle 2-3×/week; salad with lemon for crunch" });
+    swaps.unshift({
+      from: "Pickle + papad at every meal",
+      to: "Pickle 2-3×/week; salad with lemon for crunch",
+    });
   }
   return {
     cuisineLabel: CUISINE_LABEL[input.diet.cuisine] ?? "Indian",
@@ -96,9 +131,19 @@ function dietPrescription(input: ForesightInput): ForesightReport["diet"] {
 /* ---------------- completeness ---------------- */
 
 const CRITICAL_FIELDS = [
-  "age", "sex", "height", "weight", "waist",
-  "symptoms", "diet.sweets", "diet.fried", "activity.minutes",
-  "sleep.hours", "bp", "familyHistory", "stress",
+  "age",
+  "sex",
+  "height",
+  "weight",
+  "waist",
+  "symptoms",
+  "diet.sweets",
+  "diet.fried",
+  "activity.minutes",
+  "sleep.hours",
+  "bp",
+  "familyHistory",
+  "stress",
 ];
 
 function completeness(input: ForesightInput) {
@@ -109,7 +154,8 @@ function completeness(input: ForesightInput) {
   if (!input.profile.weightKg) missing.push("weight");
   if (!input.profile.waistCm) missing.push("waist");
   if (input.symptoms.length === 0 && !input.freeText) missing.push("symptoms");
-  if (input.diet.sweetsPerWeek === "none" && input.diet.friedPerWeek === "none") missing.push("diet.sweets");
+  if (input.diet.sweetsPerWeek === "none" && input.diet.friedPerWeek === "none")
+    missing.push("diet.sweets");
   if (input.activity.minutesPerWeek === 0) missing.push("activity.minutes");
   if (!input.sleep.hoursPerNight) missing.push("sleep.hours");
   if (!input.vitals.systolic) missing.push("bp");
@@ -152,9 +198,10 @@ export function runForesight(input: ForesightInput): ForesightReport {
   }
   const avgBurden = weightSum > 0 ? weighted / weightSum : 0;
   const sortedBurden = [...domains].map((d) => d.burden).sort((a, b) => b - a);
-  const top3Avg = sortedBurden.slice(0, 3).reduce((a, b) => a + b, 0) / Math.min(3, sortedBurden.length || 1);
+  const top3Avg =
+    sortedBurden.slice(0, 3).reduce((a, b) => a + b, 0) / Math.min(3, sortedBurden.length || 1);
   const maxBurden = sortedBurden[0] ?? 0;
-  const effectiveBurden = 0.35 * avgBurden + 0.35 * top3Avg + 0.30 * maxBurden;
+  const effectiveBurden = 0.35 * avgBurden + 0.35 * top3Avg + 0.3 * maxBurden;
 
   // Protective bonus: healthy behaviors add resilience — but they can
   // NOT paper over a HIGH lab anchor. Dampen the bonus when real signal
@@ -173,15 +220,14 @@ export function runForesight(input: ForesightInput): ForesightReport {
 
   /* 4 — TRAJECTORY (illustrative, honest) */
   const riskLoad = domains.reduce(
-    (a, d) => a + (d.level === "HIGH" ? 3.2 : d.level === "ELEVATED" ? 2.1 : d.level === "WATCH" ? 0.9 : 0),
-    0
+    (a, d) =>
+      a + (d.level === "HIGH" ? 3.2 : d.level === "ELEVATED" ? 2.1 : d.level === "WATCH" ? 0.9 : 0),
+    0,
   );
   const actionLoad = Math.min(
     14,
-    domains.reduce(
-      (a, d) => a + (d.level === "HIGH" ? 2.6 : d.level === "ELEVATED" ? 1.8 : 0),
-      0
-    ) + bonus * 0.8
+    domains.reduce((a, d) => a + (d.level === "HIGH" ? 2.6 : d.level === "ELEVATED" ? 1.8 : 0), 0) +
+      bonus * 0.8,
   );
   const trajectory = {
     unchangedScore: clamp0to100(Math.max(5, score - Math.min(24, riskLoad * 1.35))),
@@ -190,14 +236,10 @@ export function runForesight(input: ForesightInput): ForesightReport {
   };
 
   /* 5 — TOP DOMAINS + plan */
-  const actionable = [...domains]
-    .sort((a, b) => b.burden - a.burden)
-    .filter((d) => d.burden > 0);
+  const actionable = [...domains].sort((a, b) => b.burden - a.burden).filter((d) => d.burden > 0);
   const topDomainIds: DomainId[] = actionable.slice(0, 3).map((d) => d.id);
 
-  const clinicianQuestions = actionable
-    .flatMap((d) => d.clinicianQuestions)
-    .slice(0, 6);
+  const clinicianQuestions = actionable.flatMap((d) => d.clinicianQuestions).slice(0, 6);
 
   const protectiveFactors = domains
     .flatMap((d) => d.factors)
@@ -247,14 +289,19 @@ export function summarizeForDoctor(report: ForesightReport, input: ForesightInpu
   }
   lines.push("");
   lines.push(`Foresight Score: ${report.foresightScore}/100 (${report.scoreBand})`);
-  lines.push(`Profile: ${input.profile.ageYears}y ${input.profile.sexAtBirth}${bmi ? `, BMI ${bmi} (${bmiBand(bmi)})` : ""}${input.profile.waistCm ? `, waist ${input.profile.waistCm}cm` : ""}`);
+  lines.push(
+    `Profile: ${input.profile.ageYears}y ${input.profile.sexAtBirth}${bmi ? `, BMI ${bmi} (${bmiBand(bmi)})` : ""}${input.profile.waistCm ? `, waist ${input.profile.waistCm}cm` : ""}`,
+  );
   lines.push("");
   lines.push("TOP DOMAINS:");
   report.topDomainIds.forEach((id, i) => {
     const d = report.domains.find((x) => x.id === id);
     if (!d) return;
     lines.push(`${i + 1}. ${id.toUpperCase()} — ${d.level} (burden ${d.burden})`);
-    d.factors.filter((x) => x.direction === "risk").slice(0, 3).forEach((x) => lines.push(`   - ${x.label}`));
+    d.factors
+      .filter((x) => x.direction === "risk")
+      .slice(0, 3)
+      .forEach((x) => lines.push(`   - ${x.label}`));
   });
   if (report.clinicianQuestions.length) {
     lines.push("");

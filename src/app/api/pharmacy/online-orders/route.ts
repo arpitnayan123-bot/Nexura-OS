@@ -45,7 +45,10 @@ const MAX_BASE64_LEN = Math.ceil((MAX_IMAGE_BYTES * 4) / 3) + 1024;
 const OCR_PROMPT = `Read this doctor's prescription image. List every medicine name you can see.
 Return STRICT JSON only: {"items":[{"name":"medicine name","dosage":"if visible","duration":"if visible"}],"notes":"any instructions"}. No prose.`;
 
-type OcrExtraction = { items: { name: string; dosage?: string; duration?: string }[]; notes?: string };
+type OcrExtraction = {
+  items: { name: string; dosage?: string; duration?: string }[];
+  notes?: string;
+};
 
 /* ---------- helpers ---------- */
 
@@ -86,19 +89,40 @@ function sanitizeItems(raw: unknown): IncomingItem[] {
 }
 
 /** Validate the optional Rx upload; returns null when absent, throws shapes on bad input. */
-function extractImage(image: unknown): { ok: true; raw: string; mime: string } | { ok: true; raw: null } | { ok: false; status: number; code: string; detail: string } {
+function extractImage(
+  image: unknown,
+):
+  | { ok: true; raw: string; mime: string }
+  | { ok: true; raw: null }
+  | { ok: false; status: number; code: string; detail: string } {
   if (typeof image !== "string" || !image.trim()) return { ok: true, raw: null };
   const raw = image.replace(/^data:[^;]+;base64,/, "").trim();
   if (!raw || !isValidImageBase64(raw)) {
-    return { ok: false, status: 400, code: "invalid_image", detail: "Upload a prescription photo (JPG or PNG, max 8MB)." };
+    return {
+      ok: false,
+      status: 400,
+      code: "invalid_image",
+      detail: "Upload a prescription photo (JPG or PNG, max 8MB).",
+    };
   }
   if (raw.length > MAX_BASE64_LEN) {
-    return { ok: false, status: 413, code: "image_too_large", detail: "Prescription image exceeds 8MB." };
+    return {
+      ok: false,
+      status: 413,
+      code: "image_too_large",
+      detail: "Prescription image exceeds 8MB.",
+    };
   }
   let mime: string;
   if (raw.startsWith("iVBOR")) mime = "image/png";
   else if (raw.startsWith("/9j/")) mime = "image/jpeg";
-  else return { ok: false, status: 415, code: "unsupported_mime", detail: "Only JPG and PNG prescriptions are supported." };
+  else
+    return {
+      ok: false,
+      status: 415,
+      code: "unsupported_mime",
+      detail: "Only JPG and PNG prescriptions are supported.",
+    };
   return { ok: true, raw, mime };
 }
 
@@ -146,7 +170,9 @@ async function GET_impl(req: NextRequest) {
       source: "db",
     });
   } catch (e) {
-    log.error("pharmacy", "online_orders_list_failed", { err: e instanceof Error ? e.message : String(e) });
+    log.error("pharmacy", "online_orders_list_failed", {
+      err: e instanceof Error ? e.message : String(e),
+    });
     return NextResponse.json({ error: "list_failed" }, { status: 500 });
   }
 }
@@ -162,7 +188,8 @@ async function POST_impl(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "invalid_body" }, { status: 400 });
   }
-  const hasImage = typeof body?.prescriptionImage === "string" && body.prescriptionImage.trim().length > 0;
+  const hasImage =
+    typeof body?.prescriptionImage === "string" && body.prescriptionImage.trim().length > 0;
   if (hasImage) {
     const __ai = aiGate(req);
     if (__ai) return __ai;
@@ -172,24 +199,36 @@ async function POST_impl(req: NextRequest) {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
 
-    const patientName = typeof body?.patientName === "string" ? body.patientName.trim().slice(0, 120) : "";
-    const phone = typeof body?.phone === "string" ? body.phone.replace(/[^\d+]/g, "").slice(0, 16) : "";
-    const deliveryAddress = typeof body?.deliveryAddress === "string" ? body.deliveryAddress.trim().slice(0, 400) : null;
+    const patientName =
+      typeof body?.patientName === "string" ? body.patientName.trim().slice(0, 120) : "";
+    const phone =
+      typeof body?.phone === "string" ? body.phone.replace(/[^\d+]/g, "").slice(0, 16) : "";
+    const deliveryAddress =
+      typeof body?.deliveryAddress === "string" ? body.deliveryAddress.trim().slice(0, 400) : null;
     const note = typeof body?.note === "string" ? body.note.trim().slice(0, 400) : null;
 
-    if (patientName.length < 2) return NextResponse.json({ error: "no_patient_name" }, { status: 400 });
+    if (patientName.length < 2)
+      return NextResponse.json({ error: "no_patient_name" }, { status: 400 });
     if (phone.length < 8) return NextResponse.json({ error: "invalid_phone" }, { status: 400 });
 
     // optional Rx upload → validated + OCR'd
     const img = extractImage(body?.prescriptionImage);
-    if (!img.ok) return NextResponse.json({ error: img.code, detail: img.detail }, { status: img.status });
+    if (!img.ok)
+      return NextResponse.json({ error: img.code, detail: img.detail }, { status: img.status });
 
     let ocrItems: { name: string; dosage?: string; duration?: string }[] = [];
     let ocrRawJson: string | null = null;
     if (img.raw && img.mime) {
       try {
-        const extracted = await runVision<OcrExtraction>(img.raw, img.mime, OCR_PROMPT, "pharmacy.online-orders");
-        ocrItems = (extracted.items || []).filter((i) => i && typeof i.name === "string" && i.name.trim()).slice(0, 25);
+        const extracted = await runVision<OcrExtraction>(
+          img.raw,
+          img.mime,
+          OCR_PROMPT,
+          "pharmacy.online-orders",
+        );
+        ocrItems = (extracted.items || [])
+          .filter((i) => i && typeof i.name === "string" && i.name.trim())
+          .slice(0, 25);
         ocrRawJson = JSON.stringify(extracted);
       } catch (e) {
         if (e instanceof SyntaxError) {
@@ -210,7 +249,10 @@ async function POST_impl(req: NextRequest) {
       }
     }
     if (merged.length === 0) {
-      return NextResponse.json({ error: "no_items", detail: "Add medicines or attach a prescription photo." }, { status: 400 });
+      return NextResponse.json(
+        { error: "no_items", detail: "Add medicines or attach a prescription photo." },
+        { status: 400 },
+      );
     }
 
     const catalog = await loadBranchCatalog(ctx.branch.id);
@@ -225,12 +267,17 @@ async function POST_impl(req: NextRequest) {
         unitMrp: match?.unitMrp ?? 0,
       };
     });
-    const estimatedTotal = estimateTotalPaise(orderLines.map((l) => ({ qtyStrips: l.qtyStrips, unitMrp: l.unitMrp })));
+    const estimatedTotal = estimateTotalPaise(
+      orderLines.map((l) => ({ qtyStrips: l.qtyStrips, unitMrp: l.unitMrp })),
+    );
 
     // find-or-create the customer by phone (same identity the POS uses)
     const existingCustomer = await db.customer.findFirst({ where: { phone } });
     const customer = existingCustomer
-      ? await db.customer.update({ where: { id: existingCustomer.id }, data: { name: patientName, ...(deliveryAddress ? { address: deliveryAddress } : {}) } })
+      ? await db.customer.update({
+          where: { id: existingCustomer.id },
+          data: { name: patientName, ...(deliveryAddress ? { address: deliveryAddress } : {}) },
+        })
       : await db.customer.create({ data: { name: patientName, phone, address: deliveryAddress } });
 
     const created = await db.pharmaOnlineOrder.create({
@@ -253,14 +300,22 @@ async function POST_impl(req: NextRequest) {
     });
 
     const { prescriptionImage: _img, ...createdSafe } = created;
-    return NextResponse.json({
-      ok: true,
-      order: { ...createdSafe, hasPrescriptionImage: Boolean(_img) },
-      ocr: ocrItems.length > 0 ? { extracted: ocrItems.length, merged: true } : { extracted: 0, merged: false },
-      source: "db",
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        ok: true,
+        order: { ...createdSafe, hasPrescriptionImage: Boolean(_img) },
+        ocr:
+          ocrItems.length > 0
+            ? { extracted: ocrItems.length, merged: true }
+            : { extracted: 0, merged: false },
+        source: "db",
+      },
+      { status: 201 },
+    );
   } catch (e) {
-    log.error("pharmacy", "online_orders_create_failed", { err: e instanceof Error ? e.message : String(e) });
+    log.error("pharmacy", "online_orders_create_failed", {
+      err: e instanceof Error ? e.message : String(e),
+    });
     return NextResponse.json({ error: "create_failed" }, { status: 500 });
   }
 }

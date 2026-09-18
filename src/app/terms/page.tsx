@@ -41,7 +41,7 @@ const SECTIONS: { heading: string; body: string[] }[] = [
   {
     heading: "5. Disclaimers and limitation of liability",
     body: [
-      "The platform is provided \"as is\" and \"as available\". To the maximum extent permitted by law, Nexura disclaims all warranties not stated here, including implied warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not warrant that the service will be uninterrupted or error-free.",
+      'The platform is provided "as is" and "as available". To the maximum extent permitted by law, Nexura disclaims all warranties not stated here, including implied warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not warrant that the service will be uninterrupted or error-free.',
       "To the maximum extent permitted by law, Nexura will not be liable for indirect, incidental, special, consequential, or punitive damages, or for lost profits, data, or goodwill arising from use of the platform. Clinical outcomes remain the responsibility of the treating clinicians and the organisations that employ them.",
       "Some features depend on third-party services (for example, AI model providers, SMS/email delivery, or government health rails) and on hospitals' own networks; outages or errors in those services may affect availability or output.",
     ],
@@ -59,17 +59,23 @@ const SECTIONS: { heading: string; body: string[] }[] = [
 export default function TermsPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-      <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-primary">Nexura OS</p>
-      <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-foreground">Terms of Service</h1>
+      <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-primary">
+        Nexura OS
+      </p>
+      <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-foreground">
+        Terms of Service
+      </h1>
       <p className="mt-3 text-sm text-muted-foreground">
         The agreement for using the Nexura platform. Last updated:{" "}
-        {new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}.
+        {new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}
+        .
       </p>
 
       <div className="mt-8 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-foreground">
-        <strong className="font-semibold">Template pending professional legal review.</strong> Prepared by engineers
-        to describe how the platform actually behaves. It is <strong className="font-semibold">not legal advice</strong>{" "}
-        and must be reviewed and adapted by qualified legal counsel for the operating entity before production use.
+        <strong className="font-semibold">Template pending professional legal review.</strong>{" "}
+        Prepared by engineers to describe how the platform actually behaves. It is{" "}
+        <strong className="font-semibold">not legal advice</strong> and must be reviewed and adapted
+        by qualified legal counsel for the operating entity before production use.
       </div>
 
       <div className="mt-10 space-y-10">
@@ -86,9 +92,10 @@ export default function TermsPage() {
       </div>
 
       <div className="mt-12 rounded-xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-foreground">
-        <strong className="font-semibold">Medical emergency?</strong> Do not wait, do not type — call
-        <strong className="font-semibold"> 108</strong> or <strong className="font-semibold">112</strong> (India) or
-        your local emergency number now.
+        <strong className="font-semibold">Medical emergency?</strong> Do not wait, do not type —
+        call
+        <strong className="font-semibold"> 108</strong> or{" "}
+        <strong className="font-semibold">112</strong> (India) or your local emergency number now.
       </div>
     </main>
   );

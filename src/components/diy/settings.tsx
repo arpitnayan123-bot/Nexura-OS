@@ -34,9 +34,19 @@ export function SettingsView() {
     setBusy(true);
     try {
       if (granted) {
-        await diyFetch("/api/diy/consent", { method: "POST", body: JSON.stringify({ scopes: [scope], policyVersion: "2026-09-diy-1", source: "settings" }) });
+        await diyFetch("/api/diy/consent", {
+          method: "POST",
+          body: JSON.stringify({
+            scopes: [scope],
+            policyVersion: "2026-09-diy-1",
+            source: "settings",
+          }),
+        });
       } else {
-        await diyFetch("/api/diy/consent", { method: "DELETE", body: JSON.stringify({ scopes: [scope] }) });
+        await diyFetch("/api/diy/consent", {
+          method: "DELETE",
+          body: JSON.stringify({ scopes: [scope] }),
+        });
       }
       await load();
     } finally {
@@ -47,7 +57,9 @@ export function SettingsView() {
   const exportData = async () => {
     setBusy(true);
     try {
-      const res = await diyFetch<{ exportedAt: string; sections: Record<string, unknown> }>("/api/diy/me");
+      const res = await diyFetch<{ exportedAt: string; sections: Record<string, unknown> }>(
+        "/api/diy/me",
+      );
       const blob = new Blob([JSON.stringify(res, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -69,7 +81,10 @@ export function SettingsView() {
     }
     setBusy(true);
     try {
-      await diyFetch("/api/diy/me", { method: "DELETE", body: JSON.stringify({ confirm: "DELETE" }) });
+      await diyFetch("/api/diy/me", {
+        method: "DELETE",
+        body: JSON.stringify({ confirm: "DELETE" }),
+      });
       setWipeArm(false);
       setNotice("All DIY data wiped. A fresh plan can start whenever you are ready.");
       await load();
@@ -88,7 +103,8 @@ export function SettingsView() {
       {guest && (
         <section className="rounded-2xl border border-[#EAD9C0] bg-[#FBF3E4] p-4 text-xs leading-relaxed text-[#7A5C36]">
           <strong className="block text-[13px]">You are using DIY without signing in</strong>
-          Your plan is tied to this browser. Clearing cookies or switching devices starts fresh. Sign in through the patient portal anytime to keep your plan across devices.
+          Your plan is tied to this browser. Clearing cookies or switching devices starts fresh.
+          Sign in through the patient portal anytime to keep your plan across devices.
         </section>
       )}
 
@@ -99,9 +115,14 @@ export function SettingsView() {
         </div>
         <div className="space-y-2">
           {scopes.map((s) => (
-            <label key={s.scope} className="flex items-center justify-between gap-3 rounded-2xl bg-[#FBF5EA] px-4 py-3">
+            <label
+              key={s.scope}
+              className="flex items-center justify-between gap-3 rounded-2xl bg-[#FBF5EA] px-4 py-3"
+            >
               <span className="min-w-0">
-                <span className="block text-[13px] font-medium text-[#2E2A26]">{s.scope.replace(/_/g, " ").toLowerCase()}</span>
+                <span className="block text-[13px] font-medium text-[#2E2A26]">
+                  {s.scope.replace(/_/g, " ").toLowerCase()}
+                </span>
                 <span className="block text-[11px] leading-snug text-[#6B5D4E]">{s.purpose}</span>
               </span>
               <button
@@ -112,13 +133,16 @@ export function SettingsView() {
                 onClick={() => toggleScope(s.scope, !s.granted)}
                 className={`relative h-6 w-11 shrink-0 rounded-full transition ${s.granted ? "bg-[#7A9A7B]" : "bg-[#D9C8AC]"}`}
               >
-                <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${s.granted ? "left-[22px]" : "left-0.5"}`} />
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${s.granted ? "left-[22px]" : "left-0.5"}`}
+                />
               </button>
             </label>
           ))}
         </div>
         <p className="mt-3 text-[11px] leading-relaxed text-[#A08D74]">
-          Withdrawing stops future processing immediately. MODEL_TRAINING is separate and explicit — never bundled with anything.
+          Withdrawing stops future processing immediately. MODEL_TRAINING is separate and explicit —
+          never bundled with anything.
         </p>
       </section>
 
@@ -128,11 +152,19 @@ export function SettingsView() {
           <button onClick={exportData} disabled={busy} className="diy-btn-primary flex-1 text-sm">
             <Download size={15} aria-hidden /> Export everything (JSON)
           </button>
-          <button onClick={wipe} disabled={busy} className="flex flex-1 items-center justify-center gap-2 rounded-full border border-[#C0392B]/50 px-4 py-3 text-sm font-medium text-[#A93226] transition hover:bg-[#FDEBE8]">
+          <button
+            onClick={wipe}
+            disabled={busy}
+            className="flex flex-1 items-center justify-center gap-2 rounded-full border border-[#C0392B]/50 px-4 py-3 text-sm font-medium text-[#A93226] transition hover:bg-[#FDEBE8]"
+          >
             <Trash2 size={15} aria-hidden /> {wipeArm ? "Tap again to wipe" : "Wipe all DIY data"}
           </button>
         </div>
-        {notice && <p className="mt-3 rounded-xl bg-[#FBF5EA] p-3 text-xs leading-relaxed text-[#6B5D4E]">{notice}</p>}
+        {notice && (
+          <p className="mt-3 rounded-xl bg-[#FBF5EA] p-3 text-xs leading-relaxed text-[#6B5D4E]">
+            {notice}
+          </p>
+        )}
       </section>
     </div>
   );

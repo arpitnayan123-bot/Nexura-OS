@@ -11,7 +11,12 @@ const CreateSchema = z.object({
   entityId: z.string().min(4),
   content: z.string().min(2).max(20_000),
   changeKind: z.enum(["create", "edit", "coauthor", "sign"]).optional(),
-  tracked: z.array(z.object({ field: z.string().max(60), from: z.string().max(2000), to: z.string().max(2000) })).max(30).optional(),
+  tracked: z
+    .array(
+      z.object({ field: z.string().max(60), from: z.string().max(2000), to: z.string().max(2000) }),
+    )
+    .max(30)
+    .optional(),
 });
 
 export const GET = withRoute("docs.versions.list", async (req: NextRequest, { requestId }) => {
@@ -21,7 +26,8 @@ export const GET = withRoute("docs.versions.list", async (req: NextRequest, { re
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const entityType = req.nextUrl.searchParams.get("entityType");
   const entityId = req.nextUrl.searchParams.get("entityId");
-  if (!entityType || !entityId) return fail("missing_params", 400, "entityType + entityId required", requestId);
+  if (!entityType || !entityId)
+    return fail("missing_params", 400, "entityType + entityId required", requestId);
   const versions = await db.nxDocVersion.findMany({
     where: { hospitalId, entityType, entityId },
     orderBy: { createdAt: "asc" },
@@ -54,6 +60,14 @@ export const POST = withRoute("docs.versions.create", async (req: NextRequest, {
       trackedJson: d.tracked ? JSON.stringify(d.tracked) : null,
     },
   });
-  await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "doc.version", entityType: d.entityType, entityId: d.entityId, detail: { version: version.version, kind: version.changeKind } });
+  await audit({
+    hospitalId,
+    actorName: g.session.name,
+    actorRole: g.session.role,
+    action: "doc.version",
+    entityType: d.entityType,
+    entityId: d.entityId,
+    detail: { version: version.version, kind: version.changeKind },
+  });
   return ok(version, { requestId, status: 201 });
 });

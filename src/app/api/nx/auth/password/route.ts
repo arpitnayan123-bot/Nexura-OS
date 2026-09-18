@@ -19,20 +19,30 @@ export const dynamic = "force-dynamic";
 
 const ChangeSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(10, "New password must be at least 10 characters").regex(/[A-Za-z]/, "Include a letter").regex(/[0-9]/, "Include a digit"),
+  newPassword: z
+    .string()
+    .min(10, "New password must be at least 10 characters")
+    .regex(/[A-Za-z]/, "Include a letter")
+    .regex(/[0-9]/, "Include a digit"),
 });
 
 export const PUT = withRoute("auth.password.change", async (req: NextRequest) => {
   const g = await guard(req, "patient.demographics.view");
   if ("response" in g) return g.response;
-  const body = await req.json().catch(() => null) as z.infer<typeof ChangeSchema> | null;
+  const body = (await req.json().catch(() => null)) as z.infer<typeof ChangeSchema> | null;
   if (!body) return fail("invalid_json", 400, "Body required.");
   const parsed = ChangeSchema.safeParse(body);
-  if (!parsed.success) return fail("invalid_request", 400, parsed.error.issues[0]?.message ?? "Invalid input.");
+  if (!parsed.success)
+    return fail("invalid_request", 400, parsed.error.issues[0]?.message ?? "Invalid input.");
 
   const user = await db.nxStaffUser.findUnique({ where: { id: g.session.userId } });
   if (!user) return fail("unauthenticated", 401);
-  if (!user.passwordHash) return fail("no_password_set", 400, "This account signs in with a staff code + PIN. Set a password from an administrator invite first.");
+  if (!user.passwordHash)
+    return fail(
+      "no_password_set",
+      400,
+      "This account signs in with a staff code + PIN. Set a password from an administrator invite first.",
+    );
   const okCurrent = await bcrypt.compare(parsed.data.currentPassword, user.passwordHash);
   if (!okCurrent) return fail("invalid_credentials", 401, "Current password is incorrect.");
 
@@ -42,7 +52,14 @@ export const PUT = withRoute("auth.password.change", async (req: NextRequest) =>
     data: { passwordHash, mustChangePassword: false },
   });
   if (user.hospitalId) {
-    await audit({ hospitalId: user.hospitalId, actorName: user.staffCode, actorRole: user.role, action: "auth.password.changed", entityType: "nx_staff_user", entityId: user.id });
+    await audit({
+      hospitalId: user.hospitalId,
+      actorName: user.staffCode,
+      actorRole: user.role,
+      action: "auth.password.changed",
+      entityType: "nx_staff_user",
+      entityId: user.id,
+    });
   }
   return NextResponse.json({ data: { changed: true } });
 });
@@ -61,7 +78,11 @@ export const POST = withRoute("auth.password.reset.request", async (req: NextReq
   if (user) {
     const token = crypto.randomBytes(32).toString("hex");
     await db.nxPasswordResetToken.create({
-      data: { userId: user.id, tokenHash: crypto.createHash("sha256").update(token).digest("hex"), expiresAt: new Date(Date.now() + 3600_000) },
+      data: {
+        userId: user.id,
+        tokenHash: crypto.createHash("sha256").update(token).digest("hex"),
+        expiresAt: new Date(Date.now() + 3600_000),
+      },
     });
     // Delivery boundary (otp-delivery): console transport prints the same
     // demo line as before; EMAIL_TRANSPORT=smtp sends the real mail. The
@@ -74,31 +95,65 @@ export const POST = withRoute("auth.password.reset.request", async (req: NextReq
     if (sent.transport === "console") {
       log.info("auth", "password_reset.issued", { to: email, expiresInMinutes: 60 });
     } else {
-      log.info("auth", "password_reset.issued", { to: email, expiresInMinutes: 60, delivered: sent.delivered });
+      log.info("auth", "password_reset.issued", {
+        to: email,
+        expiresInMinutes: 60,
+        delivered: sent.delivered,
+      });
     }
-    await audit({ hospitalId: user.hospitalId, actorName: user.staffCode, actorRole: user.role, action: "auth.password.reset_requested", entityType: "nx_staff_user", entityId: user.id });
+    await audit({
+      hospitalId: user.hospitalId,
+      actorName: user.staffCode,
+      actorRole: user.role,
+      action: "auth.password.reset_requested",
+      entityType: "nx_staff_user",
+      entityId: user.id,
+    });
   }
-  return NextResponse.json({ data: { requested: true, message: "If that email exists, a reset link has been sent. In demo mode the token appears in the server log." } });
+  return NextResponse.json({
+    data: {
+      requested: true,
+      message:
+        "If that email exists, a reset link has been sent. In demo mode the token appears in the server log.",
+    },
+  });
 });
 
 export const PATCH = withRoute("auth.password.reset.confirm", async (req: NextRequest) => {
   const parsed = ConfirmSchema.safeParse(await req.json().catch(() => ({})));
-  if (!parsed.success) return fail("invalid_request", 400, "Token and new password required (min 10 chars).");
+  if (!parsed.success)
+    return fail("invalid_request", 400, "Token and new password required (min 10 chars).");
   const tokenHash = crypto.createHash("sha256").update(parsed.data.token).digest("hex");
   const rec = await db.nxPasswordResetToken.findUnique({ where: { tokenHash } });
-  if (!rec || rec.usedAt || rec.expiresAt < new Date()) return fail("invalid_token", 400, "This reset link is invalid or has expired.");
+  if (!rec || rec.usedAt || rec.expiresAt < new Date())
+    return fail("invalid_token", 400, "This reset link is invalid or has expired.");
   const user = await db.nxStaffUser.findUnique({ where: { id: rec.userId } });
   if (!user) return fail("invalid_token", 400, "This reset link is invalid.");
   const passwordHash = await bcrypt.hash(parsed.data.newPassword, 12);
   await db.$transaction([
-    db.nxStaffUser.update({ where: { id: user.id }, data: { passwordHash, mustChangePassword: false, failedAttempts: 0, lockedUntil: null } }),
+    db.nxStaffUser.update({
+      where: { id: user.id },
+      data: { passwordHash, mustChangePassword: false, failedAttempts: 0, lockedUntil: null },
+    }),
     db.nxPasswordResetToken.update({ where: { id: rec.id }, data: { usedAt: new Date() } }),
     // Security: kill every existing session after a reset
-    db.nxSessionRecord.updateMany({ where: { userId: user.id, revokedAt: null }, data: { revokedAt: new Date(), revokedReason: "password_reset" } }),
+    db.nxSessionRecord.updateMany({
+      where: { userId: user.id, revokedAt: null },
+      data: { revokedAt: new Date(), revokedReason: "password_reset" },
+    }),
   ]);
   if (user.hospitalId) {
-    await audit({ hospitalId: user.hospitalId, actorName: user.staffCode, actorRole: user.role, action: "auth.password.reset_completed", entityType: "nx_staff_user", entityId: user.id });
+    await audit({
+      hospitalId: user.hospitalId,
+      actorName: user.staffCode,
+      actorRole: user.role,
+      action: "auth.password.reset_completed",
+      entityType: "nx_staff_user",
+      entityId: user.id,
+    });
   }
   return NextResponse.json({ data: { reset: true } });
 });
-void guard; void verifyToken; void ok;
+void guard;
+void verifyToken;
+void ok;

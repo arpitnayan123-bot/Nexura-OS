@@ -27,8 +27,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value:
-              "frame-ancestors 'self' https://*.space-z.ai http://*.space-z.ai https://*.z.ai",
+            value: "frame-ancestors 'self' https://*.space-z.ai http://*.space-z.ai https://*.z.ai",
           },
         ],
       },

@@ -15,12 +15,5 @@ export default function PharmacyError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SegmentErrorBoundary
-      error={error}
-      reset={reset}
-      variant="warm"
-      tag="pharmacy"
-    />
-  );
+  return <SegmentErrorBoundary error={error} reset={reset} variant="warm" tag="pharmacy" />;
 }

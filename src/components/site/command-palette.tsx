@@ -16,9 +16,26 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
-  Building2, Stethoscope, Pill, HeartPulse, MessageCircle, Sparkles,
-  Globe, BrainCircuit, FlaskConical, Sprout, Clock, TrendingUp, Shield,
-  Search, ArrowRight, CornerDownLeft, User, Siren, Activity, Users,
+  Building2,
+  Stethoscope,
+  Pill,
+  HeartPulse,
+  MessageCircle,
+  Sparkles,
+  Globe,
+  BrainCircuit,
+  FlaskConical,
+  Sprout,
+  Clock,
+  TrendingUp,
+  Shield,
+  Search,
+  ArrowRight,
+  CornerDownLeft,
+  User,
+  Siren,
+  Activity,
+  Users,
 } from "lucide-react";
 import {
   CommandDialog,
@@ -33,31 +50,127 @@ import {
 type Entry = { id: string; name: string; hint: string; icon: React.ElementType; href: string };
 
 const PRODUCTS: Entry[] = [
-  { id: "hospital", name: "Hospital OS", hint: "Flagship · 22-module HMS", icon: Building2, href: "/hospital" },
-  { id: "labs", name: "Nexura Labs", hint: "Diagnostics, decoded · home collection", icon: FlaskConical, href: "/labs" },
-  { id: "emergency", name: "Nexura Emergency", hint: "SOS dispatch · live ER beds", icon: Siren, href: "/emergency" },
-  { id: "vitals", name: "Nexura Vitals", hint: "Continuous health from wearables", icon: Activity, href: "/vitals" },
-  { id: "care", name: "Nexura Care Circle", hint: "Family health · consent controls", icon: Users, href: "/care" },
-  { id: "predictive", name: "Nexura Predictive", hint: "Health foresight engine", icon: BrainCircuit, href: "/predictive" },
-  { id: "clinic", name: "Clinic OS", hint: "EMR · SOAP · drug guard", icon: Stethoscope, href: "/clinic" },
+  {
+    id: "hospital",
+    name: "Hospital OS",
+    hint: "Flagship · 22-module HMS",
+    icon: Building2,
+    href: "/hospital",
+  },
+  {
+    id: "labs",
+    name: "Nexura Labs",
+    hint: "Diagnostics, decoded · home collection",
+    icon: FlaskConical,
+    href: "/labs",
+  },
+  {
+    id: "emergency",
+    name: "Nexura Emergency",
+    hint: "SOS dispatch · live ER beds",
+    icon: Siren,
+    href: "/emergency",
+  },
+  {
+    id: "vitals",
+    name: "Nexura Vitals",
+    hint: "Continuous health from wearables",
+    icon: Activity,
+    href: "/vitals",
+  },
+  {
+    id: "care",
+    name: "Nexura Care Circle",
+    hint: "Family health · consent controls",
+    icon: Users,
+    href: "/care",
+  },
+  {
+    id: "predictive",
+    name: "Nexura Predictive",
+    hint: "Health foresight engine",
+    icon: BrainCircuit,
+    href: "/predictive",
+  },
+  {
+    id: "clinic",
+    name: "Clinic OS",
+    hint: "EMR · SOAP · drug guard",
+    icon: Stethoscope,
+    href: "/clinic",
+  },
   { id: "pharmacy", name: "Pharmacia", hint: "AI pharmacy POS", icon: Pill, href: "/pharmacy" },
-  { id: "portal", name: "Patient Portal", hint: "Unified health record", icon: HeartPulse, href: "/portal" },
-  { id: "connect", name: "Nexura Connect", hint: "Doctor-patient chat & calls", icon: MessageCircle, href: "/connect" },
-  { id: "kyh", name: "Know Your Health", hint: "15 AI health tools", icon: Sparkles, href: "/know-your-health" },
+  {
+    id: "portal",
+    name: "Patient Portal",
+    hint: "Unified health record",
+    icon: HeartPulse,
+    href: "/portal",
+  },
+  {
+    id: "connect",
+    name: "Nexura Connect",
+    hint: "Doctor-patient chat & calls",
+    icon: MessageCircle,
+    href: "/connect",
+  },
+  {
+    id: "kyh",
+    name: "Know Your Health",
+    hint: "15 AI health tools",
+    icon: Sparkles,
+    href: "/know-your-health",
+  },
   { id: "global", name: "Nexura Global", hint: "Medical tourism", icon: Globe, href: "/global" },
   { id: "diy", name: "Nexura DIY", hint: "Free wellness roadmap", icon: Sprout, href: "/diy" },
 ];
 
 const ACTIONS: Entry[] = [
-  { id: "book", name: "Book an appointment", hint: "Multi-step booking", icon: Clock, href: "/#book" },
-  { id: "symptoms", name: "Check my symptoms", hint: "AI triage", icon: Sparkles, href: "/know-your-health#symptoms-checker" },
-  { id: "chat", name: "Chat with a doctor", hint: "Nexura Connect", icon: MessageCircle, href: "/connect/patient" },
-  { id: "labs-book", name: "Book a lab test", hint: "Home collection in 30-min windows", icon: FlaskConical, href: "/labs#book-collection" },
+  {
+    id: "book",
+    name: "Book an appointment",
+    hint: "Multi-step booking",
+    icon: Clock,
+    href: "/#book",
+  },
+  {
+    id: "symptoms",
+    name: "Check my symptoms",
+    hint: "AI triage",
+    icon: Sparkles,
+    href: "/know-your-health#symptoms-checker",
+  },
+  {
+    id: "chat",
+    name: "Chat with a doctor",
+    hint: "Nexura Connect",
+    icon: MessageCircle,
+    href: "/connect/patient",
+  },
+  {
+    id: "labs-book",
+    name: "Book a lab test",
+    hint: "Home collection in 30-min windows",
+    icon: FlaskConical,
+    href: "/labs#book-collection",
+  },
 ];
 
 const RESOURCES: Entry[] = [
-  { id: "pricing", name: "Pricing", hint: "Transparent INR plans", icon: TrendingUp, href: "/pricing" },
-  { id: "compliance", name: "Compliance", hint: "ABDM · DPDP · NABH · CDSCO", icon: Shield, href: "/compliance" },
+  {
+    id: "pricing",
+    name: "Pricing",
+    hint: "Transparent INR plans",
+    icon: TrendingUp,
+    href: "/pricing",
+  },
+  {
+    id: "compliance",
+    name: "Compliance",
+    hint: "ABDM · DPDP · NABH · CDSCO",
+    icon: Shield,
+    href: "/compliance",
+  },
   { id: "founder", name: "The Founder", hint: "Arpit Nayan's story", icon: User, href: "/founder" },
 ];
 
@@ -140,7 +253,12 @@ export function CommandPalette() {
 
           <CommandGroup heading="Quick actions" className="nx-cmdk-group">
             {ACTIONS.map((a) => (
-              <CommandItem key={a.id} value={`${a.name} ${a.hint}`} onSelect={run(a)} className="nx-cmdk-item">
+              <CommandItem
+                key={a.id}
+                value={`${a.name} ${a.hint}`}
+                onSelect={run(a)}
+                className="nx-cmdk-item"
+              >
                 <a.icon className="mr-2 h-4 w-4 shrink-0 text-[#C8A55B]" aria-hidden="true" />
                 <span className="flex-1">{a.name}</span>
                 <span className="hidden text-xs text-[#938A7B] sm:inline">{a.hint}</span>
@@ -151,7 +269,12 @@ export function CommandPalette() {
 
           <CommandGroup heading="Products" className="nx-cmdk-group">
             {PRODUCTS.map((p) => (
-              <CommandItem key={p.id} value={`${p.name} ${p.hint}`} onSelect={run(p)} className="nx-cmdk-item">
+              <CommandItem
+                key={p.id}
+                value={`${p.name} ${p.hint}`}
+                onSelect={run(p)}
+                className="nx-cmdk-item"
+              >
                 <p.icon className="mr-2 h-4 w-4 shrink-0 text-[#C8A55B]" aria-hidden="true" />
                 <span className="flex-1">{p.name}</span>
                 <span className="hidden text-xs text-[#938A7B] sm:inline">{p.hint}</span>
@@ -163,7 +286,12 @@ export function CommandPalette() {
 
           <CommandGroup heading="Resources" className="nx-cmdk-group">
             {RESOURCES.map((r) => (
-              <CommandItem key={r.id} value={`${r.name} ${r.hint}`} onSelect={run(r)} className="nx-cmdk-item">
+              <CommandItem
+                key={r.id}
+                value={`${r.name} ${r.hint}`}
+                onSelect={run(r)}
+                className="nx-cmdk-item"
+              >
                 <r.icon className="mr-2 h-4 w-4 shrink-0 text-[#C8A55B]" aria-hidden="true" />
                 <span className="flex-1">{r.name}</span>
                 <span className="hidden text-xs text-[#938A7B] sm:inline">{r.hint}</span>

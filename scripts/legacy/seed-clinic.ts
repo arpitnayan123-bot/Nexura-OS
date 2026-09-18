@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
    database by accident. Override requires an explicit, intentional flag. */
 if (process.env.NODE_ENV === "production" && process.env.SEED_DEMO_OVERRIDE !== "true") {
   console.error(
-    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true."
+    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true.",
   );
   process.exit(1);
 }
@@ -33,40 +33,148 @@ async function main() {
   });
 
   const doctors = [
-    { name: "Dr. Anita Rao", spec: "General Physician", qual: "MD Medicine", fee: 500, shift: ["09:00", "13:00"] },
-    { name: "Dr. Vikram Shah", spec: "Cardiologist", qual: "MD, DM Cardiology", fee: 800, shift: ["16:00", "20:00"] },
-    { name: "Dr. Meera Iyer", spec: "Pediatrician", qual: "MD Peds", fee: 600, shift: ["10:00", "14:00"] },
+    {
+      name: "Dr. Anita Rao",
+      spec: "General Physician",
+      qual: "MD Medicine",
+      fee: 500,
+      shift: ["09:00", "13:00"],
+    },
+    {
+      name: "Dr. Vikram Shah",
+      spec: "Cardiologist",
+      qual: "MD, DM Cardiology",
+      fee: 800,
+      shift: ["16:00", "20:00"],
+    },
+    {
+      name: "Dr. Meera Iyer",
+      spec: "Pediatrician",
+      qual: "MD Peds",
+      fee: 600,
+      shift: ["10:00", "14:00"],
+    },
   ];
   const docList = [];
   for (const d of doctors) {
-    docList.push(await db.clinicDoctor.create({
-      data: { clinicId: clinic.id, name: d.name, specialization: d.spec, qualification: d.qual, feeConsult: d.fee * 100, shiftStart: d.shift[0], shiftEnd: d.shift[1], phone: "+91 98" + Math.floor(10000000 + Math.random() * 89999999) }, // feeConsult in paise
-    }));
+    docList.push(
+      await db.clinicDoctor.create({
+        data: {
+          clinicId: clinic.id,
+          name: d.name,
+          specialization: d.spec,
+          qualification: d.qual,
+          feeConsult: d.fee * 100,
+          shiftStart: d.shift[0],
+          shiftEnd: d.shift[1],
+          phone: "+91 98" + Math.floor(10000000 + Math.random() * 89999999),
+        }, // feeConsult in paise
+      }),
+    );
   }
 
   const pSeed = [
-    { name: "Sunita Sharma", g: "female", age: 52, blood: "O+", phone: "+91 98200 22110", chronic: "Hypothyroidism" },
-    { name: "Rahul Verma", g: "male", age: 38, blood: "A+", phone: "+91 98200 33220", chronic: null },
-    { name: "Lakshmi Iyer", g: "female", age: 71, blood: "AB+", phone: "+91 98200 44330", chronic: "Hypertension", allergy: "Sulfa" },
-    { name: "Arjun Kumar", g: "male", age: 28, blood: "B+", phone: "+91 98200 55440", chronic: null },
-    { name: "Priya Nair", g: "female", age: 34, blood: "O-", phone: "+91 98200 66550", chronic: null },
-    { name: "Karthik Rao", g: "male", age: 45, blood: "A+", phone: "+91 98200 77660", chronic: "Diabetes Type 2" },
-    { name: "Geeta Pillai", g: "female", age: 60, blood: "B+", phone: "+91 98200 88770", chronic: "Osteoarthritis" },
-    { name: "Suresh Nair", g: "male", age: 33, blood: "AB-", phone: "+91 98200 99880", chronic: null },
+    {
+      name: "Sunita Sharma",
+      g: "female",
+      age: 52,
+      blood: "O+",
+      phone: "+91 98200 22110",
+      chronic: "Hypothyroidism",
+    },
+    {
+      name: "Rahul Verma",
+      g: "male",
+      age: 38,
+      blood: "A+",
+      phone: "+91 98200 33220",
+      chronic: null,
+    },
+    {
+      name: "Lakshmi Iyer",
+      g: "female",
+      age: 71,
+      blood: "AB+",
+      phone: "+91 98200 44330",
+      chronic: "Hypertension",
+      allergy: "Sulfa",
+    },
+    {
+      name: "Arjun Kumar",
+      g: "male",
+      age: 28,
+      blood: "B+",
+      phone: "+91 98200 55440",
+      chronic: null,
+    },
+    {
+      name: "Priya Nair",
+      g: "female",
+      age: 34,
+      blood: "O-",
+      phone: "+91 98200 66550",
+      chronic: null,
+    },
+    {
+      name: "Karthik Rao",
+      g: "male",
+      age: 45,
+      blood: "A+",
+      phone: "+91 98200 77660",
+      chronic: "Diabetes Type 2",
+    },
+    {
+      name: "Geeta Pillai",
+      g: "female",
+      age: 60,
+      blood: "B+",
+      phone: "+91 98200 88770",
+      chronic: "Osteoarthritis",
+    },
+    {
+      name: "Suresh Nair",
+      g: "male",
+      age: 33,
+      blood: "AB-",
+      phone: "+91 98200 99880",
+      chronic: null,
+    },
   ];
   const patients = [];
   for (let i = 0; i < pSeed.length; i++) {
     const p = pSeed[i];
-    patients.push(await db.clinicPatient.create({
-      data: { clinicId: clinic.id, mrn: `CLN-${String(2001 + i)}`, name: p.name, gender: p.g, age: p.age, bloodGroup: p.blood, phone: p.phone, chronicDx: p.chronic, allergy: p.allergy || null },
-    }));
+    patients.push(
+      await db.clinicPatient.create({
+        data: {
+          clinicId: clinic.id,
+          mrn: `CLN-${String(2001 + i)}`,
+          name: p.name,
+          gender: p.g,
+          age: p.age,
+          bloodGroup: p.blood,
+          phone: p.phone,
+          chronicDx: p.chronic,
+          allergy: p.allergy || null,
+        },
+      }),
+    );
   }
 
   // Today's appointments (tokens) — deterministic + collision-free.
   // A patient never books the same doctor twice within 2 hours, and never
   // holds two slots within 45 minutes, so the queue reads like a real day.
-  const today = new Date(); today.setHours(9, 0, 0, 0);
-  const reasons = ["Fever & body ache", "BP review", "Routine checkup", "Skin rash", "Diabetes follow-up", "Cold & cough", "Back pain", "Antenatal"];
+  const today = new Date();
+  today.setHours(9, 0, 0, 0);
+  const reasons = [
+    "Fever & body ache",
+    "BP review",
+    "Routine checkup",
+    "Skin rash",
+    "Diabetes follow-up",
+    "Cold & cough",
+    "Back pain",
+    "Antenatal",
+  ];
   let token = 1;
   let pick = 3; // deterministic PRNG state (xorshift-ish)
   const nextPick = (n: number) => {
@@ -77,7 +185,8 @@ async function main() {
   const lastPatientForDoctor = new Map<string, number>();
   const MIN = 60000;
   for (let h = 0; h < 12; h++) {
-    if (nextPick(10) >= 4) { // ~60% of slots used
+    if (nextPick(10) >= 4) {
+      // ~60% of slots used
       const doc = docList[nextPick(docList.length)];
       // prefer a patient who isn't already booked with this doctor today
       let pat = patients[nextPick(patients.length)];
@@ -93,9 +202,24 @@ async function main() {
       const patIdx = patients.indexOf(pat);
       const slotMs = today.getTime() + (h * 30 + nextPick(25)) * MIN;
       const slot = new Date(slotMs);
-      const status = slot < new Date() ? (nextPick(10) >= 4 ? "done" : "no_show") : (nextPick(10) >= 5 ? "arrived" : "booked");
+      const status =
+        slot < new Date()
+          ? nextPick(10) >= 4
+            ? "done"
+            : "no_show"
+          : nextPick(10) >= 5
+            ? "arrived"
+            : "booked";
       await db.clinicAppointment.create({
-        data: { clinicId: clinic.id, patientId: pat.id, doctorId: doc.id, slot, tokenNo: token++, reason: reasons[(h + patIdx) % reasons.length], status },
+        data: {
+          clinicId: clinic.id,
+          patientId: pat.id,
+          doctorId: doc.id,
+          slot,
+          tokenNo: token++,
+          reason: reasons[(h + patIdx) % reasons.length],
+          status,
+        },
       });
       lastForPatient.set(pat.id, slotMs);
       lastPatientForDoctor.set(`${doc.id}:${pat.id}`, slotMs);
@@ -106,10 +230,15 @@ async function main() {
   for (let i = 0; i < 3; i++) {
     const pat = patients[i];
     const doc = docList[0];
-    const appt = await db.clinicAppointment.findFirst({ where: { patientId: pat.id }, orderBy: { slot: "desc" } });
+    const appt = await db.clinicAppointment.findFirst({
+      where: { patientId: pat.id },
+      orderBy: { slot: "desc" },
+    });
     const visit = await db.clinicVisit.create({
       data: {
-        clinicId: clinic.id, patientId: pat.id, doctorId: doc.id,
+        clinicId: clinic.id,
+        patientId: pat.id,
+        doctorId: doc.id,
         appointmentId: appt?.id || null,
         chiefComplaint: reasons[i],
         vitalsBP: ["130/80", "140/90", "120/76"][i],
@@ -123,16 +252,41 @@ async function main() {
         createdAt: new Date(Date.now() - i * 3600000),
       },
     });
-    const meds = [["Paracetamol 650mg", "1-0-1", "5 days"], ["Amlodipine 5mg", "1-0-0", "30 days"], ["Multivitamin", "1-0-0", "15 days"][0] ? ["Multivitamin", "1-0-0", "15 days"] : ["Paracetamol 650mg", "1-0-1", "5 days"]];
+    const meds = [
+      ["Paracetamol 650mg", "1-0-1", "5 days"],
+      ["Amlodipine 5mg", "1-0-0", "30 days"],
+      ["Multivitamin", "1-0-0", "15 days"][0]
+        ? ["Multivitamin", "1-0-0", "15 days"]
+        : ["Paracetamol 650mg", "1-0-1", "5 days"],
+    ];
     for (const m of meds.slice(0, 2)) {
-      await db.clinicRx.create({ data: { visitId: visit.id, medicine: m[0], dosage: m[1], duration: m[2] } });
+      await db.clinicRx.create({
+        data: { visitId: visit.id, medicine: m[0], dosage: m[1], duration: m[2] },
+      });
     }
     await db.clinicInvoice.create({
-      data: { clinicId: clinic.id, patientId: pat.id, visitId: visit.id, invoiceNo: `CLN-INV-${3001 + i}`, description: "Consultation + Rx", amount: doc.feeConsult, total: doc.feeConsult, status: "paid", payMode: "upi" },
+      data: {
+        clinicId: clinic.id,
+        patientId: pat.id,
+        visitId: visit.id,
+        invoiceNo: `CLN-INV-${3001 + i}`,
+        description: "Consultation + Rx",
+        amount: doc.feeConsult,
+        total: doc.feeConsult,
+        status: "paid",
+        payMode: "upi",
+      },
     });
   }
 
   console.log(`✅ Clinic seed complete — ${patients.length} patients, ${docList.length} doctors`);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); }).finally(async () => { await db.$disconnect(); });
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await db.$disconnect();
+  });

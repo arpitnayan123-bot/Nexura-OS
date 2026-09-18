@@ -18,13 +18,23 @@ export interface BioIngestReport {
 }
 
 const METRIC_RANGES: Record<string, [number, number]> = {
-  heart_rate: [20, 260], hrv: [2, 400], spo2: [40, 100], resp_rate: [4, 80],
-  temp: [30, 43], glucose: [15, 1500], systolic: [50, 300], diastolic: [20, 200],
-  weight: [1, 400], steps: [0, 200000],
+  heart_rate: [20, 260],
+  hrv: [2, 400],
+  spo2: [40, 100],
+  resp_rate: [4, 80],
+  temp: [30, 43],
+  glucose: [15, 1500],
+  systolic: [50, 300],
+  diastolic: [20, 200],
+  weight: [1, 400],
+  steps: [0, 200000],
 };
 
 /** Validate + clean one device batch. Returns accepted samples + report. */
-export function ingestBioBatch(batch: BioSignalBatch): { accepted: BioSample[]; report: BioIngestReport } {
+export function ingestBioBatch(batch: BioSignalBatch): {
+  accepted: BioSample[];
+  report: BioIngestReport;
+} {
   const byMetric = new Map<string, BioSample[]>();
   let rejectedImplausible = 0;
 
@@ -50,7 +60,10 @@ export function ingestBioBatch(batch: BioSignalBatch): { accepted: BioSample[]; 
     rejectedOutlier += outliers.length;
     const kept = arr.filter((s, i) => !outliers.includes(i));
     accepted.push(...kept);
-    perMetric[metric] = { count: kept.length, ewma: kept.length ? Number(ewma(kept.map((s) => s.value)).toFixed(2)) : null };
+    perMetric[metric] = {
+      count: kept.length,
+      ewma: kept.length ? Number(ewma(kept.map((s) => s.value)).toFixed(2)) : null,
+    };
   }
 
   return {
@@ -67,7 +80,10 @@ export function ingestBioBatch(batch: BioSignalBatch): { accepted: BioSample[]; 
 
 /** Night summary from sleep-stage samples (stage: 1=deep 2=light 3=rem 0=awake). */
 export function nightSummary(samples: BioSample[]): {
-  deepPct: number | null; remPct: number | null; awakenings: number | null; totalMinutes: number;
+  deepPct: number | null;
+  remPct: number | null;
+  awakenings: number | null;
+  totalMinutes: number;
 } {
   const sleep = samples.filter((s) => s.metric === "sleep_stage");
   if (!sleep.length) return { deepPct: null, remPct: null, awakenings: null, totalMinutes: 0 };
@@ -87,7 +103,11 @@ export function nightSummary(samples: BioSample[]): {
 }
 
 /** Rolling variability features the sepsis model feeds on. */
-export function variabilityFeatures(values: number[]): { stddev: number; cv: number; lastEwma: number } {
+export function variabilityFeatures(values: number[]): {
+  stddev: number;
+  cv: number;
+  lastEwma: number;
+} {
   if (values.length < 2) return { stddev: 0, cv: 0, lastEwma: values[0] ?? 0 };
   const mean = values.reduce((a, b) => a + b, 0) / values.length;
   const variance = values.reduce((a, b) => a + (b - mean) ** 2, 0) / values.length;

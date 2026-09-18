@@ -37,27 +37,47 @@ export interface GatewayAuth {
   rateLimitPerMin: number;
 }
 
-export async function authenticateApiKey(req: Request): Promise<
+export async function authenticateApiKey(
+  req: Request,
+): Promise<
   { ok: true; auth: GatewayAuth } | { ok: false; status: number; code: string; detail: string }
 > {
   const header = req.headers.get("authorization") || "";
   const token = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
   if (!token.startsWith("nxk_")) {
-    return { ok: false, status: 401, code: "missing_key", detail: "Provide Authorization: Bearer nxk_..." };
+    return {
+      ok: false,
+      status: 401,
+      code: "missing_key",
+      detail: "Provide Authorization: Bearer nxk_...",
+    };
   }
   const key = await db.nxApiKey.findUnique({
     where: { keyHash: hashKey(token) },
     include: { tenant: { select: { id: true, code: true, status: true } } },
   });
-  if (!key || key.revokedAt) return { ok: false, status: 401, code: "invalid_key", detail: "Unknown or revoked key." };
+  if (!key || key.revokedAt)
+    return { ok: false, status: 401, code: "invalid_key", detail: "Unknown or revoked key." };
   if (key.tenant.status !== "active") {
-    return { ok: false, status: 403, code: "tenant_inactive", detail: `Tenant is ${key.tenant.status}.` };
+    return {
+      ok: false,
+      status: 403,
+      code: "tenant_inactive",
+      detail: `Tenant is ${key.tenant.status}.`,
+    };
   }
   const rl = rateLimit(`gw:${key.id}`, key.rateLimitPerMin, 60_000);
   if (!rl.allowed) {
-    return { ok: false, status: 429, code: "rate_limited", detail: `Key limit is ${key.rateLimitPerMin}/min.` };
+    return {
+      ok: false,
+      status: 429,
+      code: "rate_limited",
+      detail: `Key limit is ${key.rateLimitPerMin}/min.`,
+    };
   }
-  await db.nxApiKey.update({ where: { id: key.id }, data: { lastUsedAt: new Date() } }).catch(() => {});
+  await db.nxApiKey
+    .update({ where: { id: key.id }, data: { lastUsedAt: new Date() } })
+    .catch(() => {});
   const { hospitalIdsForTenant } = await import("./tenant");
   const hospitalIds = await hospitalIdsForTenant(key.tenantId);
   return {

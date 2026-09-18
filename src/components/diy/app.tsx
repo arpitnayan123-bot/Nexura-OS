@@ -33,7 +33,10 @@ export function DiyApp() {
   /* silent identity boot: never blocks the chat UI with a sign-in wall */
   const boot = useCallback(async () => {
     try {
-      const s = await diyFetch<{ mode: string }>("/api/diy/session", { method: "POST", body: "{}" });
+      const s = await diyFetch<{ mode: string }>("/api/diy/session", {
+        method: "POST",
+        body: "{}",
+      });
       if (s.mode === "none") throw new Error("identity failed");
       setBooted(true);
     } catch {
@@ -48,7 +51,10 @@ export function DiyApp() {
   const onDone = useCallback(() => setView("dashboard"), []);
 
   return (
-    <div className="nx-diy relative min-h-screen bg-[#F7EFE3] text-[#2E2A26]" style={{ paddingBottom: 0 }}>
+    <div
+      className="nx-diy relative min-h-screen bg-[#F7EFE3] text-[#2E2A26]"
+      style={{ paddingBottom: 0 }}
+    >
       {bootError ? (
         <div className="mx-auto max-w-md px-6 pt-24 text-center">
           <p className="mb-3 text-base font-medium">{bootError}</p>

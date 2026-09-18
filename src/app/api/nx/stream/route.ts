@@ -30,11 +30,13 @@ export async function GET(req: NextRequest) {
   // Channel privacy scope (best-effort at connect): channel memberships plus
   // the clinical-view flag. Membership changes apply on next reconnect.
   const [memberships, perms] = await Promise.all([
-    db.nxChannelMember.findMany({
-      where: { userId: session.userId, channel: { hospitalId } },
-      select: { channel: { select: { key: true } } },
-      take: 100,
-    }).catch(() => []),
+    db.nxChannelMember
+      .findMany({
+        where: { userId: session.userId, channel: { hospitalId } },
+        select: { channel: { select: { key: true } } },
+        take: 100,
+      })
+      .catch(() => []),
     permsForSession(session),
   ]);
   const channels = memberships.map((m) => m.channel.key);
@@ -62,14 +64,16 @@ export async function GET(req: NextRequest) {
       // Initial hello with lastSyncedAt for client-side reconciliation.
       // signingKey is delivered ONLY over this authenticated stream so the
       // client can verify event signatures (alert-integrity, anti-spoof).
-      send(`event: hello\ndata: ${JSON.stringify({ hospitalId, userId: session.userId, lastSyncedAt: new Date().toISOString(), signingKey: signingKeyFor(hospitalId) })}\n\n`);
+      send(
+        `event: hello\ndata: ${JSON.stringify({ hospitalId, userId: session.userId, lastSyncedAt: new Date().toISOString(), signingKey: signingKeyFor(hospitalId) })}\n\n`,
+      );
 
       unsubscribe = subscribe(
         `${session.userId}:${Date.now()}`,
         { userId: session.userId, role: session.role, hospitalId, roleKeys, channels, clinicalAll },
         (ev: NxEvent) => {
           send(`id: ${ev.seq}\nevent: nx\ndata: ${JSON.stringify(ev)}\n\n`);
-        }
+        },
       );
 
       heartbeat = setInterval(() => {

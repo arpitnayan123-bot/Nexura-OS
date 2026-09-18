@@ -22,19 +22,27 @@ export function guardFail(
   code: keyof typeof DIY_ERROR_CODES,
   message: string,
   status = 400,
-  extra: Record<string, unknown> = {}
+  extra: Record<string, unknown> = {},
 ) {
   return NextResponse.json(
     { error: { code: DIY_ERROR_CODES[code], message, ...extra } },
-    { status }
+    { status },
   );
 }
 
-type BodyValidator = (raw: unknown) => { success: true; data: unknown } | { success: false; error: string };
+type BodyValidator = (
+  raw: unknown,
+) => { success: true; data: unknown } | { success: false; error: string };
 
-export function zodBody<S extends { safeParse: (v: unknown) => { success: true; data: unknown } | { success: false; error: { issues: { message?: string }[] } } }>(
-  schema: S
-): BodyValidator {
+export function zodBody<
+  S extends {
+    safeParse: (
+      v: unknown,
+    ) =>
+      | { success: true; data: unknown }
+      | { success: false; error: { issues: { message?: string }[] } };
+  },
+>(schema: S): BodyValidator {
   return (raw) => {
     const r = schema.safeParse(raw);
     return r.success
@@ -49,15 +57,18 @@ export async function guard(
     body?: BodyValidator;
     consent?: keyof typeof REQUIRED_SCOPES;
     rate?: { max: number; windowMs: number };
-  } = {}
+  } = {},
 ): Promise<GuardOk<unknown> | NextResponse> {
   const user = await getDiyUser({ id: true, fullName: true });
-  if (!user) return guardFail("UNAUTHENTICATED", "Open Nexura DIY to start — no sign-in needed.", 401);
+  if (!user)
+    return guardFail("UNAUTHENTICATED", "Open Nexura DIY to start — no sign-in needed.", 401);
 
   const rate = opts.rate ?? { max: 30, windowMs: 60_000 };
   const rl = rateLimit(`diy:${user.id}:${new URL(req.url).pathname}`, rate.max, rate.windowMs);
   if (!rl.allowed) {
-    return guardFail("RATE_LIMITED", "Too many requests — slow down a moment.", 429, { resetAt: rl.resetAt });
+    return guardFail("RATE_LIMITED", "Too many requests — slow down a moment.", 429, {
+      resetAt: rl.resetAt,
+    });
   }
 
   let body: unknown = undefined;

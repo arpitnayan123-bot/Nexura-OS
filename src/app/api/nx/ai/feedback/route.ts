@@ -21,7 +21,9 @@ export const POST = withRoute("ai.feedback", async (req: NextRequest, { requestI
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const body = await parseBody(req, FeedbackSchema);
   if ("response" in body) return body.response;
-  const interaction = await db.nxAIInteraction.findFirst({ where: { id: body.data.interactionId, hospitalId } });
+  const interaction = await db.nxAIInteraction.findFirst({
+    where: { id: body.data.interactionId, hospitalId },
+  });
   if (!interaction) return fail("unknown_interaction", 404, undefined, requestId);
   const row = await db.nxAiFeedback.create({
     data: {
@@ -34,8 +36,21 @@ export const POST = withRoute("ai.feedback", async (req: NextRequest, { requestI
       notes: body.data.notes,
     },
   });
-  await db.nxAIInteraction.update({ where: { id: interaction.id }, data: { status: body.data.verdict === "rejected" ? "review_required" : interaction.status } }).catch(() => {});
-  await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "ai.feedback", entityType: "nx_ai_interaction", entityId: interaction.id, detail: { verdict: body.data.verdict } });
+  await db.nxAIInteraction
+    .update({
+      where: { id: interaction.id },
+      data: { status: body.data.verdict === "rejected" ? "review_required" : interaction.status },
+    })
+    .catch(() => {});
+  await audit({
+    hospitalId,
+    actorName: g.session.name,
+    actorRole: g.session.role,
+    action: "ai.feedback",
+    entityType: "nx_ai_interaction",
+    entityId: interaction.id,
+    detail: { verdict: body.data.verdict },
+  });
   return ok(row, { requestId, status: 201 });
 });
 
@@ -44,6 +59,10 @@ export const GET = withRoute("ai.feedback.list", async (req: NextRequest, { requ
   if ("response" in g) return g.response;
   const hospitalId = g.session.hospitalId;
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
-  const rows = await db.nxAiFeedback.findMany({ where: { hospitalId }, orderBy: { createdAt: "desc" }, take: 50 });
+  const rows = await db.nxAiFeedback.findMany({
+    where: { hospitalId },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
   return ok(rows, { requestId });
 });

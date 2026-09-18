@@ -144,30 +144,48 @@ export const useOs = create<OsState>()(
         });
       },
 
-      setPalette: (v) => set({ paletteOpen: v, quickOpen: false, notifOpen: v ? false : get().notifOpen }),
-      setNotif: (v) => set({ notifOpen: v, quickOpen: v ? false : get().quickOpen, paletteOpen: v ? false : get().paletteOpen }),
-      setQuick: (v) => set({ quickOpen: v, notifOpen: v ? false : get().notifOpen, paletteOpen: v ? false : get().paletteOpen }),
+      setPalette: (v) =>
+        set({ paletteOpen: v, quickOpen: false, notifOpen: v ? false : get().notifOpen }),
+      setNotif: (v) =>
+        set({
+          notifOpen: v,
+          quickOpen: v ? false : get().quickOpen,
+          paletteOpen: v ? false : get().paletteOpen,
+        }),
+      setQuick: (v) =>
+        set({
+          quickOpen: v,
+          notifOpen: v ? false : get().notifOpen,
+          paletteOpen: v ? false : get().paletteOpen,
+        }),
       closeOverlays: () => set({ paletteOpen: false, quickOpen: false, notifOpen: false }),
 
-      lock: () =>
-        set({ locked: true, paletteOpen: false, quickOpen: false, notifOpen: false }),
+      lock: () => set({ locked: true, paletteOpen: false, quickOpen: false, notifOpen: false }),
       unlock: () => set({ locked: false }),
 
       pushNotice: (n) =>
         set((s) => {
           const now = Date.now();
-          if (s.notices.some((m) => m.title === n.title && (!n.body || m.body === n.body) && now - m.ts < 75_000)) return s;
-          const notice: NxNotice = { ...n, id: `n-${now}-${Math.random().toString(36).slice(2, 7)}`, ts: now, read: false };
+          if (
+            s.notices.some(
+              (m) => m.title === n.title && (!n.body || m.body === n.body) && now - m.ts < 75_000,
+            )
+          )
+            return s;
+          const notice: NxNotice = {
+            ...n,
+            id: `n-${now}-${Math.random().toString(36).slice(2, 7)}`,
+            ts: now,
+            read: false,
+          };
           return { notices: [notice, ...s.notices].slice(0, 40) };
         }),
 
       readNotice: (id) =>
         set((s) => ({ notices: s.notices.map((n) => (n.id === id ? { ...n, read: true } : n)) })),
-      dismissNotice: (id) =>
-        set((s) => ({ notices: s.notices.filter((n) => n.id !== id) })),
+      dismissNotice: (id) => set((s) => ({ notices: s.notices.filter((n) => n.id !== id) })),
       clearNotices: () => set({ notices: [] }),
-      markAllRead: () =>
-        set((s) => ({ notices: s.notices.map((n) => ({ ...n, read: true })) })),
+      markAllRead: () => set((s) => ({ notices: s.notices.map((n) => ({ ...n, read: true })) })),
     }),
     {
       name: "nexura-os-prefs-v1",
@@ -182,6 +200,6 @@ export const useOs = create<OsState>()(
         wallpaper: s.wallpaper,
         recents: s.recents,
       }),
-    }
-  )
+    },
+  ),
 );

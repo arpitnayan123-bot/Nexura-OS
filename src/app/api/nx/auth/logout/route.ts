@@ -19,7 +19,10 @@ export const POST = withRoute("auth.logout", async (req: NextRequest) => {
     if (decoded && jti) {
       const rec = await db.nxSessionRecord.findUnique({ where: { jti } });
       if (rec && !rec.revokedAt) {
-        await db.nxSessionRecord.update({ where: { id: rec.id }, data: { revokedAt: new Date(), revokedReason: "logout" } });
+        await db.nxSessionRecord.update({
+          where: { id: rec.id },
+          data: { revokedAt: new Date(), revokedReason: "logout" },
+        });
         const user = await db.nxStaffUser.findUnique({ where: { id: rec.userId } });
         if (user?.hospitalId) {
           await audit({

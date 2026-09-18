@@ -9,12 +9,12 @@ versions onto the `PredictiveHealthAssessment` object **and** onto dedicated col
 of the persisted `PhiAssessment` Prisma row (`prisma/schema.prisma`,
 `@@map("phi_assessments")`):
 
-| Column | Filled from | Current value | Meaning |
-|---|---|---|---|
-| `engineVersion` | `PHI_ENGINE_VERSION` (`contracts.ts`) | `0.1.0` | Version of the analysis engine set (signals, patterns, trends, recommendations, summary, formatter) |
-| `rulesetId` | `triageEngine.id` (mirrors `PHI_RULESET_ID`) | `nexura-redflag` | Which red-flag ruleset produced the triage outcome |
-| `rulesetVersion` | `triageEngine.version` (mirrors `RULESET_VERSION` in `triage/ruleset.ts`) | `1.0.0` | Exact ruleset text that evaluated the input |
-| `contentVersion` | `PHI_CONTENT_VERSION` (`contracts.ts`; `contentRepo.version` mirrors it) | `demo-1` | Version of the evidence/guidance content set |
+| Column           | Filled from                                                               | Current value    | Meaning                                                                                             |
+| ---------------- | ------------------------------------------------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------- |
+| `engineVersion`  | `PHI_ENGINE_VERSION` (`contracts.ts`)                                     | `0.1.0`          | Version of the analysis engine set (signals, patterns, trends, recommendations, summary, formatter) |
+| `rulesetId`      | `triageEngine.id` (mirrors `PHI_RULESET_ID`)                              | `nexura-redflag` | Which red-flag ruleset produced the triage outcome                                                  |
+| `rulesetVersion` | `triageEngine.version` (mirrors `RULESET_VERSION` in `triage/ruleset.ts`) | `1.0.0`          | Exact ruleset text that evaluated the input                                                         |
+| `contentVersion` | `PHI_CONTENT_VERSION` (`contracts.ts`; `contentRepo.version` mirrors it)  | `demo-1`         | Version of the evidence/guidance content set                                                        |
 
 Also persisted per row: `urgency`, `triageOnly`, `dataCompleteness`,
 `followUpIntervalDays`, and `payload` (the full assessment JSON). Index:
@@ -71,9 +71,9 @@ payload.
 
 ### Change log (demo)
 
-| Ruleset version | Date | Change |
-|---|---|---|
-| 1.0.0 | 2026-09-11 (demo stamps) | Initial 16-rule ruleset, all `clinicalReviewer: "PENDING"` |
+| Ruleset version | Date                     | Change                                                     |
+| --------------- | ------------------------ | ---------------------------------------------------------- |
+| 1.0.0           | 2026-09-11 (demo stamps) | Initial 16-rule ruleset, all `clinicalReviewer: "PENDING"` |
 
 ## 3. Content item lifecycle
 
@@ -89,11 +89,11 @@ SAFE_PLACEHOLDER ("…being clinically reviewed and is not shown yet…", status
 
 `PhiContentItem` status values and their meaning:
 
-| Status | Behavior |
-|---|---|
-| `draft` | Never served to users; engine falls through to catalog/placeholder |
+| Status     | Behavior                                                                                                                                         |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `draft`    | Never served to users; engine falls through to catalog/placeholder                                                                               |
 | `approved` | Served, with `sourceAuthority — sourceTitle` attribution; requires `reviewedBy`, `version`, optional `expiresAt` (ISO-date comparison vs. today) |
-| `retired` | Never served; the key falls through as if absent |
+| `retired`  | Never served; the key falls through as if absent                                                                                                 |
 
 Rules:
 
@@ -105,8 +105,8 @@ Rules:
   the set-level stamp. **Bump `PHI_CONTENT_VERSION` whenever approved content text
   changes**, so historical assessments remain interpretable.
 - Demo catalog rows are stamped `sourceAuthority: "ICMR-NIN Dietary Guidelines for
-  Indians 2024 (demo posture)"`, `reviewedBy: "PENDING (demo)"`, `reviewedAt:
-  2026-09-11`, `jurisdiction: IN`, `language: en` — the `PENDING` reviewer is the
+Indians 2024 (demo posture)"`, `reviewedBy: "PENDING (demo)"`, `reviewedAt:
+2026-09-11`, `jurisdiction: IN`, `language: en` — the `PENDING` reviewer is the
   same demo gate as the ruleset's.
 
 ## 4. Model provider swap path (`RiskModelProvider`)
@@ -117,7 +117,7 @@ deterministic signal provider (`assessment/risk-signals.ts`) behind the
 
 ```ts
 export interface RiskModelProvider {
-  readonly id: string;      // stamped identity of the provider
+  readonly id: string; // stamped identity of the provider
   readonly version: string; // stamped per assessment via engineVersion discipline
   generateSignals(context: AssessmentContext): RiskSignal[];
 }

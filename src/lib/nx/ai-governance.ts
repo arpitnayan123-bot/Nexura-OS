@@ -42,10 +42,14 @@ export function confidenceHeuristic(output: unknown): number {
   if (!output || typeof output !== "object") return 0.3;
   const obj = output as Record<string, unknown>;
   const values = Object.values(obj);
-  const filled = values.filter((v) => v !== null && v !== undefined && v !== "" && !(Array.isArray(v) && v.length === 0));
+  const filled = values.filter(
+    (v) => v !== null && v !== undefined && v !== "" && !(Array.isArray(v) && v.length === 0),
+  );
   let score = values.length ? filled.length / values.length : 0.3;
   // declared data gaps are a GOOD sign (honest uncertainty), not a penalty
-  const hasGapDisclosure = values.some((v) => typeof v === "string" && /missing|not available|no data|unknown/i.test(v));
+  const hasGapDisclosure = values.some(
+    (v) => typeof v === "string" && /missing|not available|no data|unknown/i.test(v),
+  );
   if (hasGapDisclosure) score = Math.min(1, score + 0.05);
   // extremely short outputs are suspicious
   const blob = JSON.stringify(obj);
@@ -59,11 +63,15 @@ export function confidenceHeuristic(output: unknown): number {
  *  never looked at withdrawn/denied rows, so revoking a consent was a no-op —
  *  the old granted row kept authorizing AI forever. Withdrawal must mean
  *  something, especially now that patients revoke from the portal. */
-export async function checkAiConsent(hospitalId: string, patientId?: string): Promise<boolean | null> {
+export async function checkAiConsent(
+  hospitalId: string,
+  patientId?: string,
+): Promise<boolean | null> {
   if (!patientId) return null; // no specific patient (e.g. ops analytics) — not applicable
   const latest = await db.nxConsent.findFirst({
     where: {
-      hospitalId, patientId,
+      hospitalId,
+      patientId,
       type: { in: ["ai_assist", "data_share"] },
     },
     orderBy: { grantedAt: "desc" },
@@ -77,8 +85,14 @@ export async function checkAiConsent(hospitalId: string, patientId?: string): Pr
 
 export type ThresholdAction = "allowed" | "human_fallback" | "blocked";
 
-export async function enforceThreshold(hospitalId: string, feature: string, confidence: number): Promise<{ action: ThresholdAction; min: number; requireReview: boolean }> {
-  const cfg = await db.nxAiThreshold.findUnique({ where: { hospitalId_feature: { hospitalId, feature } } });
+export async function enforceThreshold(
+  hospitalId: string,
+  feature: string,
+  confidence: number,
+): Promise<{ action: ThresholdAction; min: number; requireReview: boolean }> {
+  const cfg = await db.nxAiThreshold.findUnique({
+    where: { hospitalId_feature: { hospitalId, feature } },
+  });
   const min = cfg?.minConfidence ?? 0.6;
   const requireReview = cfg?.requireReview ?? true;
   if (confidence < min * 0.7) return { action: "blocked", min, requireReview };
@@ -97,19 +111,21 @@ export async function logAiInteraction(args: {
   consentFlag?: boolean | null;
   thresholdAction?: ThresholdAction;
 }): Promise<void> {
-  await db.nxAIInteraction.create({
-    data: {
-      hospitalId: args.hospitalId,
-      userName: args.userName,
-      userRole: args.userRole,
-      feature: args.feature,
-      status: args.status,
-      response: args.output ? redactDeep(JSON.stringify(args.output)).slice(0, 4000) : undefined,
-      confidence: args.confidence,
-      consentFlag: args.consentFlag ?? undefined,
-      promptVersion: PROMPT_VERSIONS[args.feature],
-      modelVersion: modelVersion(),
-      thresholdAction: args.thresholdAction,
-    },
-  }).catch((err) => log.warn("ai", "telemetry_log_failed", { err: String(err) }));
+  await db.nxAIInteraction
+    .create({
+      data: {
+        hospitalId: args.hospitalId,
+        userName: args.userName,
+        userRole: args.userRole,
+        feature: args.feature,
+        status: args.status,
+        response: args.output ? redactDeep(JSON.stringify(args.output)).slice(0, 4000) : undefined,
+        confidence: args.confidence,
+        consentFlag: args.consentFlag ?? undefined,
+        promptVersion: PROMPT_VERSIONS[args.feature],
+        modelVersion: modelVersion(),
+        thresholdAction: args.thresholdAction,
+      },
+    })
+    .catch((err) => log.warn("ai", "telemetry_log_failed", { err: String(err) }));
 }

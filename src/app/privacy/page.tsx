@@ -10,7 +10,7 @@ const SECTIONS: { heading: string; body: string[] }[] = [
   {
     heading: "1. Who this policy covers",
     body: [
-      "This policy describes how the Nexura OS platform (\"Nexura\", \"we\") handles personal and health-related data across its products: the public website, Know Your Health tools, the patient Portal and family features, Connect (doctor–patient messaging and teleconsultation), and the clinic, pharmacy, and hospital operations consoles. It applies to visitors, patients, family members, and staff who use these surfaces.",
+      'This policy describes how the Nexura OS platform ("Nexura", "we") handles personal and health-related data across its products: the public website, Know Your Health tools, the patient Portal and family features, Connect (doctor–patient messaging and teleconsultation), and the clinic, pharmacy, and hospital operations consoles. It applies to visitors, patients, family members, and staff who use these surfaces.',
       "Nexura is designed around the principles of India's Digital Personal Data Protection (DPDP) Act 2023 and informed by global practices such as GDPR: purpose limitation, data minimisation, storage limitation, and security safeguards. Where you interact with a hospital, clinic, or pharmacy that uses Nexura, that organisation acts as the data fiduciary for your clinical records and this policy describes the platform's role in processing them.",
     ],
   },
@@ -28,7 +28,7 @@ const SECTIONS: { heading: string; body: string[] }[] = [
     body: [
       "Some features use artificial-intelligence models (for example, to explain lab results, structure a food photo, or draft a symptom summary). AI output is informational support, not a diagnosis, not a prescription, and not medical advice. It can be wrong, incomplete, or miss something important.",
       "Always confirm AI-generated health information with a qualified clinician before acting on it, and never delay seeking care because of an AI result. Clinical decisions on Nexura remain human decisions: licensed professionals review, sign, and act on clinical information within their own hospital's workflows.",
-      "We clearly label AI-generated content inside the product, keep explanations available (\"why did the system say this?\"), and provide feedback channels — every AI surface lets you flag a wrong or harmful output.",
+      'We clearly label AI-generated content inside the product, keep explanations available ("why did the system say this?"), and provide feedback channels — every AI surface lets you flag a wrong or harmful output.',
     ],
   },
   {
@@ -60,19 +60,28 @@ const SECTIONS: { heading: string; body: string[] }[] = [
 export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-      <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-primary">Nexura OS</p>
-      <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-foreground">Privacy Policy</h1>
+      <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-primary">
+        Nexura OS
+      </p>
+      <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-foreground">
+        Privacy Policy
+      </h1>
       <p className="mt-3 text-sm text-muted-foreground">
         How we handle personal and health data across the Nexura platform. Last updated:{" "}
-        {new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}.
+        {new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}
+        .
       </p>
 
       <div className="mt-8 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-foreground">
-        <strong className="font-semibold">Template pending professional legal review.</strong> This document is a
-        technically accurate description of the platform&apos;s current data handling, prepared by engineers. It is
-        <strong className="font-semibold"> not legal advice and not a compliance certification</strong>. Have it
-        reviewed and adapted by a qualified legal professional for your jurisdiction and organisation before relying
-        on it operationally.
+        <strong className="font-semibold">Template pending professional legal review.</strong> This
+        document is a technically accurate description of the platform&apos;s current data handling,
+        prepared by engineers. It is
+        <strong className="font-semibold">
+          {" "}
+          not legal advice and not a compliance certification
+        </strong>
+        . Have it reviewed and adapted by a qualified legal professional for your jurisdiction and
+        organisation before relying on it operationally.
       </div>
 
       <div className="mt-10 space-y-10">
@@ -89,9 +98,11 @@ export default function PrivacyPage() {
       </div>
 
       <div className="mt-12 rounded-xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-foreground">
-        <strong className="font-semibold">Medical emergency?</strong> Nexura is not an emergency service. If you or
-        someone else may be seriously ill or injured, call your local emergency number immediately — in India, dial
-        <strong className="font-semibold"> 108</strong> or <strong className="font-semibold">112</strong>.
+        <strong className="font-semibold">Medical emergency?</strong> Nexura is not an emergency
+        service. If you or someone else may be seriously ill or injured, call your local emergency
+        number immediately — in India, dial
+        <strong className="font-semibold"> 108</strong> or{" "}
+        <strong className="font-semibold">112</strong>.
       </div>
     </main>
   );

@@ -35,8 +35,14 @@ export function hashDeviceSecret(secret: string): string {
 
 /** Client-side helper (pairing docs / device firmware / tests):
  *  derive the signing key from the raw secret, then sign. */
-export function deviceSignatureFromSecret(secret: string, deviceId: string, rawBody: string): string {
-  return createHmac("sha256", hashDeviceSecret(secret)).update(`${deviceId}.${rawBody}`).digest("hex");
+export function deviceSignatureFromSecret(
+  secret: string,
+  deviceId: string,
+  rawBody: string,
+): string {
+  return createHmac("sha256", hashDeviceSecret(secret))
+    .update(`${deviceId}.${rawBody}`)
+    .digest("hex");
 }
 
 /** Server-side verification: keyed by the STORED hash. Timing-safe. */
@@ -44,11 +50,13 @@ export function verifyDeviceSignature(
   storedSecretHash: string,
   deviceId: string,
   rawBody: string,
-  signature: string | null | undefined
+  signature: string | null | undefined,
 ): boolean {
   if (!signature || typeof signature !== "string") return false;
   if (!/^[0-9a-f]{64}$/i.test(signature)) return false;
-  const expected = createHmac("sha256", storedSecretHash).update(`${deviceId}.${rawBody}`).digest("hex");
+  const expected = createHmac("sha256", storedSecretHash)
+    .update(`${deviceId}.${rawBody}`)
+    .digest("hex");
   const a = Buffer.from(expected, "utf8");
   const b = Buffer.from(signature, "utf8");
   if (a.length !== b.length) return false;

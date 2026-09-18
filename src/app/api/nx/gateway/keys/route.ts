@@ -22,9 +22,13 @@ export const GET = withRoute("gateway.keys.list", async (req: NextRequest, { req
   let tenantFilter: { tenantId?: string } = {};
   if (!isPlatform) {
     const hospital = g.session.hospitalId
-      ? await db.hospital.findUnique({ where: { id: g.session.hospitalId }, select: { tenantId: true } })
+      ? await db.hospital.findUnique({
+          where: { id: g.session.hospitalId },
+          select: { tenantId: true },
+        })
       : null;
-    if (!hospital?.tenantId) return fail("no_tenant_context", 403, "Your hospital is not bound to a tenant.", requestId);
+    if (!hospital?.tenantId)
+      return fail("no_tenant_context", 403, "Your hospital is not bound to a tenant.", requestId);
     tenantFilter = { tenantId: hospital.tenantId };
   }
   const keys = await db.nxApiKey.findMany({
@@ -45,12 +49,21 @@ export const POST = withRoute("gateway.keys.issue", async (req: NextRequest, { r
   // Ownership wall: hospital_admins may only mint keys for their OWN tenant.
   const isPlatform = g.session.role === "super_admin" || g.session.role === "org_admin";
   const callerHospital = g.session.hospitalId
-    ? await db.hospital.findUnique({ where: { id: g.session.hospitalId }, select: { tenantId: true } })
+    ? await db.hospital.findUnique({
+        where: { id: g.session.hospitalId },
+        select: { tenantId: true },
+      })
     : null;
   if (!isPlatform) {
-    if (!callerHospital?.tenantId) return fail("no_tenant_context", 403, "Your hospital is not bound to a tenant.", requestId);
+    if (!callerHospital?.tenantId)
+      return fail("no_tenant_context", 403, "Your hospital is not bound to a tenant.", requestId);
     if (callerHospital.tenantId !== body.data.tenantId) {
-      return fail("tenant_forbidden", 403, "You can only issue keys for your own tenant.", requestId);
+      return fail(
+        "tenant_forbidden",
+        403,
+        "You can only issue keys for your own tenant.",
+        requestId,
+      );
     }
   }
   const tenant = await db.nxTenant.findUnique({ where: { id: body.data.tenantId } });
@@ -75,7 +88,16 @@ export const POST = withRoute("gateway.keys.issue", async (req: NextRequest, { r
     entityId: key.id,
     detail: { tenant: tenant.code, scopes: body.data.scopes },
   });
-  return ok({ id: key.id, prefix, plaintext, scopes: body.data.scopes, warning: "Store this secret now — it is never shown again." }, { requestId });
+  return ok(
+    {
+      id: key.id,
+      prefix,
+      plaintext,
+      scopes: body.data.scopes,
+      warning: "Store this secret now — it is never shown again.",
+    },
+    { requestId },
+  );
 });
 
 export const DELETE = withRoute("gateway.keys.revoke", async (req: NextRequest, { requestId }) => {
@@ -90,13 +112,18 @@ export const DELETE = withRoute("gateway.keys.revoke", async (req: NextRequest, 
   const isPlatform = g.session.role === "super_admin" || g.session.role === "org_admin";
   if (!isPlatform) {
     const hospital = g.session.hospitalId
-      ? await db.hospital.findUnique({ where: { id: g.session.hospitalId }, select: { tenantId: true } })
+      ? await db.hospital.findUnique({
+          where: { id: g.session.hospitalId },
+          select: { tenantId: true },
+        })
       : null;
     if (hospital?.tenantId !== target.tenantId) {
       return fail("tenant_forbidden", 403, "This key belongs to another tenant.", requestId);
     }
   }
-  const key = await db.nxApiKey.update({ where: { id }, data: { revokedAt: new Date() } }).catch(() => null);
+  const key = await db.nxApiKey
+    .update({ where: { id }, data: { revokedAt: new Date() } })
+    .catch(() => null);
   if (!key) return fail("not_found", 404, undefined, requestId);
   await audit({
     hospitalId,

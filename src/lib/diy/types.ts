@@ -45,7 +45,13 @@ export const CATEGORY_LABELS: Record<DiyCategory, string> = {
 };
 
 /** Deterministic safety plane verdicts, strictest wins. */
-export const SAFETY_ACTIONS = ["ALLOW", "CLARIFY", "SOFT_LIMIT", "STOP_AND_REFER", "EMERGENCY"] as const;
+export const SAFETY_ACTIONS = [
+  "ALLOW",
+  "CLARIFY",
+  "SOFT_LIMIT",
+  "STOP_AND_REFER",
+  "EMERGENCY",
+] as const;
 export type SafetyAction = (typeof SAFETY_ACTIONS)[number];
 
 /** Goal lifecycle — 11 states, every transition server-validated. */

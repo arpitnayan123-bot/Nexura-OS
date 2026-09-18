@@ -40,16 +40,14 @@ export function PharmacyPromo() {
             </Reveal>
             <Reveal delay={0.06}>
               <h2 className="mt-5 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-[3.2rem]">
-                The AI pharmacy that{" "}
-                <span className="text-gradient-warm">runs in a browser.</span>
+                The AI pharmacy that <span className="text-gradient-warm">runs in a browser.</span>
               </h2>
             </Reveal>
             <Reveal delay={0.12}>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Voice-to-bill, prescription OCR, predictive reordering and
-                GST e-invoicing — in a calm, keyboard-first web app. No heavy
-                software to install. Open it on any computer or tablet and start
-                billing in seconds. Faster, kinder, and far more valuable than
+                Voice-to-bill, prescription OCR, predictive reordering and GST e-invoicing — in a
+                calm, keyboard-first web app. No heavy software to install. Open it on any computer
+                or tablet and start billing in seconds. Faster, kinder, and far more valuable than
                 legacy ERPs.
               </p>
             </Reveal>
@@ -59,7 +57,12 @@ export function PharmacyPromo() {
                 <Link
                   href="/pharmacy"
                   className="mat-btn mat-btn--lg mat-btn--clay group"
-                  style={{ "--mat-accent": "#3F6C51", "--mat-accent-2": "#5A8F6B" } as React.CSSProperties}
+                  style={
+                    {
+                      "--mat-accent": "#3F6C51",
+                      "--mat-accent-2": "#5A8F6B",
+                    } as React.CSSProperties
+                  }
                 >
                   Launch the POS
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -167,9 +170,7 @@ function PharmacyVisual() {
             </div>
             <div className="mt-1 flex items-baseline justify-between">
               <span className="text-[0.65rem] font-medium">Total</span>
-              <span className="font-display text-xl font-bold text-primary">
-                ₹188.68
-              </span>
+              <span className="font-display text-xl font-bold text-primary">₹188.68</span>
             </div>
           </div>
           <div className="flex items-center justify-center gap-1.5 rounded-lg bg-primary py-2 text-[0.65rem] font-medium text-primary-foreground">
@@ -184,7 +185,9 @@ function PharmacyVisual() {
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
       >
-        <p className="text-[0.55rem] uppercase tracking-wider text-muted-foreground">Expiry alert</p>
+        <p className="text-[0.55rem] uppercase tracking-wider text-muted-foreground">
+          Expiry alert
+        </p>
         <p className="text-[0.7rem] font-semibold">Azithral · 3mo left</p>
         <p className="text-[0.55rem] text-clay">dump risk · high</p>
       </motion.div>

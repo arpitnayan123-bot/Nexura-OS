@@ -28,7 +28,13 @@ function loaded(): ForesightInput {
     profile: { ...EMPTY_INPUT.profile, weightKg: 84, waistCm: 97 },
     vitals: { ...EMPTY_INPUT.vitals, systolic: 138, diastolic: 88 },
     labs: { hba1cPct: 6.3 },
-    sleep: { ...EMPTY_INPUT.sleep, hoursPerNight: 5.5, quality: "poor", snoring: "loud_regular", daytimeSleepiness: "severe" },
+    sleep: {
+      ...EMPTY_INPUT.sleep,
+      hoursPerNight: 5.5,
+      quality: "poor",
+      snoring: "loud_regular",
+      daytimeSleepiness: "severe",
+    },
     history: { ...EMPTY_INPUT.history, familyHistory: ["diabetes", "heart_disease"] },
   };
 }
@@ -96,13 +102,18 @@ describe("buildForecast", () => {
     expect(m1.unchanged[m1.unchanged.length - 1].t).toBe(1);
     expect(m5.unchanged[m5.unchanged.length - 1].t).toBe(5);
     // 1-year slice of the same curve equals the 5-year curve at t=1
-    expect(m1.unchanged[m1.unchanged.length - 1].v).toBeCloseTo(m5.unchanged.find((p) => p.t === 1)!.v, 5);
+    expect(m1.unchanged[m1.unchanged.length - 1].v).toBeCloseTo(
+      m5.unchanged.find((p) => p.t === 1)!.v,
+      5,
+    );
   });
 
   it("deltas always quote the sliced horizon, never the 5-year endpoint", () => {
     const m1 = buildForecast(RISKY, [], { horizon: 1 });
     const m5 = buildForecast(RISKY, [], { horizon: 5 });
-    expect(m1.deltaActions).toBe(m1.withActions[m1.withActions.length - 1].v - RISKY.foresightScore);
+    expect(m1.deltaActions).toBe(
+      m1.withActions[m1.withActions.length - 1].v - RISKY.foresightScore,
+    );
     expect(Math.abs(m1.deltaActions)).toBeLessThan(Math.abs(m5.deltaActions));
     expect(m5.deltaActions).toBe(RISKY.trajectory.withActionsScore - RISKY.foresightScore);
   });
@@ -199,7 +210,9 @@ describe("buildInsights", () => {
       expect(i.body.length).toBeGreaterThan(30);
     }
     expect(ins.find((i) => i.kind === "change")?.body).toContain("66");
-    expect(ins.find((i) => i.kind === "trend")?.body).toContain(String(RISKY.trajectory.unchangedScore));
+    expect(ins.find((i) => i.kind === "trend")?.body).toContain(
+      String(RISKY.trajectory.unchangedScore),
+    );
   });
 
   it("with no previous run, still produces trend + confidence reads", () => {

@@ -31,7 +31,7 @@ function eventHash(payload: {
         payload.patientId || "",
         payload.detail || "",
         payload.at.toISOString(),
-      ].join("|")
+      ].join("|"),
     )
     .digest("hex");
 }

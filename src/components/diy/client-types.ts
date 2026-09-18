@@ -94,7 +94,9 @@ export async function diyFetch<T>(url: string, init?: RequestInit): Promise<T> {
     ...init,
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
   });
-  const body = (await res.json().catch(() => ({}))) as T & { error?: { code: string; message: string } };
+  const body = (await res.json().catch(() => ({}))) as T & {
+    error?: { code: string; message: string };
+  };
   if (!res.ok) {
     throw Object.assign(new Error(body?.error?.message ?? `Request failed (${res.status})`), {
       code: body?.error?.code,

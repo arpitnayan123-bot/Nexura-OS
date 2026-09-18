@@ -1,14 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  HeartPulse,
-  Stethoscope,
-  Clock,
-  Globe2,
-  TrendingUp,
-  ShieldCheck,
-} from "lucide-react";
+import { HeartPulse, Stethoscope, Clock, Globe2, TrendingUp, ShieldCheck } from "lucide-react";
 import { Reveal, AuroraBackground, FloatingParticles } from "./ambient";
 import { AnimatedNumber } from "./animated-number";
 
@@ -80,14 +73,12 @@ export function ImpactStats() {
           </Reveal>
           <Reveal delay={0.06}>
             <h2 className="title-lux mt-4 text-3xl sm:text-4xl lg:text-5xl">
-              Measured in{" "}
-              <span className="text-gold-gradient">calmer lives.</span>
+              Measured in <span className="text-gold-gradient">calmer lives.</span>
             </h2>
           </Reveal>
           <Reveal delay={0.12}>
             <p className="lede-lux mt-4">
-              Not vanity metrics — real outcomes, tracked ethically, with every
-              patient's consent.
+              Not vanity metrics — real outcomes, tracked ethically, with every patient's consent.
             </p>
           </Reveal>
         </div>
@@ -145,10 +136,7 @@ function StatCard({
         >
           <Icon className="h-5 w-5" strokeWidth={1.8} />
         </span>
-        <span
-          className="h-1.5 w-1.5 rounded-full anim-breathe"
-          style={{ background: accent }}
-        />
+        <span className="h-1.5 w-1.5 rounded-full anim-breathe" style={{ background: accent }} />
       </div>
       <p className="stat-lux relative mt-5 text-4xl sm:text-5xl">
         <AnimatedNumber value={value} format="comma" duration={2} />
@@ -160,10 +148,7 @@ function StatCard({
               .padStart(decimals, "0")}
           </span>
         )}
-        <span
-          className="ml-0.5 text-2xl"
-          style={{ color: accent }}
-        >
+        <span className="ml-0.5 text-2xl" style={{ color: accent }}>
           {suffix}
         </span>
       </p>

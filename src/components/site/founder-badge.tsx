@@ -59,7 +59,9 @@ export function FounderBadge() {
             {/* claymorphic story card */}
             <div
               className="mat-card mat-card--clay relative overflow-hidden rounded-[2rem] transition-all duration-300 group-hover:-translate-y-1.5"
-              style={{ "--mat-accent": "#A16207", "--mat-accent-2": "#C88A1F" } as React.CSSProperties}
+              style={
+                { "--mat-accent": "#A16207", "--mat-accent-2": "#C88A1F" } as React.CSSProperties
+              }
             >
               {/* inner aurora wash — deepens on hover */}
               <div
@@ -75,12 +77,16 @@ export function FounderBadge() {
                 aria-hidden
                 className="pointer-events-none absolute inset-0 opacity-[0.5] mix-blend-soft-light"
                 style={{
-                  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E\")",
+                  backgroundImage:
+                    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E\")",
                   backgroundSize: "140px 140px",
                 }}
               />
               {/* top specular sheen */}
-              <div aria-hidden className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent"
+              />
 
               <div className="relative flex flex-col items-center gap-8 p-8 sm:p-10 lg:flex-row lg:gap-12 lg:p-14">
                 {/* portrait — layered gold rings + hover bloom */}
@@ -88,10 +94,19 @@ export function FounderBadge() {
                   <div
                     aria-hidden
                     className="absolute -inset-4 rounded-full opacity-70 blur-xl transition-all duration-500 group-hover:-inset-6 group-hover:opacity-100"
-                    style={{ background: "radial-gradient(circle, color-mix(in srgb, #C88A1F 45%, transparent), transparent 68%)" }}
+                    style={{
+                      background:
+                        "radial-gradient(circle, color-mix(in srgb, #C88A1F 45%, transparent), transparent 68%)",
+                    }}
                   />
-                  <div aria-hidden className="absolute -inset-2.5 rounded-full border border-[#C8A55B]/40" />
-                  <div aria-hidden className="absolute -inset-1 rounded-full border border-white/60" />
+                  <div
+                    aria-hidden
+                    className="absolute -inset-2.5 rounded-full border border-[#C8A55B]/40"
+                  />
+                  <div
+                    aria-hidden
+                    className="absolute -inset-1 rounded-full border border-white/60"
+                  />
                   <img
                     src="/founder-arpit-circle-white.jpg"
                     alt="Arpit Nayan — Founder & CEO, Nexura OS"
@@ -125,9 +140,8 @@ export function FounderBadge() {
                       &ldquo;
                     </span>
                     <p className="relative text-sm italic leading-relaxed text-muted-foreground sm:text-[0.95rem]">
-                      I walked into a hospital in Bihar and saw a system failing —
-                      not because people didn&rsquo;t care, but because the tools were
-                      from another century.
+                      I walked into a hospital in Bihar and saw a system failing — not because
+                      people didn&rsquo;t care, but because the tools were from another century.
                     </p>
                   </blockquote>
 
@@ -151,7 +165,12 @@ export function FounderBadge() {
                     <span
                       aria-hidden
                       className="mat-btn mat-btn--textured pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]"
-                      style={{ "--mat-accent": "#A16207", "--mat-accent-2": "#C88A1F" } as React.CSSProperties}
+                      style={
+                        {
+                          "--mat-accent": "#A16207",
+                          "--mat-accent-2": "#C88A1F",
+                        } as React.CSSProperties
+                      }
                     >
                       Read the story
                       <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />

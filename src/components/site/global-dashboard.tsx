@@ -2,18 +2,44 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
 import { toast, Toaster } from "sonner";
 import {
-  Globe2, Lock, Mail, Eye, EyeOff, Loader2, ArrowRight, Sparkles,
-  LayoutGrid, Calculator, Users, BarChart3, LogOut,
-  X, Send, Calendar, ArrowRightCircle, MessageCircle,
-  FileText, Download, Plane, Stethoscope, Activity, TrendingUp,
-  DollarSign, MapPin, Clock, CheckCircle2, AlertCircle, ShieldCheck,
-  HeartPulse, FlaskConical, Receipt,
-  PlusCircle, BedDouble,
+  Globe2,
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  Loader2,
+  ArrowRight,
+  Sparkles,
+  LayoutGrid,
+  Calculator,
+  Users,
+  BarChart3,
+  LogOut,
+  X,
+  Send,
+  Calendar,
+  ArrowRightCircle,
+  MessageCircle,
+  FileText,
+  Download,
+  Plane,
+  Stethoscope,
+  Activity,
+  TrendingUp,
+  DollarSign,
+  MapPin,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  ShieldCheck,
+  HeartPulse,
+  FlaskConical,
+  Receipt,
+  PlusCircle,
+  BedDouble,
 } from "lucide-react";
 
 /* ============================================================
@@ -186,10 +212,7 @@ function fmtDate(iso?: string | null): string {
 function daysSince(iso?: string | null): number {
   if (!iso) return 0;
   try {
-    return Math.max(
-      0,
-      Math.floor((Date.now() - new Date(iso).getTime()) / 86400000),
-    );
+    return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
   } catch {
     return 0;
   }
@@ -274,11 +297,7 @@ export function GlobalDashboard() {
         {!coordinator ? (
           <LoginScreen key="login" onLogin={login} />
         ) : (
-          <DashboardShell
-            key="dash"
-            coordinator={coordinator}
-            onLogout={logout}
-          />
+          <DashboardShell key="dash" coordinator={coordinator} onLogout={logout} />
         )}
       </AnimatePresence>
     </div>
@@ -316,8 +335,7 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
       // Honest demo gate: only the demo coordinator identity signs in.
       // Any other email/password combination is rejected so the desk
       // behaves like a real sign-in instead of accepting everything.
-      const emailOk =
-        email.trim().toLowerCase() === (DEMO_COORD.email ?? "").toLowerCase();
+      const emailOk = email.trim().toLowerCase() === (DEMO_COORD.email ?? "").toLowerCase();
       const passwordOk = password === "nexura123";
       if (!emailOk || !passwordOk) {
         setLoading(false);
@@ -368,9 +386,7 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
             <h1 className="font-serif text-2xl font-semibold tracking-tight text-white">
               Nexura Global
             </h1>
-            <p className="mt-1 text-xs text-white/50">
-              International Patient Coordinator Desk
-            </p>
+            <p className="mt-1 text-xs text-white/50">International Patient Coordinator Desk</p>
           </div>
 
           <motion.div
@@ -410,9 +426,7 @@ function LoginScreen({ onLogin }: { onLogin: (c: Coordinator) => void }) {
 
             {/* Password */}
             <div className="mb-4">
-              <label className="mb-1.5 block text-xs font-medium text-white/50">
-                Password
-              </label>
+              <label className="mb-1.5 block text-xs font-medium text-white/50">Password</label>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
                 <input
@@ -525,7 +539,8 @@ function DashboardShell({
       const res = await fetch("/api/global?scope=desk", { cache: "no-store" });
       const d = await res.json();
       if (d && !d.error) setData(d);
-    } catch {} finally {
+    } catch {
+    } finally {
       setLoading(false);
     }
   };
@@ -539,9 +554,7 @@ function DashboardShell({
   const updateInquiry = (inq: Inquiry) => {
     setData((prev) => {
       if (!prev) return prev;
-      const inquiries = prev.inquiries.map((i) =>
-        i.id === inq.id ? inq : i,
-      );
+      const inquiries = prev.inquiries.map((i) => (i.id === inq.id ? inq : i));
       const kanban: Record<string, Inquiry[]> = {};
       for (const s of STATUS_FLOW) kanban[s] = [];
       for (const i of inquiries) {
@@ -565,9 +578,7 @@ function DashboardShell({
               <p className="font-serif text-sm font-semibold tracking-tight text-white">
                 Nexura Global
               </p>
-              <p className="text-[0.6rem] text-white/40">
-                International Patient Coordinator Desk
-              </p>
+              <p className="text-[0.6rem] text-white/40">International Patient Coordinator Desk</p>
             </div>
           </div>
 
@@ -603,9 +614,7 @@ function DashboardShell({
                   .slice(0, 2)}
               </span>
               <div className="hidden sm:block">
-                <p className="text-xs font-medium leading-none text-white">
-                  {coordinator.name}
-                </p>
+                <p className="text-xs font-medium leading-none text-white">{coordinator.name}</p>
                 <p className="text-[0.55rem] text-white/40">Coordinator</p>
               </div>
             </div>
@@ -627,9 +636,7 @@ function DashboardShell({
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                tab === t.id
-                  ? "bg-[#A16207] text-white"
-                  : "bg-white/5 text-white/60"
+                tab === t.id ? "bg-[#A16207] text-white" : "bg-white/5 text-white/60"
               }`}
             >
               <t.icon className="h-3.5 w-3.5" />
@@ -693,10 +700,7 @@ function DashboardSkeleton() {
       <div className="h-8 w-48 animate-pulse rounded-lg bg-slate-200" />
       <div className="grid gap-4 lg:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-40 animate-pulse rounded-2xl bg-slate-100 shadow-depth"
-          />
+          <div key={i} className="h-40 animate-pulse rounded-2xl bg-slate-100 shadow-depth" />
         ))}
       </div>
       <div className="h-96 animate-pulse rounded-2xl bg-slate-100 shadow-depth" />
@@ -781,13 +785,8 @@ function KanbanSection({
             >
               <div className="flex items-center justify-between border-b border-slate-200/80 px-3 py-2.5">
                 <div className="flex items-center gap-2">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ background: col.color }}
-                  />
-                  <span className="text-xs font-semibold text-[#1E293B]">
-                    {col.label}
-                  </span>
+                  <span className="h-2 w-2 rounded-full" style={{ background: col.color }} />
+                  <span className="text-xs font-semibold text-[#1E293B]">{col.label}</span>
                 </div>
                 <span
                   className="rounded-full px-2 py-0.5 text-[0.6rem] font-bold text-white"
@@ -842,12 +841,8 @@ function InquiryCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-1.5">
-          <span className="text-base leading-none">
-            {countryCodeToFlag(inquiry.countryCode)}
-          </span>
-          <p className="text-sm font-semibold text-[#1E293B]">
-            {inquiry.patientName}
-          </p>
+          <span className="text-base leading-none">{countryCodeToFlag(inquiry.countryCode)}</span>
+          <p className="text-sm font-semibold text-[#1E293B]">{inquiry.patientName}</p>
         </div>
         {days === 0 ? (
           <span className="rounded-full bg-green-50 px-1.5 py-0.5 text-[0.55rem] font-medium text-green-600">
@@ -863,9 +858,7 @@ function InquiryCard({
         {inquiry.procedureInterest || "General inquiry"}
       </p>
       <div className="mt-2 flex items-center justify-between">
-        <span className="text-[0.6rem] text-slate-400">
-          {fmtDate(inquiry.createdAt)}
-        </span>
+        <span className="text-[0.6rem] text-slate-400">{fmtDate(inquiry.createdAt)}</span>
         {inquiry.estimatedCostUSD != null && (
           <span className="text-[0.6rem] font-semibold text-[#A16207]">
             {usd(inquiry.estimatedCostUSD)}
@@ -947,9 +940,7 @@ function InquiryDetail({
   };
 
   const sendEstimate = async () => {
-    const proc = procedures.find(
-      (p) => p.name === inquiry.procedureInterest,
-    );
+    const proc = procedures.find((p) => p.name === inquiry.procedureInterest);
     if (!proc) {
       toast.error("Procedure not found. Add estimate manually.");
       return;
@@ -986,10 +977,9 @@ function InquiryDetail({
             estimatedCostINR: d.totalINR,
           });
         }
-        toast.success(
-          `Estimate sent — ${usd(d.totalUSD)} / ${inr(d.totalINR)}`,
-          { description: `Procedure: ${proc.name}` },
-        );
+        toast.success(`Estimate sent — ${usd(d.totalUSD)} / ${inr(d.totalINR)}`, {
+          description: `Procedure: ${proc.name}`,
+        });
         await reload();
       } else {
         toast.error("Failed to generate estimate");
@@ -1106,8 +1096,7 @@ function InquiryDetail({
                 </span>
               </div>
               <p className="mt-0.5 text-xs text-white/50">
-                {inquiry.patientCountry} ·{" "}
-                {STATUS_LABELS[inquiry.status] || inquiry.status}
+                {inquiry.patientCountry} · {STATUS_LABELS[inquiry.status] || inquiry.status}
               </p>
             </div>
           </div>
@@ -1126,22 +1115,13 @@ function InquiryDetail({
           <Section title="Patient Information" icon={Users}>
             <DetailRow label="Email" value={inquiry.patientEmail || "—"} />
             <DetailRow label="Phone" value={inquiry.patientPhone || "—"} />
-            <DetailRow
-              label="Procedure"
-              value={inquiry.procedureInterest || "General"}
-            />
-            <DetailRow
-              label="Inquiry Date"
-              value={fmtDate(inquiry.createdAt)}
-            />
+            <DetailRow label="Procedure" value={inquiry.procedureInterest || "General"} />
+            <DetailRow label="Inquiry Date" value={fmtDate(inquiry.createdAt)} />
             <DetailRow
               label="Last Updated"
               value={`${fmtDate(inquiry.updatedAt)} (${daysSince(inquiry.updatedAt)}d ago)`}
             />
-            <DetailRow
-              label="Coordinator"
-              value={inquiry.coordinatorName || "Unassigned"}
-            />
+            <DetailRow label="Coordinator" value={inquiry.coordinatorName || "Unassigned"} />
           </Section>
 
           {/* Condition */}
@@ -1163,28 +1143,16 @@ function InquiryDetail({
                 />
               )}
               {inquiry.appointmentDate != null && (
-                <DetailRow
-                  label="Consultation"
-                  value={fmtDate(inquiry.appointmentDate)}
-                />
+                <DetailRow label="Consultation" value={fmtDate(inquiry.appointmentDate)} />
               )}
               {inquiry.arrivalDate != null && (
-                <DetailRow
-                  label="Arrival"
-                  value={fmtDate(inquiry.arrivalDate)}
-                />
+                <DetailRow label="Arrival" value={fmtDate(inquiry.arrivalDate)} />
               )}
               {inquiry.dischargeDate != null && (
-                <DetailRow
-                  label="Discharge"
-                  value={fmtDate(inquiry.dischargeDate)}
-                />
+                <DetailRow label="Discharge" value={fmtDate(inquiry.dischargeDate)} />
               )}
               {inquiry.totalBilledUSD != null && (
-                <DetailRow
-                  label="Billed"
-                  value={usd(inquiry.totalBilledUSD)}
-                />
+                <DetailRow label="Billed" value={usd(inquiry.totalBilledUSD)} />
               )}
             </Section>
           )}
@@ -1192,29 +1160,31 @@ function InquiryDetail({
           {/* Medical documents */}
           <Section title="Medical Documents" icon={FileText}>
             <div className="grid grid-cols-2 gap-2">
-              {["Angiography Report", "Blood Test Results", "Previous Records", "Insurance Card"].map(
-                (doc, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[0.65rem] text-[#64748B]"
-                  >
-                    <FileText className="h-3.5 w-3.5 text-slate-400" />
-                    <span className="truncate">{doc}</span>
-                  </div>
-                ),
-              )}
+              {[
+                "Angiography Report",
+                "Blood Test Results",
+                "Previous Records",
+                "Insurance Card",
+              ].map((doc, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[0.65rem] text-[#64748B]"
+                >
+                  <FileText className="h-3.5 w-3.5 text-slate-400" />
+                  <span className="truncate">{doc}</span>
+                </div>
+              ))}
             </div>
             <p className="mt-2 text-[0.6rem] text-slate-400">
-              No records uploaded yet — the coordinator requests them over WhatsApp or Connect before the visa stage.
+              No records uploaded yet — the coordinator requests them over WhatsApp or Connect
+              before the visa stage.
             </p>
           </Section>
 
           {/* Conversation log */}
           <Section title="Conversation Log" icon={MessageCircle}>
             {messages.length === 0 ? (
-              <p className="rounded-lg bg-slate-50 p-3 text-xs text-slate-400">
-                No messages yet
-              </p>
+              <p className="rounded-lg bg-slate-50 p-3 text-xs text-slate-400">No messages yet</p>
             ) : (
               <div className="space-y-2">
                 {messages.map((m, i) => (
@@ -1308,9 +1278,7 @@ function Section({
     <div>
       <div className="mb-2 flex items-center gap-1.5">
         <Icon className="h-3.5 w-3.5 text-[#A16207]" />
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#475569]">
-          {title}
-        </h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#475569]">{title}</h3>
       </div>
       <div className="space-y-1">{children}</div>
     </div>
@@ -1343,7 +1311,8 @@ function ActionButton({
 }) {
   const styles = {
     default: "border-slate-200 bg-white text-[#1E293B] hover:bg-slate-50",
-    primary: "bg-gradient-to-r from-[#A16207] to-[#8A5A04] text-white shadow-md shadow-[#A16207]/20 hover:scale-[1.02]",
+    primary:
+      "bg-gradient-to-r from-[#A16207] to-[#8A5A04] text-white shadow-md shadow-[#A16207]/20 hover:scale-[1.02]",
     whatsapp: "bg-[#25D366] text-white shadow-md shadow-[#25D366]/20 hover:bg-[#1eb858]",
   }[variant];
   return (
@@ -1436,7 +1405,9 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
     }
     lines.push("");
     lines.push("=============================");
-    lines.push(`TOTAL: $${result.totalUSD.toLocaleString()} / ₹${result.totalINR.toLocaleString("en-IN")}`);
+    lines.push(
+      `TOTAL: $${result.totalUSD.toLocaleString()} / ₹${result.totalINR.toLocaleString("en-IN")}`,
+    );
     lines.push("");
     lines.push("Generated: " + new Date().toLocaleString("en-IN"));
     lines.push("Valid for 30 days. Final cost may vary based on diagnosis.");
@@ -1458,10 +1429,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
 
-  const extraCost = EXTRA_PACKAGES.filter((e) => extras[e.id]).reduce(
-    (s, e) => s + e.cost,
-    0,
-  );
+  const extraCost = EXTRA_PACKAGES.filter((e) => extras[e.id]).reduce((s, e) => s + e.cost, 0);
 
   return (
     <div className="space-y-5">
@@ -1481,15 +1449,11 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#A16207]/15 text-[#A16207]">
               <Calculator className="h-4 w-4" />
             </span>
-            <h3 className="text-sm font-semibold text-[#1E293B]">
-              Estimate Inputs
-            </h3>
+            <h3 className="text-sm font-semibold text-[#1E293B]">Estimate Inputs</h3>
           </div>
 
           {/* Procedure select */}
-          <label className="mb-1.5 block text-xs font-medium text-[#475569]">
-            Procedure
-          </label>
+          <label className="mb-1.5 block text-xs font-medium text-[#475569]">Procedure</label>
           <select
             value={effectiveId}
             onChange={(e) => {
@@ -1499,9 +1463,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
             }}
             className="mb-4 h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#1E293B] outline-none transition-colors focus:border-[#A16207]/50"
           >
-            {procedures.length === 0 && (
-              <option value="">No procedures configured</option>
-            )}
+            {procedures.length === 0 && <option value="">No procedures configured</option>}
             {procedures.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name} — {usd(p.priceUSD)} ({p.avgStayDays}d)
@@ -1519,9 +1481,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
               min={1}
               max={60}
               value={stayDays}
-              onChange={(e) =>
-                setStayDays(Math.max(1, Math.min(60, Number(e.target.value) || 1)))
-              }
+              onChange={(e) => setStayDays(Math.max(1, Math.min(60, Number(e.target.value) || 1)))}
               className="h-11 w-24 rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#1E293B] outline-none focus:border-[#A16207]/50"
             />
             {selectedProc && (
@@ -1532,18 +1492,14 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
           </div>
 
           {/* Extras */}
-          <label className="mb-2 block text-xs font-medium text-[#475569]">
-            Optional Packages
-          </label>
+          <label className="mb-2 block text-xs font-medium text-[#475569]">Optional Packages</label>
           <div className="space-y-2">
             {EXTRA_PACKAGES.map((e) => {
               const checked = !!extras[e.id];
               return (
                 <button
                   key={e.id}
-                  onClick={() =>
-                    setExtras((prev) => ({ ...prev, [e.id]: !prev[e.id] }))
-                  }
+                  onClick={() => setExtras((prev) => ({ ...prev, [e.id]: !prev[e.id] }))}
                   className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition-all ${
                     checked
                       ? "border-[#A16207]/50 bg-[#A16207]/5"
@@ -1559,19 +1515,13 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
                       <e.icon className="h-4 w-4" />
                     </span>
                     <div>
-                      <p className="text-xs font-medium text-[#1E293B]">
-                        {e.name}
-                      </p>
-                      <p className="text-[0.6rem] text-slate-400">
-                        +${e.cost}
-                      </p>
+                      <p className="text-xs font-medium text-[#1E293B]">{e.name}</p>
+                      <p className="text-[0.6rem] text-slate-400">+${e.cost}</p>
                     </div>
                   </div>
                   <div
                     className={`grid h-5 w-5 place-items-center rounded-md border ${
-                      checked
-                        ? "border-[#A16207] bg-[#A16207] text-white"
-                        : "border-slate-300"
+                      checked ? "border-[#A16207] bg-[#A16207] text-white" : "border-slate-300"
                     }`}
                   >
                     {checked && <CheckCircle2 className="h-3.5 w-3.5" />}
@@ -1590,14 +1540,14 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
               </span>
             </div>
             <div className="mt-1 flex items-center justify-between text-xs">
-              <span className="text-slate-500">Add-ons ({Object.values(extras).filter(Boolean).length})</span>
+              <span className="text-slate-500">
+                Add-ons ({Object.values(extras).filter(Boolean).length})
+              </span>
               <span className="font-medium text-[#1E293B]">{usd(extraCost)}</span>
             </div>
             <div className="mt-1 flex items-center justify-between text-xs">
               <span className="text-slate-500">Stay ({stayDays}d × $150)</span>
-              <span className="font-medium text-[#1E293B]">
-                {usd(stayDays * 150)}
-              </span>
+              <span className="font-medium text-[#1E293B]">{usd(stayDays * 150)}</span>
             </div>
           </div>
 
@@ -1625,9 +1575,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#A16207]/15 text-[#A16207]">
                 <Receipt className="h-4 w-4" />
               </span>
-              <h3 className="text-sm font-semibold text-[#1E293B]">
-                Professional Breakdown
-              </h3>
+              <h3 className="text-sm font-semibold text-[#1E293B]">Professional Breakdown</h3>
             </div>
             {result && (
               <span className="rounded-full bg-[#16A34A]/10 px-2 py-0.5 text-[0.6rem] font-medium text-[#16A34A]">
@@ -1640,9 +1588,7 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
             <div className="grid h-72 place-items-center text-center">
               <div>
                 <Calculator className="mx-auto mb-3 h-10 w-10 text-slate-300" />
-                <p className="text-sm text-slate-400">
-                  Configure inputs and click Generate
-                </p>
+                <p className="text-sm text-slate-400">Configure inputs and click Generate</p>
                 <p className="mt-1 text-[0.65rem] text-slate-300">
                   Your cost estimate will appear here
                 </p>
@@ -1655,12 +1601,8 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
               className="space-y-3"
             >
               <div className="rounded-xl bg-gradient-to-br from-[#0F172A] to-[#1E293B] p-4 text-white">
-                <p className="text-[0.65rem] uppercase tracking-wider text-white/40">
-                  Procedure
-                </p>
-                <p className="mt-0.5 font-serif text-base font-semibold">
-                  {result.procedure}
-                </p>
+                <p className="text-[0.65rem] uppercase tracking-wider text-white/40">Procedure</p>
+                <p className="mt-0.5 font-serif text-base font-semibold">{result.procedure}</p>
                 <p className="mt-1 text-[0.65rem] text-white/50">
                   {result.stayDays}-day stay · Rate 1 USD = ₹{result.inrRate}
                 </p>
@@ -1684,28 +1626,20 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
                   icon={HeartPulse}
                 />
                 {result.extras > 0 && (
-                  <EstimateLine
-                    label="Add-on Packages"
-                    value={result.extras}
-                    icon={PlusCircle}
-                  />
+                  <EstimateLine label="Add-on Packages" value={result.extras} icon={PlusCircle} />
                 )}
               </div>
 
               {/* Total */}
               <div className="rounded-xl border-2 border-[#A16207]/30 bg-[#A16207]/5 p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-[#475569]">
-                    Total USD
-                  </span>
+                  <span className="text-xs font-medium text-[#475569]">Total USD</span>
                   <span className="font-serif text-xl font-bold text-[#1E293B]">
                     {usd(result.totalUSD)}
                   </span>
                 </div>
                 <div className="mt-1 flex items-center justify-between border-t border-[#A16207]/20 pt-2">
-                  <span className="text-xs font-medium text-[#475569]">
-                    Total INR
-                  </span>
+                  <span className="text-xs font-medium text-[#475569]">Total INR</span>
                   <span className="font-serif text-xl font-bold text-[#A16207]">
                     {inr(result.totalINR)}
                   </span>
@@ -1736,24 +1670,14 @@ function EstimateSection({ procedures }: { procedures: Procedure[] }) {
   );
 }
 
-function EstimateLine({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string;
-  value: number;
-  icon?: any;
-}) {
+function EstimateLine({ label, value, icon: Icon }: { label: string; value: number; icon?: any }) {
   return (
     <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2">
       <span className="flex items-center gap-1.5 text-xs text-[#475569]">
         {Icon && <Icon className="h-3.5 w-3.5 text-slate-400" />}
         {label}
       </span>
-      <span className="font-serif text-sm font-semibold text-[#1E293B]">
-        {usd(value)}
-      </span>
+      <span className="font-serif text-sm font-semibold text-[#1E293B]">{usd(value)}</span>
     </div>
   );
 }
@@ -1762,12 +1686,7 @@ function EstimateLine({
    Section 3 — International Patients Table
    ============================================================ */
 
-const INTERNATIONAL_STATUSES = [
-  "arrived",
-  "treatment_ongoing",
-  "discharged",
-  "post_care",
-];
+const INTERNATIONAL_STATUSES = ["arrived", "treatment_ongoing", "discharged", "post_care"];
 
 function PatientsSection({ inquiries }: { inquiries: Inquiry[] }) {
   const patients = useMemo(
@@ -1787,10 +1706,7 @@ function PatientsSection({ inquiries }: { inquiries: Inquiry[] }) {
     0,
   );
   const successful = patients.filter((p) => p.outcome === "successful").length;
-  const successRate =
-    patients.length > 0
-      ? Math.round((successful / patients.length) * 100)
-      : 0;
+  const successRate = patients.length > 0 ? Math.round((successful / patients.length) * 100) : 0;
 
   return (
     <div className="space-y-5">
@@ -1831,9 +1747,7 @@ function PatientsSection({ inquiries }: { inquiries: Inquiry[] }) {
           <div className="grid h-48 place-items-center text-center">
             <div>
               <Users className="mx-auto mb-3 h-10 w-10 text-slate-300" />
-              <p className="text-sm text-slate-400">
-                No international patients yet
-              </p>
+              <p className="text-sm text-slate-400">No international patients yet</p>
               <p className="mt-1 text-[0.65rem] text-slate-300">
                 Patients who arrive for treatment will appear here
               </p>
@@ -1865,39 +1779,25 @@ function PatientsSection({ inquiries }: { inquiries: Inquiry[] }) {
                           {p.patientName[0]}
                         </span>
                         <div>
-                          <p className="font-medium text-[#1E293B]">
-                            {p.patientName}
-                          </p>
-                          <p className="text-[0.6rem] text-slate-400">
-                            {p.patientEmail}
-                          </p>
+                          <p className="font-medium text-[#1E293B]">{p.patientName}</p>
+                          <p className="text-[0.6rem] text-slate-400">{p.patientEmail}</p>
                         </div>
                       </div>
                     </Td>
                     <Td>
                       <span className="flex items-center gap-1.5">
-                        <span className="text-base">
-                          {countryCodeToFlag(p.countryCode)}
-                        </span>
-                        <span className="text-xs text-[#475569]">
-                          {p.patientCountry}
-                        </span>
+                        <span className="text-base">{countryCodeToFlag(p.countryCode)}</span>
+                        <span className="text-xs text-[#475569]">{p.patientCountry}</span>
                       </span>
                     </Td>
                     <Td>
-                      <span className="text-xs text-[#475569]">
-                        {p.procedureInterest || "—"}
-                      </span>
+                      <span className="text-xs text-[#475569]">{p.procedureInterest || "—"}</span>
                     </Td>
                     <Td>
-                      <span className="text-xs text-[#475569]">
-                        {fmtDate(p.arrivalDate)}
-                      </span>
+                      <span className="text-xs text-[#475569]">{fmtDate(p.arrivalDate)}</span>
                     </Td>
                     <Td>
-                      <span className="text-xs text-[#475569]">
-                        {fmtDate(p.dischargeDate)}
-                      </span>
+                      <span className="text-xs text-[#475569]">{fmtDate(p.dischargeDate)}</span>
                     </Td>
                     <Td align="right">
                       <span className="font-serif text-sm font-semibold text-[#1E293B]">
@@ -1905,10 +1805,7 @@ function PatientsSection({ inquiries }: { inquiries: Inquiry[] }) {
                       </span>
                     </Td>
                     <Td align="center">
-                      <OutcomeBadge
-                        outcome={p.outcome}
-                        status={p.status}
-                      />
+                      <OutcomeBadge outcome={p.outcome} status={p.status} />
                     </Td>
                   </tr>
                 ))}
@@ -1931,11 +1828,7 @@ function Th({
   return (
     <th
       className={`px-4 py-3 text-[0.65rem] font-semibold uppercase tracking-wider text-[#64748B] ${
-        align === "right"
-          ? "text-right"
-          : align === "center"
-            ? "text-center"
-            : "text-left"
+        align === "right" ? "text-right" : align === "center" ? "text-center" : "text-left"
       }`}
     >
       {children}
@@ -1953,11 +1846,7 @@ function Td({
   return (
     <td
       className={`px-4 py-3 ${
-        align === "right"
-          ? "text-right"
-          : align === "center"
-            ? "text-center"
-            : "text-left"
+        align === "right" ? "text-right" : align === "center" ? "text-center" : "text-left"
       }`}
     >
       {children}
@@ -1965,13 +1854,7 @@ function Td({
   );
 }
 
-function OutcomeBadge({
-  outcome,
-  status,
-}: {
-  outcome: string | null;
-  status: string;
-}) {
+function OutcomeBadge({ outcome, status }: { outcome: string | null; status: string }) {
   if (outcome === "successful") {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[0.6rem] font-medium text-green-700">
@@ -2045,9 +1928,7 @@ function SummaryCard({
           <Icon className="h-4 w-4" />
         </span>
       </div>
-      <p className="mt-2 font-serif text-2xl font-bold text-[#1E293B]">
-        {value}
-      </p>
+      <p className="mt-2 font-serif text-2xl font-bold text-[#1E293B]">{value}</p>
       <p className="text-[0.65rem] text-[#64748B]">{label}</p>
     </motion.div>
   );
@@ -2062,21 +1943,15 @@ function AnalyticsSection({ data }: { data: TourismData }) {
   const thisMonth = (inquiries: Inquiry[]) =>
     inquiries.filter((i) => {
       const d = new Date(i.createdAt);
-      return (
-        d.getMonth() === now.getMonth() &&
-        d.getFullYear() === now.getFullYear()
-      );
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
     }).length;
 
-  const international = data.inquiries.filter((i) =>
-    INTERNATIONAL_STATUSES.includes(i.status),
-  );
+  const international = data.inquiries.filter((i) => INTERNATIONAL_STATUSES.includes(i.status));
   const totalRevenue = international.reduce(
     (s, p) => s + (p.totalBilledUSD || p.estimatedCostUSD || 0),
     0,
   );
-  const avgRevenue =
-    international.length > 0 ? Math.round(totalRevenue / international.length) : 0;
+  const avgRevenue = international.length > 0 ? Math.round(totalRevenue / international.length) : 0;
   const convertedThisMonth = thisMonth(data.inquiries);
   const conversionRate = data.stats.conversionRate;
 
@@ -2142,19 +2017,12 @@ function AnalyticsSection({ data }: { data: TourismData }) {
       {/* Charts */}
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Top countries */}
-        <ChartCard
-          title="Top 3 Source Countries"
-          icon={MapPin}
-          accent="#3B82F6"
-        >
+        <ChartCard title="Top 3 Source Countries" icon={MapPin} accent="#3B82F6">
           {countryChart.length === 0 ? (
             <EmptyChart />
           ) : (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart
-                data={countryChart}
-                margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-              >
+              <BarChart data={countryChart} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                 <XAxis
                   dataKey="name"
                   tick={{ fontSize: 11, fill: SLATE }}
@@ -2178,10 +2046,7 @@ function AnalyticsSection({ data }: { data: TourismData }) {
                 />
                 <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={50}>
                   {countryChart.map((_, i) => (
-                    <Cell
-                      key={i}
-                      fill={["#3B82F6", "#60A5FA", "#93C5FD"][i] || "#3B82F6"}
-                    />
+                    <Cell key={i} fill={["#3B82F6", "#60A5FA", "#93C5FD"][i] || "#3B82F6"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -2190,11 +2055,7 @@ function AnalyticsSection({ data }: { data: TourismData }) {
         </ChartCard>
 
         {/* Top procedures */}
-        <ChartCard
-          title="Top 3 Procedures by Inquiry"
-          icon={Stethoscope}
-          accent="#A16207"
-        >
+        <ChartCard title="Top 3 Procedures by Inquiry" icon={Stethoscope} accent="#A16207">
           {procedureChart.length === 0 ? (
             <EmptyChart />
           ) : (
@@ -2230,10 +2091,7 @@ function AnalyticsSection({ data }: { data: TourismData }) {
                 />
                 <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={28}>
                   {procedureChart.map((_, i) => (
-                    <Cell
-                      key={i}
-                      fill={["#A16207", "#D9B87C", "#FCD34D"][i] || "#A16207"}
-                    />
+                    <Cell key={i} fill={["#A16207", "#D9B87C", "#FCD34D"][i] || "#A16207"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -2292,9 +2150,7 @@ function KpiCard({
       >
         <Icon className="h-4 w-4" />
       </span>
-      <p className="mt-2 font-serif text-2xl font-bold text-[#1E293B]">
-        {value}
-      </p>
+      <p className="mt-2 font-serif text-2xl font-bold text-[#1E293B]">{value}</p>
       <p className="text-[0.65rem] text-[#64748B]">{label}</p>
       <p className="mt-0.5 text-[0.6rem] text-slate-400">{sub}</p>
     </motion.div>
@@ -2321,9 +2177,7 @@ function ChartCard({
         >
           <Icon className="h-3.5 w-3.5" />
         </span>
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#475569]">
-          {title}
-        </h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#475569]">{title}</h3>
       </div>
       {children}
     </div>
@@ -2361,14 +2215,10 @@ function ListCard({
         >
           <Icon className="h-3.5 w-3.5" />
         </span>
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#475569]">
-          {title}
-        </h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#475569]">{title}</h3>
       </div>
       {items.length === 0 ? (
-        <p className="py-6 text-center text-xs text-slate-400">
-          No data available
-        </p>
+        <p className="py-6 text-center text-xs text-slate-400">No data available</p>
       ) : (
         <div className="space-y-2">
           {items.map((item, i) => (
@@ -2386,9 +2236,7 @@ function ListCard({
                 >
                   {i + 1}
                 </span>
-                <span className="text-xs font-medium text-[#1E293B]">
-                  {item.label}
-                </span>
+                <span className="text-xs font-medium text-[#1E293B]">{item.label}</span>
               </div>
               <span className="text-[0.65rem] text-slate-500">{item.value}</span>
             </motion.div>

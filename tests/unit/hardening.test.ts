@@ -16,16 +16,17 @@ import type { NxSession } from "@/lib/nx/session";
    versioning, and the demo-seed production guard.
    ============================================================ */
 
-function fakeReq(headers: Record<string, string>, url = "http://localhost:3000/api/test"): NextRequest {
+function fakeReq(
+  headers: Record<string, string>,
+  url = "http://localhost:3000/api/test",
+): NextRequest {
   return new NextRequest(new Request(url, { headers }));
 }
 
 afterAll(async () => {
   // Surgical cleanup — only rows this suite created (all keys use the
   // "test-" prefix; production/other-suite keys never match this shape).
-  await db.nxIdempotency
-    .deleteMany({ where: { key: { contains: ":test-" } } })
-    .catch(() => {});
+  await db.nxIdempotency.deleteMany({ where: { key: { contains: ":test-" } } }).catch(() => {});
 });
 
 describe("ipOf (spoof-resistant client IP)", () => {
@@ -92,14 +93,24 @@ describe("withIdempotency claim-then-execute", () => {
     const req = fakeReq({ "x-idempotency-key": "test-replay-1" });
 
     let calls = 0;
-    const first = await withIdempotency(req, "test", async () => {
-      calls += 1;
-      return { status: 201, body: { ok: true, n: 1 } };
-    }, { callerId: "user-1", ttlHours: 1 });
-    const second = await withIdempotency(req, "test", async () => {
-      calls += 1;
-      return { status: 201, body: { ok: true, n: 2 } };
-    }, { callerId: "user-1", ttlHours: 1 });
+    const first = await withIdempotency(
+      req,
+      "test",
+      async () => {
+        calls += 1;
+        return { status: 201, body: { ok: true, n: 1 } };
+      },
+      { callerId: "user-1", ttlHours: 1 },
+    );
+    const second = await withIdempotency(
+      req,
+      "test",
+      async () => {
+        calls += 1;
+        return { status: 201, body: { ok: true, n: 2 } };
+      },
+      { callerId: "user-1", ttlHours: 1 },
+    );
     expect(calls).toBe(1); // handler executed exactly once
     expect(first.status).toBe(201);
     expect(second.status).toBe(201);
@@ -111,10 +122,17 @@ describe("withIdempotency claim-then-execute", () => {
   it("rejects the same key used with a different payload (409)", async () => {
     const req = fakeReq({ "x-idempotency-key": "test-reuse-1" });
 
-    await withIdempotency(req, "test", async () => ({ status: 200, body: { a: 1 } }),
-      { callerId: "user-1", bodyForHash: { x: 1 }, ttlHours: 1 });
-    const reuse = await withIdempotency(req, "test", async () => ({ status: 200, body: { a: 2 } }),
-      { callerId: "user-1", bodyForHash: { x: 2 }, ttlHours: 1 });
+    await withIdempotency(req, "test", async () => ({ status: 200, body: { a: 1 } }), {
+      callerId: "user-1",
+      bodyForHash: { x: 1 },
+      ttlHours: 1,
+    });
+    const reuse = await withIdempotency(
+      req,
+      "test",
+      async () => ({ status: 200, body: { a: 2 } }),
+      { callerId: "user-1", bodyForHash: { x: 2 }, ttlHours: 1 },
+    );
     expect(reuse.status).toBe(409);
   });
 
@@ -123,11 +141,16 @@ describe("withIdempotency claim-then-execute", () => {
 
     let executions = 0;
     const call = () =>
-      withIdempotency(req, "test", async () => {
-        executions += 1;
-        await new Promise((r) => setTimeout(r, 50)); // widen the race window
-        return { status: 201, body: { winner: true } };
-      }, { callerId: "user-1", ttlHours: 1 });
+      withIdempotency(
+        req,
+        "test",
+        async () => {
+          executions += 1;
+          await new Promise((r) => setTimeout(r, 50)); // widen the race window
+          return { status: 201, body: { winner: true } };
+        },
+        { callerId: "user-1", ttlHours: 1 },
+      );
     const [r1, r2] = await Promise.all([call(), call()]);
     expect(executions).toBe(1); // the historical check-then-create double-charged here
     expect([r1.status, r2.status].sort()).toEqual([201, 409].sort()); // one success, one in-progress/refusal
@@ -156,7 +179,7 @@ describe("demo-seed production guard", () => {
         cwd: process.cwd(),
         stdio: "pipe",
         timeout: 30_000,
-      })
+      }),
     ).toThrow(/Refusing to seed demo data/);
   });
 });

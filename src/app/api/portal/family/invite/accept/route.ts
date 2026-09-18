@@ -26,14 +26,23 @@ export async function POST(req: NextRequest) {
       where: { tokenHash: createHash("sha256").update(token, "utf8").digest("hex") },
     });
     if (!invite || invite.acceptedAt || invite.revokedAt || invite.expiresAt < new Date()) {
-      return NextResponse.json({ error: "Invalid, expired, or already used invitation" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid, expired, or already used invitation" },
+        { status: 400 },
+      );
     }
     if (user.phone !== invite.phone) {
       // Only the invited phone number can accept — no account hijacking.
-      return NextResponse.json({ error: "This invitation was sent to a different phone number" }, { status: 403 });
+      return NextResponse.json(
+        { error: "This invitation was sent to a different phone number" },
+        { status: 403 },
+      );
     }
     if (user.familyHeadId && user.familyHeadId !== invite.headId) {
-      return NextResponse.json({ error: "Account already belongs to another family" }, { status: 409 });
+      return NextResponse.json(
+        { error: "Account already belongs to another family" },
+        { status: 409 },
+      );
     }
 
     const [updated, inviteUpdate] = await Promise.all([
@@ -54,7 +63,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, member: updated, inviteId: inviteUpdate.id });
   } catch (err) {
-    log.error("portal", "family_invite_accept_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("portal", "family_invite_accept_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "Failed to accept invitation" }, { status: 500 });
   }
 }

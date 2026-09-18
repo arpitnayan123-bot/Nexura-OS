@@ -14,7 +14,9 @@ export interface Hl7Message {
   segments: Record<string, string[][]>; // SID -> [[f1,f2..],[..]]
 }
 
-export function parseHl7(raw: string): { ok: true; msg: Hl7Message } | { ok: false; error: string } {
+export function parseHl7(
+  raw: string,
+): { ok: true; msg: Hl7Message } | { ok: false; error: string } {
   const text = raw.replace(/\r\n/g, "\r").replace(/\n/g, "\r").trim();
   if (!text.startsWith("MSH")) return { ok: false, error: "Message must start with MSH segment." };
   const segments: Record<string, string[][]> = {};
@@ -32,7 +34,10 @@ export function parseHl7(raw: string): { ok: true; msg: Hl7Message } | { ok: fal
   const sendingApp = msh[2] ?? "unknown"; // MSH-3
   const receivingApp = msh[4] ?? "NEXURA"; // MSH-5
   if (!/^(ADT\^A0[18]|ORU\^R01)$/.test(messageType)) {
-    return { ok: false, error: `Unsupported message type "${messageType}". Supported: ADT^A01, ADT^A08, ORU^R01.` };
+    return {
+      ok: false,
+      error: `Unsupported message type "${messageType}". Supported: ADT^A01, ADT^A08, ORU^R01.`,
+    };
   }
   return { ok: true, msg: { sendingApp, receivingApp, messageType, controlId, segments } };
 }
@@ -50,7 +55,9 @@ export interface AdtInbound {
   controlId: string;
 }
 
-export function adtFromHl7(msg: Hl7Message): { ok: true; data: AdtInbound } | { ok: false; error: string } {
+export function adtFromHl7(
+  msg: Hl7Message,
+): { ok: true; data: AdtInbound } | { ok: false; error: string } {
   const pid = msg.segments.PID?.[0];
   if (!pid) return { ok: false, error: "Missing PID segment." };
   const name = (pid[5] ?? "").split("^").filter(Boolean).reverse().join(" ");
@@ -59,7 +66,8 @@ export function adtFromHl7(msg: Hl7Message): { ok: true; data: AdtInbound } | { 
   return {
     ok: true,
     data: {
-      kind: "ADT", trigger,
+      kind: "ADT",
+      trigger,
       uhid: (pid[3] ?? "").split("^")[0],
       patientName: name || "Unknown",
       sex: pid[8] === "F" ? "F" : pid[8] === "M" ? "M" : "O",
@@ -76,17 +84,32 @@ export interface OruInbound {
   kind: "ORU";
   uhid: string;
   controlId: string;
-  results: { testName: string; value: string; unit?: string; flag: "normal" | "low" | "high" | "critical"; refRange?: string }[];
+  results: {
+    testName: string;
+    value: string;
+    unit?: string;
+    flag: "normal" | "low" | "high" | "critical";
+    refRange?: string;
+  }[];
 }
 
-export function oruFromHl7(msg: Hl7Message): { ok: true; data: OruInbound } | { ok: false; error: string } {
+export function oruFromHl7(
+  msg: Hl7Message,
+): { ok: true; data: OruInbound } | { ok: false; error: string } {
   const pid = msg.segments.PID?.[0];
   const obxAll = msg.segments.OBX ?? [];
   if (!pid) return { ok: false, error: "Missing PID segment." };
   if (!obxAll.length) return { ok: false, error: "Missing OBX segment(s)." };
   const results = obxAll.map((obx) => {
     const flagRaw = obx[8] ?? "N";
-    const flag = flagRaw === "H" ? "high" : flagRaw === "L" ? "low" : flagRaw === "HH" || flagRaw === "LL" ? "critical" : "normal";
+    const flag =
+      flagRaw === "H"
+        ? "high"
+        : flagRaw === "L"
+          ? "low"
+          : flagRaw === "HH" || flagRaw === "LL"
+            ? "critical"
+            : "normal";
     return {
       testName: obx[3] ?? "Unknown test",
       value: obx[5] ?? "",
@@ -95,16 +118,26 @@ export function oruFromHl7(msg: Hl7Message): { ok: true; data: OruInbound } | { 
       refRange: obx[7] || undefined,
     };
   });
-  return { ok: true, data: { kind: "ORU", uhid: (pid[3] ?? "").split("^")[0], controlId: msg.controlId, results } };
+  return {
+    ok: true,
+    data: { kind: "ORU", uhid: (pid[3] ?? "").split("^")[0], controlId: msg.controlId, results },
+  };
 }
 
 const TS = (d: Date) =>
   `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}${String(d.getHours()).padStart(2, "0")}${String(d.getMinutes()).padStart(2, "0")}`;
 
-export function adtToHl7(p: {
-  uhid: string; fullName: string; gender: string; dob: string | null;
-  ward?: string | null; attendingDoctor?: string | null;
-}, trigger: "A08" = "A08"): string {
+export function adtToHl7(
+  p: {
+    uhid: string;
+    fullName: string;
+    gender: string;
+    dob: string | null;
+    ward?: string | null;
+    attendingDoctor?: string | null;
+  },
+  trigger: "A08" = "A08",
+): string {
   const lastNameFirst = p.fullName.split(" ").slice(-1)[0] ?? p.fullName;
   const firstName = p.fullName.split(" ").slice(0, -1).join(" ");
   const segs = [
@@ -117,15 +150,25 @@ export function adtToHl7(p: {
 }
 
 export function oruToHl7(args: {
-  uhid: string; results: { testName: string; value: string; unit?: string; flag: "normal" | "low" | "high" | "critical"; refRange?: string }[];
+  uhid: string;
+  results: {
+    testName: string;
+    value: string;
+    unit?: string;
+    flag: "normal" | "low" | "high" | "critical";
+    refRange?: string;
+  }[];
 }): string {
-  const flagOf = (f: string) => (f === "high" ? "H" : f === "low" ? "L" : f === "critical" ? "HH" : "N");
+  const flagOf = (f: string) =>
+    f === "high" ? "H" : f === "low" ? "L" : f === "critical" ? "HH" : "N";
   const segs = [
     `MSH|^~\\&|NEXURA|LAB|LIS|NEXURA|${TS(new Date())}||ORU^R01|${Date.now()}|P|2.4`,
     `PID|1||${args.uhid}^^^NEXURA^MR`,
   ];
   args.results.forEach((r, i) => {
-    segs.push(`OBX|${i + 1}|NM|${r.testName.replace(/[|^]/g, "")}||${r.value}|${r.unit ?? ""}|${r.refRange ?? ""}|${flagOf(r.flag)}|||F|||${TS(new Date())}||LAB`);
+    segs.push(
+      `OBX|${i + 1}|NM|${r.testName.replace(/[|^]/g, "")}||${r.value}|${r.unit ?? ""}|${r.refRange ?? ""}|${flagOf(r.flag)}|||F|||${TS(new Date())}||LAB`,
+    );
   });
   return segs.join("\r");
 }

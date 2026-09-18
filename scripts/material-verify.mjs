@@ -7,7 +7,9 @@ const errors = [];
 
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 page.on("pageerror", (e) => errors.push("PAGEERROR: " + String(e).slice(0, 200)));
-page.on("console", (m) => { if (m.type() === "error") errors.push("CONSOLE: " + m.text().slice(0, 200)); });
+page.on("console", (m) => {
+  if (m.type() === "error") errors.push("CONSOLE: " + m.text().slice(0, 200));
+});
 
 await page.goto("http://localhost:3000/", { waitUntil: "networkidle", timeout: 45000 });
 await page.waitForTimeout(2500);
@@ -43,18 +45,34 @@ const after = await clayBtn.evaluate((el) => getComputedStyle(el).boxShadow);
 console.log("CLAY_HOVER_SHADOW_CHANGES:", before !== after ? "OK" : "FAIL");
 
 // 5. neon breathing animation applied
-const neonAnim = await page.locator("#products .mat-btn--neon").first().evaluate((el) => getComputedStyle(el).animationName);
-console.log("NEON_ANIMATION:", neonAnim.includes("neon") || neonAnim.includes("mat") ? `OK (${neonAnim})` : `FAIL (${neonAnim})`);
+const neonAnim = await page
+  .locator("#products .mat-btn--neon")
+  .first()
+  .evaluate((el) => getComputedStyle(el).animationName);
+console.log(
+  "NEON_ANIMATION:",
+  neonAnim.includes("neon") || neonAnim.includes("mat") ? `OK (${neonAnim})` : `FAIL (${neonAnim})`,
+);
 
 // 6. aurora button animation applied
-const auroraAnim = await page.locator("#products .mat-btn--aurora").first().evaluate((el) => getComputedStyle(el).animationName);
-console.log("AURORA_ANIMATION:", auroraAnim.includes("aurora") ? `OK (${auroraAnim})` : `FAIL (${auroraAnim})`);
+const auroraAnim = await page
+  .locator("#products .mat-btn--aurora")
+  .first()
+  .evaluate((el) => getComputedStyle(el).animationName);
+console.log(
+  "AURORA_ANIMATION:",
+  auroraAnim.includes("aurora") ? `OK (${auroraAnim})` : `FAIL (${auroraAnim})`,
+);
 
 // 7. promo material buttons (hospital textured / clinic glass / pharmacy clay)
 const promoTextured = await page.locator("a.mat-btn--textured[href='/hospital']").count();
 const promoGlass = await page.locator("a.mat-btn--glass[href='/clinic']").count();
 const promoClay = await page.locator("a.mat-btn--clay[href='/pharmacy']").count();
-console.log("PROMO_BUTTONS:", `hospital=${promoTextured} clinic=${promoGlass} pharmacy=${promoClay}`, promoTextured > 0 && promoGlass > 0 && promoClay > 0 ? "OK" : "FAIL");
+console.log(
+  "PROMO_BUTTONS:",
+  `hospital=${promoTextured} clinic=${promoGlass} pharmacy=${promoClay}`,
+  promoTextured > 0 && promoGlass > 0 && promoClay > 0 ? "OK" : "FAIL",
+);
 
 // 8. product link still navigates (material button inside link works)
 await page.locator("#products a[href='/labs'] .mat-btn").first().click();
@@ -66,7 +84,9 @@ const mob = await browser.newPage({ viewport: { width: 390, height: 844 } });
 mob.on("pageerror", (e) => errors.push("MOB PAGEERROR: " + String(e).slice(0, 200)));
 await mob.goto("http://localhost:3000/", { waitUntil: "networkidle", timeout: 45000 });
 await mob.waitForTimeout(2000);
-const overflow = await mob.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+const overflow = await mob.evaluate(
+  () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+);
 console.log("MOBILE_OVERFLOW:", overflow ? "FAIL" : "OK");
 
 console.log("ERRORS:", errors.length === 0 ? "0 — CLEAN" : errors.join(" | "));

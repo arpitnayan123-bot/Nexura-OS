@@ -47,7 +47,10 @@ async function PATCH_impl(req: NextRequest, { params }: RouteParams) {
     const note = typeof body?.note === "string" ? body.note.trim().slice(0, 400) : null;
 
     if (!isOnlineOrderStatus(nextStatus)) {
-      return NextResponse.json({ error: "invalid_status", allowed: nextActions("pending_review") }, { status: 400 });
+      return NextResponse.json(
+        { error: "invalid_status", allowed: nextActions("pending_review") },
+        { status: 400 },
+      );
     }
 
     const order = await db.pharmaOnlineOrder.findFirst({
@@ -60,22 +63,29 @@ async function PATCH_impl(req: NextRequest, { params }: RouteParams) {
     if (!canTransition(from, nextStatus)) {
       return NextResponse.json(
         { error: "invalid_transition", from, to: nextStatus, allowed: nextActions(from) },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     // confirmation-time stock check for catalog-matched lines
-    let stockWarnings: { productId: string; name: string; required: number; available: number }[] = [];
+    let stockWarnings: { productId: string; name: string; required: number; available: number }[] =
+      [];
     if (nextStatus === "confirmed") {
       const matched = order.items.filter((i) => i.productId);
       if (matched.length > 0) {
         const batches = await db.productBatch.findMany({
-          where: { branchId: ctx.branch.id, productId: { in: matched.map((i) => i.productId as string) } },
+          where: {
+            branchId: ctx.branch.id,
+            productId: { in: matched.map((i) => i.productId as string) },
+          },
           select: { productId: true, stockStrips: true, stockLoose: true },
         });
         const available = new Map<string, number>();
         for (const b of batches) {
-          available.set(b.productId, (available.get(b.productId) ?? 0) + b.stockStrips + Math.floor(b.stockLoose / 10));
+          available.set(
+            b.productId,
+            (available.get(b.productId) ?? 0) + b.stockStrips + Math.floor(b.stockLoose / 10),
+          );
         }
         stockWarnings = matched
           .filter((i) => {
@@ -110,7 +120,9 @@ async function PATCH_impl(req: NextRequest, { params }: RouteParams) {
       source: "db",
     });
   } catch (e) {
-    log.error("pharmacy", "online_orders_transition_failed", { err: e instanceof Error ? e.message : String(e) });
+    log.error("pharmacy", "online_orders_transition_failed", {
+      err: e instanceof Error ? e.message : String(e),
+    });
     return NextResponse.json({ error: "transition_failed" }, { status: 500 });
   }
 }

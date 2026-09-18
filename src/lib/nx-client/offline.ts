@@ -21,24 +21,33 @@ function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, 1);
     req.onupgradeneeded = () => {
-      if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE, { keyPath: "clientId" });
+      if (!req.result.objectStoreNames.contains(STORE))
+        req.result.createObjectStore(STORE, { keyPath: "clientId" });
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
 }
 
-export async function queueOp(op: Omit<PendingOp, "clientId" | "capturedAt"> & { clientId?: string }): Promise<string> {
+export async function queueOp(
+  op: Omit<PendingOp, "clientId" | "capturedAt"> & { clientId?: string },
+): Promise<string> {
   const clientId = op.clientId ?? `op-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const db = await openDb();
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(STORE, "readwrite");
-    tx.objectStore(STORE).put({ ...op, clientId, capturedAt: new Date().toISOString() } satisfies PendingOp);
+    tx.objectStore(STORE).put({
+      ...op,
+      clientId,
+      capturedAt: new Date().toISOString(),
+    } satisfies PendingOp);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
   db.close();
-  window.dispatchEvent(new CustomEvent("nx-offline-queue", { detail: { pending: await pendingCount() } }));
+  window.dispatchEvent(
+    new CustomEvent("nx-offline-queue", { detail: { pending: await pendingCount() } }),
+  );
   return clientId;
 }
 
@@ -58,7 +67,11 @@ export async function pendingCount(): Promise<number> {
   }
 }
 
-export interface FlushResult { flushed: number; failed: number; receipts: { clientId: string; status: string }[] }
+export interface FlushResult {
+  flushed: number;
+  failed: number;
+  receipts: { clientId: string; status: string }[];
+}
 
 export async function flushQueue(): Promise<FlushResult> {
   const db = await openDb();
@@ -76,9 +89,15 @@ export async function flushQueue(): Promise<FlushResult> {
     body: JSON.stringify({ ops: all }),
   });
   if (!res.ok) return { flushed: 0, failed: all.length, receipts: [] };
-  const body = (await res.json()) as { data?: { receipts?: { clientId: string; status: string }[] } };
+  const body = (await res.json()) as {
+    data?: { receipts?: { clientId: string; status: string }[] };
+  };
   const receipts = body.data?.receipts ?? [];
-  const okIds = new Set(receipts.filter((r) => r.status === "accepted" || r.status === "duplicate_ignored").map((r) => r.clientId));
+  const okIds = new Set(
+    receipts
+      .filter((r) => r.status === "accepted" || r.status === "duplicate_ignored")
+      .map((r) => r.clientId),
+  );
   const db2 = await openDb();
   await new Promise<void>((resolve) => {
     const tx = db2.transaction(STORE, "readwrite");
@@ -88,7 +107,9 @@ export async function flushQueue(): Promise<FlushResult> {
     tx.onerror = () => resolve();
   });
   db2.close();
-  window.dispatchEvent(new CustomEvent("nx-offline-queue", { detail: { pending: await pendingCount() } }));
+  window.dispatchEvent(
+    new CustomEvent("nx-offline-queue", { detail: { pending: await pendingCount() } }),
+  );
   return { flushed: okIds.size, failed: all.length - okIds.size, receipts };
 }
 
@@ -97,7 +118,10 @@ export function installOfflineAutoFlush(): () => void {
   const onOnline = () => void flushQueue();
   window.addEventListener("online", onOnline);
   const timer = setInterval(() => {
-    if (navigator.onLine) void pendingCount().then((n) => { if (n > 0) return flushQueue(); });
+    if (navigator.onLine)
+      void pendingCount().then((n) => {
+        if (n > 0) return flushQueue();
+      });
   }, 60_000);
   return () => {
     window.removeEventListener("online", onOnline);

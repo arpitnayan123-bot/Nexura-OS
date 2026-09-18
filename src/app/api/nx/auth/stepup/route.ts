@@ -32,7 +32,12 @@ export const POST = withRoute("auth.stepup", async (req: NextRequest, { requestI
   // token issuance behavior are unchanged.
   const attempts = rateLimit(`stepup:${g.session.userId}`, 5, 15 * 60_000);
   if (!attempts.allowed) {
-    return fail("rate_limited", 429, "Too many verification attempts — try again later.", requestId);
+    return fail(
+      "rate_limited",
+      429,
+      "Too many verification attempts — try again later.",
+      requestId,
+    );
   }
   const body = await parseBody(req, ReqSchema);
   if ("response" in body) return body.response;
@@ -40,14 +45,24 @@ export const POST = withRoute("auth.stepup", async (req: NextRequest, { requestI
   if (!user) return fail("no_user", 401, undefined, requestId);
   let verified = false;
   if (body.data.method === "pin") {
-    verified = user.pinHash ? await bcrypt.compare(body.data.code, user.pinHash).catch(() => false) : false;
+    verified = user.pinHash
+      ? await bcrypt.compare(body.data.code, user.pinHash).catch(() => false)
+      : false;
   } else {
-    verified = user.mfaSecret && user.mfaEnabled ? verifyTotp(user.mfaSecret, body.data.code) : false;
+    verified =
+      user.mfaSecret && user.mfaEnabled ? verifyTotp(user.mfaSecret, body.data.code) : false;
   }
   if (!verified) {
-    await db.nxStaffUser.update({ where: { id: user.id }, data: { failedAttempts: { increment: 1 } } }).catch(() => {});
+    await db.nxStaffUser
+      .update({ where: { id: user.id }, data: { failedAttempts: { increment: 1 } } })
+      .catch(() => {});
     return fail("stepup_failed", 401, "Verification code incorrect.", requestId);
   }
-  await db.nxStaffUser.update({ where: { id: user.id }, data: { failedAttempts: 0 } }).catch(() => {});
-  return ok({ token: issueStepUpToken(user.id, body.data.action, body.data.subjectId), ttlSeconds: 300 }, { requestId });
+  await db.nxStaffUser
+    .update({ where: { id: user.id }, data: { failedAttempts: 0 } })
+    .catch(() => {});
+  return ok(
+    { token: issueStepUpToken(user.id, body.data.action, body.data.subjectId), ttlSeconds: 300 },
+    { requestId },
+  );
 });

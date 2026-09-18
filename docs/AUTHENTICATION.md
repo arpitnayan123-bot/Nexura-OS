@@ -2,11 +2,11 @@
 
 ## Sign-in methods
 
-| Method | Payload | Notes |
-|---|---|---|
-| Email + password | `{email, password, rememberDevice?}` | Production path. bcrypt cost 12. |
-| Staff code + PIN | `{staffCode, pin}` | Demo fast path — real auth, same session machinery. |
-| MFA step-up | `{..., mfaToken, mfaCode}` | Required when `mfaEnabled`; TOTP RFC-6238, ±1 step drift. |
+| Method           | Payload                              | Notes                                                     |
+| ---------------- | ------------------------------------ | --------------------------------------------------------- |
+| Email + password | `{email, password, rememberDevice?}` | Production path. bcrypt cost 12.                          |
+| Staff code + PIN | `{staffCode, pin}`                   | Demo fast path — real auth, same session machinery.       |
+| MFA step-up      | `{..., mfaToken, mfaCode}`           | Required when `mfaEnabled`; TOTP RFC-6238, ±1 step drift. |
 
 Both paths run through `POST /api/nx/auth` and are identically audited — the demo
 button **fills the form**, it never bypasses authentication.
@@ -15,7 +15,7 @@ button **fills the form**, it never bypasses authentication.
 
 - JWT access token in `nx_access` HttpOnly SameSite=Lax cookie (12h; 30 days with
   remembered device), carrying `userId, role, name, jti, staffCode, hospitalId,
-  breakGlass`.
+breakGlass`.
 - Every sign-in creates an **`NxSessionRecord`** (jti, user-agent, IP, expiry).
   Guards (`getSessionFresh` / `requirePermission`) re-check the record —
   revocation is immediate and server-side.

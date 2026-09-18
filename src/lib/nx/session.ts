@@ -102,10 +102,33 @@ export const ROLE_LABELS: Record<NxRole, string> = {
 
 /** Role → module gates (OS shells). Kept in sync with permission matrix. */
 export const MODULES = [
-  "command-center", "crisis-radar", "patients", "journey", "tasks", "schedule", "beds", "ed",
-  "doctor", "nurse", "or", "labs", "pharmacy", "orders", "billing", "inventory",
-  "equipment", "analytics", "incidents", "automations", "messages", "audit",
-  "integrations", "admin", "staff", "reports", "governance",
+  "command-center",
+  "crisis-radar",
+  "patients",
+  "journey",
+  "tasks",
+  "schedule",
+  "beds",
+  "ed",
+  "doctor",
+  "nurse",
+  "or",
+  "labs",
+  "pharmacy",
+  "orders",
+  "billing",
+  "inventory",
+  "equipment",
+  "analytics",
+  "incidents",
+  "automations",
+  "messages",
+  "audit",
+  "integrations",
+  "admin",
+  "staff",
+  "reports",
+  "governance",
 ] as const;
 export type NxModule = (typeof MODULES)[number];
 
@@ -116,83 +139,202 @@ export const ROLE_PERMISSIONS: Record<NxRole, readonly NxPermission[]> = {
   super_admin: PERMISSIONS,
   org_admin: PERMISSIONS.filter((p) => p !== "demo.reset"),
   hospital_admin: [
-    "patient.demographics.view", "patient.clinical.view", "patient.restricted.view", "patient.create",
-    "encounter.create", "note.edit", "note.sign", "medication.order.create", "medication.order.view",
-    "beds.manage", "bed.assign", "appointments.manage", "appointments.view", "communication.send",
-    "billing.view", "billing.manage", "reports.export", "analytics.view", "users.manage", "roles.manage",
-    "staff.manage", "settings.manage", "audit.view", "emergency.access", "labs.result.enter",
-    "labs.result.verify", "imaging.report.write", "inventory.manage", "tasks.manage", "features.manage",
-    "delegation.manage", "breakglass.invoke", "consent.manage", "security.manage", "gateway.manage",
+    "patient.demographics.view",
+    "patient.clinical.view",
+    "patient.restricted.view",
+    "patient.create",
+    "encounter.create",
+    "note.edit",
+    "note.sign",
+    "medication.order.create",
+    "medication.order.view",
+    "beds.manage",
+    "bed.assign",
+    "appointments.manage",
+    "appointments.view",
+    "communication.send",
+    "billing.view",
+    "billing.manage",
+    "reports.export",
+    "analytics.view",
+    "users.manage",
+    "roles.manage",
+    "staff.manage",
+    "settings.manage",
+    "audit.view",
+    "emergency.access",
+    "labs.result.enter",
+    "labs.result.verify",
+    "imaging.report.write",
+    "inventory.manage",
+    "tasks.manage",
+    "features.manage",
+    "delegation.manage",
+    "breakglass.invoke",
+    "consent.manage",
+    "security.manage",
+    "gateway.manage",
   ],
   dept_admin: [
-    "patient.demographics.view", "patient.clinical.view", "patient.create", "encounter.create",
-    "note.edit", "note.sign", "medication.order.create", "medication.order.view", "beds.manage",
-    "bed.assign", "appointments.manage", "appointments.view", "communication.send", "analytics.view",
-    "staff.manage", "tasks.manage", "reports.export", "audit.view", "emergency.access", "delegation.manage",
+    "patient.demographics.view",
+    "patient.clinical.view",
+    "patient.create",
+    "encounter.create",
+    "note.edit",
+    "note.sign",
+    "medication.order.create",
+    "medication.order.view",
+    "beds.manage",
+    "bed.assign",
+    "appointments.manage",
+    "appointments.view",
+    "communication.send",
+    "analytics.view",
+    "staff.manage",
+    "tasks.manage",
+    "reports.export",
+    "audit.view",
+    "emergency.access",
+    "delegation.manage",
   ],
   doctor: [
-    "patient.demographics.view", "patient.clinical.view", "patient.restricted.view", "patient.create",
-    "encounter.create", "note.edit", "note.sign", "medication.order.create", "medication.order.view",
-    "bed.assign", "appointments.manage", "appointments.view", "communication.send", "labs.result.verify",
-    "imaging.report.write", "tasks.manage", "analytics.view", "emergency.access", "breakglass.invoke",
-    "consent.manage", "reports.export",
+    "patient.demographics.view",
+    "patient.clinical.view",
+    "patient.restricted.view",
+    "patient.create",
+    "encounter.create",
+    "note.edit",
+    "note.sign",
+    "medication.order.create",
+    "medication.order.view",
+    "bed.assign",
+    "appointments.manage",
+    "appointments.view",
+    "communication.send",
+    "labs.result.verify",
+    "imaging.report.write",
+    "tasks.manage",
+    "analytics.view",
+    "emergency.access",
+    "breakglass.invoke",
+    "consent.manage",
+    "reports.export",
   ],
   nurse: [
-    "patient.demographics.view", "patient.clinical.view", "encounter.create", "note.edit",
-    "medication.order.view", "medication.administer", "beds.manage", "bed.assign",
-    "appointments.view", "communication.send", "labs.result.enter", "tasks.manage",
-    "emergency.access", "breakglass.invoke", "consent.manage",
+    "patient.demographics.view",
+    "patient.clinical.view",
+    "encounter.create",
+    "note.edit",
+    "medication.order.view",
+    "medication.administer",
+    "beds.manage",
+    "bed.assign",
+    "appointments.view",
+    "communication.send",
+    "labs.result.enter",
+    "tasks.manage",
+    "emergency.access",
+    "breakglass.invoke",
+    "consent.manage",
   ],
   care_coordinator: [
-    "patient.demographics.view", "patient.clinical.view", "encounter.create", "appointments.manage",
-    "appointments.view", "communication.send", "tasks.manage", "consent.manage", "analytics.view",
+    "patient.demographics.view",
+    "patient.clinical.view",
+    "encounter.create",
+    "appointments.manage",
+    "appointments.view",
+    "communication.send",
+    "tasks.manage",
+    "consent.manage",
+    "analytics.view",
   ],
   receptionist: [
-    "patient.demographics.view", "patient.create", "appointments.manage", "appointments.view",
-    "communication.send", "billing.view", "tasks.manage",
+    "patient.demographics.view",
+    "patient.create",
+    "appointments.manage",
+    "appointments.view",
+    "communication.send",
+    "billing.view",
+    "tasks.manage",
   ],
   pharmacist: [
-    "patient.demographics.view", "patient.clinical.view", "medication.order.view",
-    "medication.dispense", "inventory.manage", "communication.send", "tasks.manage",
+    "patient.demographics.view",
+    "patient.clinical.view",
+    "medication.order.view",
+    "medication.dispense",
+    "inventory.manage",
+    "communication.send",
+    "tasks.manage",
   ],
   lab_tech: [
-    "patient.demographics.view", "patient.clinical.view", "labs.result.enter",
-    "communication.send", "tasks.manage",
+    "patient.demographics.view",
+    "patient.clinical.view",
+    "labs.result.enter",
+    "communication.send",
+    "tasks.manage",
   ],
   radiology_tech: [
-    "patient.demographics.view", "patient.clinical.view", "imaging.report.write",
-    "communication.send", "tasks.manage",
+    "patient.demographics.view",
+    "patient.clinical.view",
+    "imaging.report.write",
+    "communication.send",
+    "tasks.manage",
   ],
   billing_officer: [
-    "patient.demographics.view", "billing.view", "billing.manage", "reports.export",
-    "communication.send", "tasks.manage", "analytics.view",
+    "patient.demographics.view",
+    "billing.view",
+    "billing.manage",
+    "reports.export",
+    "communication.send",
+    "tasks.manage",
+    "analytics.view",
   ],
   inventory_manager: [
-    "inventory.manage", "tasks.manage", "communication.send", "reports.export", "analytics.view",
+    "inventory.manage",
+    "tasks.manage",
+    "communication.send",
+    "reports.export",
+    "analytics.view",
   ],
   hr_manager: [
-    "staff.manage", "users.manage", "tasks.manage", "communication.send", "analytics.view",
+    "staff.manage",
+    "users.manage",
+    "tasks.manage",
+    "communication.send",
+    "analytics.view",
   ],
   patient: [
     "patient.demographics.view", // scoped to own record at the API layer
     "appointments.view",
   ],
-  auditor: [
-    "patient.demographics.view", "audit.view", "analytics.view", "reports.export",
-  ],
+  auditor: ["patient.demographics.view", "audit.view", "analytics.view", "reports.export"],
   // ---- legacy roles (kept working, mapped to sensible sets) ----
   leadership: [
-    "patient.demographics.view", "billing.view", "billing.manage", "reports.export", "analytics.view",
-    "audit.view", "appointments.view", "features.manage", "settings.manage", "staff.manage",
+    "patient.demographics.view",
+    "billing.view",
+    "billing.manage",
+    "reports.export",
+    "analytics.view",
+    "audit.view",
+    "appointments.view",
+    "features.manage",
+    "settings.manage",
+    "staff.manage",
   ],
   command: [
-    "patient.demographics.view", "patient.clinical.view", "beds.manage", "bed.assign", "tasks.manage",
-    "appointments.manage", "appointments.view", "communication.send", "emergency.access",
-    "audit.view", "analytics.view",
+    "patient.demographics.view",
+    "patient.clinical.view",
+    "beds.manage",
+    "bed.assign",
+    "tasks.manage",
+    "appointments.manage",
+    "appointments.view",
+    "communication.send",
+    "emergency.access",
+    "audit.view",
+    "analytics.view",
   ],
-  facilities: [
-    "beds.manage", "tasks.manage", "communication.send", "inventory.manage",
-  ],
+  facilities: ["beds.manage", "tasks.manage", "communication.send", "inventory.manage"],
   admin: PERMISSIONS,
 };
 
@@ -211,7 +353,10 @@ export const LEGACY_ROLE_MAP: Record<string, NxRole[]> = {
 };
 
 /** Resolve the full role-key list for a user: legacy primary role + explicit assignments. */
-export function roleKeysForUser(primaryRole: string, assignments?: { roleKey: string }[]): NxRole[] {
+export function roleKeysForUser(
+  primaryRole: string,
+  assignments?: { roleKey: string }[],
+): NxRole[] {
   const keys = new Set<NxRole>();
   const legacy = LEGACY_ROLE_MAP[primaryRole];
   if (legacy) legacy.forEach((k) => keys.add(k));
@@ -239,7 +384,7 @@ export async function effectivePermissions(
   userId: string,
   primaryRole: string,
   hospitalId?: string | null,
-  opts?: { breakGlass?: boolean; patientId?: string | null }
+  opts?: { breakGlass?: boolean; patientId?: string | null },
 ): Promise<EffectivePermissions> {
   const [assignments, grants, delegations, breakGlassEvents] = await Promise.all([
     db.nxUserRoleAssignment.findMany({
@@ -257,7 +402,12 @@ export async function effectivePermissions(
     }),
     opts?.breakGlass
       ? db.nxBreakGlassEvent.findMany({
-          where: { userId, revokedAt: null, expiresAt: { gt: new Date() }, patientId: opts.patientId ?? undefined },
+          where: {
+            userId,
+            revokedAt: null,
+            expiresAt: { gt: new Date() },
+            patientId: opts.patientId ?? undefined,
+          },
         })
       : Promise.resolve([]),
   ]);
@@ -381,7 +531,10 @@ export function getSession(req: NextRequest): NxSession | null {
  *  (default 720). Keeps night-shift terminals from becoming account-sharing
  *  hazards without nagging clinicians mid-round. */
 const IDLE_MIN_BY_ROLE: Partial<Record<string, number>> = {
-  super_admin: 90, org_admin: 90, hospital_admin: 120, billing_officer: 120,
+  super_admin: 90,
+  org_admin: 90,
+  hospital_admin: 120,
+  billing_officer: 120,
 };
 export function idleBudgetMin(role: string): number {
   const env = Number(process.env.NX_SESSION_IDLE_MIN || 0);
@@ -394,16 +547,25 @@ export async function getSessionFresh(req: NextRequest): Promise<NxSession | nul
   const user = await db.nxStaffUser.findUnique({ where: { id: session.userId } }).catch(() => null);
   if (!user || user.status !== "active") return null;
   if (session.jti) {
-    const rec = await db.nxSessionRecord.findUnique({ where: { jti: session.jti } }).catch(() => null);
+    const rec = await db.nxSessionRecord
+      .findUnique({ where: { jti: session.jti } })
+      .catch(() => null);
     if (!rec || rec.revokedAt || rec.expiresAt < new Date()) return null;
     const idleMs = idleBudgetMin(session.role) * 60_000;
     if (Date.now() - rec.lastSeenAt.getTime() > idleMs) {
-      db.nxSessionRecord.update({ where: { id: rec.id }, data: { revokedAt: new Date(), revokedReason: "idle_timeout" } }).catch(() => {});
+      db.nxSessionRecord
+        .update({
+          where: { id: rec.id },
+          data: { revokedAt: new Date(), revokedReason: "idle_timeout" },
+        })
+        .catch(() => {});
       return null;
     }
     // Throttled lastSeen update (at most once a minute per session)
     if (Date.now() - rec.lastSeenAt.getTime() > 60_000) {
-      db.nxSessionRecord.update({ where: { id: rec.id }, data: { lastSeenAt: new Date() } }).catch(() => {});
+      db.nxSessionRecord
+        .update({ where: { id: rec.id }, data: { lastSeenAt: new Date() } })
+        .catch(() => {});
     }
   }
   return session;
@@ -415,7 +577,13 @@ export function modulesForRole(roleInput: NxRole | string): NxModule[] {
   const p = ROLE_PERMISSIONS[role] ?? [];
   const mods: NxModule[] = [];
   const has = (x: NxPermission) => p.includes(x);
-  if (has("analytics.view")) { if (role !== "auditor") { mods.push("command-center"); mods.push("crisis-radar"); } mods.push("analytics"); }
+  if (has("analytics.view")) {
+    if (role !== "auditor") {
+      mods.push("command-center");
+      mods.push("crisis-radar");
+    }
+    mods.push("analytics");
+  }
   if (has("patient.clinical.view") || has("patient.demographics.view")) mods.push("patients");
   if (has("tasks.manage")) mods.push("tasks");
   if (has("appointments.manage") || has("appointments.view")) mods.push("schedule");
@@ -431,8 +599,10 @@ export function modulesForRole(roleInput: NxRole | string): NxModule[] {
   if (has("communication.send")) mods.push("messages");
   if (has("audit.view")) mods.push("audit");
   if (has("users.manage") || has("staff.manage") || has("roles.manage")) mods.push("admin");
-  if (has("security.manage") || has("audit.view") || has("settings.manage")) mods.push("governance");
-  if (role === "command" || role === "admin" || role === "hospital_admin") mods.push("incidents", "journey", "or");
+  if (has("security.manage") || has("audit.view") || has("settings.manage"))
+    mods.push("governance");
+  if (role === "command" || role === "admin" || role === "hospital_admin")
+    mods.push("incidents", "journey", "or");
   if (role === "auditor") mods.push("audit", "analytics");
   return Array.from(new Set(mods)).filter((m) => MODULES.includes(m));
 }
@@ -448,8 +618,11 @@ export function canAccessModule(role: NxRole | string, module: string): boolean 
 export async function requirePermission(
   req: NextRequest,
   permission: NxPermission,
-  ctx?: PermissionContext
-): Promise<{ session: NxSession; perms: EffectivePermissions } | { error: string; status: number; detail?: string }> {
+  ctx?: PermissionContext,
+): Promise<
+  | { session: NxSession; perms: EffectivePermissions }
+  | { error: string; status: number; detail?: string }
+> {
   const session = await getSessionFresh(req);
   if (!session) return { error: "unauthenticated", status: 401 };
   const perms = await permsForSession(session);
@@ -489,7 +662,7 @@ export async function requirePermission(
 /** Legacy module gate, now revocation-aware, kept for existing routes. */
 export async function requireModule(
   req: NextRequest,
-  module: string
+  module: string,
 ): Promise<{ session: NxSession } | { error: string; status: number }> {
   const session = await getSessionFresh(req);
   if (!session) return { error: "unauthenticated", status: 401 };

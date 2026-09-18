@@ -69,11 +69,11 @@ No PWA manifest, no service worker, no offline read caching, no write buffer. Ru
 
 ## Priority ranking (correctness > usability > performance > maintainability)
 
-| P | Area | Rationale |
-|---|------|-----------|
-| P0 | Tenancy, DB portability, FHIR/HL7, ABAC+step-up, pathway/escalation/signing | Adoption + safety blockers |
-| P1 | AI governance, offline/PWA, observability, compliance tooling, webhooks | Regulatory + reliability |
-| P2 | i18n, a11y, tablet/kiosk, collaboration, posture dashboard | Market readiness |
-| P3 | VC identity, Merkle anchoring, settlement, wearables, twin, genomics, plugins, event sourcing | Differentiation / futureproofing (PoC-grade now, productionized per roadmap) |
+| P   | Area                                                                                          | Rationale                                                                    |
+| --- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| P0  | Tenancy, DB portability, FHIR/HL7, ABAC+step-up, pathway/escalation/signing                   | Adoption + safety blockers                                                   |
+| P1  | AI governance, offline/PWA, observability, compliance tooling, webhooks                       | Regulatory + reliability                                                     |
+| P2  | i18n, a11y, tablet/kiosk, collaboration, posture dashboard                                    | Market readiness                                                             |
+| P3  | VC identity, Merkle anchoring, settlement, wearables, twin, genomics, plugins, event sourcing | Differentiation / futureproofing (PoC-grade now, productionized per roadmap) |
 
 All remediation in this cycle is additive and backward compatible: new models, new routes, feature-flagged or conditional behaviors, no breaking contract changes (see `docs/ROADMAP-5-PHASES.md`).

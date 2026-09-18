@@ -60,7 +60,14 @@ export async function GET() {
     // Pending invites I (as head) sent — visible until accepted/expired.
     db.portalFamilyInvite.findMany({
       where: { headId, acceptedAt: null, revokedAt: null, expiresAt: { gt: new Date() } },
-      select: { id: true, phone: true, fullName: true, relation: true, createdAt: true, expiresAt: true },
+      select: {
+        id: true,
+        phone: true,
+        fullName: true,
+        relation: true,
+        createdAt: true,
+        expiresAt: true,
+      },
       orderBy: { createdAt: "desc" },
     }),
   ]);
@@ -93,7 +100,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const { fullName, phone, relation, dob, gender, bloodGroup } = body;
     if (!fullName || !phone || !relation) {
-      return NextResponse.json({ error: "fullName, phone and relation are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "fullName, phone and relation are required" },
+        { status: 400 },
+      );
     }
 
     // The current user becomes the family head (if not already a member under someone else)
@@ -156,7 +166,9 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ ok: true, member: created });
   } catch (err) {
-    log.error("portal", "family_member_add_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("portal", "family_member_add_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "Failed to add family member" }, { status: 500 });
   }
 }

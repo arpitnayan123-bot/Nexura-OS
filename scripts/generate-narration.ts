@@ -88,12 +88,16 @@ async function generateNarration() {
       // Get duration using ffprobe
       const { execSync } = await import("child_process");
       const durationStr = execSync(
-        `ffprobe -i "${outputPath}" -show_entries format=duration -v quiet -of csv="p=0"`
-      ).toString().trim();
+        `ffprobe -i "${outputPath}" -show_entries format=duration -v quiet -of csv="p=0"`,
+      )
+        .toString()
+        .trim();
       const duration = parseFloat(durationStr);
 
       results.push({ id: scene.id, path: outputPath, duration });
-      console.log(`    ✓ ${scene.id}.wav (${duration.toFixed(1)}s, ${(buffer.length / 1024).toFixed(0)} KB)`);
+      console.log(
+        `    ✓ ${scene.id}.wav (${duration.toFixed(1)}s, ${(buffer.length / 1024).toFixed(0)} KB)`,
+      );
 
       // Small delay between requests
       await new Promise((r) => setTimeout(r, 500));
@@ -110,10 +114,7 @@ async function generateNarration() {
     totalDuration: results.reduce((s, r) => s + r.duration, 0),
     scenes: results,
   };
-  fs.writeFileSync(
-    path.join(OUTPUT_DIR, "manifest.json"),
-    JSON.stringify(manifest, null, 2)
-  );
+  fs.writeFileSync(path.join(OUTPUT_DIR, "manifest.json"), JSON.stringify(manifest, null, 2));
 
   console.log(`\n✅ Narration complete!`);
   console.log(`   ${results.length} scenes`);

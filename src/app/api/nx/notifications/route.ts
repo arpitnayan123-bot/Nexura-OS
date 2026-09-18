@@ -31,7 +31,12 @@ export const GET = withRoute("notifications.list", async (req: NextRequest) => {
     ],
   };
   const [rows, total, unread] = await Promise.all([
-    db.nxNotification.findMany({ where, orderBy: { createdAt: "desc" }, skip: p.skip, take: p.take }),
+    db.nxNotification.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: p.skip,
+      take: p.take,
+    }),
     db.nxNotification.count({ where }),
     db.nxNotification.count({ where: { ...where, readAt: null } }),
   ]);
@@ -76,7 +81,11 @@ export const POST = withRoute("notifications.create", async (req: NextRequest) =
   publish({
     event: "notification.new",
     hospitalId,
-    ...(parsed.data.toUserId ? { toUsers: [parsed.data.toUserId] } : parsed.data.toRoleKey ? { toRoles: [parsed.data.toRoleKey] } : {}),
+    ...(parsed.data.toUserId
+      ? { toUsers: [parsed.data.toUserId] }
+      : parsed.data.toRoleKey
+        ? { toRoles: [parsed.data.toRoleKey] }
+        : {}),
     data: { id: n.id, title: n.title, level: n.level, category: n.category, link: n.link },
   });
   return NextResponse.json({ data: { notification: n } }, { status: 201 });
@@ -101,11 +110,17 @@ export const PATCH = withRoute("notifications.read", async (req: NextRequest) =>
     ],
   };
   if (parsed.data.all) {
-    const r = await db.nxNotification.updateMany({ where: { ...scope, readAt: null }, data: { readAt: new Date() } });
+    const r = await db.nxNotification.updateMany({
+      where: { ...scope, readAt: null },
+      data: { readAt: new Date() },
+    });
     return ok({ read: r.count });
   }
   if (!parsed.data.id) return fail("invalid_request", 400, "id or all required.");
-  await db.nxNotification.updateMany({ where: { ...scope, id: parsed.data.id, readAt: null }, data: { readAt: new Date() } });
+  await db.nxNotification.updateMany({
+    where: { ...scope, id: parsed.data.id, readAt: null },
+    data: { readAt: new Date() },
+  });
   return ok({ read: 1 });
 });
 void ok;

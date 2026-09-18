@@ -1,14 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Brain,
-  Activity,
-  HeartHandshake,
-  Video,
-  Pill,
-  BellRing,
-} from "lucide-react";
+import { Brain, Activity, HeartHandshake, Video, Pill, BellRing } from "lucide-react";
 import { Reveal, AuroraBackground, FloatingParticles } from "./ambient";
 
 const FEATURES = [
@@ -72,14 +65,13 @@ export function Features() {
           </Reveal>
           <Reveal delay={0.06}>
             <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-              One warm system,{" "}
-              <span className="text-gradient-warm">six gentle superpowers.</span>
+              One warm system, <span className="text-gradient-warm">six gentle superpowers.</span>
             </h2>
           </Reveal>
           <Reveal delay={0.12}>
             <p className="mt-4 text-muted-foreground sm:text-lg">
-              Each capability is designed to reduce noise and increase trust —
-              the operating system your body would choose.
+              Each capability is designed to reduce noise and increase trust — the operating system
+              your body would choose.
             </p>
           </Reveal>
         </div>
@@ -97,13 +89,7 @@ export function Features() {
   );
 }
 
-function FeatureCard({
-  icon: Icon,
-  title,
-  desc,
-  accent,
-  tag,
-}: (typeof FEATURES)[number]) {
+function FeatureCard({ icon: Icon, title, desc, accent, tag }: (typeof FEATURES)[number]) {
   return (
     <motion.article
       whileHover={{ y: -6 }}
@@ -136,22 +122,15 @@ function FeatureCard({
         </span>
       </div>
 
-      <h3 className="relative mt-5 font-display text-xl font-semibold tracking-tight">
-        {title}
-      </h3>
-      <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">
-        {desc}
-      </p>
+      <h3 className="relative mt-5 font-display text-xl font-semibold tracking-tight">{title}</h3>
+      <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
 
       <div className="relative mt-5 flex items-center gap-2 text-sm font-medium text-foreground/70">
         <span
           className="h-px flex-1 origin-left scale-x-100 bg-gradient-to-r from-transparent to-transparent transition-all duration-300 group-hover:from-transparent"
           style={{ backgroundImage: `linear-gradient(to right, ${accent}, transparent)` }}
         />
-        <span
-          className="transition-colors"
-          style={{ color: "inherit" }}
-        >
+        <span className="transition-colors" style={{ color: "inherit" }}>
           Learn more →
         </span>
       </div>

@@ -2,15 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ScanLine,
-  Upload,
-  Loader2,
-  X,
-  CheckCircle2,
-  AlertCircle,
-  ImageIcon,
-} from "lucide-react";
+import { ScanLine, Upload, Loader2, X, CheckCircle2, AlertCircle, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -200,7 +192,9 @@ export function PrescriptionModal({
                         key={i}
                         className={cn(
                           "flex items-start gap-2 rounded-lg border p-2.5",
-                          m.matched ? "border-sage/40 bg-sage/5" : "border-destructive/30 bg-destructive/5"
+                          m.matched
+                            ? "border-sage/40 bg-sage/5"
+                            : "border-destructive/30 bg-destructive/5",
                         )}
                       >
                         {m.matched ? (
@@ -212,7 +206,9 @@ export function PrescriptionModal({
                           <p className="text-sm font-medium">
                             {m.name}
                             {!m.matched && (
-                              <span className="ml-1 text-[0.6rem] text-destructive">(not in stock)</span>
+                              <span className="ml-1 text-[0.6rem] text-destructive">
+                                (not in stock)
+                              </span>
                             )}
                           </p>
                           <p className="text-[0.65rem] text-muted-foreground">

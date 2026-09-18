@@ -30,7 +30,9 @@ export const POST = withRoute("prescriptions.sign", async (req: NextRequest, { r
   if ("response" in body) return body.response;
   const d = body.data;
 
-  const order = await db.hospitalOrder.findFirst({ where: { id: d.orderId, hospitalId, orderType: "medication" } });
+  const order = await db.hospitalOrder.findFirst({
+    where: { id: d.orderId, hospitalId, orderType: "medication" },
+  });
   if (!order) return fail("unknown_order", 404, undefined, requestId);
 
   // Verify BOTH step-up tokens server-side; tokens are bound to order id.
@@ -44,7 +46,12 @@ export const POST = withRoute("prescriptions.sign", async (req: NextRequest, { r
   const prescriberId = uid(d.prescriberToken);
   const verifierId = uid(d.verifierToken);
   if (prescriberId === verifierId) {
-    return fail("two_person_required", 422, "Prescriber and verifier must be two different staff members.", requestId);
+    return fail(
+      "two_person_required",
+      422,
+      "Prescriber and verifier must be two different staff members.",
+      requestId,
+    );
   }
   const [prescriber, verifier] = await Promise.all([
     db.nxStaffUser.findUnique({ where: { id: prescriberId } }),
@@ -63,20 +70,37 @@ export const POST = withRoute("prescriptions.sign", async (req: NextRequest, { r
       authorName: prescriber.name,
       authorRole: prescriber.role,
       content: JSON.stringify({
-        orderId: order.id, patientUhid: order.patientUhid, orderDetails: JSON.parse(order.orderDetails || "{}"),
+        orderId: order.id,
+        patientUhid: order.patientUhid,
+        orderDetails: JSON.parse(order.orderDetails || "{}"),
         prescriber: { id: prescriber.id, name: prescriber.name, staffCode: prescriber.staffCode },
         verifier: { id: verifier.id, name: verifier.name, staffCode: verifier.staffCode },
-        signatureHash, note: d.note, regulation: "DPCO two-step prescription verification",
+        signatureHash,
+        note: d.note,
+        regulation: "DPCO two-step prescription verification",
       }),
     },
   });
   await audit({
-    hospitalId, actorName: prescriber.name, actorRole: prescriber.role,
-    action: "prescription.signed", entityType: "hospital_order", entityId: order.id, patientId: order.patientId,
+    hospitalId,
+    actorName: prescriber.name,
+    actorRole: prescriber.role,
+    action: "prescription.signed",
+    entityType: "hospital_order",
+    entityId: order.id,
+    patientId: order.patientId,
     detail: { verifier: verifier.staffCode, signatureHash },
   });
-  publish({ event: "prescription.signed", hospitalId, toRoles: ["pharmacist", "nurse"], data: { orderId: order.id, patientUhid: order.patientUhid } });
-  return ok({ signed: true, signatureHash, prescriber: prescriber.name, verifier: verifier.name }, { requestId });
+  publish({
+    event: "prescription.signed",
+    hospitalId,
+    toRoles: ["pharmacist", "nurse"],
+    data: { orderId: order.id, patientUhid: order.patientUhid },
+  });
+  return ok(
+    { signed: true, signatureHash, prescriber: prescriber.name, verifier: verifier.name },
+    { requestId },
+  );
 });
 
 export const GET = withRoute("prescriptions.sign.list", async (req: NextRequest, { requestId }) => {
@@ -90,5 +114,8 @@ export const GET = withRoute("prescriptions.sign.list", async (req: NextRequest,
     orderBy: { createdAt: "desc" },
     take: 20,
   });
-  return ok(versions.map((v) => ({ ...v, content: JSON.parse(v.content || "{}") })), { requestId });
+  return ok(
+    versions.map((v) => ({ ...v, content: JSON.parse(v.content || "{}") })),
+    { requestId },
+  );
 });

@@ -45,7 +45,10 @@ describe("paginate", () => {
 
 describe("toCsv", () => {
   it("renders headers + rows", () => {
-    const csv = toCsv([{ a: 1, b: "x" }, { a: 2, b: "y" }]);
+    const csv = toCsv([
+      { a: 1, b: "x" },
+      { a: 2, b: "y" },
+    ]);
     expect(csv.split("\n")).toEqual(["a,b", "1,x", "2,y"]);
   });
 

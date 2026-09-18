@@ -9,7 +9,11 @@ import { parseBranding, parseDomains, parseModules, parseSettings } from "@/lib/
 
 const UpsertSchema = z.object({
   id: z.string().optional(),
-  code: z.string().min(2).max(48).regex(/^[a-z0-9-]+$/, "lowercase slug"),
+  code: z
+    .string()
+    .min(2)
+    .max(48)
+    .regex(/^[a-z0-9-]+$/, "lowercase slug"),
   name: z.string().min(2).max(120),
   plan: z.enum(["basic", "standard", "premium", "ngo"]).optional(),
   status: z.enum(["active", "suspended", "offboarding"]).optional(),
@@ -58,12 +62,16 @@ export const POST = withRoute("tenants.post", async (req: NextRequest, { request
     tenant = await db.nxTenant.update({ where: { id: d.id }, data });
   } else {
     const exists = await db.nxTenant.findUnique({ where: { code: d.code } });
-    if (exists) return fail("tenant_exists", 409, "A tenant with this code already exists.", requestId);
+    if (exists)
+      return fail("tenant_exists", 409, "A tenant with this code already exists.", requestId);
     tenant = await db.nxTenant.create({ data });
   }
 
   if (d.hospitalIds) {
-    await db.hospital.updateMany({ where: { id: { in: d.hospitalIds } }, data: { tenantId: tenant.id } });
+    await db.hospital.updateMany({
+      where: { id: { in: d.hospitalIds } },
+      data: { tenantId: tenant.id },
+    });
   }
   await audit({
     hospitalId,
@@ -74,15 +82,18 @@ export const POST = withRoute("tenants.post", async (req: NextRequest, { request
     entityId: tenant.id,
     detail: { code: tenant.code },
   });
-  return ok({
-    tenant: {
-      ...tenant,
-      branding: parseBranding(tenant),
-      modules: parseModules(tenant),
-      domains: parseDomains(tenant),
-      settings: parseSettings(tenant),
+  return ok(
+    {
+      tenant: {
+        ...tenant,
+        branding: parseBranding(tenant),
+        modules: parseModules(tenant),
+        domains: parseDomains(tenant),
+        settings: parseSettings(tenant),
+      },
     },
-  }, { requestId });
+    { requestId },
+  );
 });
 
 export const GET = withRoute("tenants.list", async (req: NextRequest, { requestId }) => {
@@ -92,7 +103,10 @@ export const GET = withRoute("tenants.list", async (req: NextRequest, { requestI
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const tenants = await db.nxTenant.findMany({
     orderBy: { createdAt: "desc" },
-    include: { hospitals: { select: { id: true, name: true } }, apiKeys: { select: { id: true, name: true, revokedAt: true } } },
+    include: {
+      hospitals: { select: { id: true, name: true } },
+      apiKeys: { select: { id: true, name: true, revokedAt: true } },
+    },
   });
   return ok(
     tenants.map((t) => ({
@@ -104,6 +118,6 @@ export const GET = withRoute("tenants.list", async (req: NextRequest, { requestI
       apiKeyCount: t.apiKeys.filter((k) => !k.revokedAt).length,
       apiKeys: undefined,
     })),
-    { requestId }
+    { requestId },
   );
 });

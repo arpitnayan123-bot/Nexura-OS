@@ -57,7 +57,7 @@ export async function GET(_req: NextRequest) {
     // 3. Production without a portal session — fail closed.
     return NextResponse.json(
       { error: "unauthenticated", detail: "Sign in to the portal to use Connect." },
-      { status: 401 }
+      { status: 401 },
     );
   } catch {
     return NextResponse.json({ error: "identity_failed" }, { status: 500 });

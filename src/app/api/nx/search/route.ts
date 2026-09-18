@@ -28,21 +28,40 @@ export const GET = withRoute("global.search", async (req: NextRequest) => {
   // hospital's patients, staff, tasks, appointments or admissions. Staff
   // roles are unchanged; patient sessions keep their linkedPatientId in
   // DEMO_MODE, so the demo posture is unaffected.
-  const toPatientItems = (rows: { id: string; fullName: string; uhid: string; gender: string; age: number | null; allergy: string | null }[]) =>
-    rows.map((p) => ({ id: p.id, title: p.fullName, sub: `${p.uhid} · ${p.gender}${p.age ? ` · ${p.age}y` : ""}`, badge: p.allergy ? "allergy" : undefined, href: `patient:${p.id}` }));
+  const toPatientItems = (
+    rows: {
+      id: string;
+      fullName: string;
+      uhid: string;
+      gender: string;
+      age: number | null;
+      allergy: string | null;
+    }[],
+  ) =>
+    rows.map((p) => ({
+      id: p.id,
+      title: p.fullName,
+      sub: `${p.uhid} · ${p.gender}${p.age ? ` · ${p.age}y` : ""}`,
+      badge: p.allergy ? "allergy" : undefined,
+      href: `patient:${p.id}`,
+    }));
 
   if (g.session.role === "patient") {
     const patients = g.session.linkedPatientId
       ? await db.hospitalPatient.findMany({
-          where: { hospitalId, id: g.session.linkedPatientId, OR: [{ fullName: like }, { uhid: like }, { phone: like }] },
+          where: {
+            hospitalId,
+            id: g.session.linkedPatientId,
+            OR: [{ fullName: like }, { uhid: like }, { phone: like }],
+          },
           select: { id: true, fullName: true, uhid: true, gender: true, age: true, allergy: true },
           take: 8,
         })
       : [];
     return ok({
-      groups: [
-        { type: "patient", label: "Patients", items: toPatientItems(patients) },
-      ].filter((gr) => gr.items.length > 0),
+      groups: [{ type: "patient", label: "Patients", items: toPatientItems(patients) }].filter(
+        (gr) => gr.items.length > 0,
+      ),
     });
   }
 
@@ -64,13 +83,27 @@ export const GET = withRoute("global.search", async (req: NextRequest) => {
     }),
     db.hospitalAppointment.findMany({
       where: { hospitalId, patient: { OR: [{ fullName: like }, { uhid: like }] } },
-      select: { id: true, date: true, timeSlot: true, status: true, patient: { select: { fullName: true, uhid: true } } },
+      select: {
+        id: true,
+        date: true,
+        timeSlot: true,
+        status: true,
+        patient: { select: { fullName: true, uhid: true } },
+      },
       orderBy: { date: "desc" },
       take: 6,
     }),
     db.hospitalAdmission.findMany({
-      where: { hospitalId, dischargeStatus: "active", patient: { OR: [{ fullName: like }, { uhid: like }] } },
-      select: { id: true, admissionDate: true, patient: { select: { fullName: true, uhid: true } } },
+      where: {
+        hospitalId,
+        dischargeStatus: "active",
+        patient: { OR: [{ fullName: like }, { uhid: like }] },
+      },
+      select: {
+        id: true,
+        admissionDate: true,
+        patient: { select: { fullName: true, uhid: true } },
+      },
       take: 6,
     }),
   ]);
@@ -79,10 +112,46 @@ export const GET = withRoute("global.search", async (req: NextRequest) => {
   return ok({
     groups: [
       { type: "patient", label: "Patients", items: toPatientItems(patients) },
-      { type: "staff", label: "Staff", items: staff.map((s) => ({ id: s.id, title: s.name, sub: `${s.staffCode} · ${s.role}${s.department ? ` · ${s.department}` : ""}`, href: `staff:${s.id}` })) },
-      { type: "task", label: "Tasks", items: tasks.map((t) => ({ id: t.id, title: t.title, sub: `${t.status} · ${t.priority}${t.patientName ? ` · ${t.patientName}` : ""}`, href: `task:${t.id}` })) },
-      { type: "appointment", label: "Appointments", items: appointments.map((a) => ({ id: a.id, title: a.patient.fullName, sub: `${new Date(a.date).toLocaleDateString("en-IN")} ${a.timeSlot} · ${a.status}`, href: `appointment:${a.id}` })) },
-      { type: "admission", label: "Active Admissions", items: admissions.map((a) => ({ id: a.id, title: a.patient.fullName, sub: `admitted ${new Date(a.admissionDate).toLocaleDateString("en-IN")}`, href: `admission:${a.id}` })) },
+      {
+        type: "staff",
+        label: "Staff",
+        items: staff.map((s) => ({
+          id: s.id,
+          title: s.name,
+          sub: `${s.staffCode} · ${s.role}${s.department ? ` · ${s.department}` : ""}`,
+          href: `staff:${s.id}`,
+        })),
+      },
+      {
+        type: "task",
+        label: "Tasks",
+        items: tasks.map((t) => ({
+          id: t.id,
+          title: t.title,
+          sub: `${t.status} · ${t.priority}${t.patientName ? ` · ${t.patientName}` : ""}`,
+          href: `task:${t.id}`,
+        })),
+      },
+      {
+        type: "appointment",
+        label: "Appointments",
+        items: appointments.map((a) => ({
+          id: a.id,
+          title: a.patient.fullName,
+          sub: `${new Date(a.date).toLocaleDateString("en-IN")} ${a.timeSlot} · ${a.status}`,
+          href: `appointment:${a.id}`,
+        })),
+      },
+      {
+        type: "admission",
+        label: "Active Admissions",
+        items: admissions.map((a) => ({
+          id: a.id,
+          title: a.patient.fullName,
+          sub: `admitted ${new Date(a.admissionDate).toLocaleDateString("en-IN")}`,
+          href: `admission:${a.id}`,
+        })),
+      },
     ].filter((gr) => gr.items.length > 0),
   });
 });

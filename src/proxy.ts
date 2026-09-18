@@ -41,13 +41,13 @@ async function verifyJwtEdge(token: string, secret: string): Promise<boolean> {
       new TextEncoder().encode(secret),
       { name: "HMAC", hash: "SHA-256" },
       false,
-      ["verify"]
+      ["verify"],
     );
     const valid = await crypto.subtle.verify(
       "HMAC",
       key,
       b64urlToBytes(sig) as unknown as ArrayBuffer,
-      new TextEncoder().encode(`${head}.${payload}`)
+      new TextEncoder().encode(`${head}.${payload}`),
     );
     if (!valid) return false;
     const claims = JSON.parse(new TextDecoder().decode(b64urlToBytes(payload)));
@@ -66,7 +66,10 @@ async function verifyJwtEdge(token: string, secret: string): Promise<boolean> {
    src/lib/rate-limit.ts (Redis INCR/EXPIRE) and is enforced at the
    Node route layer (auth surfaces, OTP send, expensive handlers).
    globalThis keeps the bucket table stable across dev-HMR reloads. */
-interface Bucket { count: number; resetAt: number }
+interface Bucket {
+  count: number;
+  resetAt: number;
+}
 const g = globalThis as unknown as { __nxApiBuckets?: Map<string, Bucket> };
 const buckets = g.__nxApiBuckets ?? new Map<string, Bucket>();
 g.__nxApiBuckets = buckets;
@@ -84,33 +87,55 @@ function apiRateLimited(ip: string): { limited: boolean; retryAfter: number } {
     return { limited: false, retryAfter: 0 };
   }
   entry.count += 1;
-  return { limited: entry.count > API_RATE.max, retryAfter: Math.ceil((entry.resetAt - now) / 1000) };
+  return {
+    limited: entry.count > API_RATE.max,
+    retryAfter: Math.ceil((entry.resetAt - now) / 1000),
+  };
 }
 
 /** Demo product families — open in DEMO_MODE, session-gated in production. */
-const PRODUCT_API_PREFIXES = ["/api/pharmacy", "/api/clinic", "/api/connect", "/api/know-your-health", "/api/assistant", "/api/portal"];
+const PRODUCT_API_PREFIXES = [
+  "/api/pharmacy",
+  "/api/clinic",
+  "/api/connect",
+  "/api/know-your-health",
+  "/api/assistant",
+  "/api/portal",
+];
 /** Portal login itself must stay reachable to establish a session. */
 const PRODUCT_AUTH_PATHS = ["/api/portal/auth"];
 
 export default async function proxy(req: NextRequest) {
-  const requestId = req.headers.get("x-request-id") || `req_${crypto.randomUUID().replace(/-/g, "").slice(0, 20)}`;
+  const requestId =
+    req.headers.get("x-request-id") || `req_${crypto.randomUUID().replace(/-/g, "").slice(0, 20)}`;
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-request-id", requestId);
 
   const { pathname } = req.nextUrl;
   // Rightmost XFF hop = the value our trusted platform proxy appended — the
   // only IP a client cannot spoof (first hop is attacker-controlled).
-  const xffParts = req.headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
+  const xffParts =
+    req.headers
+      .get("x-forwarded-for")
+      ?.split(",")
+      .map((s) => s.trim())
+      .filter(Boolean) ?? [];
   const ip = xffParts[xffParts.length - 1] || req.headers.get("x-real-ip") || "local";
 
   // ---- request body cap (DoS guard before any route parses JSON) ----
   // Largest legitimate body: KYH vision tools (~11.2MB base64 in JSON).
   const contentLength = Number(req.headers.get("content-length") || 0);
   if (pathname.startsWith("/api/") && contentLength > 13 * 1024 * 1024) {
-    return new NextResponse(JSON.stringify({ error: "payload_too_large", detail: "Request body exceeds the 13MB limit." }), {
-      status: 413,
-      headers: { "content-type": "application/json", "x-request-id": requestId },
-    });
+    return new NextResponse(
+      JSON.stringify({
+        error: "payload_too_large",
+        detail: "Request body exceeds the 13MB limit.",
+      }),
+      {
+        status: 413,
+        headers: { "content-type": "application/json", "x-request-id": requestId },
+      },
+    );
   }
 
   // ---- global API rate limit (all /api/* requests) ----
@@ -120,25 +145,32 @@ export default async function proxy(req: NextRequest) {
     if (rl.limited) {
       early = NextResponse.json(
         { error: "rate_limited", detail: "Too many requests — slow down.", meta: { requestId } },
-        { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+        { status: 429, headers: { "Retry-After": String(rl.retryAfter) } },
       );
     }
   }
 
   // ---- production gate for demo product surfaces ----
-  if (!early && !isDemoMode() && PRODUCT_API_PREFIXES.some((p) => pathname.startsWith(p)) && !PRODUCT_AUTH_PATHS.includes(pathname)) {
+  if (
+    !early &&
+    !isDemoMode() &&
+    PRODUCT_API_PREFIXES.some((p) => pathname.startsWith(p)) &&
+    !PRODUCT_AUTH_PATHS.includes(pathname)
+  ) {
     const cookies = req.cookies;
     const candidates = ["nx_access", "nexura_access", "portal_session"]
       .map((n) => cookies.get(n)?.value)
       .filter((v): v is string => Boolean(v));
     const secret = process.env.JWT_SECRET || "";
     const anyValid = secret
-      ? await Promise.all(candidates.map((t) => verifyJwtEdge(t, secret))).then((rs) => rs.some(Boolean))
+      ? await Promise.all(candidates.map((t) => verifyJwtEdge(t, secret))).then((rs) =>
+          rs.some(Boolean),
+        )
       : false;
     if (!anyValid) {
       early = NextResponse.json(
         { error: "unauthenticated", detail: "Sign in to use this surface.", meta: { requestId } },
-        { status: 401 }
+        { status: 401 },
       );
     }
   }

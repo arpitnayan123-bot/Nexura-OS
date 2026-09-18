@@ -42,7 +42,7 @@ export const GET = withRoute("dicom.studies", async (req: NextRequest, { request
       viewerUrl: s.viewerUrl ?? viewerUrlFor(s.studyUid),
       viewerConfigured: Boolean(s.viewerUrl || process.env.DICOM_VIEWER_TEMPLATE),
     })),
-    { requestId }
+    { requestId },
   );
 });
 
@@ -53,7 +53,9 @@ export const POST = withRoute("dicom.register", async (req: NextRequest, { reque
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const body = await parseBody(req, RegisterSchema);
   if ("response" in body) return body.response;
-  const patient = await db.hospitalPatient.findFirst({ where: { id: body.data.patientId, hospitalId } });
+  const patient = await db.hospitalPatient.findFirst({
+    where: { id: body.data.patientId, hospitalId },
+  });
   if (!patient) return fail("unknown_patient", 404, undefined, requestId);
   const study = await db.nxDicomStudy.create({
     data: {
@@ -67,6 +69,14 @@ export const POST = withRoute("dicom.register", async (req: NextRequest, { reque
       viewerUrl: viewerUrlFor(body.data.studyUid),
     },
   });
-  await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "dicom.study.registered", entityType: "nx_dicom_study", entityId: study.id, patientId: patient.id });
+  await audit({
+    hospitalId,
+    actorName: g.session.name,
+    actorRole: g.session.role,
+    action: "dicom.study.registered",
+    entityType: "nx_dicom_study",
+    entityId: study.id,
+    patientId: patient.id,
+  });
   return ok({ id: study.id, viewerUrl: study.viewerUrl }, { requestId, status: 201 });
 });

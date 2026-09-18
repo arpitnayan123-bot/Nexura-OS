@@ -34,7 +34,9 @@ export function DiyStrip() {
             <div
               aria-hidden
               className="relative grid h-20 w-20 shrink-0 place-items-center rounded-full text-[#FFF6EA] shadow-[0_18px_34px_-14px_rgba(150,76,40,0.55)]"
-              style={{ background: "linear-gradient(160deg, #E29A72 0%, #C96F45 55%, #A95530 100%)" }}
+              style={{
+                background: "linear-gradient(160deg, #E29A72 0%, #C96F45 55%, #A95530 100%)",
+              }}
             >
               <div
                 className="absolute inset-0 rounded-full opacity-50 mix-blend-soft-light"
@@ -55,11 +57,17 @@ export function DiyStrip() {
                   Nexura DIY — new
                 </span>
               </div>
-              <h2 id="diy-strip-title" className="mt-3 font-display text-2xl font-semibold tracking-tight text-[#2E2A26] sm:text-3xl">
-                Tell it like it is. <span className="text-gradient-warm">We&apos;ll do the rest.</span>
+              <h2
+                id="diy-strip-title"
+                className="mt-3 font-display text-2xl font-semibold tracking-tight text-[#2E2A26] sm:text-3xl"
+              >
+                Tell it like it is.{" "}
+                <span className="text-gradient-warm">We&apos;ll do the rest.</span>
               </h2>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#6B5D4E] sm:text-[15px]">
-                One chat about your situation — a safety screen, realistic timeframes and one plan that doesn&apos;t fight itself, all follow from what you say. Hinglish welcome. Not a diagnosis.
+                One chat about your situation — a safety screen, realistic timeframes and one plan
+                that doesn&apos;t fight itself, all follow from what you say. Hinglish welcome. Not
+                a diagnosis.
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-medium text-[#6B5138]">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E7D9C4] bg-white/70 px-3 py-1">
@@ -76,9 +84,16 @@ export function DiyStrip() {
 
             <span
               className="mat-btn mat-btn--textured mat-btn--lg shrink-0 text-sm"
-              style={{ "--mat-accent": "#4D7C0F", "--mat-accent-2": "#7BB661" } as React.CSSProperties}
+              style={
+                { "--mat-accent": "#4D7C0F", "--mat-accent-2": "#7BB661" } as React.CSSProperties
+              }
             >
-              Start the chat <ArrowRight size={15} aria-hidden className="transition-transform group-hover:translate-x-0.5" />
+              Start the chat{" "}
+              <ArrowRight
+                size={15}
+                aria-hidden
+                className="transition-transform group-hover:translate-x-0.5"
+              />
             </span>
           </div>
         </Link>

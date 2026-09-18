@@ -14,19 +14,44 @@ export const GET = withRoute("audit.blocks.list", async (req: NextRequest, { req
   if ("response" in g) return g.response;
   const hospitalId = g.session.hospitalId;
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
-  const blocks = await db.nxTimestampBlock.findMany({ where: { hospitalId }, orderBy: { index: "asc" } });
+  const blocks = await db.nxTimestampBlock.findMany({
+    where: { hospitalId },
+    orderBy: { index: "asc" },
+  });
   let chainValid = true;
   let prev: string | null = null;
   for (const b of blocks) {
-    if (b.prevHash !== prev) { chainValid = false; break; }
-    if (createHash("sha256").update(`${b.index}|${b.prevHash ?? ""}|${b.merkleRoot}`).digest("hex") !== b.blockHash) { chainValid = false; break; }
+    if (b.prevHash !== prev) {
+      chainValid = false;
+      break;
+    }
+    if (
+      createHash("sha256")
+        .update(`${b.index}|${b.prevHash ?? ""}|${b.merkleRoot}`)
+        .digest("hex") !== b.blockHash
+    ) {
+      chainValid = false;
+      break;
+    }
     prev = b.blockHash;
   }
   const unanchored = await lastBlockUnanchoredCount(hospitalId, blocks);
-  return ok({ blocks, chainValid, unanchoredEvents: unanchored, verifierNote: "Share merkleRoot with any third-party auditor — they can verify event inclusion without seeing PHI." }, { requestId });
+  return ok(
+    {
+      blocks,
+      chainValid,
+      unanchoredEvents: unanchored,
+      verifierNote:
+        "Share merkleRoot with any third-party auditor — they can verify event inclusion without seeing PHI.",
+    },
+    { requestId },
+  );
 });
 
-async function lastBlockUnanchoredCount(hospitalId: string, blocks: { anchoredAt: Date }[]): Promise<number> {
+async function lastBlockUnanchoredCount(
+  hospitalId: string,
+  blocks: { anchoredAt: Date }[],
+): Promise<number> {
   const last = blocks[blocks.length - 1];
   const since = last?.anchoredAt ?? new Date(0);
   return db.nxAuditEvent.count({ where: { hospitalId, createdAt: { gt: since } } });
@@ -39,7 +64,14 @@ export const POST = withRoute("audit.blocks.anchor", async (req: NextRequest, { 
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const result = await anchorAuditBlock(hospitalId);
   if (result.anchored > 0) {
-    await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "audit.block.anchored", entityType: "nx_timestamp_block", detail: { index: result.index, leaves: result.anchored, root: result.merkleRoot } });
+    await audit({
+      hospitalId,
+      actorName: g.session.name,
+      actorRole: g.session.role,
+      action: "audit.block.anchored",
+      entityType: "nx_timestamp_block",
+      detail: { index: result.index, leaves: result.anchored, root: result.merkleRoot },
+    });
   }
   return ok(result, { requestId });
 });

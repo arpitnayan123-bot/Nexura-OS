@@ -1,6 +1,7 @@
 # Production Readiness Checklist
 
 ## Code & data (done in this repo)
+
 - [x] RBAC-as-data enforced server-side on every protected route
 - [x] Session revocation, lockout, MFA architecture, break-glass
 - [x] Signed-note immutability + version history
@@ -13,6 +14,7 @@
 - [x] Dockerfile (non-root, healthcheck) + compose; OpenAPI served
 
 ## Your checklist before go-live
+
 - [ ] Postgres (or managed SQLite w/ volume snapshots) + `prisma migrate deploy`
 - [ ] `JWT_SECRET` rotated, ≥32 random chars, stored in a secret manager
 - [ ] `DEMO_MODE=false`; demo accounts removed or locked

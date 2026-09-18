@@ -20,8 +20,31 @@ export const dynamic = "force-dynamic";
    ============================================================ */
 
 const STOPWORDS = new Set([
-  "the", "and", "for", "with", "pain", "since", "from", "have", "has", " complaints", "patient",
-  "complaints", "years", "year", "days", "days", "old", "male", "female", "aana", "hai", "ke", "ki", "me", "se",
+  "the",
+  "and",
+  "for",
+  "with",
+  "pain",
+  "since",
+  "from",
+  "have",
+  "has",
+  " complaints",
+  "patient",
+  "complaints",
+  "years",
+  "year",
+  "days",
+  "days",
+  "old",
+  "male",
+  "female",
+  "aana",
+  "hai",
+  "ke",
+  "ki",
+  "me",
+  "se",
 ]);
 
 /** Extract meaningful search tokens from a free-text query. */
@@ -39,7 +62,12 @@ const MIN_COHORT = 3; // below this, percentages are noise — say so instead
 async function POST_impl(req: NextRequest) {
   try {
     const b = await req.json().catch(() => ({}));
-    const q = typeof b?.symptoms === "string" ? b.symptoms.trim() : typeof b?.diagnosis === "string" ? b.diagnosis.trim() : "";
+    const q =
+      typeof b?.symptoms === "string"
+        ? b.symptoms.trim()
+        : typeof b?.diagnosis === "string"
+          ? b.diagnosis.trim()
+          : "";
     if (!q) return NextResponse.json({ error: "no_input" }, { status: 400 });
 
     const terms = tokens(q);
@@ -90,7 +118,10 @@ async function POST_impl(req: NextRequest) {
       .slice(0, 5)
       .map(([diagnosis, g]) => ({
         diagnosis,
-        commonMeds: [...g.meds.entries()].sort((x, y) => y[1] - x[1]).slice(0, 4).map(([med]) => med),
+        commonMeds: [...g.meds.entries()]
+          .sort((x, y) => y[1] - x[1])
+          .slice(0, 4)
+          .map(([med]) => med),
         percentage: Math.round((g.count / visits.length) * 100),
       }));
 
@@ -100,7 +131,9 @@ async function POST_impl(req: NextRequest) {
       source: "clinic-db (real visit history — medicines actually prescribed to this cohort)",
     });
   } catch (e) {
-    log.error("clinic", "similar_patients_failed", { err: e instanceof Error ? e.message : String(e) });
+    log.error("clinic", "similar_patients_failed", {
+      err: e instanceof Error ? e.message : String(e),
+    });
     return NextResponse.json({ error: "match_failed" }, { status: 500 });
   }
 }

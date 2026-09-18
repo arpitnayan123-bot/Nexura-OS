@@ -8,9 +8,16 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 interface Input {
-  goal: string; dietaryPreference: string; calorieTarget: number;
-  age: number; gender: string; weightKg: number; heightCm: number;
-  activityLevel: string; allergies: string; medicalConditions: string;
+  goal: string;
+  dietaryPreference: string;
+  calorieTarget: number;
+  age: number;
+  gender: string;
+  weightKg: number;
+  heightCm: number;
+  activityLevel: string;
+  allergies: string;
+  medicalConditions: string;
 }
 
 // POST /api/know-your-health/diet-planner
@@ -19,15 +26,30 @@ export async function POST(req: NextRequest) {
   if (__ai) return __ai;
   try {
     const body = (await req.json().catch(() => ({}))) as Partial<Input>;
-    const age = Number(body.age); const heightCm = Number(body.heightCm); const weightKg = Number(body.weightKg);
+    const age = Number(body.age);
+    const heightCm = Number(body.heightCm);
+    const weightKg = Number(body.weightKg);
     const calorieTarget = Number(body.calorieTarget);
-    if (!age || !heightCm || !weightKg || !calorieTarget) return NextResponse.json({ error: "missing_required", detail: "Age, height, weight and calorie target are all required." }, { status: 400 });
+    if (!age || !heightCm || !weightKg || !calorieTarget)
+      return NextResponse.json(
+        {
+          error: "missing_required",
+          detail: "Age, height, weight and calorie target are all required.",
+        },
+        { status: 400 },
+      );
 
     const profile: Input = {
-      goal: String(body.goal || "maintain"), dietaryPreference: String(body.dietaryPreference || "vegetarian"),
-      calorieTarget, age, gender: String(body.gender || "male"), weightKg, heightCm,
+      goal: String(body.goal || "maintain"),
+      dietaryPreference: String(body.dietaryPreference || "vegetarian"),
+      calorieTarget,
+      age,
+      gender: String(body.gender || "male"),
+      weightKg,
+      heightCm,
       activityLevel: String(body.activityLevel || "moderate"),
-      allergies: String(body.allergies || ""), medicalConditions: String(body.medicalConditions || ""),
+      allergies: String(body.allergies || ""),
+      medicalConditions: String(body.medicalConditions || ""),
     };
 
     const prompt = `Create a personalised 7-day Indian meal plan for this person.
@@ -71,6 +93,9 @@ Rules:
     return NextResponse.json(result);
   } catch (err) {
     log.error("kyh", "diet_plan_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "diet_plan_failed", detail: "The diet plan could not be generated. Please retry." }, { status: 500 });
+    return NextResponse.json(
+      { error: "diet_plan_failed", detail: "The diet plan could not be generated. Please retry." },
+      { status: 500 },
+    );
   }
 }

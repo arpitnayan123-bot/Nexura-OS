@@ -34,7 +34,8 @@ export interface ParsedGoal {
 // so plain conjunctions ("health and happiness") stay one goal.
 // Zero-width lookahead keeps "and <verb> ..." intact in the second
 // chunk so its classifier still sees the verb + noun.
-const SPLITTERS = /[,;\n]+|\.\s+|\s+aur\s+|\s+also\s+(?:i\s+)?(?:want|need)|,\s*(?:and\s+)?(?:i\s+)?(?:want|need|also)|\s+(?=and\s+(?:then\s+)?(?:fix|improve|reduce|lose|gain|start|stop|quit|build|sleep|wake|eat|walk|run|meditate|exercise|read|scroll|cut|drop|get|drink|lower|shed)\b)/i;
+const SPLITTERS =
+  /[,;\n]+|\.\s+|\s+aur\s+|\s+also\s+(?:i\s+)?(?:want|need)|,\s*(?:and\s+)?(?:i\s+)?(?:want|need|also)|\s+(?=and\s+(?:then\s+)?(?:fix|improve|reduce|lose|gain|start|stop|quit|build|sleep|wake|eat|walk|run|meditate|exercise|read|scroll|cut|drop|get|drink|lower|shed)\b)/i;
 
 export function parseTranscript(text: string): {
   language: string;
@@ -82,30 +83,80 @@ export function parseTranscript(text: string): {
 export interface ReconcileResult {
   kept: { category: string; rawGoalText: string; clientKey: string }[];
   trimmed: { category: string; rawGoalText: string; reason: string }[];
-  conflicts: { goalACategory: string; goalBCategory: string; rule: string; explanation: string; resolution: string }[];
+  conflicts: {
+    goalACategory: string;
+    goalBCategory: string;
+    rule: string;
+    explanation: string;
+    resolution: string;
+  }[];
   burdenNote?: string;
 }
 
 const CONFLICT_RULES: { a: string; b: string; rule: string; why: string }[] = [
-  { a: "WEIGHT_LOSS", b: "WEIGHT_GAIN", rule: "opposite_direction", why: "Weight loss and gain pull in opposite directions — keeping both fights your body." },
-  { a: "FITNESS_STRENGTH", b: "FITNESS_ENDURANCE", rule: "adaptive_competition", why: "Heavy strength and big endurance blocks compete for recovery — we keep the primary one now." },
-  { a: "SUBSTANCE_REDUCTION", b: "HABITS_SCREEN", rule: "shared_capacity", why: "Both spend the same change-energy early on; sequencing works better than stacking." },
-  { a: "SLEEP", b: "HABITS_SCREEN", rule: "synergy", why: "These two reinforce each other — kept together deliberately." },
-  { a: "SKIN_ACNE", b: "SKIN_GENERAL", rule: "duplicate_surface", why: "Same surface, two plans — merged into the acne ladder which includes general care." },
-  { a: "WEIGHT_LOSS", b: "DIET_QUALITY", rule: "mechanism_overlap", why: "Plate quality IS the weight-loss mechanism — kept as one combined focus." },
+  {
+    a: "WEIGHT_LOSS",
+    b: "WEIGHT_GAIN",
+    rule: "opposite_direction",
+    why: "Weight loss and gain pull in opposite directions — keeping both fights your body.",
+  },
+  {
+    a: "FITNESS_STRENGTH",
+    b: "FITNESS_ENDURANCE",
+    rule: "adaptive_competition",
+    why: "Heavy strength and big endurance blocks compete for recovery — we keep the primary one now.",
+  },
+  {
+    a: "SUBSTANCE_REDUCTION",
+    b: "HABITS_SCREEN",
+    rule: "shared_capacity",
+    why: "Both spend the same change-energy early on; sequencing works better than stacking.",
+  },
+  {
+    a: "SLEEP",
+    b: "HABITS_SCREEN",
+    rule: "synergy",
+    why: "These two reinforce each other — kept together deliberately.",
+  },
+  {
+    a: "SKIN_ACNE",
+    b: "SKIN_GENERAL",
+    rule: "duplicate_surface",
+    why: "Same surface, two plans — merged into the acne ladder which includes general care.",
+  },
+  {
+    a: "WEIGHT_LOSS",
+    b: "DIET_QUALITY",
+    rule: "mechanism_overlap",
+    why: "Plate quality IS the weight-loss mechanism — kept as one combined focus.",
+  },
 ];
 
-export function reconcile(goals: { category: string; rawGoalText: string; clientKey: string }[]): ReconcileResult {
+export function reconcile(
+  goals: { category: string; rawGoalText: string; clientKey: string }[],
+): ReconcileResult {
   const kept = [...goals];
   const trimmed: ReconcileResult["trimmed"] = [];
   const conflicts: ReconcileResult["conflicts"] = [];
 
   // duplicate-surface merges first
-  if (kept.some((g) => g.category === "SKIN_ACNE") && kept.some((g) => g.category === "SKIN_GENERAL")) {
+  if (
+    kept.some((g) => g.category === "SKIN_ACNE") &&
+    kept.some((g) => g.category === "SKIN_GENERAL")
+  ) {
     const idx = kept.findIndex((g) => g.category === "SKIN_GENERAL");
     if (idx >= 0) {
-      trimmed.push({ ...kept[idx], reason: "Merged into your acne plan (it already covers general skin care)." });
-      conflicts.push({ goalACategory: "SKIN_ACNE", goalBCategory: "SKIN_GENERAL", rule: "duplicate_surface", explanation: "Acne plan includes general skin care.", resolution: "MERGED" });
+      trimmed.push({
+        ...kept[idx],
+        reason: "Merged into your acne plan (it already covers general skin care).",
+      });
+      conflicts.push({
+        goalACategory: "SKIN_ACNE",
+        goalBCategory: "SKIN_GENERAL",
+        rule: "duplicate_surface",
+        explanation: "Acne plan includes general skin care.",
+        resolution: "MERGED",
+      });
       kept.splice(idx, 1);
     }
   }
@@ -115,8 +166,18 @@ export function reconcile(goals: { category: string; rawGoalText: string; client
   for (let i = kept.length - 1; i >= 0; i--) {
     const firstIdx = kept.findIndex((g) => g.category === kept[i].category);
     if (firstIdx !== i && firstIdx >= 0) {
-      trimmed.push({ ...kept[i], reason: "Same focus as one you already stated — merged into it so the plan stays single-minded." });
-      conflicts.push({ goalACategory: kept[i].category, goalBCategory: kept[i].category, rule: "duplicate_category", explanation: "Two goals mapped to the same focus — we kept the one you stated first.", resolution: "MERGED" });
+      trimmed.push({
+        ...kept[i],
+        reason:
+          "Same focus as one you already stated — merged into it so the plan stays single-minded.",
+      });
+      conflicts.push({
+        goalACategory: kept[i].category,
+        goalBCategory: kept[i].category,
+        rule: "duplicate_category",
+        explanation: "Two goals mapped to the same focus — we kept the one you stated first.",
+        resolution: "MERGED",
+      });
       kept.splice(i, 1);
     }
   }
@@ -128,14 +189,24 @@ export function reconcile(goals: { category: string; rawGoalText: string; client
     // keep the first stated goal, trim the later one
     const later = ia > ib ? kept[ia] : kept[ib];
     trimmed.push({ ...later, reason: `${opposite.why} We kept the one you mentioned first.` });
-    conflicts.push({ goalACategory: opposite.a, goalBCategory: opposite.b, rule: opposite.rule, explanation: opposite.why, resolution: "TRIMMED" });
+    conflicts.push({
+      goalACategory: opposite.a,
+      goalBCategory: opposite.b,
+      rule: opposite.rule,
+      explanation: opposite.why,
+      resolution: "TRIMMED",
+    });
     kept.splice(kept.indexOf(later), 1);
   }
 
   // burden cap: max 5 active goal-plans
   while (kept.length > 5) {
     const removed = kept.pop()!;
-    trimmed.push({ ...removed, reason: "You have 5 active plans — this one waits so none of them get shallow attention. Add it after one completes." });
+    trimmed.push({
+      ...removed,
+      reason:
+        "You have 5 active plans — this one waits so none of them get shallow attention. Add it after one completes.",
+    });
   }
 
   return { kept, trimmed, conflicts };
@@ -164,7 +235,9 @@ export function applyBurdenTrim(roadmaps: { category: string; roadmap: Roadmap }
   return {
     roadmaps,
     overflow,
-    note: overflow.length ? `We trimmed ${overflow.length} daily task${overflow.length > 1 ? "s" : ""} so your day stays doable: ${overflow.join(", ")}. They return in a later phase.` : undefined,
+    note: overflow.length
+      ? `We trimmed ${overflow.length} daily task${overflow.length > 1 ? "s" : ""} so your day stays doable: ${overflow.join(", ")}. They return in a later phase.`
+      : undefined,
   };
 }
 
@@ -173,7 +246,13 @@ export function applyBurdenTrim(roadmaps: { category: string; roadmap: Roadmap }
 export interface GenerationInput {
   userId: string;
   idempotencyKey: string;
-  confirmedGoals: { id: string; category: string; rawGoalText: string; requestedTimeframeDays: number | null; timeframeDays: number | null }[];
+  confirmedGoals: {
+    id: string;
+    category: string;
+    rawGoalText: string;
+    requestedTimeframeDays: number | null;
+    timeframeDays: number | null;
+  }[];
   context?: { conditions?: string[]; dietPreference?: string; budget?: string };
 }
 
@@ -187,7 +266,9 @@ export interface GenerationOutput {
 
 export async function generatePlans(input: GenerationInput): Promise<GenerationOutput> {
   // idempotency
-  const existing = await db.diyGeneration.findUnique({ where: { idempotencyKey: input.idempotencyKey } });
+  const existing = await db.diyGeneration.findUnique({
+    where: { idempotencyKey: input.idempotencyKey },
+  });
   if (existing) {
     return {
       generationId: existing.id,
@@ -198,7 +279,11 @@ export async function generatePlans(input: GenerationInput): Promise<GenerationO
   }
 
   // build roadmaps deterministically
-  const roadmaps: { category: string; roadmap: Roadmap; goal: GenerationInput["confirmedGoals"][number] }[] = [];
+  const roadmaps: {
+    category: string;
+    roadmap: Roadmap;
+    goal: GenerationInput["confirmedGoals"][number];
+  }[] = [];
   for (const g of input.confirmedGoals) {
     const mod = moduleFor(g.category);
     if (!mod) continue;
@@ -206,7 +291,11 @@ export async function generatePlans(input: GenerationInput): Promise<GenerationO
     const tf = applyPacingFloor(g.category as DiyCategory, requested);
     const roadmap = mod.build(tf.days);
     // content validation on the deterministic draft
-    const flat = [roadmap.summary, ...roadmap.tasks.map((t) => `${t.title} ${t.detail}`), ...roadmap.milestones.map((m) => m.title)].join("\n");
+    const flat = [
+      roadmap.summary,
+      ...roadmap.tasks.map((t) => `${t.title} ${t.detail}`),
+      ...roadmap.milestones.map((m) => m.title),
+    ].join("\n");
     const v = validateContent(flat);
     if (!v.ok) {
       // deterministic content should never trip; strip offending lines as defense
@@ -216,7 +305,9 @@ export async function generatePlans(input: GenerationInput): Promise<GenerationO
   }
 
   // reconcile at plan level (category-level conflicts already applied at confirm time)
-  const { note: burdenNote } = applyBurdenTrim(roadmaps.map((r) => ({ category: r.category, roadmap: r.roadmap })));
+  const { note: burdenNote } = applyBurdenTrim(
+    roadmaps.map((r) => ({ category: r.category, roadmap: r.roadmap })),
+  );
 
   const conflicts: ReconcileResult["conflicts"] = [];
   const trimmed: ReconcileResult["trimmed"] = [];
@@ -245,7 +336,8 @@ export async function generatePlans(input: GenerationInput): Promise<GenerationO
             fromVer: newest.version,
             toVer: newest.version,
             reason: "superseded",
-            summary: "A refreshed plan for this focus replaced the previous one — Today now shows the newest version.",
+            summary:
+              "A refreshed plan for this focus replaced the previous one — Today now shows the newest version.",
           },
         });
         conflicts.push({
@@ -273,7 +365,13 @@ export async function generatePlans(input: GenerationInput): Promise<GenerationO
       planIds.push(plan.id);
       if (r.roadmap.milestones.length) {
         await tx.diyMilestone.createMany({
-          data: r.roadmap.milestones.map((m, i) => ({ planId: plan.id, title: m.title, detail: m.detail, targetDay: m.targetDay, sort: i })),
+          data: r.roadmap.milestones.map((m, i) => ({
+            planId: plan.id,
+            title: m.title,
+            detail: m.detail,
+            targetDay: m.targetDay,
+            sort: i,
+          })),
         });
       }
       if (r.roadmap.tasks.length) {
@@ -292,15 +390,33 @@ export async function generatePlans(input: GenerationInput): Promise<GenerationO
     }
     for (const c of conflicts) {
       await tx.diyGoalConflict.create({
-        data: { userId: input.userId, goalAId: c.goalACategory, goalBId: c.goalBCategory, rule: c.rule, explanation: c.explanation, resolution: c.resolution },
+        data: {
+          userId: input.userId,
+          goalAId: c.goalACategory,
+          goalBId: c.goalBCategory,
+          rule: c.rule,
+          explanation: c.explanation,
+          resolution: c.resolution,
+        },
       });
     }
     return tx.diyGeneration.create({
-      data: { userId: input.userId, idempotencyKey: input.idempotencyKey, status: "COMPLETED", planIds: JSON.stringify(planIds) },
+      data: {
+        userId: input.userId,
+        idempotencyKey: input.idempotencyKey,
+        status: "COMPLETED",
+        planIds: JSON.stringify(planIds),
+      },
     });
   });
 
-  return { generationId: result.id, planIds: JSON.parse(result.planIds) as string[], conflicts, trimmed, burdenNote };
+  return {
+    generationId: result.id,
+    planIds: JSON.parse(result.planIds) as string[],
+    conflicts,
+    trimmed,
+    burdenNote,
+  };
 }
 
 export function newBatchId(): string {

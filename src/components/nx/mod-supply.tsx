@@ -11,9 +11,39 @@ import { Empty, ErrorState, Loading, Panel, Pill, Stat, StatusPill } from "./bit
    ============================================================ */
 
 interface SupplyData {
-  supplies: Array<{ id: string; name: string; category: string; unit: string; onHand: number; reorderLevel: number; batchNo: string | null; expiryDate: string | null; supplier: string | null; low: boolean; daysToExpiry: number | null }>;
-  equipment: Array<{ id: string; name: string; category: string; assetTag: string; location: string | null; department: string | null; status: string; nextMaintenance: string | null; utilization: number; maintenanceDueDays: number | null; maintenanceOverdue: boolean }>;
-  stats: { lowStock: number; expiring90d: number; equipmentFault: number; maintenanceOverdue: number; avgUtilization: number };
+  supplies: Array<{
+    id: string;
+    name: string;
+    category: string;
+    unit: string;
+    onHand: number;
+    reorderLevel: number;
+    batchNo: string | null;
+    expiryDate: string | null;
+    supplier: string | null;
+    low: boolean;
+    daysToExpiry: number | null;
+  }>;
+  equipment: Array<{
+    id: string;
+    name: string;
+    category: string;
+    assetTag: string;
+    location: string | null;
+    department: string | null;
+    status: string;
+    nextMaintenance: string | null;
+    utilization: number;
+    maintenanceDueDays: number | null;
+    maintenanceOverdue: boolean;
+  }>;
+  stats: {
+    lowStock: number;
+    expiring90d: number;
+    equipmentFault: number;
+    maintenanceOverdue: number;
+    avgUtilization: number;
+  };
 }
 
 export function SupplyCenter() {
@@ -31,7 +61,10 @@ export function SupplyCenter() {
 
   async function setEquipStatus(id: string, status: string) {
     try {
-      await nx("/api/nx/supply", { method: "PATCH", body: JSON.stringify({ kind: "equipment", id, status }) });
+      await nx("/api/nx/supply", {
+        method: "PATCH",
+        body: JSON.stringify({ kind: "equipment", id, status }),
+      });
       toast.success(`Asset → ${status.replace(/_/g, " ")}`);
       refresh();
     } catch (e) {
@@ -46,16 +79,38 @@ export function SupplyCenter() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <Stat label="Low stock" value={data.stats.lowStock} tone={data.stats.lowStock ? "warn" : "good"} icon={<PackageOpen className="h-4 w-4" />} />
-        <Stat label="Expiring ≤90d" value={data.stats.expiring90d} tone={data.stats.expiring90d ? "warn" : "good"} />
-        <Stat label="Faulty assets" value={data.stats.equipmentFault} tone={data.stats.equipmentFault ? "critical" : "good"} icon={<Wrench className="h-4 w-4" />} />
-        <Stat label="Maint. overdue" value={data.stats.maintenanceOverdue} tone={data.stats.maintenanceOverdue ? "critical" : "good"} />
+        <Stat
+          label="Low stock"
+          value={data.stats.lowStock}
+          tone={data.stats.lowStock ? "warn" : "good"}
+          icon={<PackageOpen className="h-4 w-4" />}
+        />
+        <Stat
+          label="Expiring ≤90d"
+          value={data.stats.expiring90d}
+          tone={data.stats.expiring90d ? "warn" : "good"}
+        />
+        <Stat
+          label="Faulty assets"
+          value={data.stats.equipmentFault}
+          tone={data.stats.equipmentFault ? "critical" : "good"}
+          icon={<Wrench className="h-4 w-4" />}
+        />
+        <Stat
+          label="Maint. overdue"
+          value={data.stats.maintenanceOverdue}
+          tone={data.stats.maintenanceOverdue ? "critical" : "good"}
+        />
         <Stat label="Avg utilization" value={`${data.stats.avgUtilization}%`} tone="info" />
       </div>
 
       <div className="flex gap-2">
         {(["inventory", "equipment"] as const).map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition ${tab === t ? "bg-accent-soft text-accent ring-1 ring-accent-line" : "text-ink-3 hover:bg-inset"}`}>
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition ${tab === t ? "bg-accent-soft text-accent ring-1 ring-accent-line" : "text-ink-3 hover:bg-inset"}`}
+          >
             {t}
           </button>
         ))}
@@ -77,23 +132,46 @@ export function SupplyCenter() {
               </thead>
               <tbody>
                 {data.supplies.map((s) => (
-                  <tr key={s.id} className={`border-b border-line ${s.low ? "bg-accent-soft" : ""}`}>
+                  <tr
+                    key={s.id}
+                    className={`border-b border-line ${s.low ? "bg-accent-soft" : ""}`}
+                  >
                     <td className="py-2.5 pr-3">
                       <span className="font-medium text-ink">{s.name}</span>
-                      {s.low && <Pill tone="warn" className="ml-2">reorder</Pill>}
+                      {s.low && (
+                        <Pill tone="warn" className="ml-2">
+                          reorder
+                        </Pill>
+                      )}
                     </td>
                     <td className="py-2.5 pr-3 text-ink-3">{s.category}</td>
-                    <td className="py-2.5 pr-3 tabular-nums text-ink-2">{s.onHand} <span className="text-ink-4">/ min {s.reorderLevel}</span></td>
+                    <td className="py-2.5 pr-3 tabular-nums text-ink-2">
+                      {s.onHand} <span className="text-ink-4">/ min {s.reorderLevel}</span>
+                    </td>
                     <td className="py-2.5 pr-3 text-ink-3">{s.batchNo || "—"}</td>
                     <td className="py-2.5 pr-3">
                       {s.daysToExpiry != null ? (
-                        <Pill tone={s.daysToExpiry < 90 ? "warn" : "neutral"}>{s.daysToExpiry}d</Pill>
-                      ) : "—"}
+                        <Pill tone={s.daysToExpiry < 90 ? "warn" : "neutral"}>
+                          {s.daysToExpiry}d
+                        </Pill>
+                      ) : (
+                        "—"
+                      )}
                     </td>
                     <td className="py-2.5 pr-3">
                       <div className="flex items-center gap-1">
-                        <button onClick={() => adjust(s.id, -10)} className="rounded border border-line-2 px-1.5 py-0.5 text-ink-3 hover:bg-inset">−10</button>
-                        <button onClick={() => adjust(s.id, 50)} className="rounded border border-good-line px-1.5 py-0.5 text-good hover:bg-good-soft">+50</button>
+                        <button
+                          onClick={() => adjust(s.id, -10)}
+                          className="rounded border border-line-2 px-1.5 py-0.5 text-ink-3 hover:bg-inset"
+                        >
+                          −10
+                        </button>
+                        <button
+                          onClick={() => adjust(s.id, 50)}
+                          className="rounded border border-good-line px-1.5 py-0.5 text-good hover:bg-good-soft"
+                        >
+                          +50
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -106,30 +184,51 @@ export function SupplyCenter() {
         <Panel title="Equipment & assets" subtitle="Location, status, calibration and utilization">
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             {data.equipment.map((e) => (
-              <div key={e.id} className={`rounded-xl border p-3.5 ${e.status === "fault" ? "border-crit-line bg-crit-soft" : e.maintenanceOverdue ? "border-accent-line" : "border-line bg-panel"}`}>
+              <div
+                key={e.id}
+                className={`rounded-xl border p-3.5 ${e.status === "fault" ? "border-crit-line bg-crit-soft" : e.maintenanceOverdue ? "border-accent-line" : "border-line bg-panel"}`}
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-sm font-medium text-ink">{e.name}</p>
-                    <p className="text-[11px] text-ink-3">{e.assetTag} · {e.location || "—"} · {e.department || "—"}</p>
+                    <p className="text-[11px] text-ink-3">
+                      {e.assetTag} · {e.location || "—"} · {e.department || "—"}
+                    </p>
                   </div>
                   <StatusPill status={e.status} />
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   <Pill tone={e.utilization > 85 ? "warn" : "info"}>util {e.utilization}%</Pill>
                   {e.maintenanceDueDays != null && (
-                    <Pill tone={e.maintenanceOverdue ? "critical" : e.maintenanceDueDays < 7 ? "warn" : "neutral"}>
-                      {e.maintenanceOverdue ? `overdue ${-e.maintenanceDueDays}d` : `maint in ${e.maintenanceDueDays}d`}
+                    <Pill
+                      tone={
+                        e.maintenanceOverdue
+                          ? "critical"
+                          : e.maintenanceDueDays < 7
+                            ? "warn"
+                            : "neutral"
+                      }
+                    >
+                      {e.maintenanceOverdue
+                        ? `overdue ${-e.maintenanceDueDays}d`
+                        : `maint in ${e.maintenanceDueDays}d`}
                     </Pill>
                   )}
                 </div>
                 <div className="mt-2.5 flex gap-1.5">
                   {e.status !== "in_service" && (
-                    <button onClick={() => setEquipStatus(e.id, "in_service")} className="flex items-center gap-1 rounded-md border border-good-line px-2 py-1 text-[10px] text-good hover:bg-good-soft">
+                    <button
+                      onClick={() => setEquipStatus(e.id, "in_service")}
+                      className="flex items-center gap-1 rounded-md border border-good-line px-2 py-1 text-[10px] text-good hover:bg-good-soft"
+                    >
                       <Brush className="h-3 w-3" /> Return to service
                     </button>
                   )}
                   {e.status === "in_service" && (
-                    <button onClick={() => setEquipStatus(e.id, "maintenance")} className="rounded-md border border-accent-line px-2 py-1 text-[10px] text-accent hover:bg-accent-soft">
+                    <button
+                      onClick={() => setEquipStatus(e.id, "maintenance")}
+                      className="rounded-md border border-accent-line px-2 py-1 text-[10px] text-accent hover:bg-accent-soft"
+                    >
                       Send to maintenance
                     </button>
                   )}

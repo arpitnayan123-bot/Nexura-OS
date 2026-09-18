@@ -30,7 +30,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
         "group relative grid h-9 w-9 place-items-center overflow-hidden rounded-full border border-border bg-background/60 text-foreground transition-colors hover:bg-accent/50",
-        className
+        className,
       )}
     >
       {/* soft radial glow that follows theme */}

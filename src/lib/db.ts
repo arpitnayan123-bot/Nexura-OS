@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
 
 /* ============================================================
    NEXURA OS — PRISMA CLIENT
@@ -12,13 +12,13 @@ import { PrismaClient } from '@prisma/client'
    ============================================================ */
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+  prisma: PrismaClient | undefined;
+};
 
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: ['error', 'warn'],
-  })
+    log: ["error", "warn"],
+  });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;

@@ -1,7 +1,16 @@
 "use client";
 
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 import { Empty, ErrorState, Loading, Panel, Pill, Stat } from "./bits";
 import { useNx } from "./client";
@@ -12,10 +21,16 @@ import { useNx } from "./client";
 
 interface Analytics {
   kpis: {
-    alosDays: number; readmissionPct: number; occupancyPct: number; totalAdmissions: number;
+    alosDays: number;
+    readmissionPct: number;
+    occupancyPct: number;
+    totalAdmissions: number;
     orderTatHours: Record<string, { n: number; avgH: number }>;
-    noShowPct: number; appointmentCompletionPct: number; slaOnTimePct: number;
-    openIncidents: number; criticalResults: number;
+    noShowPct: number;
+    appointmentCompletionPct: number;
+    slaOnTimePct: number;
+    openIncidents: number;
+    criticalResults: number;
   };
   revenueTrend: Array<{ day: string; revenue: number; collected: number }>;
   admissionTrend: Array<{ day: string; emergency: number; elective: number }>;
@@ -25,7 +40,13 @@ interface Analytics {
 }
 
 const AXIS = { stroke: "#475569", fontSize: 10 };
-const TOOLTIP_STYLE = { backgroundColor: "#0d1526", border: "1px solid #1e293b", borderRadius: 8, fontSize: 12, color: "#e2e8f0" };
+const TOOLTIP_STYLE = {
+  backgroundColor: "#0d1526",
+  border: "1px solid #1e293b",
+  borderRadius: 8,
+  fontSize: 12,
+  color: "#e2e8f0",
+};
 
 export function AnalyticsCenter() {
   const { data, error, loading, refresh } = useNx<Analytics>("/api/nx/analytics");
@@ -40,11 +61,33 @@ export function AnalyticsCenter() {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Stat label="ALOS" value={`${k.alosDays}d`} sub="avg length of stay" tone="info" />
-        <Stat label="Readmission" value={`${k.readmissionPct}%`} sub="30-day proxy" tone={k.readmissionPct > 15 ? "warn" : "good"} />
-        <Stat label="Occupancy" value={`${k.occupancyPct}%`} tone={k.occupancyPct > 85 ? "warn" : "default"} />
-        <Stat label="SLA on-time" value={`${k.slaOnTimePct}%`} sub="task completion" tone={k.slaOnTimePct >= 90 ? "good" : "warn"} />
-        <Stat label="No-show" value={`${k.noShowPct}%`} sub={`${k.appointmentCompletionPct}% completed`} />
-        <Stat label="Open incidents" value={k.openIncidents} tone={k.openIncidents ? "warn" : "good"} />
+        <Stat
+          label="Readmission"
+          value={`${k.readmissionPct}%`}
+          sub="30-day proxy"
+          tone={k.readmissionPct > 15 ? "warn" : "good"}
+        />
+        <Stat
+          label="Occupancy"
+          value={`${k.occupancyPct}%`}
+          tone={k.occupancyPct > 85 ? "warn" : "default"}
+        />
+        <Stat
+          label="SLA on-time"
+          value={`${k.slaOnTimePct}%`}
+          sub="task completion"
+          tone={k.slaOnTimePct >= 90 ? "good" : "warn"}
+        />
+        <Stat
+          label="No-show"
+          value={`${k.noShowPct}%`}
+          sub={`${k.appointmentCompletionPct}% completed`}
+        />
+        <Stat
+          label="Open incidents"
+          value={k.openIncidents}
+          tone={k.openIncidents ? "warn" : "good"}
+        />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
@@ -64,16 +107,34 @@ export function AnalyticsCenter() {
               <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="day" tick={AXIS} axisLine={{ stroke: "#1e293b" }} tickLine={false} />
               <YAxis tick={AXIS} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number) => `₹${v.toLocaleString("en-IN")}`} />
-              <Area type="monotone" dataKey="revenue" stroke="#f59e0b" fill="url(#rev)" strokeWidth={2} />
-              <Area type="monotone" dataKey="collected" stroke="#10b981" fill="url(#col)" strokeWidth={2} />
+              <Tooltip
+                contentStyle={TOOLTIP_STYLE}
+                formatter={(v: number) => `₹${v.toLocaleString("en-IN")}`}
+              />
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                stroke="#f59e0b"
+                fill="url(#rev)"
+                strokeWidth={2}
+              />
+              <Area
+                type="monotone"
+                dataKey="collected"
+                stroke="#10b981"
+                fill="url(#col)"
+                strokeWidth={2}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </Panel>
 
         <Panel title="Admissions — last 7 days" subtitle="Emergency vs elective">
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={data.admissionTrend} margin={{ top: 8, right: 8, left: -22, bottom: 0 }}>
+            <BarChart
+              data={data.admissionTrend}
+              margin={{ top: 8, right: 8, left: -22, bottom: 0 }}
+            >
               <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="day" tick={AXIS} axisLine={{ stroke: "#1e293b" }} tickLine={false} />
               <YAxis tick={AXIS} axisLine={false} tickLine={false} allowDecimals={false} />
@@ -90,9 +151,14 @@ export function AnalyticsCenter() {
               <div key={w.ward} className="flex items-center gap-3">
                 <span className="w-28 truncate text-xs text-ink-2">{w.ward}</span>
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-inset">
-                  <div className={`h-full rounded-full ${w.pct > 90 ? "bg-crit" : w.pct > 70 ? "bg-accent" : "bg-good"}`} style={{ width: `${w.pct}%` }} />
+                  <div
+                    className={`h-full rounded-full ${w.pct > 90 ? "bg-crit" : w.pct > 70 ? "bg-accent" : "bg-good"}`}
+                    style={{ width: `${w.pct}%` }}
+                  />
                 </div>
-                <span className="w-20 text-right text-[11px] tabular-nums text-ink-3">{w.occupied}/{w.total} · {w.pct}%</span>
+                <span className="w-20 text-right text-[11px] tabular-nums text-ink-3">
+                  {w.occupied}/{w.total} · {w.pct}%
+                </span>
               </div>
             ))}
           </div>
@@ -100,10 +166,27 @@ export function AnalyticsCenter() {
 
         <Panel title="Doctor workload" subtitle="OPD + IPD load (top 8)">
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={data.doctorLoad} layout="vertical" margin={{ top: 0, right: 8, left: 60, bottom: 0 }}>
+            <BarChart
+              data={data.doctorLoad}
+              layout="vertical"
+              margin={{ top: 0, right: 8, left: 60, bottom: 0 }}
+            >
               <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" tick={AXIS} axisLine={false} tickLine={false} allowDecimals={false} />
-              <YAxis type="category" dataKey="name" tick={{ ...AXIS, fontSize: 9 }} axisLine={false} tickLine={false} width={80} />
+              <XAxis
+                type="number"
+                tick={AXIS}
+                axisLine={false}
+                tickLine={false}
+                allowDecimals={false}
+              />
+              <YAxis
+                type="category"
+                dataKey="name"
+                tick={{ ...AXIS, fontSize: 9 }}
+                axisLine={false}
+                tickLine={false}
+                width={80}
+              />
               <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "#1e293b55" }} />
               <Bar dataKey="opd" stackId="a" fill="#f59e0b" />
               <Bar dataKey="ipd" stackId="a" fill="#8b5cf6" />
@@ -119,7 +202,9 @@ export function AnalyticsCenter() {
               <Empty title="No completed orders yet" />
             ) : (
               Object.entries(k.orderTatHours).map(([type, t]) => (
-                <Pill key={type} tone={t.avgH > 6 ? "warn" : "good"}>{type}: {t.avgH}h avg ({t.n})</Pill>
+                <Pill key={type} tone={t.avgH > 6 ? "warn" : "good"}>
+                  {type}: {t.avgH}h avg ({t.n})
+                </Pill>
               ))
             )}
           </div>
@@ -130,7 +215,12 @@ export function AnalyticsCenter() {
               <Empty title="No incidents recorded" />
             ) : (
               Object.entries(data.safetyByCategory).map(([cat, n]) => (
-                <Pill key={cat} tone={cat === "clinical" || cat === "medication" ? "critical" : "warn"}>{cat}: {n}</Pill>
+                <Pill
+                  key={cat}
+                  tone={cat === "clinical" || cat === "medication" ? "critical" : "warn"}
+                >
+                  {cat}: {n}
+                </Pill>
               ))
             )}
           </div>

@@ -10,7 +10,10 @@ export default function NotFound() {
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#141210] px-6 text-[#F6F1E7]">
       {/* ambient champagne light */}
-      <div aria-hidden className="aurora-gold top-[-30%] left-1/2 h-[30rem] w-[44rem] -translate-x-1/2 opacity-40" />
+      <div
+        aria-hidden
+        className="aurora-gold top-[-30%] left-1/2 h-[30rem] w-[44rem] -translate-x-1/2 opacity-40"
+      />
       <div aria-hidden className="grain-fine" />
 
       <div className="relative w-full max-w-md text-center">

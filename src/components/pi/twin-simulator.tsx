@@ -103,7 +103,11 @@ export function TwinSimulator({
         disabled={busy || !selected.length}
         className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-violet-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-700 disabled:opacity-50"
       >
-        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FlaskConical className="h-3.5 w-3.5" />}
+        {busy ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <FlaskConical className="h-3.5 w-3.5" />
+        )}
         Simulate {selected.length ? `(${selected.length})` : ""}
       </button>
 
@@ -112,7 +116,10 @@ export function TwinSimulator({
       {outcomes && (
         <div className="mt-3 space-y-2.5">
           {outcomes.map((o) => (
-            <div key={o.intervention.id} className="rounded-xl border border-black/8 bg-white/80 p-3 dark:border-white/10 dark:bg-white/5">
+            <div
+              key={o.intervention.id}
+              className="rounded-xl border border-black/8 bg-white/80 p-3 dark:border-white/10 dark:bg-white/5"
+            >
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs font-semibold">{o.intervention.label}</p>
                 <span
@@ -124,7 +131,11 @@ export function TwinSimulator({
                         : "bg-black/5 text-muted-foreground dark:bg-white/10"
                   }`}
                 >
-                  {o.riskDelta < 0 ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
+                  {o.riskDelta < 0 ? (
+                    <TrendingDown className="h-3 w-3" />
+                  ) : (
+                    <TrendingUp className="h-3 w-3" />
+                  )}
                   {o.riskDelta > 0 ? "+" : ""}
                   {o.riskDelta} pts
                 </span>
@@ -135,7 +146,11 @@ export function TwinSimulator({
                     <span className="text-muted-foreground">{l.label}</span>
                     <span
                       className={`font-semibold ${
-                        l.direction === "better" ? "text-emerald-600 dark:text-emerald-400" : l.direction === "worse" ? "text-rose-600 dark:text-rose-400" : "text-muted-foreground"
+                        l.direction === "better"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : l.direction === "worse"
+                            ? "text-rose-600 dark:text-rose-400"
+                            : "text-muted-foreground"
                       }`}
                     >
                       {l.delta}

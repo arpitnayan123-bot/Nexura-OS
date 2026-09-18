@@ -36,7 +36,10 @@ const g = globalThis as unknown as {
 function fallbackConsume(identifier: string, max: number, windowMs: number): RateResult {
   if (!g.__nxRlWarned) {
     g.__nxRlWarned = true;
-    log.warn("rate-limit", "REDIS_URL not set — using in-process fallback (single-node only). Set REDIS_URL for multi-instance deployments.");
+    log.warn(
+      "rate-limit",
+      "REDIS_URL not set — using in-process fallback (single-node only). Set REDIS_URL for multi-instance deployments.",
+    );
   }
   const map = (g.__nxRlFallback ??= new Map());
   const now = Date.now();
@@ -46,7 +49,11 @@ function fallbackConsume(identifier: string, max: number, windowMs: number): Rat
     return { allowed: true, remaining: max - 1, resetAt: now + windowMs };
   }
   entry.count += 1;
-  return { allowed: entry.count <= max, remaining: Math.max(0, max - entry.count), resetAt: entry.resetAt };
+  return {
+    allowed: entry.count <= max,
+    remaining: Math.max(0, max - entry.count),
+    resetAt: entry.resetAt,
+  };
 }
 
 /** Consume one unit from `identifier`'s budget. Atomic across every
@@ -54,7 +61,7 @@ function fallbackConsume(identifier: string, max: number, windowMs: number): Rat
 export async function consumeRateLimit(
   identifier: string,
   max: number,
-  windowMs: number
+  windowMs: number,
 ): Promise<RateResult> {
   if (!isRedisConfigured()) return fallbackConsume(identifier, max, windowMs);
   const client = redis();
@@ -74,15 +81,25 @@ export async function peekRateLimit(identifier: string, max: number): Promise<Ra
   if (!isRedisConfigured()) {
     const entry = g.__nxRlFallback?.get(identifier);
     const now = Date.now();
-    if (!entry || entry.resetAt < now) return { allowed: true, remaining: max, resetAt: now + 60_000 };
-    return { allowed: entry.count <= max, remaining: Math.max(0, max - entry.count), resetAt: entry.resetAt };
+    if (!entry || entry.resetAt < now)
+      return { allowed: true, remaining: max, resetAt: now + 60_000 };
+    return {
+      allowed: entry.count <= max,
+      remaining: Math.max(0, max - entry.count),
+      resetAt: entry.resetAt,
+    };
   }
   const client = redis();
   if (!client) {
     const entry = g.__nxRlFallback?.get(identifier);
     const now = Date.now();
-    if (!entry || entry.resetAt < now) return { allowed: true, remaining: max, resetAt: now + 60_000 };
-    return { allowed: entry.count <= max, remaining: Math.max(0, max - entry.count), resetAt: entry.resetAt };
+    if (!entry || entry.resetAt < now)
+      return { allowed: true, remaining: max, resetAt: now + 60_000 };
+    return {
+      allowed: entry.count <= max,
+      remaining: Math.max(0, max - entry.count),
+      resetAt: entry.resetAt,
+    };
   }
   const key = `nx:rl:${identifier}`;
   const [count, ttl] = await Promise.all([client.get(key), client.pttl(key)]);

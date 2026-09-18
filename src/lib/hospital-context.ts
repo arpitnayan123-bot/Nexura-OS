@@ -25,9 +25,9 @@ export async function getDemoHospital() {
  * Context object for routes that access `ctx.hospital.*`.
  * Returns null when no hospital exists in the DB.
  */
-export async function getDemoHospitalCtx(): Promise<{ hospital: NonNullable<
-  Awaited<ReturnType<typeof getDemoHospital>>
-> } | null> {
+export async function getDemoHospitalCtx(): Promise<{
+  hospital: NonNullable<Awaited<ReturnType<typeof getDemoHospital>>>;
+} | null> {
   try {
     const hospital = await db.hospital.findFirst();
     return hospital ? { hospital } : null;
@@ -105,30 +105,68 @@ export function calculateNEWS2(v: {
 
 /** Indian TPA companies */
 export const TPA_COMPANIES = [
-  "Star Health", "Medi-Assist", "Vidal Health", "MD India", "Heritage Health",
-  "United India Insurance", "New India Assurance", "Oriental Insurance",
-  "Bajaj Allianz", "ICICI Lombard", "Niva Bupa", "Aditya Birla Health",
+  "Star Health",
+  "Medi-Assist",
+  "Vidal Health",
+  "MD India",
+  "Heritage Health",
+  "United India Insurance",
+  "New India Assurance",
+  "Oriental Insurance",
+  "Bajaj Allianz",
+  "ICICI Lombard",
+  "Niva Bupa",
+  "Aditya Birla Health",
 ];
 
 /** Indian medical specialties */
 export const SPECIALTIES = [
-  "General Physician", "Cardiologist", "Neurologist", "Orthopedic Surgeon",
-  "Pediatrician", "Gynecologist", "ENT Specialist", "Ophthalmologist",
-  "Dermatologist", "Psychiatrist", "Pulmonologist", "Gastroenterologist",
-  "Nephrologist", "Endocrinologist", "Oncologist", "Urologist",
-  "General Surgeon", "Anesthesiologist", "Radiologist", "Pathologist",
+  "General Physician",
+  "Cardiologist",
+  "Neurologist",
+  "Orthopedic Surgeon",
+  "Pediatrician",
+  "Gynecologist",
+  "ENT Specialist",
+  "Ophthalmologist",
+  "Dermatologist",
+  "Psychiatrist",
+  "Pulmonologist",
+  "Gastroenterologist",
+  "Nephrologist",
+  "Endocrinologist",
+  "Oncologist",
+  "Urologist",
+  "General Surgeon",
+  "Anesthesiologist",
+  "Radiologist",
+  "Pathologist",
 ];
 
 /** Indian languages */
 export const LANGUAGES = [
-  "Hindi", "English", "Tamil", "Telugu", "Marathi", "Bengali",
-  "Kannada", "Gujarati", "Punjabi", "Odia",
+  "Hindi",
+  "English",
+  "Tamil",
+  "Telugu",
+  "Marathi",
+  "Bengali",
+  "Kannada",
+  "Gujarati",
+  "Punjabi",
+  "Odia",
 ];
 
 /** Ward types */
 export const WARD_TYPES = [
-  "general", "icu", "hdu", "maternity", "pediatric",
-  "surgical", "orthopedic", "cardiac",
+  "general",
+  "icu",
+  "hdu",
+  "maternity",
+  "pediatric",
+  "surgical",
+  "orthopedic",
+  "cardiac",
 ];
 
 /** Blood groups */
@@ -136,5 +174,9 @@ export const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 /** Blood components */
 export const BLOOD_COMPONENTS = [
-  "whole_blood", "packed_rbc", "platelets", "ffp", "cryoprecipitate",
+  "whole_blood",
+  "packed_rbc",
+  "platelets",
+  "ffp",
+  "cryoprecipitate",
 ];

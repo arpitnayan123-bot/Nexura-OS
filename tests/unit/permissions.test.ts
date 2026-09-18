@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { ROLE_PERMISSIONS, PERMISSIONS, modulesForRole, roleKeysForUser, type NxRole } from "@/lib/nx/session";
+import {
+  ROLE_PERMISSIONS,
+  PERMISSIONS,
+  modulesForRole,
+  roleKeysForUser,
+  type NxRole,
+} from "@/lib/nx/session";
 
 /* RBAC-as-data invariants — the permission matrix is the security core. */
 
@@ -52,7 +58,9 @@ describe("permission matrix", () => {
   });
 
   it("break-glass invocation is limited to clinical/administrative roles", () => {
-    const canInvoke = (Object.keys(ROLE_PERMISSIONS) as NxRole[]).filter((r) => ROLE_PERMISSIONS[r].includes("breakglass.invoke"));
+    const canInvoke = (Object.keys(ROLE_PERMISSIONS) as NxRole[]).filter((r) =>
+      ROLE_PERMISSIONS[r].includes("breakglass.invoke"),
+    );
     expect(canInvoke).toContain("doctor");
     expect(canInvoke).toContain("nurse");
     expect(canInvoke).not.toContain("auditor");

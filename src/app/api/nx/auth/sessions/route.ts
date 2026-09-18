@@ -26,7 +26,7 @@ export const GET = withRoute("auth.sessions.list", async (req: NextRequest, { re
       current: s.jti === g.session.jti,
       idleBudgetMin: idleBudgetMin(g.session.role),
     })),
-    { requestId }
+    { requestId },
   );
 });
 
@@ -37,7 +37,10 @@ export const DELETE = withRoute("auth.sessions.revoke", async (req: NextRequest,
   if (!id) return fail("missing_id", 400, undefined, requestId);
   const target = await db.nxSessionRecord.findFirst({ where: { id, userId: g.session.userId } });
   if (!target) return fail("not_found", 404, undefined, requestId);
-  await db.nxSessionRecord.update({ where: { id }, data: { revokedAt: new Date(), revokedReason: "remote_logout" } });
+  await db.nxSessionRecord.update({
+    where: { id },
+    data: { revokedAt: new Date(), revokedReason: "remote_logout" },
+  });
   await audit({
     hospitalId: g.session.hospitalId ?? "",
     actorName: g.session.name,

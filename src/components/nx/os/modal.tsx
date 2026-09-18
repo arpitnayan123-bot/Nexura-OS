@@ -37,12 +37,14 @@ export function NxModal({
         aria-describedby={subtitle ? undefined : undefined}
         className={cn(
           "nx-pop-center !fixed left-1/2 top-[14%] translate-y-0 gap-0 overflow-hidden rounded-2xl border-line bg-panel p-5",
-          wide ? "w-[min(680px,calc(100vw-24px))]" : "w-[min(480px,calc(100vw-24px))]"
+          wide ? "w-[min(680px,calc(100vw-24px))]" : "w-[min(480px,calc(100vw-24px))]",
         )}
       >
         <DialogTitle className="text-sm font-semibold text-ink">{title}</DialogTitle>
         {subtitle ? (
-          <DialogDescription className="mt-0.5 text-[11px] text-ink-3">{subtitle}</DialogDescription>
+          <DialogDescription className="mt-0.5 text-[11px] text-ink-3">
+            {subtitle}
+          </DialogDescription>
         ) : null}
         <div className="mt-3 space-y-2.5">{children}</div>
         {footer ? <div className="mt-4 flex items-center justify-end gap-2">{footer}</div> : null}

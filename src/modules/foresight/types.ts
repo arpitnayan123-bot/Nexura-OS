@@ -27,26 +27,15 @@ export const CALIBRATION_VERSION = "india-cal-2.0.0";
 
 export type SexAtBirth = "male" | "female" | "intersex" | "undisclosed";
 
-export type DietType =
-  | "vegetarian"
-  | "eggetarian"
-  | "non_veg"
-  | "vegan"
-  | "jain";
+export type DietType = "vegetarian" | "eggetarian" | "non_veg" | "vegan" | "jain";
 
-export type CuisineRegion =
-  | "north"
-  | "south"
-  | "east"
-  | "west"
-  | "northeast"
-  | "mixed";
+export type CuisineRegion = "north" | "south" | "east" | "west" | "northeast" | "mixed";
 
 export type Band =
-  | "none"        // zero / never
-  | "rare"        // <= 1 / week
-  | "weekly"      // 2-4 / week
-  | "daily";      // 5+ / week
+  | "none" // zero / never
+  | "rare" // <= 1 / week
+  | "weekly" // 2-4 / week
+  | "daily"; // 5+ / week
 
 export type SaltBand = "low" | "moderate" | "high";
 export type RiceRotiBalance = "rice_heavy" | "balanced" | "roti_heavy";
@@ -63,23 +52,17 @@ export type AlcoholUse = "never" | "occasional" | "weekly" | "daily";
 export type StressBand = "low" | "moderate" | "high";
 export type AqiBand =
   | "unknown"
-  | "good"       // 0-50
-  | "moderate"   // 51-100
-  | "poor"       // 101-200
-  | "very_poor"  // 201-300
-  | "severe";    // 300+
+  | "good" // 0-50
+  | "moderate" // 51-100
+  | "poor" // 101-200
+  | "very_poor" // 201-300
+  | "severe"; // 300+
 
 export type FamilyHistoryKey =
-  | "diabetes"
-  | "heart_disease"
-  | "hypertension"
-  | "thyroid"
-  | "cancer"
-  | "pcos"
-  | "obesity";
+  "diabetes" | "heart_disease" | "hypertension" | "thyroid" | "cancer" | "pcos" | "obesity";
 
 export interface ForesightProfile {
-  ageYears: number;                 // 18-100, adults only
+  ageYears: number; // 18-100, adults only
   sexAtBirth: SexAtBirth;
   heightCm?: number;
   weightKg?: number;
@@ -88,33 +71,33 @@ export interface ForesightProfile {
 }
 
 export interface SymptomEntry {
-  id: string;                       // canonical symptom id consumed by redflags + domains
-  severity: number;                 // 1..10
-  onsetDays: number;                // days since first noticed
+  id: string; // canonical symptom id consumed by redflags + domains
+  severity: number; // 1..10
+  onsetDays: number; // days since first noticed
   worsening: boolean;
 }
 
 export interface ForesightDiet {
   type: DietType;
   cuisine: CuisineRegion;
-  sweetsPerWeek: Band;              // mithai / desserts
-  friedPerWeek: Band;               // pakora / puri / bhujia / deep-fried
-  sugaryDrinksPerWeek: Band;        // cold drinks / packaged juice
+  sweetsPerWeek: Band; // mithai / desserts
+  friedPerWeek: Band; // pakora / puri / bhujia / deep-fried
+  sugaryDrinksPerWeek: Band; // cold drinks / packaged juice
   riceRotiBalance: RiceRotiBalance;
   salt: SaltBand;
   breakfastSkipped: boolean;
-  outsideFoodPerWeek: number;       // restaurant / delivery meals
+  outsideFoodPerWeek: number; // restaurant / delivery meals
 }
 
 export interface ForesightActivity {
-  minutesPerWeek: number;           // brisk / intentional movement
-  kinds: string[];                  // walking, yoga, gym, running, cycling, sports, household
+  minutesPerWeek: number; // brisk / intentional movement
+  kinds: string[]; // walking, yoga, gym, running, cycling, sports, household
   occupation: Occupation;
   shiftWork: boolean;
 }
 
 export interface ForesightSleep {
-  hoursPerNight: number;            // 0..14
+  hoursPerNight: number; // 0..14
   quality: SleepQuality;
   snoring: Snoring;
   daytimeSleepiness: DaytimeSleepiness;
@@ -132,30 +115,30 @@ export interface ForesightVitals {
 }
 
 export interface ForesightLabs {
-  hba1cPct?: number;                // %
-  hemoglobinGdl?: number;           // g/dL
-  tshMiuL?: number;                 // mIU/L
-  vitaminDNgMl?: number;            // ng/mL
-  b12PgMl?: number;                 // pg/mL
+  hba1cPct?: number; // %
+  hemoglobinGdl?: number; // g/dL
+  tshMiuL?: number; // mIU/L
+  vitaminDNgMl?: number; // ng/mL
+  b12PgMl?: number; // pg/mL
   ldlMgDl?: number;
   hdlMgDl?: number;
   triglyceridesMgDl?: number;
 }
 
 export interface ForesightHistory {
-  conditions: string[];             // known diagnoses, free labels
+  conditions: string[]; // known diagnoses, free labels
   familyHistory: FamilyHistoryKey[];
-  tobacco: TobaccoUse;              // includes smokeless (gutkha / paan / mishri)
+  tobacco: TobaccoUse; // includes smokeless (gutkha / paan / mishri)
   alcohol: AlcoholUse;
   stress: StressBand;
-  moodLowDays: number;              // days felt low/hopeless in the past 2 weeks (0-14)
-  menstruationRegular?: boolean;    // female-assigned only, optional
+  moodLowDays: number; // days felt low/hopeless in the past 2 weeks (0-14)
+  menstruationRegular?: boolean; // female-assigned only, optional
 }
 
 export interface ForesightEnvironment {
   aqiBand: AqiBand;
   sunlightMinutesPerDay?: number;
-  city?: string;                    // never used as a disease label — context only
+  city?: string; // never used as a disease label — context only
 }
 
 export interface ForesightInput {
@@ -168,7 +151,7 @@ export interface ForesightInput {
   labs: ForesightLabs;
   history: ForesightHistory;
   environment: ForesightEnvironment;
-  freeText?: string;                // "in your words" — scanned for red-flag language only
+  freeText?: string; // "in your words" — scanned for red-flag language only
 }
 
 /* ----------------------------- Triage ----------------------------- */
@@ -179,8 +162,8 @@ export interface RedFlagHit {
   id: string;
   level: TriageLevel;
   title: string;
-  why: string;                      // plain-language explanation of the trigger
-  action: string;                   // what to do right now
+  why: string; // plain-language explanation of the trigger
+  action: string; // what to do right now
   source: "symptom" | "vitals" | "text" | "history" | "labs";
 }
 
@@ -206,16 +189,16 @@ export type FactorDirection = "risk" | "protective";
 
 export interface FactorHit {
   id: string;
-  label: string;                    // human string (EN default; UI resolves i18n)
-  weight: number;                   // positive number; direction gives sign
+  label: string; // human string (EN default; UI resolves i18n)
+  weight: number; // positive number; direction gives sign
   direction: FactorDirection;
   detail?: string;
 }
 
 export interface ScreeningItem {
-  test: string;                     // e.g. "HbA1c"
+  test: string; // e.g. "HbA1c"
   why: string;
-  cadence?: string;                 // e.g. "once now, then yearly"
+  cadence?: string; // e.g. "once now, then yearly"
 }
 
 export interface ActionItem {
@@ -252,17 +235,23 @@ export type DomainId =
   | "mind";
 
 export const ALL_DOMAIN_IDS: DomainId[] = [
-  "metabolic", "bp", "heart", "hemoglobin", "vitamin_d", "b12",
-  "thyroid", "pcos", "sleep", "lungs", "liver", "mind",
+  "metabolic",
+  "bp",
+  "heart",
+  "hemoglobin",
+  "vitamin_d",
+  "b12",
+  "thyroid",
+  "pcos",
+  "sleep",
+  "lungs",
+  "liver",
+  "mind",
 ];
 
 /* ----------------------------- Report ----------------------------- */
 
-export type ScoreBand =
-  | "THRIVING"
-  | "RESILIENT"
-  | "BUILDING"
-  | "ATTENTION";
+export type ScoreBand = "THRIVING" | "RESILIENT" | "BUILDING" | "ATTENTION";
 
 export interface Trajectory {
   /** Illustrative direction over ~5 years if nothing changes (0-100 resilience). */
@@ -296,21 +285,21 @@ export interface ForesightReport {
   triage: TriageResult;
   analysisWithheld: boolean;
 
-  foresightScore: number;           // 0-100 resilience (higher = better)
+  foresightScore: number; // 0-100 resilience (higher = better)
   scoreBand: ScoreBand;
   domains: DomainResult[];
-  topDomainIds: DomainId[];         // up to 3 sorted by burden
+  topDomainIds: DomainId[]; // up to 3 sorted by burden
 
   protectiveFactors: string[];
   trajectory: Trajectory;
   diet: DietPrescription;
-  clinicianQuestions: string[];     // flattened, ordered by domain burden
+  clinicianQuestions: string[]; // flattened, ordered by domain burden
 
   completeness: {
     answered: number;
     total: number;
     pct: number;
-    missing: string[];              // critical fields not shared
+    missing: string[]; // critical fields not shared
   };
 
   disclaimer: string;

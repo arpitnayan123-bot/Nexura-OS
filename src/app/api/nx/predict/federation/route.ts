@@ -2,7 +2,11 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { guard, ok, parseBody, withRoute } from "@/lib/nx/api";
 import { db } from "@/lib/db";
-import { federatedAverage, sanitizeOutgoingDelta, validateDeltaPrivacy } from "@/modules/pi-engine/federation/federated";
+import {
+  federatedAverage,
+  sanitizeOutgoingDelta,
+  validateDeltaPrivacy,
+} from "@/modules/pi-engine/federation/federated";
 
 /* GET  /api/nx/predict/federation — global model versions + stats.
    POST — tenant submits a privacy-sanitized weight delta; when ≥2
@@ -22,14 +26,27 @@ const DeltaSchema = z.object({
 export const GET = withRoute("pie.federation.get", async (req: NextRequest) => {
   const g = await guard(req, "settings.manage");
   if ("response" in g) return g.response;
-  const pending = await db.pieFederatedUpdate.findMany({ where: { aggregated: false }, take: 50, orderBy: { uploadedAt: "desc" } });
-  const recent = await db.pieFederatedUpdate.findMany({ where: { aggregated: true }, take: 20, orderBy: { uploadedAt: "desc" } });
+  const pending = await db.pieFederatedUpdate.findMany({
+    where: { aggregated: false },
+    take: 50,
+    orderBy: { uploadedAt: "desc" },
+  });
+  const recent = await db.pieFederatedUpdate.findMany({
+    where: { aggregated: true },
+    take: 20,
+    orderBy: { uploadedAt: "desc" },
+  });
   return ok(
     {
       pendingDeltas: pending.length,
-      recentAggregations: recent.map((r) => ({ modelId: r.modelId, versionNew: r.versionNew, samples: r.samples, uploadedAt: r.uploadedAt })),
+      recentAggregations: recent.map((r) => ({
+        modelId: r.modelId,
+        versionNew: r.versionNew,
+        samples: r.samples,
+        uploadedAt: r.uploadedAt,
+      })),
     },
-    { requestId: g.requestId }
+    { requestId: g.requestId },
   );
 });
 
@@ -41,7 +58,8 @@ export const POST = withRoute("pie.federation.submit", async (req: NextRequest) 
   const d = body.data;
 
   const privacy = validateDeltaPrivacy({ ...d, versionNew: d.versionBase });
-  if (!privacy.ok) return ok({ rejected: true, reason: privacy.reason }, { requestId: g.requestId, status: 422 });
+  if (!privacy.ok)
+    return ok({ rejected: true, reason: privacy.reason }, { requestId: g.requestId, status: 422 });
 
   const sanitized = sanitizeOutgoingDelta(d.weights);
   await db.pieFederatedUpdate.create({
@@ -56,7 +74,9 @@ export const POST = withRoute("pie.federation.submit", async (req: NextRequest) 
     },
   });
 
-  const unaggregated = await db.pieFederatedUpdate.findMany({ where: { modelId: d.modelId, aggregated: false } });
+  const unaggregated = await db.pieFederatedUpdate.findMany({
+    where: { modelId: d.modelId, aggregated: false },
+  });
   if (unaggregated.length >= 2) {
     const deltas = unaggregated.map((r) => ({
       tenantId: r.tenantId,
@@ -68,9 +88,15 @@ export const POST = withRoute("pie.federation.submit", async (req: NextRequest) 
     }));
     const global = federatedAverage(d.modelId, deltas, d.versionBase);
     if (global) {
-      await db.pieFederatedUpdate.updateMany({ where: { modelId: d.modelId, aggregated: false }, data: { aggregated: true } });
+      await db.pieFederatedUpdate.updateMany({
+        where: { modelId: d.modelId, aggregated: false },
+        data: { aggregated: true },
+      });
       return ok({ accepted: true, aggregated: true, global }, { requestId: g.requestId });
     }
   }
-  return ok({ accepted: true, aggregated: false, waitingFor: 2 - unaggregated.length }, { requestId: g.requestId });
+  return ok(
+    { accepted: true, aggregated: false, waitingFor: 2 - unaggregated.length },
+    { requestId: g.requestId },
+  );
 });

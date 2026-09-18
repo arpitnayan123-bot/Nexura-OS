@@ -60,7 +60,11 @@ export const POST = withRoute("diy.consent.grant", async (req: NextRequest) => {
   });
   if (g instanceof NextResponse) return g;
 
-  const { scopes, policyVersion, source } = g.body as { scopes: ConsentScope[]; policyVersion: string; source: string };
+  const { scopes, policyVersion, source } = g.body as {
+    scopes: ConsentScope[];
+    policyVersion: string;
+    source: string;
+  };
 
   const created: string[] = [];
   for (const scope of scopes) {

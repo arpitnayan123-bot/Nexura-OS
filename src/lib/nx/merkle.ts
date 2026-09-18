@@ -18,7 +18,11 @@ export function merkleRoot(leafHashes: string[]): string {
     for (let i = 0; i < level.length; i += 2) {
       const a = level[i];
       const b = level[i + 1] ?? a; // odd leaf duplicates itself
-      next.push(createHash("sha256").update(a + b).digest("hex"));
+      next.push(
+        createHash("sha256")
+          .update(a + b)
+          .digest("hex"),
+      );
     }
     level = next;
   }
@@ -26,24 +30,41 @@ export function merkleRoot(leafHashes: string[]): string {
 }
 
 export function leafHash(event: { hash: string; createdAt: Date }): string {
-  return createHash("sha256").update(`${event.hash}|${event.createdAt.toISOString()}`).digest("hex");
+  return createHash("sha256")
+    .update(`${event.hash}|${event.createdAt.toISOString()}`)
+    .digest("hex");
 }
 
 /** Anchor all unanchored audit events for a hospital into the next block. */
-export async function anchorAuditBlock(hospitalId: string): Promise<{ anchored: number; index: number; merkleRoot: string; blockHash: string }> {
-  const lastBlock = await db.nxTimestampBlock.findFirst({ where: { hospitalId }, orderBy: { index: "desc" } });
+export async function anchorAuditBlock(
+  hospitalId: string,
+): Promise<{ anchored: number; index: number; merkleRoot: string; blockHash: string }> {
+  const lastBlock = await db.nxTimestampBlock.findFirst({
+    where: { hospitalId },
+    orderBy: { index: "desc" },
+  });
   const events = await db.nxAuditEvent.findMany({
     where: { hospitalId, ...(lastBlock ? { createdAt: { gt: lastBlock.anchoredAt } } : {}) },
     orderBy: { createdAt: "asc" },
     take: 500,
   });
-  if (!events.length) return { anchored: 0, index: lastBlock?.index ?? -1, merkleRoot: "", blockHash: "" };
+  if (!events.length)
+    return { anchored: 0, index: lastBlock?.index ?? -1, merkleRoot: "", blockHash: "" };
   const leaves = events.map((e) => leafHash({ hash: e.hash ?? "", createdAt: e.createdAt }));
   const root = merkleRoot(leaves);
   const index = (lastBlock?.index ?? -1) + 1;
-  const blockHash = createHash("sha256").update(`${index}|${lastBlock?.blockHash ?? ""}|${root}`).digest("hex");
+  const blockHash = createHash("sha256")
+    .update(`${index}|${lastBlock?.blockHash ?? ""}|${root}`)
+    .digest("hex");
   await db.nxTimestampBlock.create({
-    data: { hospitalId, index, merkleRoot: root, leafCount: leaves.length, prevHash: lastBlock?.blockHash ?? null, blockHash },
+    data: {
+      hospitalId,
+      index,
+      merkleRoot: root,
+      leafCount: leaves.length,
+      prevHash: lastBlock?.blockHash ?? null,
+      blockHash,
+    },
   });
   return { anchored: leaves.length, index, merkleRoot: root, blockHash };
 }

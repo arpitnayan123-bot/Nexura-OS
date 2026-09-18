@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
    database by accident. Override requires an explicit, intentional flag. */
 if (process.env.NODE_ENV === "production" && process.env.SEED_DEMO_OVERRIDE !== "true") {
   console.error(
-    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true."
+    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true.",
   );
   process.exit(1);
 }
@@ -16,15 +16,17 @@ async function main() {
 
   // Get products for chronic meds
   const products = await db.product.findMany();
-  const findByName = (name: string) => products.find(p => p.name === name);
+  const findByName = (name: string) => products.find((p) => p.name === name);
   const glycomet = findByName("Glycomet 500");
-  const amlong = findByName("Amlong") || products.find(p => p.genericName?.includes("Amlodipine"));
-  const ecosprin = findByName("Ecosprin 500") || products.find(p => p.name.includes("Ecosprin"));
+  const amlong =
+    findByName("Amlong") || products.find((p) => p.genericName?.includes("Amlodipine"));
+  const ecosprin = findByName("Ecosprin 500") || products.find((p) => p.name.includes("Ecosprin"));
   const shelcal = findByName("Shelcal 500");
 
   // Get walk-in customer and Care Clinic
   const customers = await db.customer.findMany();
-  const chronicCustomer = customers.find(c => c.name === "Rahul Mehta") || customers.find(c => c.name !== "Walk-in");
+  const chronicCustomer =
+    customers.find((c) => c.name === "Rahul Mehta") || customers.find((c) => c.name !== "Walk-in");
   if (!chronicCustomer) throw new Error("no customer");
 
   const staff = await db.pharmaStaff.findFirst();
@@ -37,7 +39,7 @@ async function main() {
     { product: amlong, qty: 3 }, // Amlodipine
     { product: ecosprin, qty: 1 }, // Aspirin
     { product: shelcal, qty: 1 }, // Calcium
-  ].filter(m => m.product);
+  ].filter((m) => m.product);
 
   for (let month = 0; month < 3; month++) {
     const date = new Date();
@@ -49,9 +51,13 @@ async function main() {
 
     const items: any[] = [];
     /* integer-paise math (docs/ARCHITECTURE.md §5) — batch.mrp is paise */
-    let subtotalPaise = 0, cgstTotalPaise = 0, sgstTotalPaise = 0;
+    let subtotalPaise = 0,
+      cgstTotalPaise = 0,
+      sgstTotalPaise = 0;
     for (const med of chronicMeds) {
-      const batch = await db.productBatch.findFirst({ where: { productId: med.product!.id, branchId: branch.id } });
+      const batch = await db.productBatch.findFirst({
+        where: { productId: med.product!.id, branchId: branch.id },
+      });
       if (!batch) continue;
       const amtPaise = batch.mrp * med.qty;
       const cgstPaise = Math.round((amtPaise * 6) / 100);
@@ -91,7 +97,16 @@ async function main() {
     });
   }
 
-  console.log(`✅ Seeded 3 months of chronic medicine purchases for ${chronicCustomer.name} (Diabetes + Hypertension)`);
+  console.log(
+    `✅ Seeded 3 months of chronic medicine purchases for ${chronicCustomer.name} (Diabetes + Hypertension)`,
+  );
 }
 
-main().catch(e => { console.error(e); process.exit(1); }).finally(async () => { await db.$disconnect(); });
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await db.$disconnect();
+  });

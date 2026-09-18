@@ -1,0 +1,45 @@
+# Dependencies & lockfiles
+node_modules/
+bun.lock
+package-lock.json
+
+# Compose-spec YAML (env_file path/required extension) — validated by
+# `docker compose config`, not by Prettier's stricter YAML parser
+docker-compose.yml
+
+# Build output
+.next/
+out/
+build/
+coverage/
+
+# Binaries & media assets (never reformat)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webm
+*.mp4
+*.woff
+*.woff2
+*.ttf
+*.jar
+*.dump
+*.bundle
+public/fonts/
+
+# Runtime artifacts & local state
+logs/
+dev.log
+server.log
+.env
+.env.*
+!.env.example
+backups/
+db/
+upload/
+tool-results/
+dev-screens/
+
+# Git internal
+.git/

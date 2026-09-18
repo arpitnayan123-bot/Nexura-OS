@@ -41,9 +41,7 @@ function writeConsent(c: Consent) {
     /* ignore */
   }
   // dispatch a synthetic event so subscribers re-render
-  window.dispatchEvent(
-    new StorageEvent("storage", { key: STORAGE_KEY, newValue: c })
-  );
+  window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY, newValue: c }));
 }
 
 export function CookieConsent() {
@@ -84,12 +82,10 @@ export function CookieConsent() {
                 <Cookie className="h-5 w-5" />
               </span>
               <div className="flex-1">
-                <p className="font-display text-sm font-semibold">
-                  Warm, essential cookies only.
-                </p>
+                <p className="font-display text-sm font-semibold">Warm, essential cookies only.</p>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  We use a handful of calm cookies for your session and to
-                  understand what helps. No tracking, no selling. You decide.
+                  We use a handful of calm cookies for your session and to understand what helps. No
+                  tracking, no selling. You decide.
                 </p>
               </div>
               <div className="flex shrink-0 gap-2">
@@ -101,11 +97,7 @@ export function CookieConsent() {
                 >
                   Essential only
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={() => choose("all")}
-                  className="rounded-full text-xs"
-                >
+                <Button size="sm" onClick={() => choose("all")} className="rounded-full text-xs">
                   Allow all
                 </Button>
               </div>

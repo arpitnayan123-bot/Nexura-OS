@@ -10,7 +10,7 @@ const wide = await page.evaluate(() => {
   document.querySelectorAll("*").forEach((el) => {
     const r = el.getBoundingClientRect();
     if (r.right > vw + 1 || r.left < -1) {
-      const cls = (el.className && typeof el.className === "string") ? el.className.slice(0, 90) : "";
+      const cls = el.className && typeof el.className === "string" ? el.className.slice(0, 90) : "";
       out.push(`${el.tagName}.${cls} L=${Math.round(r.left)} R=${Math.round(r.right)}`);
     }
   });

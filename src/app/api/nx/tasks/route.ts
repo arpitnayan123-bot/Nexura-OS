@@ -16,13 +16,36 @@ export const dynamic = "force-dynamic";
    handoff, SLA, recurrence, saved views, bulk ops — all server-validated.
    ============================================================ */
 
-const ACTIVE_STATUSES = ["new", "assigned", "in_progress", "blocked", "waiting", "escalated", "open"];
+const ACTIVE_STATUSES = [
+  "new",
+  "assigned",
+  "in_progress",
+  "blocked",
+  "waiting",
+  "escalated",
+  "open",
+];
 
 const CreateSchema = z.object({
   title: z.string().min(2).max(200),
   detail: z.string().max(4000).optional(),
-  type: z.enum(["task", "order", "review", "approval", "result", "escalation", "followup", "transport", "cleaning", "handover"]).default("task"),
-  category: z.enum(["clinical", "operational", "administrative", "infection", "medication"]).optional(),
+  type: z
+    .enum([
+      "task",
+      "order",
+      "review",
+      "approval",
+      "result",
+      "escalation",
+      "followup",
+      "transport",
+      "cleaning",
+      "handover",
+    ])
+    .default("task"),
+  category: z
+    .enum(["clinical", "operational", "administrative", "infection", "medication"])
+    .optional(),
   priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
   ownerRole: z.string().max(40).optional(),
   ownerName: z.string().max(80).optional(),
@@ -33,8 +56,16 @@ const CreateSchema = z.object({
   encounterId: z.string().optional(),
   location: z.string().max(80).optional(),
   dueAt: z.string().datetime().optional(),
-  slaMinutes: z.number().int().min(5).max(60 * 24 * 7).optional(),
-  checklist: z.array(z.object({ text: z.string().min(1).max(200), done: z.boolean().default(false) })).max(20).optional(),
+  slaMinutes: z
+    .number()
+    .int()
+    .min(5)
+    .max(60 * 24 * 7)
+    .optional(),
+  checklist: z
+    .array(z.object({ text: z.string().min(1).max(200), done: z.boolean().default(false) }))
+    .max(20)
+    .optional(),
   recurrence: z.enum(["none", "daily", "weekly", "weekdays"]).optional(),
   sourceModule: z.string().max(40).optional(),
   relatedId: z.string().optional(),
@@ -42,7 +73,19 @@ const CreateSchema = z.object({
 
 const PatchSchema = z.object({
   id: z.string().min(3),
-  status: z.enum(["new", "assigned", "in_progress", "blocked", "waiting", "escalated", "done", "cancelled", "open"]).optional(),
+  status: z
+    .enum([
+      "new",
+      "assigned",
+      "in_progress",
+      "blocked",
+      "waiting",
+      "escalated",
+      "done",
+      "cancelled",
+      "open",
+    ])
+    .optional(),
   priority: z.enum(["low", "medium", "high", "critical"]).optional(),
   ownerRole: z.string().optional(),
   ownerName: z.string().optional(),
@@ -91,7 +134,11 @@ export const GET = withRoute("tasks.list", async (req: NextRequest) => {
   const ACTIVE = [...ACTIVE_STATUSES];
   const where: Record<string, unknown> = { hospitalId };
   if (statusParam && statusParam !== "active" && statusParam !== "all") {
-    where.status = statusParam.includes(",") ? { in: statusParam.split(",").flatMap((s) => (s === "open" ? ["open", "new"] : [s])) } : statusParam === "open" ? { in: ["open", "new"] } : statusParam;
+    where.status = statusParam.includes(",")
+      ? { in: statusParam.split(",").flatMap((s) => (s === "open" ? ["open", "new"] : [s])) }
+      : statusParam === "open"
+        ? { in: ["open", "new"] }
+        : statusParam;
   } else if (statusParam !== "all") {
     where.status = { in: ACTIVE };
   }
@@ -100,7 +147,12 @@ export const GET = withRoute("tasks.list", async (req: NextRequest) => {
   if (mine === "1") where.assignedToUserId = g.session.userId;
   else if (mine) where.ownerRole = mine;
   if (type) where.type = type;
-  if (p.q) where.OR = [{ title: { contains: p.q, mode: "insensitive" as const } }, { patientName: { contains: p.q, mode: "insensitive" as const } }, { patientUhid: { contains: p.q, mode: "insensitive" as const } }];
+  if (p.q)
+    where.OR = [
+      { title: { contains: p.q, mode: "insensitive" as const } },
+      { patientName: { contains: p.q, mode: "insensitive" as const } },
+      { patientUhid: { contains: p.q, mode: "insensitive" as const } },
+    ];
 
   const [rows, total] = await Promise.all([
     db.nxTask.findMany({
@@ -115,7 +167,9 @@ export const GET = withRoute("tasks.list", async (req: NextRequest) => {
 
   const now = Date.now();
   const enriched = rows.map((t) => {
-    const overdue = t.dueAt ? new Date(t.dueAt).getTime() < now && !["done", "cancelled"].includes(t.status) : false;
+    const overdue = t.dueAt
+      ? new Date(t.dueAt).getTime() < now && !["done", "cancelled"].includes(t.status)
+      : false;
     const dueMins = t.dueAt ? Math.round((new Date(t.dueAt).getTime() - now) / 60000) : null;
     return { ...t, overdue, dueMins, checklist: t.checklist ? JSON.parse(t.checklist) : [] };
   });
@@ -127,7 +181,13 @@ export const GET = withRoute("tasks.list", async (req: NextRequest) => {
     db.nxTask.count({ where: { hospitalId, status: "in_progress" } }),
     db.nxTask.count({ where: { hospitalId, status: "blocked" } }),
     db.nxTask.count({ where: { hospitalId, priority: "critical", status: { in: activeIn } } }),
-    db.nxTask.count({ where: { hospitalId, status: "done", completedAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } } }),
+    db.nxTask.count({
+      where: {
+        hospitalId,
+        status: "done",
+        completedAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) },
+      },
+    }),
   ]);
 
   // Legacy top-level shape consumed by OS shell badges + modules
@@ -155,7 +215,10 @@ export const POST = withRoute("tasks.create", async (req: NextRequest) => {
 
   let patientName: string | undefined;
   if (body.data.patientId) {
-    const pat = await db.hospitalPatient.findFirst({ where: { id: body.data.patientId, hospitalId }, select: { fullName: true, uhid: true } });
+    const pat = await db.hospitalPatient.findFirst({
+      where: { id: body.data.patientId, hospitalId },
+      select: { fullName: true, uhid: true },
+    });
     if (!pat) return fail("not_found", 404, "Patient not found in this hospital.");
     patientName = pat.fullName;
   }
@@ -181,16 +244,31 @@ export const POST = withRoute("tasks.create", async (req: NextRequest) => {
       dueAt: body.data.dueAt ? new Date(body.data.dueAt) : null,
       slaMinutes: body.data.slaMinutes,
       checklist: body.data.checklist ? JSON.stringify(body.data.checklist) : null,
-      recurrence: body.data.recurrence && body.data.recurrence !== "none" ? body.data.recurrence : null,
-      recurrenceNext: body.data.recurrence === "daily" ? new Date(Date.now() + 24 * 3600_000) : null,
+      recurrence:
+        body.data.recurrence && body.data.recurrence !== "none" ? body.data.recurrence : null,
+      recurrenceNext:
+        body.data.recurrence === "daily" ? new Date(Date.now() + 24 * 3600_000) : null,
       sourceModule: body.data.sourceModule ?? "tasks",
       relatedId: body.data.relatedId,
       reason: "manually created",
     },
   });
 
-  await audit({ hospitalId, actorName: g.session.staffCode ?? g.session.name, actorRole: g.session.role, action: "task.create", entityType: "nx_task", entityId: task.id, patientId: task.patientId ?? undefined });
-  publish({ event: "task.created", hospitalId, toRoles: ["command", "nurse", "doctor", "admin", "hospital_admin", "dept_admin"], data: { id: task.id, title: task.title, priority: task.priority } });
+  await audit({
+    hospitalId,
+    actorName: g.session.staffCode ?? g.session.name,
+    actorRole: g.session.role,
+    action: "task.create",
+    entityType: "nx_task",
+    entityId: task.id,
+    patientId: task.patientId ?? undefined,
+  });
+  publish({
+    event: "task.created",
+    hospitalId,
+    toRoles: ["command", "nurse", "doctor", "admin", "hospital_admin", "dept_admin"],
+    data: { id: task.id, title: task.title, priority: task.priority },
+  });
   return NextResponse.json({ data: { task }, task }, { status: 201 }); // dual envelope: legacy top-level + standard data
 });
 
@@ -209,7 +287,12 @@ export const PATCH = withRoute("tasks.update", async (req: NextRequest) => {
   // Comments work even on closed tasks; status transitions validated below
   if (d.comment) {
     const c = await db.nxTaskComment.create({
-      data: { taskId: task.id, authorName: g.session.name, authorRole: g.session.role, body: d.comment },
+      data: {
+        taskId: task.id,
+        authorName: g.session.name,
+        authorRole: g.session.role,
+        body: d.comment,
+      },
     });
     return NextResponse.json({ data: { comment: c }, comment: c });
   }
@@ -242,17 +325,37 @@ export const PATCH = withRoute("tasks.update", async (req: NextRequest) => {
       if (d.completionNote) data.completionNote = d.completionNote;
       // Recurring task → spawn next occurrence
       if (task.recurrence) {
-        const addMs = task.recurrence === "daily" ? 24 * 3600_000 : task.recurrence === "weekly" ? 7 * 24 * 3600_000 : 0;
+        const addMs =
+          task.recurrence === "daily"
+            ? 24 * 3600_000
+            : task.recurrence === "weekly"
+              ? 7 * 24 * 3600_000
+              : 0;
         if (addMs) {
           await db.nxTask.create({
             data: {
-              hospitalId, title: task.title, detail: task.detail, type: task.type, category: task.category,
-              priority: task.priority, status: "new", ownerRole: task.ownerRole, ownerName: task.ownerName,
-              assignedToUserId: task.assignedToUserId, department: task.department, patientId: task.patientId,
-              patientName: task.patientName, patientUhid: task.patientUhid, location: task.location,
-              dueAt: task.dueAt ? new Date(task.dueAt.getTime() + addMs) : null, slaMinutes: task.slaMinutes,
-              checklist: task.checklist, recurrence: task.recurrence,
-              recurrenceNext: new Date(Date.now() + addMs), sourceModule: "recurrence", reason: "recurring task",
+              hospitalId,
+              title: task.title,
+              detail: task.detail,
+              type: task.type,
+              category: task.category,
+              priority: task.priority,
+              status: "new",
+              ownerRole: task.ownerRole,
+              ownerName: task.ownerName,
+              assignedToUserId: task.assignedToUserId,
+              department: task.department,
+              patientId: task.patientId,
+              patientName: task.patientName,
+              patientUhid: task.patientUhid,
+              location: task.location,
+              dueAt: task.dueAt ? new Date(task.dueAt.getTime() + addMs) : null,
+              slaMinutes: task.slaMinutes,
+              checklist: task.checklist,
+              recurrence: task.recurrence,
+              recurrenceNext: new Date(Date.now() + addMs),
+              sourceModule: "recurrence",
+              reason: "recurring task",
             },
           });
         }
@@ -278,12 +381,25 @@ export const PATCH = withRoute("tasks.update", async (req: NextRequest) => {
 
   const updated = await db.nxTask.update({ where: { id: task.id }, data });
   await audit({
-    hospitalId, actorName: g.session.staffCode ?? g.session.name, actorRole: g.session.role,
+    hospitalId,
+    actorName: g.session.staffCode ?? g.session.name,
+    actorRole: g.session.role,
     action: d.status ? `task.status.${statusNow(d.status)}` : "task.update",
-    entityType: "nx_task", entityId: task.id, patientId: task.patientId ?? undefined,
-    detail: { from, to: d.status ?? from, note: d.completionNote ?? d.waitingReason ?? d.blockedReason ?? undefined },
+    entityType: "nx_task",
+    entityId: task.id,
+    patientId: task.patientId ?? undefined,
+    detail: {
+      from,
+      to: d.status ?? from,
+      note: d.completionNote ?? d.waitingReason ?? d.blockedReason ?? undefined,
+    },
   });
-  publish({ event: "task.updated", hospitalId, toRoles: ["command", "nurse", "doctor", "admin", "hospital_admin", "dept_admin"], data: { id: task.id, status: data.status ?? from, title: task.title } });
+  publish({
+    event: "task.updated",
+    hospitalId,
+    toRoles: ["command", "nurse", "doctor", "admin", "hospital_admin", "dept_admin"],
+    data: { id: task.id, status: data.status ?? from, title: task.title },
+  });
   return NextResponse.json({ data: { task: updated }, task: updated }); // dual envelope
 });
 
@@ -303,17 +419,30 @@ export const PUT = withRoute("tasks.bulk", async (req: NextRequest) => {
     const r = await db.nxTask.deleteMany({ where: filter });
     count = r.count;
   } else if (parsed.data.action === "status" && parsed.data.value) {
-    const r = await db.nxTask.updateMany({ where: { ...filter, status: { notIn: ["done", "cancelled"] } }, data: { status: statusNow(parsed.data.value) } });
+    const r = await db.nxTask.updateMany({
+      where: { ...filter, status: { notIn: ["done", "cancelled"] } },
+      data: { status: statusNow(parsed.data.value) },
+    });
     count = r.count;
   } else if (parsed.data.action === "priority" && parsed.data.value) {
     const r = await db.nxTask.updateMany({ where: filter, data: { priority: parsed.data.value } });
     count = r.count;
   } else if (parsed.data.action === "assign" && parsed.data.value) {
-    const r = await db.nxTask.updateMany({ where: filter, data: { assignedToUserId: parsed.data.value, status: "assigned" } });
+    const r = await db.nxTask.updateMany({
+      where: filter,
+      data: { assignedToUserId: parsed.data.value, status: "assigned" },
+    });
     count = r.count;
   } else {
     return fail("invalid_request", 400, "Missing action value.");
   }
-  await audit({ hospitalId, actorName: g.session.staffCode ?? g.session.name, actorRole: g.session.role, action: `task.bulk.${parsed.data.action}`, entityType: "nx_task", detail: { count, ids: parsed.data.ids.length } });
+  await audit({
+    hospitalId,
+    actorName: g.session.staffCode ?? g.session.name,
+    actorRole: g.session.role,
+    action: `task.bulk.${parsed.data.action}`,
+    entityType: "nx_task",
+    detail: { count, ids: parsed.data.ids.length },
+  });
   return NextResponse.json({ updated: count });
 });

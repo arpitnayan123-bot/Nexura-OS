@@ -15,8 +15,10 @@ async function GET_impl(req: NextRequest) {
 
     const range = new URL(req.url).searchParams.get("range") || "today";
     const now = new Date();
-    const dayStart = new Date(now); dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date(now); dayEnd.setHours(23, 59, 59, 999);
+    const dayStart = new Date(now);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(now);
+    dayEnd.setHours(23, 59, 59, 999);
     const horizon = new Date(now.getTime() + 30 * 86400000);
 
     const where =
@@ -31,16 +33,28 @@ async function GET_impl(req: NextRequest) {
       orderBy: { slot: range === "past" ? "desc" : "asc" },
       take: 200,
       select: {
-        id: true, tokenNo: true, slot: true, status: true, reason: true, source: true,
-        patient: { select: { id: true, mrn: true, name: true, age: true, gender: true, phone: true } },
+        id: true,
+        tokenNo: true,
+        slot: true,
+        status: true,
+        reason: true,
+        source: true,
+        patient: {
+          select: { id: true, mrn: true, name: true, age: true, gender: true, phone: true },
+        },
         doctor: { select: { id: true, name: true, specialization: true } },
       },
     });
 
     return NextResponse.json({ appointments });
   } catch (err) {
-    log.error("clinic", "appts_list_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "clinic_appts_failed", detail: "Appointments could not be loaded. Please retry." }, { status: 500 });
+    log.error("clinic", "appts_list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "clinic_appts_failed", detail: "Appointments could not be loaded. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -50,16 +64,40 @@ async function POST_impl(req: NextRequest) {
     const ctx = await getClinicContext();
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
     const body = await req.json().catch(() => ({}));
-    const { patientId, doctorId, reason, slot } = body as { patientId?: string; doctorId?: string; reason?: string; slot?: string };
-    if (!patientId || !doctorId || !slot) return NextResponse.json({ error: "missing" }, { status: 400 });
-    const dayStart = new Date(slot); dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date(slot); dayEnd.setHours(23, 59, 59, 999);
-    const countToday = await db.clinicAppointment.count({ where: { slot: { gte: dayStart, lte: dayEnd } } });
-    const appt = await db.clinicAppointment.create({ data: { clinicId: ctx.clinic.id, patientId, doctorId, slot: new Date(slot), reason: reason || "", tokenNo: countToday + 1 } });
+    const { patientId, doctorId, reason, slot } = body as {
+      patientId?: string;
+      doctorId?: string;
+      reason?: string;
+      slot?: string;
+    };
+    if (!patientId || !doctorId || !slot)
+      return NextResponse.json({ error: "missing" }, { status: 400 });
+    const dayStart = new Date(slot);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(slot);
+    dayEnd.setHours(23, 59, 59, 999);
+    const countToday = await db.clinicAppointment.count({
+      where: { slot: { gte: dayStart, lte: dayEnd } },
+    });
+    const appt = await db.clinicAppointment.create({
+      data: {
+        clinicId: ctx.clinic.id,
+        patientId,
+        doctorId,
+        slot: new Date(slot),
+        reason: reason || "",
+        tokenNo: countToday + 1,
+      },
+    });
     return NextResponse.json({ ok: true, appointment: appt });
   } catch (err) {
-    log.error("clinic", "appt_book_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "clinic_book_failed", detail: "The appointment could not be booked. Please retry." }, { status: 500 });
+    log.error("clinic", "appt_book_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "clinic_book_failed", detail: "The appointment could not be booked. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -81,11 +119,22 @@ async function PATCH_impl(req: NextRequest) {
     if (!existing || existing.clinicId !== ctx.clinic.id) {
       return NextResponse.json({ error: "not_found" }, { status: 404 });
     }
-    const appt = await db.clinicAppointment.update({ where: { id: appointmentId }, data: { status } });
+    const appt = await db.clinicAppointment.update({
+      where: { id: appointmentId },
+      data: { status },
+    });
     return NextResponse.json({ ok: true, appointment: appt });
   } catch (err) {
-    log.error("clinic", "appt_update_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "clinic_update_failed", detail: "The appointment could not be updated. Please retry." }, { status: 500 });
+    log.error("clinic", "appt_update_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "clinic_update_failed",
+        detail: "The appointment could not be updated. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }
 

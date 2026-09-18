@@ -9,8 +9,19 @@ import { cn } from "@/lib/utils";
    HOSPITAL OS — design-system primitives (calm, dense, readable)
    ============================================================ */
 
-export function Panel({ title, subtitle, actions, children, className, tone }: {
-  title?: string; subtitle?: string; actions?: ReactNode; children: ReactNode; className?: string;
+export function Panel({
+  title,
+  subtitle,
+  actions,
+  children,
+  className,
+  tone,
+}: {
+  title?: string;
+  subtitle?: string;
+  actions?: ReactNode;
+  children: ReactNode;
+  className?: string;
   tone?: "default" | "critical" | "attention";
 }) {
   return (
@@ -19,13 +30,15 @@ export function Panel({ title, subtitle, actions, children, className, tone }: {
         "rounded-xl border border-line bg-panel backdrop-blur-sm",
         tone === "critical" && "border-crit-line shadow-[0_0_28px_-10px_var(--nx-crit)]",
         tone === "attention" && "border-warn-line",
-        className
+        className,
       )}
     >
       {(title || actions) && (
         <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
           <div className="min-w-0">
-            {title && <h3 className="truncate text-sm font-semibold tracking-tight text-ink">{title}</h3>}
+            {title && (
+              <h3 className="truncate text-sm font-semibold tracking-tight text-ink">{title}</h3>
+            )}
             {subtitle && <p className="truncate text-xs text-ink-3">{subtitle}</p>}
           </div>
           {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
@@ -36,8 +49,18 @@ export function Panel({ title, subtitle, actions, children, className, tone }: {
   );
 }
 
-export function Stat({ label, value, sub, tone = "default", icon }: {
-  label: string; value: ReactNode; sub?: ReactNode; tone?: "default" | "good" | "warn" | "critical" | "info"; icon?: ReactNode;
+export function Stat({
+  label,
+  value,
+  sub,
+  tone = "default",
+  icon,
+}: {
+  label: string;
+  value: ReactNode;
+  sub?: ReactNode;
+  tone?: "default" | "good" | "warn" | "critical" | "info";
+  icon?: ReactNode;
 }) {
   const toneCls = {
     default: "text-ink",
@@ -67,9 +90,23 @@ const PILL_TONES: Record<string, string> = {
   violet: "bg-vio-soft text-vio border-vio-line",
 };
 
-export function Pill({ tone = "neutral", children, className }: { tone?: keyof typeof PILL_TONES; children: ReactNode; className?: string }) {
+export function Pill({
+  tone = "neutral",
+  children,
+  className,
+}: {
+  tone?: keyof typeof PILL_TONES;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium whitespace-nowrap", PILL_TONES[tone], className)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium whitespace-nowrap",
+        PILL_TONES[tone],
+        className,
+      )}
+    >
       {children}
     </span>
   );
@@ -77,29 +114,73 @@ export function Pill({ tone = "neutral", children, className }: { tone?: keyof t
 
 export const STATUS_TONE: Record<string, keyof typeof PILL_TONES> = {
   // bed lifecycle
-  occupied: "info", discharge_pending: "warn", cleaning_required: "warn", cleaning_in_progress: "violet",
-  inspection_required: "info", ready: "good", reserved: "violet", available: "neutral",
+  occupied: "info",
+  discharge_pending: "warn",
+  cleaning_required: "warn",
+  cleaning_in_progress: "violet",
+  inspection_required: "info",
+  ready: "good",
+  reserved: "violet",
+  available: "neutral",
   // order / task status
-  open: "info", in_progress: "violet", blocked: "critical", done: "good", cancelled: "neutral",
-  ordered: "info", acknowledged: "violet", completed: "good",
+  open: "info",
+  in_progress: "violet",
+  blocked: "critical",
+  done: "good",
+  cancelled: "neutral",
+  ordered: "info",
+  acknowledged: "violet",
+  completed: "good",
   // priority
-  critical: "critical", high: "warn", medium: "info", low: "neutral", stat: "critical", urgent: "warn", routine: "neutral",
+  critical: "critical",
+  high: "warn",
+  medium: "info",
+  low: "neutral",
+  stat: "critical",
+  urgent: "warn",
+  routine: "neutral",
   // flags
-  normal: "good", abnormal: "warn",
+  normal: "good",
+  abnormal: "warn",
   // incidents
-  minor: "warn", major: "critical", info: "neutral",
-  investigating: "warn", resolved: "good", closed: "neutral",
+  minor: "warn",
+  major: "critical",
+  info: "neutral",
+  investigating: "warn",
+  resolved: "good",
+  closed: "neutral",
   // schedule
-  scheduled: "info", waiting: "warn", no_show: "critical",
-  paid: "good", unpaid: "warn", partial: "warn", refunded: "neutral",
-  approved: "good", query_raised: "warn", rejected: "critical", submitted: "info", draft: "neutral",
-  in_service: "good", maintenance: "warn", fault: "critical", retired: "neutral",
-  running: "info", awaiting_approval: "warn", failed: "critical",
-  active: "good", discharged: "neutral", transferred: "info", expired: "critical",
+  scheduled: "info",
+  waiting: "warn",
+  no_show: "critical",
+  paid: "good",
+  unpaid: "warn",
+  partial: "warn",
+  refunded: "neutral",
+  approved: "good",
+  query_raised: "warn",
+  rejected: "critical",
+  submitted: "info",
+  draft: "neutral",
+  in_service: "good",
+  maintenance: "warn",
+  fault: "critical",
+  retired: "neutral",
+  running: "info",
+  awaiting_approval: "warn",
+  failed: "critical",
+  active: "good",
+  discharged: "neutral",
+  transferred: "info",
+  expired: "critical",
 };
 
 export function StatusPill({ status, className }: { status: string; className?: string }) {
-  return <Pill tone={STATUS_TONE[status] || "neutral"} className={className}>{status.replace(/_/g, " ")}</Pill>;
+  return (
+    <Pill tone={STATUS_TONE[status] || "neutral"} className={className}>
+      {status.replace(/_/g, " ")}
+    </Pill>
+  );
 }
 
 export function Empty({ icon, title, hint }: { icon?: ReactNode; title: string; hint?: string }) {
@@ -118,7 +199,10 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
       <AlertTriangle className="h-5 w-5 text-crit" />
       <p className="text-sm text-ink">{message}</p>
       {onRetry && (
-        <button onClick={onRetry} className="rounded-md border border-crit-line px-3 py-1 text-xs text-crit hover:bg-crit-soft">
+        <button
+          onClick={onRetry}
+          className="rounded-md border border-crit-line px-3 py-1 text-xs text-crit hover:bg-crit-soft"
+        >
           Try again
         </button>
       )}
@@ -158,11 +242,20 @@ export function AiBanner({ disclaimer }: { disclaimer: string }) {
   );
 }
 
-export function MiniBar({ pct, tone = "brand" }: { pct: number; tone?: "brand" | "good" | "warn" | "critical" }) {
+export function MiniBar({
+  pct,
+  tone = "brand",
+}: {
+  pct: number;
+  tone?: "brand" | "good" | "warn" | "critical";
+}) {
   const cls = { brand: "bg-accent", good: "bg-good", warn: "bg-warn", critical: "bg-crit" }[tone];
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-inset">
-      <div className={cn("h-full rounded-full transition-all", cls)} style={{ width: `${Math.min(100, Math.max(2, pct))}%` }} />
+      <div
+        className={cn("h-full rounded-full transition-all", cls)}
+        style={{ width: `${Math.min(100, Math.max(2, pct))}%` }}
+      />
     </div>
   );
 }
@@ -170,7 +263,11 @@ export function MiniBar({ pct, tone = "brand" }: { pct: number; tone?: "brand" |
 export function OkBadge({ ok, label }: { ok: boolean; label: string }) {
   return (
     <span className="inline-flex items-center gap-1 text-xs">
-      {ok ? <CheckCircle2 className="h-3.5 w-3.5 text-good" /> : <XCircle className="h-3.5 w-3.5 text-ink-4" />}
+      {ok ? (
+        <CheckCircle2 className="h-3.5 w-3.5 text-good" />
+      ) : (
+        <XCircle className="h-3.5 w-3.5 text-ink-4" />
+      )}
       <span className={ok ? "text-ink-2" : "text-ink-3"}>{label}</span>
     </span>
   );

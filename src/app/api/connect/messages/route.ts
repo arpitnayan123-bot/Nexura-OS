@@ -32,8 +32,13 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ connection, messages });
   } catch (err) {
-    log.error("connect", "messages_list_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "messages_list_failed", detail: "Messages could not be loaded. Please retry." }, { status: 500 });
+    log.error("connect", "messages_list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "messages_list_failed", detail: "Messages could not be loaded. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -45,7 +50,14 @@ export async function POST(req: NextRequest) {
   if (gate) return gate;
   try {
     const body = await req.json().catch(() => ({}));
-    const { connectionId, fromRole: requestedRole = "patient", fromName, text, attachmentType, attachmentUrl } = body as any;
+    const {
+      connectionId,
+      fromRole: requestedRole = "patient",
+      fromName,
+      text,
+      attachmentType,
+      attachmentUrl,
+    } = body as any;
     // Doctor-side writes require a clinician session in production — a
     // patient account can never forge clinician replies.
     let fromRole = requestedRole;
@@ -87,11 +99,19 @@ export async function POST(req: NextRequest) {
     }
 
     // touch updatedAt for sorting
-    await db.connectConnection.update({ where: { id: connectionId }, data: { updatedAt: new Date() } });
+    await db.connectConnection.update({
+      where: { id: connectionId },
+      data: { updatedAt: new Date() },
+    });
 
     return NextResponse.json({ message });
   } catch (err) {
-    log.error("connect", "message_create_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "message_create_failed", detail: "The message could not be sent. Please retry." }, { status: 500 });
+    log.error("connect", "message_create_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "message_create_failed", detail: "The message could not be sent. Please retry." },
+      { status: 500 },
+    );
   }
 }

@@ -20,7 +20,17 @@ import { cn } from "@/lib/utils";
 
 /* ---------------- sparkline (real series only) ---------------- */
 
-export function Sparkline({ data, ink = "gold", w = 120, h = 34 }: { data: number[]; ink?: "gold" | "teal" | "rose"; w?: number; h?: number }) {
+export function Sparkline({
+  data,
+  ink = "gold",
+  w = 120,
+  h = 34,
+}: {
+  data: number[];
+  ink?: "gold" | "teal" | "rose";
+  w?: number;
+  h?: number;
+}) {
   if (data.length < 2) return null;
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -32,8 +42,22 @@ export function Sparkline({ data, ink = "gold", w = 120, h = 34 }: { data: numbe
   const stroke = ink === "teal" ? "#2DD4BF" : ink === "rose" ? "#FB7185" : "#FCD34D";
   const last = data[data.length - 1];
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true" className="overflow-visible">
-      <polyline points={pts} fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.9" />
+    <svg
+      width={w}
+      height={h}
+      viewBox={`0 0 ${w} ${h}`}
+      aria-hidden="true"
+      className="overflow-visible"
+    >
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={stroke}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity="0.9"
+      />
       <circle cx={x(data.length - 1)} cy={y(last)} r="3" fill={stroke} />
     </svg>
   );
@@ -44,7 +68,10 @@ function TrendGlyph({ trend }: { trend: "up" | "down" | "flat" }) {
   return (
     <Icon
       aria-hidden="true"
-      className={cn("h-4 w-4 shrink-0", trend === "up" ? "nxf-teal" : trend === "down" ? "text-rose-300" : "nxf-mute")}
+      className={cn(
+        "h-4 w-4 shrink-0",
+        trend === "up" ? "nxf-teal" : trend === "down" ? "text-rose-300" : "nxf-mute",
+      )}
     />
   );
 }
@@ -63,11 +90,26 @@ export function ExecStripView({ exec }: { exec: ExecStrip }) {
     },
     {
       key: "direction",
-      icon: exec.direction.kind === "down" ? TrendingDown : exec.direction.kind === "up" ? TrendingUp : Minus,
+      icon:
+        exec.direction.kind === "down"
+          ? TrendingDown
+          : exec.direction.kind === "up"
+            ? TrendingUp
+            : Minus,
       label: "Forecast direction",
-      value: exec.direction.delta > 0 ? `+${exec.direction.delta}` : exec.direction.delta < 0 ? `${exec.direction.delta}` : "±0",
+      value:
+        exec.direction.delta > 0
+          ? `+${exec.direction.delta}`
+          : exec.direction.delta < 0
+            ? `${exec.direction.delta}`
+            : "±0",
       sub: exec.direction.label,
-      ink: exec.direction.kind === "down" ? "text-rose-300" : exec.direction.kind === "up" ? "nxf-teal" : "nxf-hi",
+      ink:
+        exec.direction.kind === "down"
+          ? "text-rose-300"
+          : exec.direction.kind === "up"
+            ? "nxf-teal"
+            : "nxf-hi",
     },
     {
       key: "confidence",
@@ -82,7 +124,8 @@ export function ExecStripView({ exec }: { exec: ExecStrip }) {
       icon: ShieldAlert,
       label: "Risk status",
       value: exec.risk.count === 0 ? "clear" : `${exec.risk.count}`,
-      sub: exec.risk.count === 0 ? "no elevated domains" : `elevated+ · led by ${exec.risk.topLabel}`,
+      sub:
+        exec.risk.count === 0 ? "no elevated domains" : `elevated+ · led by ${exec.risk.topLabel}`,
       ink: exec.risk.count === 0 ? "nxf-teal" : "nxf-amber",
     },
     {
@@ -90,7 +133,9 @@ export function ExecStripView({ exec }: { exec: ExecStrip }) {
       icon: CalendarClock,
       label: "Next significant event",
       value: exec.nextEvent?.horizon ?? "—",
-      sub: exec.nextEvent ? `${exec.nextEvent.title} · ${exec.nextEvent.when}` : "no milestones pending",
+      sub: exec.nextEvent
+        ? `${exec.nextEvent.title} · ${exec.nextEvent.when}`
+        : "no milestones pending",
       ink: "nxf-hi",
     },
   ];
@@ -110,10 +155,17 @@ export function ExecStripView({ exec }: { exec: ExecStrip }) {
               <t.icon aria-hidden="true" className="h-3.5 w-3.5 nxf-gold" />
               {t.label}
             </p>
-            <p className={cn("mt-1.5 truncate font-display text-2xl font-semibold tracking-tight sm:text-[1.7rem]", t.ink)}>
+            <p
+              className={cn(
+                "mt-1.5 truncate font-display text-2xl font-semibold tracking-tight sm:text-[1.7rem]",
+                t.ink,
+              )}
+            >
               {t.value}
             </p>
-            <p className="mt-1 truncate text-[11.5px] leading-snug nxf-mute" title={t.sub}>{t.sub}</p>
+            <p className="mt-1 truncate text-[11.5px] leading-snug nxf-mute" title={t.sub}>
+              {t.sub}
+            </p>
           </motion.div>
         ))}
       </div>
@@ -135,17 +187,27 @@ export function MetricCards({ cards }: { cards: MetricCard[] }) {
           transition={{ duration: 0.5, delay: (i % 3) * 0.07 }}
           className="nxf-glass nxf-glass-hover rounded-2xl p-4"
         >
-          <p className="text-[10.5px] font-semibold uppercase tracking-[0.13em] nxf-mute">{c.label}</p>
+          <p className="text-[10.5px] font-semibold uppercase tracking-[0.13em] nxf-mute">
+            {c.label}
+          </p>
           <div className="mt-2 flex items-end justify-between gap-3">
             <p className="flex items-baseline gap-1.5">
-              <span className="font-display text-[2rem] font-semibold leading-none tracking-tight nxf-hi">{c.value}</span>
+              <span className="font-display text-[2rem] font-semibold leading-none tracking-tight nxf-hi">
+                {c.value}
+              </span>
               {c.unit ? <span className="text-[12px] nxf-mute">{c.unit}</span> : null}
             </p>
             {c.spark ? <Sparkline data={c.spark} ink={c.sparkInk} w={92} h={28} /> : null}
           </div>
           <p className="mt-2 flex items-center gap-1.5 text-[12px] font-semibold">
             <TrendGlyph trend={c.trend} />
-            <span className={cn(c.trend === "up" ? "nxf-teal" : c.trend === "down" ? "text-rose-300" : "nxf-dim")}>{c.trendText}</span>
+            <span
+              className={cn(
+                c.trend === "up" ? "nxf-teal" : c.trend === "down" ? "text-rose-300" : "nxf-dim",
+              )}
+            >
+              {c.trendText}
+            </span>
           </p>
           <p className="mt-1.5 text-[11.5px] leading-relaxed nxf-mute">{c.context}</p>
         </motion.div>

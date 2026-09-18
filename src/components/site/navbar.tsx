@@ -27,16 +27,14 @@ export function Navbar() {
     <header
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        scrolled ? "py-2" : "py-4"
+        scrolled ? "py-2" : "py-4",
       )}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <nav
           className={cn(
             "relative flex items-center justify-between rounded-2xl px-4 transition-all duration-500 sm:px-5",
-            scrolled
-              ? "glass-lux h-14 shadow-none"
-              : "h-16 bg-transparent"
+            scrolled ? "glass-lux h-14 shadow-none" : "h-16 bg-transparent",
           )}
         >
           {/* Logo */}
@@ -77,7 +75,9 @@ export function Navbar() {
               type="button"
               onClick={() => openBooking()}
               className="mat-btn mat-btn--clay group h-10 px-5 text-sm"
-              style={{ "--mat-accent": "#A16207", "--mat-accent-2": "#C88A1F" } as React.CSSProperties}
+              style={
+                { "--mat-accent": "#A16207", "--mat-accent-2": "#C88A1F" } as React.CSSProperties
+              }
             >
               <span className="sm:hidden">Book</span>
               <span className="hidden sm:inline">Book a visit</span>
@@ -99,7 +99,7 @@ export function Logo({ className }: { className?: string }) {
     <span
       className={cn(
         "relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-coral via-honey to-sage anim-gradient",
-        className
+        className,
       )}
     >
       <Activity className="h-4.5 w-4.5 text-white" strokeWidth={2.6} />

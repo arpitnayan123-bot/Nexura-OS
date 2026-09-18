@@ -21,10 +21,7 @@ export function useScrollSpy(ids: string[], offset = 120) {
         }
       }
       // near bottom → force last
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.scrollHeight - 80
-      ) {
+      if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 80) {
         current = ids[ids.length - 1] ?? current;
       }
       setActive(current);

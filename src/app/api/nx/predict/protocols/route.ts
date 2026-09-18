@@ -22,7 +22,9 @@ export const GET = withRoute("pie.protocols.list", async (req: NextRequest) => {
   const url = new URL(req.url);
   const status = url.searchParams.get("status");
   const rows = await db.pieProtocol.findMany({
-    where: status ? { status } : { status: { in: ["pending_approval", "approved", "executed", "rejected"] } },
+    where: status
+      ? { status }
+      : { status: { in: ["pending_approval", "approved", "executed", "rejected"] } },
     orderBy: { createdAt: "desc" },
     take: 50,
   });
@@ -48,6 +50,6 @@ export const GET = withRoute("pie.protocols.list", async (req: NextRequest) => {
           patientUhid: byId.get(r.patientId)?.uhid ?? "?",
         })),
     },
-    { requestId: g.requestId }
+    { requestId: g.requestId },
   );
 });

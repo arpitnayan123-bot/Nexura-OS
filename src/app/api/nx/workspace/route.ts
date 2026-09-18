@@ -17,7 +17,9 @@ export const GET = withRoute("nx.workspace.role", async (req: NextRequest) => {
   const hospitalId: string = session.hospitalId;
 
   const ownerFilter: { ownerRole: string } | { ownerRole: { in: string[] } } =
-    session.role === "nurse" ? { ownerRole: "nurse" } : { ownerRole: { in: ["doctor", "reception", "facilities", "admin"] } };
+    session.role === "nurse"
+      ? { ownerRole: "nurse" }
+      : { ownerRole: { in: ["doctor", "reception", "facilities", "admin"] } };
   const [myTasks, activeAdmissions, pendingOrders] = await Promise.all([
     db.nxTask.findMany({
       where: {
@@ -31,17 +33,36 @@ export const GET = withRoute("nx.workspace.role", async (req: NextRequest) => {
     db.hospitalAdmission.findMany({
       where: { hospitalId, dischargeStatus: "active" },
       include: {
-        patient: { select: { id: true, fullName: true, uhid: true, age: true, gender: true, bloodGroup: true, allergy: true, chronicConditions: true } },
+        patient: {
+          select: {
+            id: true,
+            fullName: true,
+            uhid: true,
+            age: true,
+            gender: true,
+            bloodGroup: true,
+            allergy: true,
+            chronicConditions: true,
+          },
+        },
         bed: { include: { ward: true } },
         admittingDoctor: { select: { name: true } },
-        orders: { where: { status: { in: ["ordered", "acknowledged", "in_progress"] } }, include: { labResults: true }, take: 5 },
+        orders: {
+          where: { status: { in: ["ordered", "acknowledged", "in_progress"] } },
+          include: { labResults: true },
+          take: 5,
+        },
         vitals: { orderBy: { recordedAt: "desc" }, take: 1 },
       },
       orderBy: { admissionDate: "desc" },
       take: 12,
     }),
     db.hospitalOrder.findMany({
-      where: { hospitalId, status: { in: ["ordered", "acknowledged"] }, orderType: { in: ["lab", "imaging"] } },
+      where: {
+        hospitalId,
+        status: { in: ["ordered", "acknowledged"] },
+        orderType: { in: ["lab", "imaging"] },
+      },
       include: { patient: { select: { fullName: true, uhid: true } } },
       orderBy: [{ priority: "asc" }, { createdAt: "desc" }],
       take: 10,
@@ -82,15 +103,37 @@ export const GET = withRoute("nx.workspace.role", async (req: NextRequest) => {
         location: a.bed ? `${a.bed.ward?.name} · ${a.bed.bedNumber}` : null,
         admittedAt: a.admissionDate,
         riskScore: riskMap.get(a.id) || 0,
-        pendingOrders: a.orders.map((o) => ({ id: o.id, type: o.orderType, test: (() => { try { return (JSON.parse(o.orderDetails) as { testName?: string }).testName; } catch { return o.orderType; } })(), priority: o.priority, criticalResults: o.labResults.filter((r) => r.abnormalFlag !== "normal").length })),
-        latestVitals: a.vitals[0] ? { bp: `${a.vitals[0].bpSystolic}/${a.vitals[0].bpDiastolic}`, pulse: a.vitals[0].pulseRate, spo2: a.vitals[0].spo2, temp: a.vitals[0].temperatureC, at: a.vitals[0].recordedAt } : null,
+        pendingOrders: a.orders.map((o) => ({
+          id: o.id,
+          type: o.orderType,
+          test: (() => {
+            try {
+              return (JSON.parse(o.orderDetails) as { testName?: string }).testName;
+            } catch {
+              return o.orderType;
+            }
+          })(),
+          priority: o.priority,
+          criticalResults: o.labResults.filter((r) => r.abnormalFlag !== "normal").length,
+        })),
+        latestVitals: a.vitals[0]
+          ? {
+              bp: `${a.vitals[0].bpSystolic}/${a.vitals[0].bpDiastolic}`,
+              pulse: a.vitals[0].pulseRate,
+              spo2: a.vitals[0].spo2,
+              temp: a.vitals[0].temperatureC,
+              at: a.vitals[0].recordedAt,
+            }
+          : null,
       })),
     pendingOrders,
     summary: {
       myTasks: myTasks.length,
       criticalTasks: myTasks.filter((t) => t.priority === "critical").length,
       patients: myAdmissions.length,
-      criticalResults: myAdmissions.flatMap((a) => a.orders.flatMap((o) => o.labResults)).filter((r) => r.abnormalFlag === "critical").length,
+      criticalResults: myAdmissions
+        .flatMap((a) => a.orders.flatMap((o) => o.labResults))
+        .filter((r) => r.abnormalFlag === "critical").length,
     },
   });
 });

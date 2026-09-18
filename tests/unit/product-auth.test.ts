@@ -78,13 +78,10 @@ describe("withProductAuth wiring", () => {
   it("wraps a handler and passes the demo principal through", async () => {
     const { withProductAuth } = await freshAuthWithDemo("true");
     let seenRole: string | null = null;
-    const handler = withProductAuth(
-      "clinic.core1test.GET",
-      async (_req, ctx) => {
-        seenRole = ctx.principal.kind === "demo" ? ctx.principal.role : "other";
-        return NextResponse.json({ ok: true }, { status: 200 });
-      }
-    );
+    const handler = withProductAuth("clinic.core1test.GET", async (_req, ctx) => {
+      seenRole = ctx.principal.kind === "demo" ? ctx.principal.role : "other";
+      return NextResponse.json({ ok: true }, { status: 200 });
+    });
     const res = await handler(req(), { params: Promise.resolve({}) });
     expect(res.status).toBe(200);
     expect(seenRole).toBe("doctor");

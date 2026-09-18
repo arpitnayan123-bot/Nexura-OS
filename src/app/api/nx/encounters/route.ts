@@ -27,18 +27,36 @@ export const GET = withRoute("nx.encounters.list", async (req: NextRequest) => {
     orderBy: { admissionDate: "desc" },
     take: 50,
     include: {
-      patient: { select: { fullName: true, uhid: true, age: true, gender: true, bloodGroup: true, allergy: true } },
+      patient: {
+        select: {
+          fullName: true,
+          uhid: true,
+          age: true,
+          gender: true,
+          bloodGroup: true,
+          allergy: true,
+        },
+      },
       bed: { include: { ward: true } },
       admittingDoctor: { select: { name: true } },
-      orders: { where: { status: { in: ["ordered", "acknowledged", "in_progress"] } }, select: { id: true } },
+      orders: {
+        where: { status: { in: ["ordered", "acknowledged", "in_progress"] } },
+        select: { id: true },
+      },
     },
   });
   return NextResponse.json({
     encounters: admissions.map((a) => ({
-      id: a.id, patient: a.patient, uhid: a.patientUhid,
-      type: a.admissionType, diagnosis: a.admissionDiagnosis, doctor: a.admittingDoctor?.name,
-      admittedAt: a.admissionDate, expectedDischarge: a.expectedDischargeDate,
-      dischargeStatus: a.dischargeStatus, dischargeDate: a.actualDischargeDate,
+      id: a.id,
+      patient: a.patient,
+      uhid: a.patientUhid,
+      type: a.admissionType,
+      diagnosis: a.admissionDiagnosis,
+      doctor: a.admittingDoctor?.name,
+      admittedAt: a.admissionDate,
+      expectedDischarge: a.expectedDischargeDate,
+      dischargeStatus: a.dischargeStatus,
+      dischargeDate: a.actualDischargeDate,
       location: a.bed ? `${a.bed.ward?.name} · ${a.bed.bedNumber}` : null,
       activeOrders: a.orders.length,
     })),
@@ -53,12 +71,16 @@ export const POST = withRoute("nx.encounters.create", async (req: NextRequest) =
   if ("response" in hospitalCtx) return hospitalCtx.response;
   const hospitalId = hospitalCtx.hospitalId;
   const body = await req.json().catch(() => ({}));
-  if (!body.patientId || !body.bedId) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+  if (!body.patientId || !body.bedId)
+    return NextResponse.json({ error: "missing_fields" }, { status: 400 });
 
   const [patient, bed] = await Promise.all([
     db.hospitalPatient.findFirst({ where: { id: body.patientId, hospitalId } }),
     // Tenant-safe: a bed from ANOTHER hospital must never be assignable here.
-    db.hospitalBed.findFirst({ where: { id: body.bedId, ward: { hospitalId } }, include: { ward: true } }),
+    db.hospitalBed.findFirst({
+      where: { id: body.bedId, ward: { hospitalId } },
+      include: { ward: true },
+    }),
   ]);
   if (!patient) return NextResponse.json({ error: "patient_not_found" }, { status: 404 });
   if (!bed) return NextResponse.json({ error: "bed_not_found" }, { status: 404 });
@@ -77,16 +99,26 @@ export const POST = withRoute("nx.encounters.create", async (req: NextRequest) =
         bedId: bed.id,
         admissionDiagnosis: body.diagnosis || null,
         admissionType: body.admissionType === "elective" ? "elective" : "emergency",
-        expectedDischargeDate: body.expectedDays ? new Date(Date.now() + Number(body.expectedDays) * 86400000) : null,
+        expectedDischargeDate: body.expectedDays
+          ? new Date(Date.now() + Number(body.expectedDays) * 86400000)
+          : null,
         dischargeStatus: "active",
       },
     }),
-    db.hospitalBed.update({ where: { id: bed.id }, data: { status: "occupied", currentPatientUhid: patient.uhid, reservedForName: null } }),
+    db.hospitalBed.update({
+      where: { id: bed.id },
+      data: { status: "occupied", currentPatientUhid: patient.uhid, reservedForName: null },
+    }),
   ]);
 
   await audit({
-    hospitalId: hospitalId!, actorName: gate.session.name, actorRole: gate.session.role,
-    action: "encounter.admit", entityType: "HospitalAdmission", entityId: admission.id, patientId: patient.id,
+    hospitalId: hospitalId!,
+    actorName: gate.session.name,
+    actorRole: gate.session.role,
+    action: "encounter.admit",
+    entityType: "HospitalAdmission",
+    entityId: admission.id,
+    patientId: patient.id,
     detail: { bed: bed.bedNumber, ward: bed.ward?.name, type: admission.admissionType },
   });
   return NextResponse.json({ admission });
@@ -98,19 +130,31 @@ export const PATCH = withRoute("nx.encounters.transition", async (req: NextReque
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
-  if (!body.id || !body.action) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+  if (!body.id || !body.action)
+    return NextResponse.json({ error: "missing_fields" }, { status: 400 });
 
   // Tenant-scoped: never discharge/transfer another hospital's admission.
-  const admission = await db.hospitalAdmission.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId }, include: { patient: true, bed: true } });
+  const admission = await db.hospitalAdmission.findFirst({
+    where: { id: body.id, hospitalId: gate.session.hospitalId },
+    include: { patient: true, bed: true },
+  });
   if (!admission) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   if (body.action === "mark_discharge_pending") {
     if (admission.bed) {
-      await db.hospitalBed.update({ where: { id: admission.bed.id }, data: { status: "discharge_pending" } });
+      await db.hospitalBed.update({
+        where: { id: admission.bed.id },
+        data: { status: "discharge_pending" },
+      });
     }
     await audit({
-      hospitalId: admission.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-      action: "encounter.discharge_pending", entityType: "HospitalAdmission", entityId: admission.id, patientId: admission.patientId,
+      hospitalId: admission.hospitalId,
+      actorName: gate.session.name,
+      actorRole: gate.session.role,
+      action: "encounter.discharge_pending",
+      entityType: "HospitalAdmission",
+      entityId: admission.id,
+      patientId: admission.patientId,
       detail: { bed: admission.bed?.bedNumber },
     });
     return NextResponse.json({ ok: true });
@@ -118,7 +162,13 @@ export const PATCH = withRoute("nx.encounters.transition", async (req: NextReque
 
   if (body.action === "confirm_discharge") {
     if (!["doctor", "admin"].includes(gate.session.role)) {
-      return NextResponse.json({ error: "only_doctors_confirm_discharge", detail: "Discharge is a high-risk decision requiring an authorized clinician" }, { status: 403 });
+      return NextResponse.json(
+        {
+          error: "only_doctors_confirm_discharge",
+          detail: "Discharge is a high-risk decision requiring an authorized clinician",
+        },
+        { status: 403 },
+      );
     }
     /* Discharge = one business operation: the admission flip and the bed
        release commit together. Historically a crash between the two writes
@@ -133,18 +183,33 @@ export const PATCH = withRoute("nx.encounters.transition", async (req: NextReque
         },
       }),
       ...(admission.bed
-        ? [db.hospitalBed.update({ where: { id: admission.bed.id }, data: { status: "cleaning_required", currentPatientUhid: null } })]
+        ? [
+            db.hospitalBed.update({
+              where: { id: admission.bed.id },
+              data: { status: "cleaning_required", currentPatientUhid: null },
+            }),
+          ]
         : []),
     ]);
     await audit({
-      hospitalId: admission.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-      action: "encounter.discharge", entityType: "HospitalAdmission", entityId: admission.id, patientId: admission.patientId,
+      hospitalId: admission.hospitalId,
+      actorName: gate.session.name,
+      actorRole: gate.session.role,
+      action: "encounter.discharge",
+      entityType: "HospitalAdmission",
+      entityId: admission.id,
+      patientId: admission.patientId,
       detail: { bed: admission.bed?.bedNumber, summary: Boolean(body.summary) },
     });
     await fire("discharge.confirmed", {
-      hospitalId: admission.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-      patientId: admission.patientId, patientName: admission.patient.fullName, patientUhid: admission.patientUhid,
-      relatedId: admission.id, detail: { bedNumber: admission.bed?.bedNumber },
+      hospitalId: admission.hospitalId,
+      actorName: gate.session.name,
+      actorRole: gate.session.role,
+      patientId: admission.patientId,
+      patientName: admission.patient.fullName,
+      patientUhid: admission.patientUhid,
+      relatedId: admission.id,
+      detail: { bedNumber: admission.bed?.bedNumber },
     });
     return NextResponse.json({ ok: true, cascade: "discharge.confirmed" });
   }

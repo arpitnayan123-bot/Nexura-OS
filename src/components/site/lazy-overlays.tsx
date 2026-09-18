@@ -16,20 +16,20 @@ const loading = () => null;
 
 export const LazyHealthAssistant = dynamic(
   () => import("@/components/widgets/health-assistant").then((m) => m.HealthAssistant),
-  { ssr: false, loading }
+  { ssr: false, loading },
 );
 
 export const LazyCursorGlow = dynamic(
   () => import("@/components/site/cursor-glow").then((m) => m.CursorGlow),
-  { ssr: false, loading }
+  { ssr: false, loading },
 );
 
 export const LazyBackToTop = dynamic(
   () => import("@/components/site/back-to-top").then((m) => m.BackToTop),
-  { ssr: false, loading }
+  { ssr: false, loading },
 );
 
 export const LazyCookieConsent = dynamic(
   () => import("@/components/site/cookie-consent").then((m) => m.CookieConsent),
-  { ssr: false, loading }
+  { ssr: false, loading },
 );

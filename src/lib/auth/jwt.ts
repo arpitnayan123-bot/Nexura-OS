@@ -36,7 +36,9 @@ export function jwtSecret(): string {
     return s;
   }
   if (process.env.NODE_ENV === "production") {
-    throw new Error("JWT_SECRET must be set (>=16 chars) in production — refusing to sign tokens with a fallback.");
+    throw new Error(
+      "JWT_SECRET must be set (>=16 chars) in production — refusing to sign tokens with a fallback.",
+    );
   }
   cachedSecret = "nexura-os-dev-secret-change-in-prod";
   return cachedSecret;
@@ -45,7 +47,8 @@ const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "30d";
 
 /* ---------- Types ---------- */
-export type Role = "doctor" | "nurse" | "admin" | "receptionist" | "lab" | "pharmacist" | "patient" | "super_admin";
+export type Role =
+  "doctor" | "nurse" | "admin" | "receptionist" | "lab" | "pharmacist" | "patient" | "super_admin";
 
 export interface AuthUser {
   id: string;
@@ -77,7 +80,18 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 /* ---------- Token Generation ---------- */
-export function generateAccessToken(user: AuthUser, claims?: { jti?: string; staffCode?: string; department?: string; hospitalId?: string; breakGlass?: boolean; linkedPatientId?: string | null }, expiresIn: string = ACCESS_TOKEN_EXPIRY): string {
+export function generateAccessToken(
+  user: AuthUser,
+  claims?: {
+    jti?: string;
+    staffCode?: string;
+    department?: string;
+    hospitalId?: string;
+    breakGlass?: boolean;
+    linkedPatientId?: string | null;
+  },
+  expiresIn: string = ACCESS_TOKEN_EXPIRY,
+): string {
   return jwt.sign(
     {
       userId: user.id,
@@ -86,7 +100,7 @@ export function generateAccessToken(user: AuthUser, claims?: { jti?: string; sta
       ...(claims || {}),
     },
     jwtSecret(),
-    { expiresIn: expiresIn as jwt.SignOptions["expiresIn"] }
+    { expiresIn: expiresIn as jwt.SignOptions["expiresIn"] },
   );
 }
 
@@ -97,22 +111,27 @@ export function generateRefreshToken(user: AuthUser): string {
       type: "refresh",
     },
     jwtSecret(),
-    { expiresIn: REFRESH_TOKEN_EXPIRY }
+    { expiresIn: REFRESH_TOKEN_EXPIRY },
   );
 }
 
 /* ---------- Service / product tokens (portal sessions, integrations) ---------- */
 /** Sign a scoped service token (e.g. `scope:"portal"`) — never accepted as an nx session. */
-export function signServiceToken(payload: Record<string, unknown>, expiresIn: string | number): string {
+export function signServiceToken(
+  payload: Record<string, unknown>,
+  expiresIn: string | number,
+): string {
   return jwt.sign({ ...payload, scope: "service" }, jwtSecret(), {
     expiresIn: expiresIn as jwt.SignOptions["expiresIn"],
   });
 }
 
 /** Verify a service token; rejects tokens without the service scope (cannot be an access token). */
-export function verifyServiceToken<T extends object>(token: string): (T & { scope: string }) | null {
+export function verifyServiceToken<T extends object>(
+  token: string,
+): (T & { scope: string }) | null {
   try {
-    const decoded = jwt.verify(token, jwtSecret()) as (T & { scope?: string });
+    const decoded = jwt.verify(token, jwtSecret()) as T & { scope?: string };
     return decoded && decoded.scope === "service" ? (decoded as T & { scope: string }) : null;
   } catch {
     return null;
@@ -125,7 +144,10 @@ export function verifyServiceToken<T extends object>(token: string): (T & { scop
  *  must never authenticate as an access identity (historically they did). */
 export function verifyToken(token: string): DecodedToken | null {
   try {
-    const decoded = jwt.verify(token, jwtSecret()) as DecodedToken & { type?: string; scope?: string };
+    const decoded = jwt.verify(token, jwtSecret()) as DecodedToken & {
+      type?: string;
+      scope?: string;
+    };
     if (decoded.type === "refresh" || decoded.scope === "service") return null;
     return decoded;
   } catch {
@@ -137,7 +159,7 @@ export function verifyToken(token: string): DecodedToken | null {
 export function setSessionCookies(
   res: NextResponse,
   accessToken: string,
-  refreshToken: string
+  refreshToken: string,
 ): void {
   // Access token — httpOnly, short-lived
   res.cookies.set("nexura_access", accessToken, {
@@ -166,9 +188,7 @@ export function clearSessionCookies(res: NextResponse): void {
 /* ---------- Request Authentication ---------- */
 export function getAuthUser(req: NextRequest): AuthUser | null {
   const authHeader = req.headers.get("authorization");
-  const bearerToken = authHeader?.startsWith("Bearer ")
-    ? authHeader.slice(7)
-    : null;
+  const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
   const cookieToken = req.cookies.get("nexura_access")?.value;
   const token = bearerToken || cookieToken;
@@ -200,7 +220,7 @@ export function requireAuth(requiredRoles?: Role[]) {
         user: null,
         error: NextResponse.json(
           { error: "Unauthorized", message: "Authentication required" },
-          { status: 401 }
+          { status: 401 },
         ),
       };
     }
@@ -210,7 +230,7 @@ export function requireAuth(requiredRoles?: Role[]) {
         user: null,
         error: NextResponse.json(
           { error: "Forbidden", message: "Insufficient permissions" },
-          { status: 403 }
+          { status: 403 },
         ),
       };
     }

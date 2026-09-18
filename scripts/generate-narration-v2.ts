@@ -81,7 +81,11 @@ async function main() {
       fs.writeFileSync(outputPath, buffer);
 
       const { execSync } = await import("child_process");
-      const durationStr = execSync(`ffprobe -i "${outputPath}" -show_entries format=duration -v quiet -of csv="p=0"`).toString().trim();
+      const durationStr = execSync(
+        `ffprobe -i "${outputPath}" -show_entries format=duration -v quiet -of csv="p=0"`,
+      )
+        .toString()
+        .trim();
       const duration = parseFloat(durationStr);
       results.push({ id: scene.id, duration });
       console.log(`    ✓ ${duration.toFixed(1)}s, ${(buffer.length / 1024).toFixed(0)} KB`);
@@ -93,7 +97,10 @@ async function main() {
 
   const total = results.reduce((s, r) => s + r.duration, 0);
   console.log(`\n✅ Done! ${results.length} scenes, ${total.toFixed(1)}s total`);
-  fs.writeFileSync(path.join(OUTPUT_DIR, "manifest.json"), JSON.stringify({ total, scenes: results }, null, 2));
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, "manifest.json"),
+    JSON.stringify({ total, scenes: results }, null, 2),
+  );
 }
 
 main().catch(console.error);

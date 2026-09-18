@@ -28,9 +28,12 @@ export const log = {
   debug: (subsystem: string, msg: string, meta?: Record<string, unknown>) => {
     if (process.env.NODE_ENV !== "production") emit("debug", subsystem, msg, meta);
   },
-  info: (subsystem: string, msg: string, meta?: Record<string, unknown>) => emit("info", subsystem, msg, meta),
-  warn: (subsystem: string, msg: string, meta?: Record<string, unknown>) => emit("warn", subsystem, msg, meta),
-  error: (subsystem: string, msg: string, meta?: Record<string, unknown>) => emit("error", subsystem, msg, meta),
+  info: (subsystem: string, msg: string, meta?: Record<string, unknown>) =>
+    emit("info", subsystem, msg, meta),
+  warn: (subsystem: string, msg: string, meta?: Record<string, unknown>) =>
+    emit("warn", subsystem, msg, meta),
+  error: (subsystem: string, msg: string, meta?: Record<string, unknown>) =>
+    emit("error", subsystem, msg, meta),
 };
 
 /** Error-tracking integration point (Sentry etc.). Wire here, one place. */

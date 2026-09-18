@@ -29,7 +29,11 @@ describe("EMERGENCY symptom rules", () => {
     expect(t.level).toBe("EMERGENCY");
   });
   it("escalates stroke signs (one-side weakness, slur, sudden vision)", () => {
-    for (const id of [SYMPTOM_IDS.oneSideWeakness, SYMPTOM_IDS.speechSlur, SYMPTOM_IDS.visionSudden]) {
+    for (const id of [
+      SYMPTOM_IDS.oneSideWeakness,
+      SYMPTOM_IDS.speechSlur,
+      SYMPTOM_IDS.visionSudden,
+    ]) {
       const t = runTriage(withSymptom(id, 7));
       expect(t.level).toBe("EMERGENCY");
       expect(t.hits[0].title.toLowerCase()).toContain("stroke");
@@ -52,7 +56,10 @@ describe("EMERGENCY vitals rules", () => {
     expect(t.hits.some((h) => h.id === "rf.bp.crisis")).toBe(true);
   });
   it("escalates glucose extremes (>=350, <=60)", () => {
-    const high = runTriage({ ...EMPTY_INPUT, vitals: { glucoseMgDl: 380, glucoseContext: "random" } });
+    const high = runTriage({
+      ...EMPTY_INPUT,
+      vitals: { glucoseMgDl: 380, glucoseContext: "random" },
+    });
     const low = runTriage({ ...EMPTY_INPUT, vitals: { glucoseMgDl: 55 } });
     expect(high.level).toBe("EMERGENCY");
     expect(low.level).toBe("EMERGENCY");
@@ -70,7 +77,11 @@ describe("Mental-health safety net", () => {
     expect(t.hits[0].action).toContain("14416");
   });
   it("catches romanised Hindi self-harm language", () => {
-    for (const phrase of ["marna chahta hai", "jaan de dena hai", "khudkhushi ke bare me sochta hu"]) {
+    for (const phrase of [
+      "marna chahta hai",
+      "jaan de dena hai",
+      "khudkhushi ke bare me sochta hu",
+    ]) {
       const t = runTriage({ ...EMPTY_INPUT, freeText: phrase });
       expect(t.level).toBe("EMERGENCY");
     }

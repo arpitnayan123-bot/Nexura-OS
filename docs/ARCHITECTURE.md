@@ -49,10 +49,10 @@ Next.js 16 App Router (Node runtime)  ── src/app/api/**  (≈187 routes)
 
 **Datastores**
 
-| Store | Role |
-|---|---|
-| PostgreSQL 17 | System of record. 160 models, integer-paise money in the Nx layer + integer-cents USD money in the tourism desk (`tourism-money-1`), FK-indexed, audit chains `ON DELETE RESTRICT`. |
-| Redis 7 | Distributed rate limiter (`src/lib/rate-limit.ts`), event-bus relay (`src/lib/nx/bus.ts`), PIE sync lease. |
+| Store          | Role                                                                                                                                                                                                           |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PostgreSQL 17  | System of record. 160 models, integer-paise money in the Nx layer + integer-cents USD money in the tourism desk (`tourism-money-1`), FK-indexed, audit chains `ON DELETE RESTRICT`.                            |
+| Redis 7        | Distributed rate limiter (`src/lib/rate-limit.ts`), event-bus relay (`src/lib/nx/bus.ts`), PIE sync lease.                                                                                                     |
 | In-process Map | Edge burst guard + per-route default limiter (per-instance pre-filter; with REDIS_URL set the authoritative 300/min/IP budget is consumed from the distributed limiter, so scaled instances share one budget). |
 
 **Boundary rule:** transactional state lives in Postgres; ephemeral
@@ -64,12 +64,12 @@ excluded OTP/login surfaces owned by the payments/auth collaborator
 
 ## 2. Authentication planes (one canonical verifier per plane)
 
-| Plane | Cookie | Verifier | Revocation |
-|---|---|---|---|
-| Staff (Hospital OS) | `nx_access` JWT | `getSessionFresh` (jti + idle budget + user status) | `NxSessionRecord` |
-| Portal patient | `portal_session` service JWT | `verifyServiceToken` via `src/lib/portal-session.ts` | DB existence re-check |
-| DIY guest | `diy_guest` | `src/lib/diy/auth.ts` | TTL |
-| Machine | API keys (`src/lib/nx/gateway.ts`, hashed), device HMAC (`device-keys.ts`), webhook HMAC (`webhooks.ts`, SSRF-guarded) | timing-safe | DB flag |
+| Plane               | Cookie                                                                                                                 | Verifier                                             | Revocation            |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | --------------------- |
+| Staff (Hospital OS) | `nx_access` JWT                                                                                                        | `getSessionFresh` (jti + idle budget + user status)  | `NxSessionRecord`     |
+| Portal patient      | `portal_session` service JWT                                                                                           | `verifyServiceToken` via `src/lib/portal-session.ts` | DB existence re-check |
+| DIY guest           | `diy_guest`                                                                                                            | `src/lib/diy/auth.ts`                                | TTL                   |
+| Machine             | API keys (`src/lib/nx/gateway.ts`, hashed), device HMAC (`device-keys.ts`), webhook HMAC (`webhooks.ts`, SSRF-guarded) | timing-safe                                          | DB flag               |
 
 `verifyToken` rejects cross-family tokens (`type:"refresh"`, `scope:"service"`).
 The legacy unrevocable `/api/auth` login path was removed (arch-security-1);
@@ -77,8 +77,8 @@ previously issued legacy tokens age out within 30 days and remain accepted by
 the transition resolvers.
 
 **Authentication ≠ authorization:** `patient.demographics.view` grants the
-*what*; `patientInScope` / `patientInScope(ctx)` in `requirePermission` and the
-hard self-scope in `nx/patients/[id]` enforce the *where*. Patient-role
+_what_; `patientInScope` / `patientInScope(ctx)` in `requirePermission` and the
+hard self-scope in `nx/patients/[id]` enforce the _where_. Patient-role
 sessions are scoped to `linkedPatientId`.
 
 ## 3. AI architecture (as actually implemented)
@@ -187,14 +187,14 @@ hand-maintained in `PROMPT_VERSIONS`. The former `src/lib/ai/gateway.ts`
 
 ## 6. Demo / production boundaries
 
-| Surface | Posture |
-|---|---|
-| `DEMO_MODE` (src/lib/env.ts) | Secure default OFF; prod-with-demo warns at boot; `assertProductionEnv` fails loudly on missing Postgres/JWT/Redis. |
-| Clinic/pharmacy/portal quick-login | Demo principal only under DEMO_MODE; real staff sessions otherwise. |
-| `clinic/abha` synthetic ABDM lookup | 501 outside DEMO_MODE (fabricated identities never reach clinicians in production). |
-| `clinic/symptom-triage` | Labeled `demo-keyword-triage (not a clinical triage engine)`. |
-| Seeds (`scripts/seed-*.ts`) | Refuse under `NODE_ENV=production` without `SEED_DEMO_OVERRIDE=true`. |
-| Portal OTP demo code `1234` | Behind `isDemoMode()` only (excluded surface — payments/auth collaborator). |
+| Surface                             | Posture                                                                                                             |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `DEMO_MODE` (src/lib/env.ts)        | Secure default OFF; prod-with-demo warns at boot; `assertProductionEnv` fails loudly on missing Postgres/JWT/Redis. |
+| Clinic/pharmacy/portal quick-login  | Demo principal only under DEMO_MODE; real staff sessions otherwise.                                                 |
+| `clinic/abha` synthetic ABDM lookup | 501 outside DEMO_MODE (fabricated identities never reach clinicians in production).                                 |
+| `clinic/symptom-triage`             | Labeled `demo-keyword-triage (not a clinical triage engine)`.                                                       |
+| Seeds (`scripts/seed-*.ts`)         | Refuse under `NODE_ENV=production` without `SEED_DEMO_OVERRIDE=true`.                                               |
+| Portal OTP demo code `1234`         | Behind `isDemoMode()` only (excluded surface — payments/auth collaborator).                                         |
 
 ## 7. Verification chains
 

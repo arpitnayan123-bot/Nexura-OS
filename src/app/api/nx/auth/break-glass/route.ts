@@ -18,7 +18,9 @@ export const dynamic = "force-dynamic";
 
 const InvokeSchema = z.object({
   patientId: z.string().min(3),
-  reason: z.string().min(10, "A specific reason (min 10 chars) is mandatory for break-glass access"),
+  reason: z
+    .string()
+    .min(10, "A specific reason (min 10 chars) is mandatory for break-glass access"),
   minutes: z.number().int().min(5).max(60).optional(),
 });
 
@@ -29,13 +31,20 @@ export const POST = withRoute("auth.breakglass.invoke", async (req: NextRequest)
   if ("response" in g) return g.response;
   if (!g.session.hospitalId) return fail("invalid_request", 400, "No hospital context.");
   const parsed = InvokeSchema.safeParse(await req.json().catch(() => ({})));
-  if (!parsed.success) return fail("invalid_request", 400, parsed.data ? "Invalid request." : parsed.error.issues[0]?.message ?? "Invalid request.");
+  if (!parsed.success)
+    return fail(
+      "invalid_request",
+      400,
+      parsed.data ? "Invalid request." : (parsed.error.issues[0]?.message ?? "Invalid request."),
+    );
   const minutes = parsed.data.minutes ?? 30;
 
   const user = await db.nxStaffUser.findUnique({ where: { id: g.session.userId } });
   if (!user) return fail("unauthenticated", 401);
 
-  const patient = await db.hospitalPatient.findFirst({ where: { id: parsed.data.patientId, hospitalId: g.session.hospitalId } });
+  const patient = await db.hospitalPatient.findFirst({
+    where: { id: parsed.data.patientId, hospitalId: g.session.hospitalId },
+  });
   if (!patient) return fail("not_found", 404, "Patient not found in your hospital.");
 
   const expiresAt = new Date(Date.now() + minutes * 60000);
@@ -56,7 +65,8 @@ export const POST = withRoute("auth.breakglass.invoke", async (req: NextRequest)
   const token = req.cookies.get("nx_access")?.value;
   const decoded = token ? verifyToken(token) : null;
   const jti = decoded ? (decoded as { jti?: string }).jti : undefined;
-  if (jti) await db.nxSessionRecord.update({ where: { jti }, data: { breakGlass: true } }).catch(() => {});
+  if (jti)
+    await db.nxSessionRecord.update({ where: { jti }, data: { breakGlass: true } }).catch(() => {});
 
   await audit({
     hospitalId: g.session.hospitalId,
@@ -75,14 +85,27 @@ export const POST = withRoute("auth.breakglass.invoke", async (req: NextRequest)
       eventId: ev.id,
       expiresAt,
       patient: { id: patient.id, name: patient.fullName, uhid: patient.uhid },
-      warning: "EMERGENCY ACCESS ACTIVE. Every action is audited and reviewed. Access auto-expires.",
+      warning:
+        "EMERGENCY ACCESS ACTIVE. Every action is audited and reviewed. Access auto-expires.",
     },
   });
   const newToken = generateAccessToken(
     { id: user.id, name: user.name, role: user.role as never },
-    { jti, staffCode: user.staffCode, department: user.department ?? undefined, hospitalId: user.hospitalId, breakGlass: true }
+    {
+      jti,
+      staffCode: user.staffCode,
+      department: user.department ?? undefined,
+      hospitalId: user.hospitalId,
+      breakGlass: true,
+    },
   );
-  res.cookies.set("nx_access", newToken, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 12 * 3600, secure: process.env.NODE_ENV === "production" });
+  res.cookies.set("nx_access", newToken, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 12 * 3600,
+    secure: process.env.NODE_ENV === "production",
+  });
   return res;
 });
 
@@ -101,9 +124,11 @@ export const GET = withRoute("auth.breakglass.list", async (req: NextRequest) =>
 export const DELETE = withRoute("auth.breakglass.revoke", async (req: NextRequest) => {
   const g = await guard(req, "patient.demographics.view");
   if ("response" in g) return g.response;
-  const body = await req.json().catch(() => ({})) as { eventId?: string };
+  const body = (await req.json().catch(() => ({}))) as { eventId?: string };
   if (!body.eventId) return fail("invalid_request", 400, "eventId required.");
-  const ev = await db.nxBreakGlassEvent.findFirst({ where: { id: body.eventId, userId: g.session.userId, revokedAt: null } });
+  const ev = await db.nxBreakGlassEvent.findFirst({
+    where: { id: body.eventId, userId: g.session.userId, revokedAt: null },
+  });
   if (!ev) return fail("not_found", 404, "Break-glass event not found.");
   await db.nxBreakGlassEvent.update({ where: { id: ev.id }, data: { revokedAt: new Date() } });
   // Re-issue clean token
@@ -113,12 +138,26 @@ export const DELETE = withRoute("auth.breakglass.revoke", async (req: NextReques
   const user = await db.nxStaffUser.findUnique({ where: { id: g.session.userId } });
   const res = NextResponse.json({ data: { revoked: true } });
   if (decoded && user && jti) {
-    await db.nxSessionRecord.update({ where: { jti }, data: { breakGlass: false } }).catch(() => {});
+    await db.nxSessionRecord
+      .update({ where: { jti }, data: { breakGlass: false } })
+      .catch(() => {});
     const newToken = generateAccessToken(
       { id: user.id, name: user.name, role: user.role as never },
-      { jti, staffCode: user.staffCode, department: user.department ?? undefined, hospitalId: user.hospitalId, breakGlass: false }
+      {
+        jti,
+        staffCode: user.staffCode,
+        department: user.department ?? undefined,
+        hospitalId: user.hospitalId,
+        breakGlass: false,
+      },
     );
-    res.cookies.set("nx_access", newToken, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 12 * 3600, secure: process.env.NODE_ENV === "production" });
+    res.cookies.set("nx_access", newToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 12 * 3600,
+      secure: process.env.NODE_ENV === "production",
+    });
   }
   if (g.session.hospitalId) {
     await audit({

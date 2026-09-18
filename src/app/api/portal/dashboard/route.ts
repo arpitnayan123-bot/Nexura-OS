@@ -45,7 +45,11 @@ export async function GET() {
             where: { uhid: user.hospitalPatientUhid },
             include: {
               appointments: { include: { doctor: true }, orderBy: { date: "desc" }, take: 30 },
-              admissions: { include: { ward: true, bed: true, admittingDoctor: true }, orderBy: { admissionDate: "desc" }, take: 10 },
+              admissions: {
+                include: { ward: true, bed: true, admittingDoctor: true },
+                orderBy: { admissionDate: "desc" },
+                take: 10,
+              },
               vitals: { orderBy: { recordedAt: "desc" }, take: 20 },
               bills: { orderBy: { billDate: "desc" }, take: 20 },
               insuranceClaims: { orderBy: { createdAt: "desc" }, take: 10 },
@@ -89,16 +93,30 @@ export async function GET() {
     const labReports = orders.flatMap((o) =>
       (o.labResults ?? []).map((lr) => ({
         ...lr,
-        order: { id: o.id, orderType: o.orderType, orderDetails: o.orderDetails, priority: o.priority, status: o.status },
-      }))
+        order: {
+          id: o.id,
+          orderType: o.orderType,
+          orderDetails: o.orderDetails,
+          priority: o.priority,
+          status: o.status,
+        },
+      })),
     );
 
     // ---- Stats ----
     const now = new Date();
-    const upcomingAppointments = appointments.filter((a) => new Date(a.date) >= now && a.status === "scheduled").length;
-    const pendingLabReports = orders.filter((o) => o.status === "ordered" || o.status === "in_progress").length;
-    const activeInsurance = insurance.filter((i) => i.preAuthStatus === "approved" || i.preAuthStatus === "submitted").length;
-    const pendingBloodReports = bloodBookings.filter((b) => b.status !== "report_ready" && b.status !== "cancelled").length;
+    const upcomingAppointments = appointments.filter(
+      (a) => new Date(a.date) >= now && a.status === "scheduled",
+    ).length;
+    const pendingLabReports = orders.filter(
+      (o) => o.status === "ordered" || o.status === "in_progress",
+    ).length;
+    const activeInsurance = insurance.filter(
+      (i) => i.preAuthStatus === "approved" || i.preAuthStatus === "submitted",
+    ).length;
+    const pendingBloodReports = bloodBookings.filter(
+      (b) => b.status !== "report_ready" && b.status !== "cancelled",
+    ).length;
 
     const stats = {
       totalAppointments: appointments.length,
@@ -131,7 +149,11 @@ export async function GET() {
         title: `Admission · ${ad.admissionType}`,
         subtitle: ad.admissionDiagnosis ?? ad.ward?.name ?? "Hospital admission",
         date: ad.admissionDate.toISOString(),
-        meta: { status: ad.dischargeStatus ?? "active", ward: ad.ward?.wardType, bed: ad.bed?.bedNumber },
+        meta: {
+          status: ad.dischargeStatus ?? "active",
+          ward: ad.ward?.wardType,
+          bed: ad.bed?.bedNumber,
+        },
       });
     }
     for (const v of vitals) {
@@ -161,7 +183,12 @@ export async function GET() {
         title: `Insurance · ${ic.tpaCompany}`,
         subtitle: `${ic.preAuthStatus} · ₹${ic.estimatedCost.toLocaleString("en-IN")}`,
         date: ic.createdAt.toISOString(),
-        meta: { status: ic.preAuthStatus, approved: ic.approvedAmount, copay: ic.patientCopay, cashless: ic.cashless },
+        meta: {
+          status: ic.preAuthStatus,
+          approved: ic.approvedAmount,
+          copay: ic.patientCopay,
+          cashless: ic.cashless,
+        },
       });
     }
     for (const lr of labReports) {
@@ -171,7 +198,12 @@ export async function GET() {
         title: `Lab · ${lr.testName}`,
         subtitle: `Result: ${lr.resultValue ?? "—"} ${lr.unit ?? ""} (${lr.abnormalFlag})`,
         date: (lr.reportedAt ?? lr.createdAt).toISOString(),
-        meta: { flag: lr.abnormalFlag, value: lr.resultValue, unit: lr.unit, refRange: `${lr.refRangeMin ?? ""}-${lr.refRangeMax ?? ""}` },
+        meta: {
+          flag: lr.abnormalFlag,
+          value: lr.resultValue,
+          unit: lr.unit,
+          refRange: `${lr.refRangeMin ?? ""}-${lr.refRangeMax ?? ""}`,
+        },
       });
     }
     for (const bb of bloodBookings) {
@@ -188,7 +220,12 @@ export async function GET() {
     const cappedTimeline = timeline.slice(0, 50);
 
     // ---- AI Insights (rule-based) ----
-    const aiInsights: { severity: "info" | "warning" | "alert"; title: string; description: string; icon: string }[] = [];
+    const aiInsights: {
+      severity: "info" | "warning" | "alert";
+      title: string;
+      description: string;
+      icon: string;
+    }[] = [];
 
     // 1. NEWS2 alerts
     const criticalVitals = vitals.filter((v) => (v.news2Score ?? 0) >= 5);
@@ -202,7 +239,10 @@ export async function GET() {
     }
 
     // 2. Abnormal labs
-    const abnormalLabs = labReports.filter((lr) => lr.abnormalFlag === "high" || lr.abnormalFlag === "low" || lr.abnormalFlag === "critical");
+    const abnormalLabs = labReports.filter(
+      (lr) =>
+        lr.abnormalFlag === "high" || lr.abnormalFlag === "low" || lr.abnormalFlag === "critical",
+    );
     if (abnormalLabs.length > 0) {
       aiInsights.push({
         severity: "warning",
@@ -213,7 +253,9 @@ export async function GET() {
     }
 
     // 3. Upcoming blood tests
-    const upcomingBlood = bloodBookings.filter((b) => b.status === "booked" || b.status === "assigned");
+    const upcomingBlood = bloodBookings.filter(
+      (b) => b.status === "booked" || b.status === "assigned",
+    );
     if (upcomingBlood.length > 0) {
       aiInsights.push({
         severity: "info",
@@ -224,20 +266,29 @@ export async function GET() {
     }
 
     // 4. Pre-diabetes signal from blood bookings (rule-based scan of AI interpretation)
-    const diabetesBooking = bloodBookings.find((b) => b.aiInterpretation?.toLowerCase().includes("pre-diabetes") ?? false);
+    const diabetesBooking = bloodBookings.find(
+      (b) => b.aiInterpretation?.toLowerCase().includes("pre-diabetes") ?? false,
+    );
     if (diabetesBooking) {
       aiInsights.push({
         severity: "warning",
         title: "Pre-diabetes detected in recent blood work",
-        description: "HbA1c is in the 5.7–6.4% range. Early lifestyle intervention (diet + 150 min/week exercise) can prevent progression in 58% of cases.",
+        description:
+          "HbA1c is in the 5.7–6.4% range. Early lifestyle intervention (diet + 150 min/week exercise) can prevent progression in 58% of cases.",
         icon: "activity",
       });
     }
 
     // 5. Pending bills
-    const unpaidBills = bills.filter((b) => b.paymentStatus === "unpaid" || b.paymentStatus === "partial");
+    const unpaidBills = bills.filter(
+      (b) => b.paymentStatus === "unpaid" || b.paymentStatus === "partial",
+    );
     if (unpaidBills.length > 0) {
-      const total = unpaidBills.reduce((s, b) => s + b.totalPayable - (b.paymentStatus === "partial" ? b.subtotal - b.discount : 0), 0);
+      const total = unpaidBills.reduce(
+        (s, b) =>
+          s + b.totalPayable - (b.paymentStatus === "partial" ? b.subtotal - b.discount : 0),
+        0,
+      );
       aiInsights.push({
         severity: "info",
         title: `${unpaidBills.length} pending bill${unpaidBills.length > 1 ? "s" : ""}`,
@@ -251,7 +302,8 @@ export async function GET() {
       aiInsights.push({
         severity: "info",
         title: "Your health snapshot looks stable",
-        description: "No critical alerts detected. Keep up with your regular check-ups and stay hydrated.",
+        description:
+          "No critical alerts detected. Keep up with your regular check-ups and stay hydrated.",
         icon: "shield-check",
       });
     }
@@ -274,7 +326,9 @@ export async function GET() {
       fetchedAt: new Date().toISOString(),
     });
   } catch (err) {
-    log.error("portal", "dashboard_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("portal", "dashboard_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "Failed to load dashboard" }, { status: 500 });
   }
 }

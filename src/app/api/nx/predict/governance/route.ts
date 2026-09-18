@@ -19,10 +19,11 @@ export const GET = withRoute("pie.governance", async (req: NextRequest) => {
       biasAudits: audits,
       failSafes: {
         confidenceFloor: 0.8,
-        behavior: "Protocols auto-generate only at confidence ≥ 80% and red band; otherwise flagged 'Uncertain — Manual Review Required'.",
+        behavior:
+          "Protocols auto-generate only at confidence ≥ 80% and red band; otherwise flagged 'Uncertain — Manual Review Required'.",
         humanInLoop: "Every protocol requires clinician approval before any task is created.",
       },
     },
-    { requestId: g.requestId }
+    { requestId: g.requestId },
   );
 });

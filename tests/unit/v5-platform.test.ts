@@ -6,8 +6,17 @@ import { confidenceHeuristic } from "@/lib/nx/ai-governance";
 import { issueStepUpToken, verifyStepUpToken, inspectStepUpToken } from "@/lib/nx/stepup";
 
 const P = (over: Partial<AbacPolicyShape>): AbacPolicyShape => ({
-  id: "p1", role: "nurse", effect: "allow", deptScope: null, wardScope: null,
-  patientScope: "any", timeWindows: null, action: "*", resource: "*", active: true, ...over,
+  id: "p1",
+  role: "nurse",
+  effect: "allow",
+  deptScope: null,
+  wardScope: null,
+  patientScope: "any",
+  timeWindows: null,
+  action: "*",
+  resource: "*",
+  active: true,
+  ...over,
 });
 
 describe("ABAC evaluator", () => {
@@ -29,43 +38,73 @@ describe("ABAC evaluator", () => {
 
   it("enforces patient-assignment scope", () => {
     const policies = [P({ patientScope: "assigned" })];
-    const args = { session, action: "read" as const, resource: "patients" as const, target: { patientId: "x1" }, assignedPatientIds: ["y2"] };
+    const args = {
+      session,
+      action: "read" as const,
+      resource: "patients" as const,
+      target: { patientId: "x1" },
+      assignedPatientIds: ["y2"],
+    };
     expect(evaluateAbac(policies, args).allowed).toBe(false);
     expect(evaluateAbac(policies, { ...args, assignedPatientIds: ["x1"] }).allowed).toBe(true);
   });
 
   it("enforces ward scope", () => {
     const policies = [P({ wardScope: JSON.stringify(["ICU"]) })];
-    const args = { session, action: "read" as const, resource: "patients" as const, target: { ward: "GENERAL" } };
+    const args = {
+      session,
+      action: "read" as const,
+      resource: "patients" as const,
+      target: { ward: "GENERAL" },
+    };
     expect(evaluateAbac(policies, args).allowed).toBe(false);
     expect(evaluateAbac(policies, { ...args, target: { ward: "ICU" } }).allowed).toBe(true);
   });
 
   it("blocks outside time windows incl. overnight windows", () => {
-    const dayOnly = P({ timeWindows: JSON.stringify([{ days: [1, 2, 3, 4, 5], from: "09:00", to: "17:00" }]) });
+    const dayOnly = P({
+      timeWindows: JSON.stringify([{ days: [1, 2, 3, 4, 5], from: "09:00", to: "17:00" }]),
+    });
     const tuesday10 = new Date("2026-09-08T10:00:00"); // Tue
     const tuesdayNight = new Date("2026-09-08T22:00:00");
     expect(inTimeWindow(dayOnly.timeWindows, tuesday10)).toBe(true);
     expect(inTimeWindow(dayOnly.timeWindows, tuesdayNight)).toBe(false);
 
-    const overnight = P({ timeWindows: JSON.stringify([{ days: [1, 2, 3, 4, 5, 6, 7], from: "20:00", to: "07:30" }]) });
+    const overnight = P({
+      timeWindows: JSON.stringify([{ days: [1, 2, 3, 4, 5, 6, 7], from: "20:00", to: "07:30" }]),
+    });
     expect(inTimeWindow(overnight.timeWindows, tuesdayNight)).toBe(true);
     expect(inTimeWindow(overnight.timeWindows, tuesday10)).toBe(false);
-    const d = evaluateAbac([dayOnly], { session, action: "read", resource: "patients", now: tuesdayNight });
+    const d = evaluateAbac([dayOnly], {
+      session,
+      action: "read",
+      resource: "patients",
+      now: tuesdayNight,
+    });
     expect(d.allowed).toBe(false);
     expect(d.reason).toBe("default_deny");
   });
 
   it("department scope matches session department", () => {
     const policies = [P({ deptScope: JSON.stringify(["Cardiology"]) })];
-    expect(evaluateAbac(policies, { session, action: "read", resource: "patients" }).allowed).toBe(false);
-    expect(evaluateAbac(policies, { session: { ...session, department: "Cardiology" }, action: "read", resource: "patients" }).allowed).toBe(true);
+    expect(evaluateAbac(policies, { session, action: "read", resource: "patients" }).allowed).toBe(
+      false,
+    );
+    expect(
+      evaluateAbac(policies, {
+        session: { ...session, department: "Cardiology" },
+        action: "read",
+        resource: "patients",
+      }).allowed,
+    ).toBe(true);
   });
 });
 
 describe("PHI redaction", () => {
   it("masks UHIDs, phones, emails, ABHA ids", () => {
-    const s = redactString("patient NEX-2024-00123 at +919876543210 mail r.k@example.com abha 12-3456-7890-1234");
+    const s = redactString(
+      "patient NEX-2024-00123 at +919876543210 mail r.k@example.com abha 12-3456-7890-1234",
+    );
     expect(s).not.toContain("NEX-2024-00123");
     expect(s).not.toContain("919876543210");
     expect(s).not.toContain("r.k@example.com");
@@ -73,7 +112,10 @@ describe("PHI redaction", () => {
     expect(s).toContain("•");
   });
   it("drops secret-like keys recursively", () => {
-    const out = redactDeep({ password: "x", nested: { authorization: "Bearer t", note: "call +919812345678" } }) as Record<string, any>;
+    const out = redactDeep({
+      password: "x",
+      nested: { authorization: "Bearer t", note: "call +919812345678" },
+    }) as Record<string, any>;
     expect(out.password).toBe("[redacted]");
     expect(out.nested.authorization).toBe("[redacted]");
     expect(out.nested.note).not.toContain("9812345678");

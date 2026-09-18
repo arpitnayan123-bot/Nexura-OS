@@ -66,7 +66,7 @@ export function Faq() {
       (f) =>
         f.q.toLowerCase().includes(q) ||
         f.a.toLowerCase().includes(q) ||
-        f.tags.some((t) => t.includes(q))
+        f.tags.some((t) => t.includes(q)),
     );
   }, [query]);
 
@@ -83,8 +83,7 @@ export function Faq() {
           </Reveal>
           <Reveal delay={0.06}>
             <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-              Everything you might{" "}
-              <span className="text-gradient-warm">wonder.</span>
+              Everything you might <span className="text-gradient-warm">wonder.</span>
             </h2>
           </Reveal>
         </div>
@@ -144,7 +143,7 @@ export function Faq() {
                           <span
                             key={t}
                             className={cn(
-                              "rounded-full bg-muted px-2 py-0.5 text-[0.6rem] text-muted-foreground"
+                              "rounded-full bg-muted px-2 py-0.5 text-[0.6rem] text-muted-foreground",
                             )}
                           >
                             #{t}

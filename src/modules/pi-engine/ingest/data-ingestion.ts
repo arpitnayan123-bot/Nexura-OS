@@ -29,7 +29,10 @@ export function modifiedZScores(xs: number[]): number[] {
 }
 
 /** Split a series into (clean, outlierIndices). */
-export function cleanseSeries(xs: number[], threshold = 3.5): { clean: number[]; outliers: number[] } {
+export function cleanseSeries(
+  xs: number[],
+  threshold = 3.5,
+): { clean: number[]; outliers: number[] } {
   const mz = modifiedZScores(xs);
   const clean: number[] = [];
   const outliers: number[] = [];
@@ -42,9 +45,16 @@ export function cleanseSeries(xs: number[], threshold = 3.5): { clean: number[];
 
 /** Clinically plausible ranges — hard physical limits, not statistical. */
 export const PLAUSIBLE: Record<string, [number, number]> = {
-  heart_rate: [20, 260], hrv: [2, 400], spo2: [40, 100], resp_rate: [4, 80],
-  temp: [30, 43], glucose: [15, 1500], systolic: [50, 300], diastolic: [20, 200],
-  weight: [1, 400], steps: [0, 200000],
+  heart_rate: [20, 260],
+  hrv: [2, 400],
+  spo2: [40, 100],
+  resp_rate: [4, 80],
+  temp: [30, 43],
+  glucose: [15, 1500],
+  systolic: [50, 300],
+  diastolic: [20, 200],
+  weight: [1, 400],
+  steps: [0, 200000],
 };
 
 /** Drop physically impossible readings (sensor glitches). */
@@ -58,7 +68,12 @@ export function plausibilityFilter(samples: BioSample[]): BioSample[] {
 /** EWMA — exponentially weighted mean, the twin's short memory. */
 export function ewma(xs: number[], alpha = 0.3): number {
   if (!xs.length) return NaN;
-  return xs.reduce((acc, x) => (acc === null ? x : alpha * x + (1 - alpha) * acc), null as number | null) ?? xs[xs.length - 1];
+  return (
+    xs.reduce(
+      (acc, x) => (acc === null ? x : alpha * x + (1 - alpha) * acc),
+      null as number | null,
+    ) ?? xs[xs.length - 1]
+  );
 }
 
 /** Ordinary least squares slope over (dayOffset, value) — per-day trend. */
@@ -81,7 +96,7 @@ export function dailySlope(points: { ts: string; value: number }[]): number {
  */
 export function toLifeStreamPoint(
   raw: Omit<LifeStreamPoint, "outlier"> & { value?: number },
-  recentSeries?: number[]
+  recentSeries?: number[],
 ): LifeStreamPoint {
   const point: LifeStreamPoint = { ...raw, outlier: false };
   if (typeof point.value === "number" && recentSeries && recentSeries.length >= 4) {

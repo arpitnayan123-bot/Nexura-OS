@@ -32,7 +32,10 @@ function routeExists(target) {
     let ok = true;
     for (let i = 0; i < rSeg.length; i++) {
       if (rSeg[i].startsWith("[") && rSeg[i].endsWith("]")) continue;
-      if (rSeg[i] !== tSeg[i]) { ok = false; break; }
+      if (rSeg[i] !== tSeg[i]) {
+        ok = false;
+        break;
+      }
     }
     if (ok) return true;
   }
@@ -67,7 +70,10 @@ scanFiles(path.join(root, "src"));
 // 3. Report
 const missing = [...targets.entries()].filter(([u]) => !routeExists(u));
 console.log(`API routes: ${routes.size}, distinct fetch targets: ${targets.size}`);
-if (missing.length === 0) { console.log("NO DEAD ENDS"); process.exit(0); }
+if (missing.length === 0) {
+  console.log("NO DEAD ENDS");
+  process.exit(0);
+}
 console.log("\nDEAD ENDS (fetched but no route):");
 for (const [u, files] of missing.sort()) {
   console.log(`  ${u}`);

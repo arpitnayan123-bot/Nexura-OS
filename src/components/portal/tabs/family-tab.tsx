@@ -3,11 +3,27 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  Users, User, Plus, Phone, Droplet, Cake, Heart, Info,
-  X, Loader2, ShieldCheck, Sparkles, UserRound, UserCircle,
+  Users,
+  User,
+  Plus,
+  Phone,
+  Droplet,
+  Cake,
+  Heart,
+  Info,
+  X,
+  Loader2,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+  UserCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -107,9 +123,10 @@ export function FamilyTab({ data, onChanged }: Props) {
       >
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#5E8A60]" />
         <p className="text-xs leading-relaxed text-stone-600">
-          <span className="font-semibold text-stone-700">Why add family members?</span> Linked members get their
-          own phone-first login and appear in your family list. Each person sees only their own records after they
-          sign in — book at-home blood tests from their account once they&apos;re set up.
+          <span className="font-semibold text-stone-700">Why add family members?</span> Linked
+          members get their own phone-first login and appear in your family list. Each person sees
+          only their own records after they sign in — book at-home blood tests from their account
+          once they&apos;re set up.
         </p>
       </motion.div>
 
@@ -128,8 +145,12 @@ export function FamilyTab({ data, onChanged }: Props) {
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#9DB89E]/15 text-[#9DB89E]">
               <UserRound className="h-7 w-7" />
             </div>
-            <p className="mt-3 font-display text-lg font-semibold text-stone-800">No family members added yet</p>
-            <p className="mt-1 text-sm text-stone-500">Add a spouse, child, or parent to manage their health together.</p>
+            <p className="mt-3 font-display text-lg font-semibold text-stone-800">
+              No family members added yet
+            </p>
+            <p className="mt-1 text-sm text-stone-500">
+              Add a spouse, child, or parent to manage their health together.
+            </p>
             <button
               onClick={() => setAddOpen(true)}
               className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#A16207] px-4 py-2 text-sm font-semibold text-white hover:bg-[#8A5A04]"
@@ -161,7 +182,12 @@ export function FamilyTab({ data, onChanged }: Props) {
 }
 
 function FamilyCard({ member, delay }: { member: FamilyMember; delay: number }) {
-  const initials = member.fullName.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+  const initials = member.fullName
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -175,9 +201,13 @@ function FamilyCard({ member, delay }: { member: FamilyMember; delay: number }) 
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="truncate font-display text-sm font-semibold text-stone-800">{member.fullName}</p>
+            <p className="truncate font-display text-sm font-semibold text-stone-800">
+              {member.fullName}
+            </p>
           </div>
-          <p className="text-[0.7rem] font-medium capitalize text-stone-400">{member.relationToHead ?? "—"}</p>
+          <p className="text-[0.7rem] font-medium capitalize text-stone-400">
+            {member.relationToHead ?? "—"}
+          </p>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {member.bloodGroup && (
               <span className="inline-flex items-center gap-1 rounded-full bg-[#A16207]/10 px-2 py-0.5 text-[0.65rem] font-semibold text-[#A16207]">
@@ -206,8 +236,14 @@ function FamilyCard({ member, delay }: { member: FamilyMember; delay: number }) 
 }
 
 function AddMemberModal({
-  open, onOpenChange, onAdded,
-}: { open: boolean; onOpenChange: (v: boolean) => void; onAdded: () => void }) {
+  open,
+  onOpenChange,
+  onAdded,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onAdded: () => void;
+}) {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [relation, setRelation] = useState("spouse");
@@ -217,7 +253,12 @@ function AddMemberModal({
   const [loading, setLoading] = useState(false);
 
   const reset = () => {
-    setFullName(""); setPhone(""); setRelation("spouse"); setDob(""); setGender("male"); setBloodGroup("O+");
+    setFullName("");
+    setPhone("");
+    setRelation("spouse");
+    setDob("");
+    setGender("male");
+    setBloodGroup("O+");
   };
 
   const submit = async () => {
@@ -237,11 +278,19 @@ function AddMemberModal({
       if (d.invite) {
         // Verified invite (backend-core-1): the member must accept from
         // their own account — show the one-time token for demo delivery.
-        toast.success(`Invitation sent to ${fullName} — they must accept it from their own account`, {
-          description: "Demo delivery: share this one-time token with them to accept.",
-          duration: 10000,
-          action: d.invite.token ? { label: "Copy token", onClick: () => navigator.clipboard?.writeText(d.invite.token).catch(() => {}) } : undefined,
-        });
+        toast.success(
+          `Invitation sent to ${fullName} — they must accept it from their own account`,
+          {
+            description: "Demo delivery: share this one-time token with them to accept.",
+            duration: 10000,
+            action: d.invite.token
+              ? {
+                  label: "Copy token",
+                  onClick: () => navigator.clipboard?.writeText(d.invite.token).catch(() => {}),
+                }
+              : undefined,
+          },
+        );
       } else {
         toast.success(`${fullName} added to family`);
       }
@@ -255,11 +304,21 @@ function AddMemberModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        onOpenChange(v);
+        if (!v) reset();
+      }}
+    >
       <DialogContent className="overflow-hidden p-0 sm:max-w-md">
         {/* Header */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#8F5E06] via-[#A16207] to-[#B8860B] p-6 text-white">
-          <div aria-hidden className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/15 blur-2xl" style={{ animation: "nexura-breathe 6s ease-in-out infinite" }} />
+          <div
+            aria-hidden
+            className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/15 blur-2xl"
+            style={{ animation: "nexura-breathe 6s ease-in-out infinite" }}
+          />
           <DialogHeader className="relative space-y-1.5 p-0">
             <div className="flex items-center gap-2.5">
               <span className="grid h-9 w-9 place-items-center rounded-2xl bg-white/20 backdrop-blur">
@@ -276,10 +335,18 @@ function AddMemberModal({
         {/* Body */}
         <div className="space-y-3 p-6">
           <Field label="Full name">
-            <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Lakshmi Nair" />
+            <Input
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Lakshmi Nair"
+            />
           </Field>
           <Field label="Mobile number">
-            <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98200 99999" />
+            <Input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+91 98200 99999"
+            />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Relation">
@@ -288,7 +355,11 @@ function AddMemberModal({
                 onChange={(e) => setRelation(e.target.value)}
                 className="h-10 w-full rounded-md border border-[#E7E5E4] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
               >
-                {RELATIONS.map((r) => <option key={r} value={r} className="capitalize">{r}</option>)}
+                {RELATIONS.map((r) => (
+                  <option key={r} value={r} className="capitalize">
+                    {r}
+                  </option>
+                ))}
               </select>
             </Field>
             <Field label="Gender">
@@ -313,7 +384,11 @@ function AddMemberModal({
                 onChange={(e) => setBloodGroup(e.target.value)}
                 className="h-10 w-full rounded-md border border-[#E7E5E4] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#A16207]/20"
               >
-                {BLOOD_GROUPS.map((b) => <option key={b} value={b}>{b}</option>)}
+                {BLOOD_GROUPS.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
               </select>
             </Field>
           </div>
@@ -345,7 +420,9 @@ function AddMemberModal({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <Label className="text-xs font-semibold uppercase tracking-wider text-stone-500">{label}</Label>
+      <Label className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+        {label}
+      </Label>
       <div className="mt-1.5">{children}</div>
     </div>
   );
@@ -361,4 +438,7 @@ function calcAge(dob: string): number {
 }
 
 // avoid unused warnings
-void X; void Sparkles; void AnimatePresence; void User;
+void X;
+void Sparkles;
+void AnimatePresence;
+void User;

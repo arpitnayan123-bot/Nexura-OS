@@ -8,15 +8,24 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 interface Input {
-  bedtime: string; wakeTime: string; sleepLatencyMin: number; awakenings: number;
-  totalAwakeMin: number; sleepQuality: number; mood: number; caffeineAfternoon: boolean;
-  screenBeforeBed: boolean; notes: string; age: number;
+  bedtime: string;
+  wakeTime: string;
+  sleepLatencyMin: number;
+  awakenings: number;
+  totalAwakeMin: number;
+  sleepQuality: number;
+  mood: number;
+  caffeineAfternoon: boolean;
+  screenBeforeBed: boolean;
+  notes: string;
+  age: number;
 }
 
 function toMinutes(t: string): number | null {
   const m = /^(\d{1,2}):(\d{2})$/.exec(t || "");
   if (!m) return null;
-  let h = Number(m[1]); const mm = Number(m[2]);
+  let h = Number(m[1]);
+  const mm = Number(m[2]);
   if (h < 0 || h > 23 || mm < 0 || mm > 59) return null;
   return h * 60 + mm;
 }
@@ -45,7 +54,8 @@ export async function POST(req: NextRequest) {
     }
 
     const profile = {
-      bedtime, wakeTime,
+      bedtime,
+      wakeTime,
       sleepLatencyMin: Number(body.sleepLatencyMin) || 0,
       awakenings: Number(body.awakenings) || 0,
       totalAwakeMin: Number(body.totalAwakeMin) || 0,
@@ -87,7 +97,15 @@ Rules:
     if (!result?.sleepEfficiencyCategory) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
-    log.error("kyh", "sleep_analyze_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "sleep_analyze_failed", detail: "The sleep analysis could not be completed. Please retry." }, { status: 500 });
+    log.error("kyh", "sleep_analyze_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "sleep_analyze_failed",
+        detail: "The sleep analysis could not be completed. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }

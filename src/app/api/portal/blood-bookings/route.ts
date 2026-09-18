@@ -8,14 +8,78 @@ export const dynamic = "force-dynamic";
 
 /** Public test-panel catalog (8 panels). */
 export const TEST_PANELS = [
-  { code: "FULL_BODY", name: "Full Body Checkup", price: 2999, tests: "CBC, LFT, KFT, Lipid, Thyroid, HbA1c, Vitamins", icon: "🩺", popular: true, estTime: "24 hrs" },
-  { code: "DIABETES", name: "Diabetes Panel", price: 499, tests: "FBS, PPBS, HbA1c, eAG, RBS", icon: "🩸", popular: true, estTime: "12 hrs" },
-  { code: "THYROID", name: "Thyroid Profile", price: 399, tests: "TSH, Free T3, Free T4", icon: "🦋", popular: false, estTime: "12 hrs" },
-  { code: "CBC", name: "Complete Blood Count", price: 199, tests: "Hemogram, RBC, WBC, Platelets", icon: "🧫", popular: false, estTime: "6 hrs" },
-  { code: "LIPID", name: "Lipid Profile", price: 349, tests: "Total Chol, HDL, LDL, Triglycerides, VLDL", icon: "❤️", popular: true, estTime: "12 hrs" },
-  { code: "LIVER", name: "Liver Function Test", price: 449, tests: "Bilirubin, ALT, AST, ALP, Protein", icon: "🫀", popular: false, estTime: "12 hrs" },
-  { code: "KIDNEY", name: "Kidney Function Test", price: 449, tests: "Urea, Creatinine, Uric Acid, eGFR", icon: "🫘", popular: false, estTime: "12 hrs" },
-  { code: "VITAMIN", name: "Vitamin Profile", price: 899, tests: "Vitamin D, B12, Folate, Iron Studies", icon: "💊", popular: true, estTime: "24 hrs" },
+  {
+    code: "FULL_BODY",
+    name: "Full Body Checkup",
+    price: 2999,
+    tests: "CBC, LFT, KFT, Lipid, Thyroid, HbA1c, Vitamins",
+    icon: "🩺",
+    popular: true,
+    estTime: "24 hrs",
+  },
+  {
+    code: "DIABETES",
+    name: "Diabetes Panel",
+    price: 499,
+    tests: "FBS, PPBS, HbA1c, eAG, RBS",
+    icon: "🩸",
+    popular: true,
+    estTime: "12 hrs",
+  },
+  {
+    code: "THYROID",
+    name: "Thyroid Profile",
+    price: 399,
+    tests: "TSH, Free T3, Free T4",
+    icon: "🦋",
+    popular: false,
+    estTime: "12 hrs",
+  },
+  {
+    code: "CBC",
+    name: "Complete Blood Count",
+    price: 199,
+    tests: "Hemogram, RBC, WBC, Platelets",
+    icon: "🧫",
+    popular: false,
+    estTime: "6 hrs",
+  },
+  {
+    code: "LIPID",
+    name: "Lipid Profile",
+    price: 349,
+    tests: "Total Chol, HDL, LDL, Triglycerides, VLDL",
+    icon: "❤️",
+    popular: true,
+    estTime: "12 hrs",
+  },
+  {
+    code: "LIVER",
+    name: "Liver Function Test",
+    price: 449,
+    tests: "Bilirubin, ALT, AST, ALP, Protein",
+    icon: "🫀",
+    popular: false,
+    estTime: "12 hrs",
+  },
+  {
+    code: "KIDNEY",
+    name: "Kidney Function Test",
+    price: 449,
+    tests: "Urea, Creatinine, Uric Acid, eGFR",
+    icon: "🫘",
+    popular: false,
+    estTime: "12 hrs",
+  },
+  {
+    code: "VITAMIN",
+    name: "Vitamin Profile",
+    price: 899,
+    tests: "Vitamin D, B12, Folate, Iron Studies",
+    icon: "💊",
+    popular: true,
+    estTime: "24 hrs",
+  },
 ];
 
 async function getUser() {
@@ -55,7 +119,10 @@ export async function POST(req: NextRequest) {
     if (!panel) return NextResponse.json({ error: "Invalid test panel" }, { status: 400 });
 
     if (!body.scheduledDate || !body.timeSlot || !body.address) {
-      return NextResponse.json({ error: "scheduledDate, timeSlot and address are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "scheduledDate, timeSlot and address are required" },
+        { status: 400 },
+      );
     }
 
     // ---- auto-assign nearest available phlebotomist (rating desc, fewest current bookings) ----
@@ -69,7 +136,9 @@ export async function POST(req: NextRequest) {
 
     // ---- generate booking ref ----
     const year = new Date().getFullYear();
-    const count = await db.bloodBooking.count({ where: { bookingRef: { startsWith: `NX-BLD-${year}-`, mode: "insensitive" as const } } });
+    const count = await db.bloodBooking.count({
+      where: { bookingRef: { startsWith: `NX-BLD-${year}-`, mode: "insensitive" as const } },
+    });
     const bookingRef = `NX-BLD-${year}-${String(count + 10001).padStart(5, "0")}`;
 
     const created = await db.bloodBooking.create({
@@ -102,7 +171,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, booking: created });
   } catch (err) {
-    log.error("portal", "blood_booking_create_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("portal", "blood_booking_create_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "Failed to create booking" }, { status: 500 });
   }
 }
@@ -130,7 +201,10 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "bookingId and status are required" }, { status: 400 });
     }
     if (typeof status !== "string" || !PATIENT_BOOKING_STATUSES.has(status)) {
-      return NextResponse.json({ error: "Invalid status — bookings can only be cancelled here" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid status — bookings can only be cancelled here" },
+        { status: 400 },
+      );
     }
 
     const existing = await db.bloodBooking.findFirst({ where: { id: bookingId, userId: user.id } });
@@ -150,7 +224,9 @@ export async function PATCH(req: NextRequest) {
     const updated = await db.bloodBooking.update({ where: { id: bookingId }, data: updates });
     return NextResponse.json({ ok: true, booking: updated });
   } catch (err) {
-    log.error("portal", "blood_booking_update_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("portal", "blood_booking_update_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "Failed to update booking" }, { status: 500 });
   }
 }

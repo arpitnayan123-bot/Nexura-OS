@@ -24,7 +24,10 @@ export interface PatientCycleResult {
 }
 
 /** Full intelligence cycle for one patient. */
-export async function runPatientCycle(patientId: string, hospitalId?: string | null): Promise<PatientCycleResult | null> {
+export async function runPatientCycle(
+  patientId: string,
+  hospitalId?: string | null,
+): Promise<PatientCycleResult | null> {
   const twin = await buildTwinState(patientId);
   if (!twin) return null;
   const baseline = computeBaseline(twin);
@@ -33,7 +36,11 @@ export async function runPatientCycle(patientId: string, hospitalId?: string | n
   await db.pieTwinState.upsert({
     where: { patientId },
     create: { patientId, stateJson: JSON.stringify(twin), baselineJson: JSON.stringify(baseline) },
-    update: { stateJson: JSON.stringify(twin), baselineJson: JSON.stringify(baseline), updatedAt: new Date() },
+    update: {
+      stateJson: JSON.stringify(twin),
+      baselineJson: JSON.stringify(baseline),
+      updatedAt: new Date(),
+    },
   });
 
   const { composite, byDomain } = stratify(twin);
@@ -149,7 +156,10 @@ export async function runRadar(hospitalId: string, limit = 50): Promise<RadarRow
     let domain = latest?.domain ?? "composite";
     let topDriver: string | undefined;
     if (latest) {
-      const drivers = JSON.parse(latest.driversJson || "[]") as { feature: string; detail: string }[];
+      const drivers = JSON.parse(latest.driversJson || "[]") as {
+        feature: string;
+        detail: string;
+      }[];
       topDriver = drivers[0] ? `${drivers[0].feature} — ${drivers[0].detail}` : undefined;
     } else if (p.vitals[0]) {
       // no assessment yet: derive a fast proxy from the freshest vital so the radar is never blind
@@ -191,14 +201,22 @@ export async function runRadar(hospitalId: string, limit = 50): Promise<RadarRow
 /** Approve a protocol → coordinate tasks + notifications. */
 export async function approveProtocol(
   protocolId: string,
-  approvedBy: string
+  approvedBy: string,
 ): Promise<{ ok: boolean; tasks?: number; notifications?: number; reason?: string }> {
   const protocol = await db.pieProtocol.findUnique({ where: { id: protocolId } });
   if (!protocol) return { ok: false, reason: "protocol_not_found" };
-  if (protocol.status !== "pending_approval") return { ok: false, reason: `protocol already ${protocol.status}` };
-  if (protocol.code === "manual_review") return { ok: false, reason: "uncertain-flagged protocols need clinician-authored orders, not one-click approval" };
+  if (protocol.status !== "pending_approval")
+    return { ok: false, reason: `protocol already ${protocol.status}` };
+  if (protocol.code === "manual_review")
+    return {
+      ok: false,
+      reason: "uncertain-flagged protocols need clinician-authored orders, not one-click approval",
+    };
 
-  const patient = await db.hospitalPatient.findUnique({ where: { id: protocol.patientId }, select: { fullName: true, uhid: true } });
+  const patient = await db.hospitalPatient.findUnique({
+    where: { id: protocol.patientId },
+    select: { fullName: true, uhid: true },
+  });
   const spec: PreEmptiveProtocolSpec = {
     code: protocol.code,
     title: protocol.title,
@@ -219,7 +237,13 @@ export async function approveProtocol(
 
   await db.pieProtocol.update({
     where: { id: protocolId },
-    data: { status: "executed", approvedBy, approvedAt: new Date(), executedAt: new Date(), tasksCreated: res.tasks > 0 },
+    data: {
+      status: "executed",
+      approvedBy,
+      approvedAt: new Date(),
+      executedAt: new Date(),
+      tasksCreated: res.tasks > 0,
+    },
   });
   return { ok: true, tasks: res.tasks, notifications: res.notifications };
 }
@@ -230,7 +254,12 @@ export async function rejectProtocol(protocolId: string, rejectedBy: string, rea
   if (!protocol) return { ok: false, reason: "protocol_not_found" };
   await db.pieProtocol.update({
     where: { id: protocolId },
-    data: { status: "rejected", approvedBy: rejectedBy, approvedAt: new Date(), rejectReason: reason },
+    data: {
+      status: "rejected",
+      approvedBy: rejectedBy,
+      approvedAt: new Date(),
+      rejectReason: reason,
+    },
   });
   return { ok: true };
 }

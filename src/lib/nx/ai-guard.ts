@@ -18,15 +18,21 @@ import { getAuthUser } from "@/lib/auth/jwt";
 
 export function aiGate(
   req: NextRequest,
-  opts?: { max?: number; windowMs?: number }
+  opts?: { max?: number; windowMs?: number },
 ): NextResponse | null {
   const max = opts?.max ?? 20;
   const windowMs = opts?.windowMs ?? 5 * 60_000;
   const rl = rateLimit(`ai:${ipOf(req)}`, max, windowMs);
   if (!rl.allowed) {
-    return fail("rate_limited", 429, "Too many AI requests — please wait a moment.", newRequestId(), {
-      "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
-    });
+    return fail(
+      "rate_limited",
+      429,
+      "Too many AI requests — please wait a moment.",
+      newRequestId(),
+      {
+        "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+      },
+    );
   }
   if (!isDemoMode()) {
     const session = getSession(req);

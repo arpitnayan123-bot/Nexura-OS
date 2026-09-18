@@ -2,13 +2,13 @@
 
 ## Dialect strategy
 
-| | SQLite (default) | PostgreSQL (production) |
-|---|---|---|
-| Use | dev, seeds, demos, small facilities | enterprise clusters |
-| Config | `DATABASE_URL="file:./db/custom.db"` | `DATABASE_URL=postgres://…` + `DATABASE_PROVIDER=postgres` |
-| Pooling | n/a (single writer) | `DB_POOL_SIZE=10`, pgbouncer in front |
-| Read scaling | none | `DB_READ_URL` replica → analytics/exports via `readDb()` |
-| Tx policy | 15s interactive cap | 8s interactive cap (row-lock contention) |
+|              | SQLite (default)                     | PostgreSQL (production)                                    |
+| ------------ | ------------------------------------ | ---------------------------------------------------------- |
+| Use          | dev, seeds, demos, small facilities  | enterprise clusters                                        |
+| Config       | `DATABASE_URL="file:./db/custom.db"` | `DATABASE_URL=postgres://…` + `DATABASE_PROVIDER=postgres` |
+| Pooling      | n/a (single writer)                  | `DB_POOL_SIZE=10`, pgbouncer in front                      |
+| Read scaling | none                                 | `DB_READ_URL` replica → analytics/exports via `readDb()`   |
+| Tx policy    | 15s interactive cap                  | 8s interactive cap (row-lock contention)                   |
 
 Runtime policy lives in `src/lib/nx/db-dialect.ts` (`dbProfile()`, `withTx()`, `readDb()`, dialect-safe search). All Prisma models already use portable types: String ids (cuid), String JSON columns, Float, DateTime, Int — no SQLite-only column types, so the same schema pushes to Postgres via:
 

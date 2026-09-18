@@ -15,7 +15,11 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const answers = Array.isArray(body?.answers) ? body.answers : [];
-    if (answers.length !== 20) return NextResponse.json({ error: "needs_20_answers", detail: `Expected 20 answers, got ${answers.length}` }, { status: 400 });
+    if (answers.length !== 20)
+      return NextResponse.json(
+        { error: "needs_20_answers", detail: `Expected 20 answers, got ${answers.length}` },
+        { status: 400 },
+      );
 
     const prompt = `Determine the Ayurvedic Prakriti (constitution) of an Indian user who answered 20 questions.
 Answers (each option a/b/c corresponds to Vata/Pitta/Kappa-leaning trait):
@@ -46,6 +50,12 @@ Rules:
     return NextResponse.json(result);
   } catch (err) {
     log.error("kyh", "ayurveda_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "ayurveda_failed", detail: "The Ayurveda recommendation could not be generated. Please retry." }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "ayurveda_failed",
+        detail: "The Ayurveda recommendation could not be generated. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }

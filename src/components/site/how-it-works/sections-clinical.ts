@@ -1,6 +1,4 @@
-import {
-  Building2, Bot, Waypoints, Activity, Stethoscope, Pill, Zap,
-} from "lucide-react";
+import { Building2, Bot, Waypoints, Activity, Stethoscope, Pill, Zap } from "lucide-react";
 import type { HiwSection } from "./types";
 
 export const SECTIONS_CLINICAL: HiwSection[] = [
@@ -13,14 +11,39 @@ export const SECTIONS_CLINICAL: HiwSection[] = [
     kicker: "21+ clinical modules around one command center. Epic-style scope, India-first rails.",
     minutes: "3 min",
     steps: [
-      { title: "Command Center first", desc: "Live census, OPD load, bed state and critical alerts render on one wall before anything else boots." },
-      { title: "OPD & IPD flow", desc: "Registrations, queues, ward boards and per-hospital bed assignment update in realtime as patients move." },
-      { title: "OT, nursing & alerts", desc: "Operation-theatre scheduling, nursing-station handoffs, and BPA alerts that fire the moment a care milestone slips." },
-      { title: "EHR to e-Rx", desc: "Structured notes and lab orders connect to an e-prescription path that lands directly in the pharmacy queue." },
-      { title: "Money reconciles itself", desc: "Billing, insurance & TPA claims and packages all reconcile against the same encounters the clinicians created." },
-      { title: "India rails built in", desc: "ABHA ID capture (demo lookup), WhatsApp notifications, GST-ready invoices, blood bank and supply chain — NABH-aligned audits underneath." },
+      {
+        title: "Command Center first",
+        desc: "Live census, OPD load, bed state and critical alerts render on one wall before anything else boots.",
+      },
+      {
+        title: "OPD & IPD flow",
+        desc: "Registrations, queues, ward boards and per-hospital bed assignment update in realtime as patients move.",
+      },
+      {
+        title: "OT, nursing & alerts",
+        desc: "Operation-theatre scheduling, nursing-station handoffs, and BPA alerts that fire the moment a care milestone slips.",
+      },
+      {
+        title: "EHR to e-Rx",
+        desc: "Structured notes and lab orders connect to an e-prescription path that lands directly in the pharmacy queue.",
+      },
+      {
+        title: "Money reconciles itself",
+        desc: "Billing, insurance & TPA claims and packages all reconcile against the same encounters the clinicians created.",
+      },
+      {
+        title: "India rails built in",
+        desc: "ABHA ID capture (demo lookup), WhatsApp notifications, GST-ready invoices, blood bank and supply chain — NABH-aligned audits underneath.",
+      },
     ],
-    hood: ["Command Center", "21+ modules", "ABHA + WhatsApp", "Insurance/TPA", "Blood bank", "Supply chain"],
+    hood: [
+      "Command Center",
+      "21+ modules",
+      "ABHA + WhatsApp",
+      "Insurance/TPA",
+      "Blood bank",
+      "Supply chain",
+    ],
     cta: { kind: "link", label: "Open Hospital OS", href: "/hospital" },
   },
   {
@@ -29,14 +52,30 @@ export const SECTIONS_CLINICAL: HiwSection[] = [
     icon: Bot,
     accent: "#A16207",
     title: "AI clinical intelligence",
-    kicker: "AI drafts, humans decide. Every suggestion carries a confidence score and an escape hatch.",
+    kicker:
+      "AI drafts, humans decide. Every suggestion carries a confidence score and an escape hatch.",
     minutes: "2 min",
     steps: [
-      { title: "Triage scores urgency", desc: "Intake text is scored against an Indian clinical knowledge base; red flags escalate to the care team immediately." },
-      { title: "Copilot drafts, you edit", desc: "Discharge summaries, progress notes and patient-reply drafts arrive pre-written for one-click approval — never auto-published." },
-      { title: "Confidence fail-safe", desc: "Below a confidence threshold the AI refuses to guess and marks the item “needs human review” — fail-safe beats failure." },
-      { title: "Governance decides what AI may read", desc: "Consent gates scope the data available to each call; prompt and model telemetry record what actually happened." },
-      { title: "One engine, two gears", desc: "The same intelligence powers clinician tools and Know Your Health's public tools — with stricter guardrails in public." },
+      {
+        title: "Triage scores urgency",
+        desc: "Intake text is scored against an Indian clinical knowledge base; red flags escalate to the care team immediately.",
+      },
+      {
+        title: "Copilot drafts, you edit",
+        desc: "Discharge summaries, progress notes and patient-reply drafts arrive pre-written for one-click approval — never auto-published.",
+      },
+      {
+        title: "Confidence fail-safe",
+        desc: "Below a confidence threshold the AI refuses to guess and marks the item “needs human review” — fail-safe beats failure.",
+      },
+      {
+        title: "Governance decides what AI may read",
+        desc: "Consent gates scope the data available to each call; prompt and model telemetry record what actually happened.",
+      },
+      {
+        title: "One engine, two gears",
+        desc: "The same intelligence powers clinician tools and Know Your Health's public tools — with stricter guardrails in public.",
+      },
     ],
     hood: ["Confidence fail-safe", "Consent gates", "Prompt telemetry", "Human-in-the-loop"],
     cta: { kind: "link", label: "Try the symptom checker", href: "/know-your-health" },
@@ -47,14 +86,30 @@ export const SECTIONS_CLINICAL: HiwSection[] = [
     icon: Waypoints,
     accent: "#A16207",
     title: "Patient journey & pathways",
-    kicker: "Every patient is a living timeline; every pathway is a programmable recipe the server executes.",
+    kicker:
+      "Every patient is a living timeline; every pathway is a programmable recipe the server executes.",
     minutes: "2 min",
     steps: [
-      { title: "The journey board", desc: "Each patient renders as live stages — registration → consult → labs → procedures → discharge — driven by real events, not manual ticking." },
-      { title: "Events move the board", desc: "Orders, results and ward moves advance stages automatically; staff never update the board by hand." },
-      { title: "Pathways are code, but friendly", desc: "A small DSL defines steps, gates and branches — e.g. “if HbA1c > 8 → endocrinology review”." },
-      { title: "The engine does the chasing", desc: "The DSL executes server-side, advancing patients and firing alerts exactly at the gates you define." },
-      { title: "Deviations get loud", desc: "An overdue step or a branch taken twice raises a BPA alert to the owning team — silence is never an outcome." },
+      {
+        title: "The journey board",
+        desc: "Each patient renders as live stages — registration → consult → labs → procedures → discharge — driven by real events, not manual ticking.",
+      },
+      {
+        title: "Events move the board",
+        desc: "Orders, results and ward moves advance stages automatically; staff never update the board by hand.",
+      },
+      {
+        title: "Pathways are code, but friendly",
+        desc: "A small DSL defines steps, gates and branches — e.g. “if HbA1c > 8 → endocrinology review”.",
+      },
+      {
+        title: "The engine does the chasing",
+        desc: "The DSL executes server-side, advancing patients and firing alerts exactly at the gates you define.",
+      },
+      {
+        title: "Deviations get loud",
+        desc: "An overdue step or a branch taken twice raises a BPA alert to the owning team — silence is never an outcome.",
+      },
     ],
     hood: ["Journey board", "Pathway DSL engine", "Event-driven stages", "Gate alerts"],
     cta: { kind: "link", label: "See it in Hospital OS", href: "/hospital" },
@@ -68,11 +123,26 @@ export const SECTIONS_CLINICAL: HiwSection[] = [
     kicker: "A live, patient-specific model fed by real devices — alerts fire before symptoms do.",
     minutes: "2 min",
     steps: [
-      { title: "Devices stream in", desc: "Wearables push vitals through an IoT ingestion pipeline: device authentication → normalization → storage." },
-      { title: "The twin holds current state", desc: "Vitals, active medications, risk flags and care-plan progress live in one patient-specific model." },
-      { title: "Thresholds watch 24×7", desc: "Breaches raise alerts before the patient feels anything — the twin never sleeps and never rounds." },
-      { title: "It's FHIR-ready underneath", desc: "Data lands as structured observations, so external systems and audits read the same truth." },
-      { title: "Simulations test against it", desc: "The adaptive-simulation PoC uses twin state as ground truth — see the Governance & Trust Center." },
+      {
+        title: "Devices stream in",
+        desc: "Wearables push vitals through an IoT ingestion pipeline: device authentication → normalization → storage.",
+      },
+      {
+        title: "The twin holds current state",
+        desc: "Vitals, active medications, risk flags and care-plan progress live in one patient-specific model.",
+      },
+      {
+        title: "Thresholds watch 24×7",
+        desc: "Breaches raise alerts before the patient feels anything — the twin never sleeps and never rounds.",
+      },
+      {
+        title: "It's FHIR-ready underneath",
+        desc: "Data lands as structured observations, so external systems and audits read the same truth.",
+      },
+      {
+        title: "Simulations test against it",
+        desc: "The adaptive-simulation PoC uses twin state as ground truth — see the Governance & Trust Center.",
+      },
     ],
     hood: ["IoT ingestion", "Twin state engine", "Threshold alerts", "FHIR observations"],
     cta: { kind: "link", label: "Open Hospital OS", href: "/hospital" },
@@ -83,14 +153,30 @@ export const SECTIONS_CLINICAL: HiwSection[] = [
     icon: Stethoscope,
     accent: "#A16207",
     title: "Clinic OS",
-    kicker: "HealthPlix-style EMR for solo clinics — three-minute learning curve, big-hospital bones.",
+    kicker:
+      "HealthPlix-style EMR for solo clinics — three-minute learning curve, big-hospital bones.",
     minutes: "2 min",
     steps: [
-      { title: "Queue-first, not dashboard-maze", desc: "Sign in (demo: doctor@demo.nexura.health / Demo@12345) and you land straight in today's patient queue." },
-      { title: "One screen per visit", desc: "Complaints, vitals, diagnosis and Rx on a single screen — shortcuts everywhere, zero scroll hunting." },
-      { title: "Prescriptions with intelligence", desc: "Print-ready Rx with brand options and dosage intelligence built for Indian practice." },
-      { title: "Day-ends write themselves", desc: "Summaries and follow-up lists generate automatically at close of day." },
-      { title: "Small clinic, full platform", desc: "It shares the backend, audit trail and security layer of Hospital OS — nothing is a toy here." },
+      {
+        title: "Queue-first, not dashboard-maze",
+        desc: "Sign in (demo: doctor@demo.nexura.health / Demo@12345) and you land straight in today's patient queue.",
+      },
+      {
+        title: "One screen per visit",
+        desc: "Complaints, vitals, diagnosis and Rx on a single screen — shortcuts everywhere, zero scroll hunting.",
+      },
+      {
+        title: "Prescriptions with intelligence",
+        desc: "Print-ready Rx with brand options and dosage intelligence built for Indian practice.",
+      },
+      {
+        title: "Day-ends write themselves",
+        desc: "Summaries and follow-up lists generate automatically at close of day.",
+      },
+      {
+        title: "Small clinic, full platform",
+        desc: "It shares the backend, audit trail and security layer of Hospital OS — nothing is a toy here.",
+      },
     ],
     hood: ["Queue-first EMR", "Rx intelligence", "Day-end reports", "Shared platform"],
     cta: { kind: "link", label: "Open Clinic OS", href: "/clinic" },
@@ -104,11 +190,26 @@ export const SECTIONS_CLINICAL: HiwSection[] = [
     kicker: "AI-powered point of sale that talks to the hospital instead of living on an island.",
     minutes: "2 min",
     steps: [
-      { title: "e-Rx arrives pre-typed", desc: "Prescriptions from Hospital OS and Clinic OS land in the POS queue — no re-keying, no transcription errors." },
-      { title: "Billing is keyboard-fast", desc: "Barcode search, batch and expiry tracking, GST-compliant invoices — designed for the speed of a real counter." },
-      { title: "Inventory thinks ahead", desc: "Stock updates in realtime; low-stock and near-expiry signals fire automatically before they hurt." },
-      { title: "Substitutions with approval", desc: "Cheaper equivalents of the same molecule are suggested and flagged for pharmacist approval — never auto-swapped." },
-      { title: "Finance sees one picture", desc: "Sales reconcile back to hospital encounters so billing is a single, clean story." },
+      {
+        title: "e-Rx arrives pre-typed",
+        desc: "Prescriptions from Hospital OS and Clinic OS land in the POS queue — no re-keying, no transcription errors.",
+      },
+      {
+        title: "Billing is keyboard-fast",
+        desc: "Barcode search, batch and expiry tracking, GST-compliant invoices — designed for the speed of a real counter.",
+      },
+      {
+        title: "Inventory thinks ahead",
+        desc: "Stock updates in realtime; low-stock and near-expiry signals fire automatically before they hurt.",
+      },
+      {
+        title: "Substitutions with approval",
+        desc: "Cheaper equivalents of the same molecule are suggested and flagged for pharmacist approval — never auto-swapped.",
+      },
+      {
+        title: "Finance sees one picture",
+        desc: "Sales reconcile back to hospital encounters so billing is a single, clean story.",
+      },
     ],
     hood: ["e-Rx intake", "GST invoices", "Batch + expiry", "Substitution engine"],
     cta: { kind: "link", label: "Open Pharmacia", href: "/pharmacy" },
@@ -122,11 +223,26 @@ export const SECTIONS_CLINICAL: HiwSection[] = [
     kicker: "The hospital's nervous system — rules, escalations and watchers that never sleep.",
     minutes: "2 min",
     steps: [
-      { title: "Rules watch events", desc: "Lab results, vitals breaches, no-shows and bed waits are observed by a server-side rules engine." },
-      { title: "Alerts reach the right role", desc: "Matching events notify the owning role in-app and via WhatsApp — not a broadcast to everyone." },
-      { title: "Silence escalates", desc: "Unacknowledged alerts climb the on-call chain on a timer until a human owns them." },
-      { title: "Acknowledgment is tracked", desc: "The escalations engine records who saw what and when — accountability is a feature, not a meeting." },
-      { title: "Everything is explainable", desc: "Automation runs are logged like any other action, so “why was I paged?” always has an answer." },
+      {
+        title: "Rules watch events",
+        desc: "Lab results, vitals breaches, no-shows and bed waits are observed by a server-side rules engine.",
+      },
+      {
+        title: "Alerts reach the right role",
+        desc: "Matching events notify the owning role in-app and via WhatsApp — not a broadcast to everyone.",
+      },
+      {
+        title: "Silence escalates",
+        desc: "Unacknowledged alerts climb the on-call chain on a timer until a human owns them.",
+      },
+      {
+        title: "Acknowledgment is tracked",
+        desc: "The escalations engine records who saw what and when — accountability is a feature, not a meeting.",
+      },
+      {
+        title: "Everything is explainable",
+        desc: "Automation runs are logged like any other action, so “why was I paged?” always has an answer.",
+      },
     ],
     hood: ["Rules engine", "Escalation chains", "WhatsApp delivery", "Full audit"],
     cta: { kind: "link", label: "See the Command Center", href: "/hospital" },

@@ -19,55 +19,64 @@ const DOMAINS: { name: string; role: string; raises: string; india: string }[] =
     name: "Metabolic · T2D",
     role: "Your sugar-metabolism signal checker.",
     raises: "HbA1c ≥ 6.5 · fasting sugar ≥ 126 · BMI ≥ 27.5",
-    india: "Indian BMI bands start at 23, not 25. Mithai, fried food and sugary drinks carry real weight — and if diabetes is already diagnosed, the domain switches to control-mode instead of detection.",
+    india:
+      "Indian BMI bands start at 23, not 25. Mithai, fried food and sugary drinks carry real weight — and if diabetes is already diagnosed, the domain switches to control-mode instead of detection.",
   },
   {
     name: "Blood Pressure",
     role: "One reading plus salt and lifestyle stressors.",
     raises: "BP ≥ 140/90 · pickle-papad salt load · family history",
-    india: "130/85 is treated as the Indian prehypertension watch zone, with a sub-5 g daily salt target.",
+    india:
+      "130/85 is treated as the Indian prehypertension watch zone, with a sub-5 g daily salt target.",
   },
   {
     name: "Heart",
     role: "The modifiable cluster: tobacco, lipids, BP, sugar.",
     raises: "Tobacco use · LDL ≥ 160 · triglycerides ≥ 300",
-    india: "Smokeless gutkha and paan are tracked separately, and South-Asian LDL targets are stricter.",
+    india:
+      "Smokeless gutkha and paan are tracked separately, and South-Asian LDL targets are stricter.",
   },
   {
     name: "Haemoglobin",
     role: "Oxygen-carrying pattern — very common in India, very fixable.",
     raises: "Low haemoglobin · pregnancy (ICMR screen) · veg diet + menstrual loss",
-    india: "Cutoffs 13 g/dL (men) / 12 (women). Chai with meals blocks iron; ferritin and thalassemia-trait questions included.",
+    india:
+      "Cutoffs 13 g/dL (men) / 12 (women). Chai with meals blocks iron; ferritin and thalassemia-trait questions included.",
   },
   {
     name: "Vitamin D",
     role: "The classic urban-India sun-and-bone pattern.",
     raises: "Level < 12 ng/mL · under 15 min sun · bone aches",
-    india: "Metro AQI keeps people indoors — the engine knows. Repletion courses follow the Indian 60,000-IU weekly norm.",
+    india:
+      "Metro AQI keeps people indoors — the engine knows. Repletion courses follow the Indian 60,000-IU weekly norm.",
   },
   {
     name: "B12 · Nerve",
     role: "Nerve-and-energy pattern, extremely common in vegetarian India.",
     raises: "Level < 150 pg/mL · veg diet + tingling · long-term metformin",
-    india: "Veg/vegan/Jain diets are a lead factor — the veg-plus-tingling combo is the classic Indian B12 setup.",
+    india:
+      "Veg/vegan/Jain diets are a lead factor — the veg-plus-tingling combo is the classic Indian B12 setup.",
   },
   {
     name: "Thyroid",
     role: "Symptom-cluster checker — one blood test settles it.",
     raises: "TSH > 5.5 · unexplained weight gain · family history",
-    india: "Broad 0.4–5.5 screening band, morning-fasting timing advice, and 5–8× higher prevalence in women.",
+    india:
+      "Broad 0.4–5.5 screening band, morning-fasting timing advice, and 5–8× higher prevalence in women.",
   },
   {
     name: "PCOS · Hormonal",
     role: "Cycle-and-hormone pattern for female profiles.",
     raises: "Irregular cycles · PCOS/PCOD diagnosed · waist ≥ 80 cm",
-    india: "HbA1c and fasting-insulin screening is standard alongside; protein-first Indian food swaps suggested.",
+    india:
+      "HbA1c and fasting-insulin screening is standard alongside; protein-first Indian food swaps suggested.",
   },
   {
     name: "Sleep · OSA",
     role: "Sleep debt plus a two-question apnoea screen.",
     raises: "Under 6 h sleep · snoring with gasping · severe daytime dozes",
-    india: "Practical actions like a 4 PM chai cutoff and side-sleeping; home sleep kits referenced in metros.",
+    india:
+      "Practical actions like a 4 PM chai cutoff and side-sleeping; home sleep kits referenced in metros.",
   },
   {
     name: "Lungs",
@@ -79,7 +88,8 @@ const DOMAINS: { name: string; role: string; raises: string; india: string }[] =
     name: "Liver",
     role: "Fatty-liver pattern builder — reversible at this stage.",
     raises: "High waist · daily alcohol · daily sweets/fried",
-    india: "South-Asian waist cutoffs drive the screen; LFT + ultrasound are cheap and widely available.",
+    india:
+      "South-Asian waist cutoffs drive the screen; LFT + ultrasound are cheap and widely available.",
   },
   {
     name: "Mind",
@@ -103,7 +113,7 @@ export function DomainGlossary({ lang = "en" }: { lang?: "en" | "hi" }) {
         <p className="mx-auto mt-2 max-w-xl text-[13px] leading-relaxed nxf-dim">
           {t(
             "Every domain is a transparent rule-set, not a black box. Tap any card to see exactly what raises its signal — the same factors the engine will weigh for you.",
-            "हर क्षेत्र एक पारदर्शी नियम-सेट है, कोई काला बक्सा नहीं। किसी भी कार्ड पर टैप करें और देखें कि सिग्नल क्या बढ़ाता है — वही कारक जो इंजन आपके लिए तौलेगा।"
+            "हर क्षेत्र एक पारदर्शी नियम-सेट है, कोई काला बक्सा नहीं। किसी भी कार्ड पर टैप करें और देखें कि सिग्नल क्या बढ़ाता है — वही कारक जो इंजन आपके लिए तौलेगा।",
           )}
         </p>
       </div>

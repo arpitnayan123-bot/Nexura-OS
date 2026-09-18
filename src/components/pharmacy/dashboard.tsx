@@ -188,7 +188,7 @@ export function PharmacyDashboard() {
           p.genericName?.toLowerCase().includes(q) ||
           p.salts?.toLowerCase().includes(q) ||
           p.brand?.toLowerCase().includes(q) ||
-          p.hsn?.includes(q)
+          p.hsn?.includes(q),
       )
       .slice(0, 12);
   }, [inventory, query]);
@@ -233,12 +233,11 @@ export function PharmacyDashboard() {
           if (loose) return { ...x, qtyLoose: Math.max(0, x.qtyLoose + delta) };
           return { ...x, qtyStrips: Math.max(0, x.qtyStrips + delta) };
         })
-        .filter((x) => x.qtyStrips > 0 || x.qtyLoose > 0)
+        .filter((x) => x.qtyStrips > 0 || x.qtyLoose > 0),
     );
   };
 
-  const removeItem = (key: string) =>
-    setCart((c) => c.filter((x) => x.key !== key));
+  const removeItem = (key: string) => setCart((c) => c.filter((x) => x.key !== key));
 
   // totals
   const totals = useMemo(() => {
@@ -269,15 +268,11 @@ export function PharmacyDashboard() {
     };
   }, [cart, discountPct]);
 
-  const lowStock = useMemo(
-    () => inventory.filter((p) => p.low).slice(0, 8),
-    [inventory]
-  );
+  const lowStock = useMemo(() => inventory.filter((p) => p.low).slice(0, 8), [inventory]);
 
   // ---- Voice billing (Web Speech API) ----
   const startListening = () => {
-    const SR =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) {
       toast.error("Voice not supported in this browser. Try Chrome.");
       return;
@@ -329,9 +324,7 @@ export function PharmacyDashboard() {
         const inv = inventory.find((p) => p.id === ci.productId);
         if (!inv) continue;
         if (ci.action === "remove") {
-          setCart((c) =>
-            c.filter((x) => x.productId !== ci.productId || x.batchId !== ci.batchId)
-          );
+          setCart((c) => c.filter((x) => x.productId !== ci.productId || x.batchId !== ci.batchId));
         } else {
           addToCart(inv, ci.batchId);
           // handle multi-strip
@@ -340,8 +333,8 @@ export function PharmacyDashboard() {
               c.map((x) =>
                 x.productId === ci.productId && x.batchId === ci.batchId
                   ? { ...x, qtyStrips: ci.qtyStrips }
-                  : x
-              )
+                  : x,
+              ),
             );
           }
           addedNames.push(ci.name);
@@ -423,8 +416,8 @@ export function PharmacyDashboard() {
             eligibleEwayBill: data.eligibleEwayBill,
           },
           null,
-          2
-        )
+          2,
+        ),
       );
       toast.success("e-Invoice JSON generated");
     } catch {
@@ -453,7 +446,12 @@ export function PharmacyDashboard() {
               </div>
             </Link>
             <span className="ml-2 hidden items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[0.65rem] font-medium shadow-sm ring-1 ring-[#E5DFD4] sm:flex">
-              <span className={cn("h-1.5 w-1.5 rounded-full", offline ? "bg-[#B8860B]" : "bg-[#9DB89E] anim-breathe")} />
+              <span
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  offline ? "bg-[#B8860B]" : "bg-[#9DB89E] anim-breathe",
+                )}
+              />
               {offline ? "Offline" : "Live"}
             </span>
           </div>
@@ -515,7 +513,7 @@ export function PharmacyDashboard() {
                     "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all",
                     listening
                       ? "bg-destructive text-white shadow-[0_8px_24px_-6px_oklch(0.62_0.2_25/0.7)]"
-                      : "bg-primary text-primary-foreground shadow-[0_8px_24px_-6px_oklch(0.70_0.145_45/0.6)]"
+                      : "bg-primary text-primary-foreground shadow-[0_8px_24px_-6px_oklch(0.70_0.145_45/0.6)]",
                   )}
                 >
                   {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
@@ -563,9 +561,7 @@ export function PharmacyDashboard() {
           {/* cart */}
           <section className="rounded-2xl border border-border bg-card p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-display text-base font-semibold">
-                Bill cart ({cart.length})
-              </h2>
+              <h2 className="font-display text-base font-semibold">Bill cart ({cart.length})</h2>
               <button
                 onClick={() => setCart([])}
                 className="text-xs text-muted-foreground hover:text-destructive"
@@ -676,7 +672,9 @@ export function PharmacyDashboard() {
                   <input
                     type="number"
                     value={discountPct || ""}
-                    onChange={(e) => setDiscountPct(Math.max(0, Math.min(100, +e.target.value || 0)))}
+                    onChange={(e) =>
+                      setDiscountPct(Math.max(0, Math.min(100, +e.target.value || 0)))
+                    }
                     className="h-8 w-16 rounded-lg border border-border bg-background px-2 text-center text-sm tabular-nums outline-none focus-visible:border-primary/50"
                     placeholder="0"
                   />
@@ -688,7 +686,9 @@ export function PharmacyDashboard() {
                       onClick={() => setPayMode(m)}
                       className={cn(
                         "rounded-md px-2.5 py-1 text-xs font-medium uppercase transition-colors",
-                        payMode === m ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                        payMode === m
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground",
                       )}
                     >
                       {m}
@@ -728,9 +728,7 @@ export function PharmacyDashboard() {
               <div className="my-2 h-px bg-border" />
               <div className="flex items-baseline justify-between">
                 <dt className="font-medium">Total payable</dt>
-                <dd className="font-display text-2xl font-bold text-primary">
-                  ₹{totals.total}
-                </dd>
+                <dd className="font-display text-2xl font-bold text-primary">₹{totals.total}</dd>
               </div>
             </dl>
             {lastInvoice && (
@@ -754,7 +752,9 @@ export function PharmacyDashboard() {
             <div className="mb-3 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-honey" />
               <h3 className="font-display text-sm font-semibold">Low on stock</h3>
-              <Badge variant="secondary" className="ml-auto">{lowStock.length}</Badge>
+              <Badge variant="secondary" className="ml-auto">
+                {lowStock.length}
+              </Badge>
             </div>
             <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
               {lowStock.length === 0 && (
@@ -763,7 +763,10 @@ export function PharmacyDashboard() {
                 </p>
               )}
               {lowStock.map((p) => (
-                <div key={p.id} className="flex items-center justify-between rounded-lg bg-muted/40 px-2.5 py-1.5">
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between rounded-lg bg-muted/40 px-2.5 py-1.5"
+                >
                   <div className="min-w-0">
                     <p className="truncate text-xs font-medium">{p.name}</p>
                     <p className="text-[0.6rem] text-[#828894]">{p.genericName}</p>
@@ -843,7 +846,8 @@ export function PharmacyDashboard() {
             className="fixed inset-x-0 bottom-0 z-50 mx-auto mb-0 w-full bg-clay px-4 py-2 text-center text-xs text-white"
           >
             <Volume2 className="mr-1 inline h-3.5 w-3.5" />
-            Offline mode — billing, voice & barcode continue. Records sync automatically when online.
+            Offline mode — billing, voice & barcode continue. Records sync automatically when
+            online.
           </motion.div>
         )}
       </AnimatePresence>
@@ -851,15 +855,7 @@ export function PharmacyDashboard() {
   );
 }
 
-function Row({
-  label,
-  value,
-  muted,
-}: {
-  label: string;
-  value: number;
-  muted?: boolean;
-}) {
+function Row({ label, value, muted }: { label: string; value: number; muted?: boolean }) {
   return (
     <div className="flex items-center justify-between">
       <dt className={cn(muted ? "text-muted-foreground" : "text-foreground/80")}>{label}</dt>
@@ -892,10 +888,12 @@ function ProductCard({ item, onAdd }: { item: InventoryItem; onAdd: () => void }
         <span
           className={cn(
             "flex items-center gap-1 text-[0.6rem]",
-            item.low ? "text-destructive" : "text-sage"
+            item.low ? "text-destructive" : "text-sage",
           )}
         >
-          <span className={cn("h-1.5 w-1.5 rounded-full", item.low ? "bg-destructive" : "bg-sage")} />
+          <span
+            className={cn("h-1.5 w-1.5 rounded-full", item.low ? "bg-destructive" : "bg-sage")}
+          />
           {item.stockStrips} strips
         </span>
       </div>
@@ -936,7 +934,10 @@ function EInvoiceModal({
           >
             <div className="flex items-center justify-between border-b border-border p-4">
               <h3 className="font-display font-semibold">Indian e-Invoice / e-Way Bill</h3>
-              <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full hover:bg-accent">
+              <button
+                onClick={onClose}
+                className="grid h-8 w-8 place-items-center rounded-full hover:bg-accent"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -992,7 +993,10 @@ function HelpModal({ open, onClose }: { open: boolean; onClose: () => void }) {
               <h2 className="flex items-center gap-2 font-display font-semibold">
                 <Keyboard className="h-4 w-4 text-primary" /> Keyboard shortcuts
               </h2>
-              <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full hover:bg-accent">
+              <button
+                onClick={onClose}
+                className="grid h-8 w-8 place-items-center rounded-full hover:bg-accent"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>

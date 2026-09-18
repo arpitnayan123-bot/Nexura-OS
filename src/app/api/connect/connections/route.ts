@@ -17,7 +17,10 @@ export const dynamic = "force-dynamic";
 // user enumerate arbitrary inboxes. Mirrors connectCallsListDenied's
 // callerId resolution (session?.userId ?? legacy?.id). DEMO_MODE keeps its
 // documented posture: the UI picks demo doctor/patient client-side.
-function listPartyDenied(req: NextRequest, filter: { doctorId?: string | null; patientId?: string | null }): NextResponse | null {
+function listPartyDenied(
+  req: NextRequest,
+  filter: { doctorId?: string | null; patientId?: string | null },
+): NextResponse | null {
   if (isDemoMode()) return null;
   const session = getSession(req);
   const legacy = getAuthUser(req);
@@ -57,7 +60,14 @@ export async function GET(req: NextRequest) {
         messages: {
           orderBy: { createdAt: "desc" },
           take: 1,
-          select: { id: true, text: true, fromRole: true, fromName: true, createdAt: true, read: true },
+          select: {
+            id: true,
+            text: true,
+            fromRole: true,
+            fromName: true,
+            createdAt: true,
+            read: true,
+          },
         },
       },
     });
@@ -75,13 +85,18 @@ export async function GET(req: NextRequest) {
           unreadCount,
           messages: undefined, // strip nested
         };
-      })
+      }),
     );
 
     return NextResponse.json({ connections: withCounts });
   } catch (err) {
-    log.error("connect", "connections_list_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "connect_list_failed", detail: "Connections could not be loaded. Please retry." }, { status: 500 });
+    log.error("connect", "connections_list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "connect_list_failed", detail: "Connections could not be loaded. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -180,8 +195,16 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ connection, whatsappSent, whatsappMessage });
   } catch (err) {
-    log.error("connect", "connection_create_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "connect_create_failed", detail: "The connection could not be created. Please retry." }, { status: 500 });
+    log.error("connect", "connection_create_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "connect_create_failed",
+        detail: "The connection could not be created. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }
 

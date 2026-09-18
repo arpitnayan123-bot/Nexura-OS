@@ -4,11 +4,34 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft, Search, Inbox, Users, PhoneCall, Send,
-  Video, Phone, Mic, MicOff, VideoOff, PhoneOff, X, Plus,
-  CheckCheck, Check, Clock, Loader2, Stethoscope, Activity,
-  ChevronRight, Pill, MessageCircle, Sparkles, User,
-  ShieldCheck, ArrowRight, Square,
+  ArrowLeft,
+  Search,
+  Inbox,
+  Users,
+  PhoneCall,
+  Send,
+  Video,
+  Phone,
+  Mic,
+  MicOff,
+  VideoOff,
+  PhoneOff,
+  X,
+  Plus,
+  CheckCheck,
+  Check,
+  Clock,
+  Loader2,
+  Stethoscope,
+  Activity,
+  ChevronRight,
+  Pill,
+  MessageCircle,
+  Sparkles,
+  User,
+  ShieldCheck,
+  ArrowRight,
+  Square,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -26,7 +49,14 @@ type Connection = {
   source: string;
   sourceRefId: string | null;
   lastConsultDate: string | null;
-  lastMessage: { id: string; text: string; fromRole: string; fromName: string | null; createdAt: string; read: boolean } | null;
+  lastMessage: {
+    id: string;
+    text: string;
+    fromRole: string;
+    fromName: string | null;
+    createdAt: string;
+    read: boolean;
+  } | null;
   unreadCount: number;
   updatedAt: string;
 };
@@ -57,7 +87,13 @@ type Call = {
   prescriptionJson: string | null;
   prescriptionSynced: boolean;
   callSummary: string | null;
-  connection: { id: string; doctorName: string; patientName: string; patientId: string; doctorId: string };
+  connection: {
+    id: string;
+    doctorName: string;
+    patientName: string;
+    patientId: string;
+    doctorId: string;
+  };
 };
 
 type QueueEntry = {
@@ -68,9 +104,16 @@ type QueueEntry = {
   status: string;
   joinedAt: string;
   connection: {
-    id: string; doctorId: string; doctorName: string; doctorSpecialty: string | null;
-    patientId: string; patientName: string; patientPhone: string | null;
-    patientAge: number | null; patientGender: string | null; source: string;
+    id: string;
+    doctorId: string;
+    doctorName: string;
+    doctorSpecialty: string | null;
+    patientId: string;
+    patientName: string;
+    patientPhone: string | null;
+    patientAge: number | null;
+    patientGender: string | null;
+    source: string;
   };
 };
 
@@ -83,7 +126,14 @@ const SOURCE_STYLE: Record<string, { bg: string; text: string; label: string }> 
 };
 
 const avatarInitials = (name: string) =>
-  name.replace(/^Dr\.?\s*/i, "").split(" ").map((x) => x[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
+  name
+    .replace(/^Dr\.?\s*/i, "")
+    .split(" ")
+    .map((x) => x[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
 function relativeTime(iso: string | null): string {
   if (!iso) return "";
@@ -108,17 +158,29 @@ function formatDuration(sec: number | null): string {
 
 export function ConnectApp() {
   const [tab, setTab] = useState<Tab>("inbox");
-  const [doctor, setDoctor] = useState<{ id: string; name: string; specialization: string | null } | null>(null);
+  const [doctor, setDoctor] = useState<{
+    id: string;
+    name: string;
+    specialization: string | null;
+  } | null>(null);
   const [doctorLoading, setDoctorLoading] = useState(true);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [queue, setQueue] = useState<{ chat: QueueEntry[]; voice: QueueEntry[]; video: QueueEntry[] }>({ chat: [], voice: [], video: [] });
+  const [queue, setQueue] = useState<{
+    chat: QueueEntry[];
+    voice: QueueEntry[];
+    video: QueueEntry[];
+  }>({ chat: [], voice: [], video: [] });
   const [calls, setCalls] = useState<Call[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [draft, setDraft] = useState("");
-  const [activeCall, setActiveCall] = useState<{ callId: string; type: "voice" | "video"; connection: Connection } | null>(null);
+  const [activeCall, setActiveCall] = useState<{
+    callId: string;
+    type: "voice" | "video";
+    connection: Connection;
+  } | null>(null);
 
   // ── Auto-detect doctor from hospital doctors API ─────────
   useEffect(() => {
@@ -132,7 +194,11 @@ export function ConnectApp() {
         const first = (d.doctors || [])[0];
         if (cancelled) return;
         if (first) {
-          setDoctor({ id: first.id, name: first.name, specialization: first.specialty || first.department });
+          setDoctor({
+            id: first.id,
+            name: first.name,
+            specialization: first.specialty || first.department,
+          });
         }
       } catch {
         // ignored — UI shows "no doctor" prompt
@@ -140,7 +206,9 @@ export function ConnectApp() {
         if (!cancelled) setDoctorLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // ── Poll connections every 10s ─────────────────────────────────────────
@@ -196,11 +264,14 @@ export function ConnectApp() {
     setMessagesLoading(true);
     (async () => {
       try {
-        const res = await fetch(`/api/connect/messages?connectionId=${encodeURIComponent(selectedId)}`);
+        const res = await fetch(
+          `/api/connect/messages?connectionId=${encodeURIComponent(selectedId)}`,
+        );
         if (!res.ok) return;
         const d = await res.json();
         if (!cancelled) setMessages(d.messages || []);
-      } catch {} finally {
+      } catch {
+      } finally {
         if (!cancelled) setMessagesLoading(false);
       }
     })();
@@ -209,8 +280,12 @@ export function ConnectApp() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ connectionId: selectedId, readByRole: "doctor" }),
-    }).then(() => loadConnections()).catch(() => {});
-    return () => { cancelled = true; };
+    })
+      .then(() => loadConnections())
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [selectedId, loadConnections]);
 
   // Auto-select first connection if none selected
@@ -223,15 +298,19 @@ export function ConnectApp() {
     }
   }, [connections, selectedId]);
 
-  const selected = useMemo(() => connections.find((c) => c.id === selectedId) || null, [connections, selectedId]);
+  const selected = useMemo(
+    () => connections.find((c) => c.id === selectedId) || null,
+    [connections, selectedId],
+  );
 
   const filteredConnections = useMemo(() => {
     if (!search.trim()) return connections;
     const q = search.toLowerCase();
-    return connections.filter((c) =>
-      c.patientName.toLowerCase().includes(q) ||
-      (c.patientPhone || "").includes(q) ||
-      (c.doctorSpecialty || "").toLowerCase().includes(q)
+    return connections.filter(
+      (c) =>
+        c.patientName.toLowerCase().includes(q) ||
+        (c.patientPhone || "").includes(q) ||
+        (c.doctorSpecialty || "").toLowerCase().includes(q),
     );
   }, [connections, search]);
 
@@ -257,7 +336,12 @@ export function ConnectApp() {
       const res = await fetch("/api/connect/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ connectionId: selected.id, fromRole: "doctor", fromName: doctor?.name, text }),
+        body: JSON.stringify({
+          connectionId: selected.id,
+          fromRole: "doctor",
+          fromName: doctor?.name,
+          text,
+        }),
       });
       if (!res.ok) throw new Error();
       const d = await res.json();
@@ -310,8 +394,13 @@ export function ConnectApp() {
         <div className="max-w-md rounded-2xl glass-dark p-6 text-center shadow-depth">
           <Stethoscope className="mx-auto h-10 w-10 text-[#A16207]" />
           <h2 className="mt-3 font-serif text-xl font-semibold">No doctor profile found</h2>
-          <p className="mt-1 text-sm text-white/60">Run the clinic or hospital seed first, then return here.</p>
-          <Link href="/" className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#A16207] px-4 py-2 text-sm font-semibold text-white">
+          <p className="mt-1 text-sm text-white/60">
+            Run the clinic or hospital seed first, then return here.
+          </p>
+          <Link
+            href="/"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#A16207] px-4 py-2 text-sm font-semibold text-white"
+          >
             <ArrowLeft className="h-4 w-4" /> Back to homepage
           </Link>
         </div>
@@ -330,29 +419,37 @@ export function ConnectApp() {
           </span>
           <div className="flex-1">
             <p className="font-serif text-sm font-bold tracking-tight">Nexura Connect</p>
-            <p className="text-[0.6rem] uppercase tracking-[0.16em] text-[#D9B87C]/80">Doctor dashboard</p>
+            <p className="text-[0.6rem] uppercase tracking-[0.16em] text-[#D9B87C]/80">
+              Doctor dashboard
+            </p>
           </div>
         </div>
 
         {/* Tabs */}
         <div className="mx-3 mb-3 grid grid-cols-3 gap-1 rounded-xl bg-white/5 p-1">
-          {([
-            { id: "inbox", label: "Inbox", icon: Inbox },
-            { id: "queue", label: "Queue", icon: Users },
-            { id: "calls", label: "Calls", icon: PhoneCall },
-          ] as const).map((t) => (
+          {(
+            [
+              { id: "inbox", label: "Inbox", icon: Inbox },
+              { id: "queue", label: "Queue", icon: Users },
+              { id: "calls", label: "Calls", icon: PhoneCall },
+            ] as const
+          ).map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
               className={cn(
                 "relative flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
-                tab === t.id ? "bg-white/10 text-white shadow-sm" : "text-white/55 hover:text-white"
+                tab === t.id
+                  ? "bg-white/10 text-white shadow-sm"
+                  : "text-white/55 hover:text-white",
               )}
             >
               <t.icon className="h-3.5 w-3.5" />
               {t.label}
               {t.id === "queue" && totalWaiting > 0 && (
-                <span className="ml-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-[#A16207] px-1 text-[0.55rem] font-bold text-white">{totalWaiting}</span>
+                <span className="ml-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-[#A16207] px-1 text-[0.55rem] font-bold text-white">
+                  {totalWaiting}
+                </span>
               )}
               {t.id === "inbox" && connections.some((c) => c.unreadCount > 0) && (
                 <span className="ml-0.5 h-2 w-2 rounded-full bg-[#A16207] anim-breathe" />
@@ -389,24 +486,30 @@ export function ConnectApp() {
                   onClick={() => setSelectedId(c.id)}
                   className={cn(
                     "group flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-all",
-                    selectedId === c.id ? "bg-white/10 shadow-depth" : "hover:bg-white/5"
+                    selectedId === c.id ? "bg-white/10 shadow-depth" : "hover:bg-white/5",
                   )}
                 >
                   <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A16207]/40 to-[#8F5E06]/40 text-xs font-bold text-white">
                     {avatarInitials(c.patientName)}
                     {c.unreadCount > 0 && (
-                      <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#A16207] px-1 text-[0.55rem] font-bold text-white ring-2 ring-[#1F1B17]">{c.unreadCount}</span>
+                      <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#A16207] px-1 text-[0.55rem] font-bold text-white ring-2 ring-[#1F1B17]">
+                        {c.unreadCount}
+                      </span>
                     )}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
                       <p className="truncate text-xs font-semibold">{c.patientName}</p>
-                      <span className="shrink-0 text-[0.55rem] text-white/40">{relativeTime(c.lastMessage?.createdAt || c.updatedAt)}</span>
+                      <span className="shrink-0 text-[0.55rem] text-white/40">
+                        {relativeTime(c.lastMessage?.createdAt || c.updatedAt)}
+                      </span>
                     </div>
                     <p className="truncate text-[0.65rem] text-white/50">
                       {c.lastMessage ? (
                         <>
-                          {c.lastMessage.fromRole === "doctor" && <span className="text-white/40">You: </span>}
+                          {c.lastMessage.fromRole === "doctor" && (
+                            <span className="text-white/40">You: </span>
+                          )}
                           {c.lastMessage.text}
                         </>
                       ) : (
@@ -416,21 +519,45 @@ export function ConnectApp() {
                   </div>
                   {(() => {
                     const s = SOURCE_STYLE[c.source] || SOURCE_STYLE.clinic;
-                    return <span className={cn("rounded-full px-1.5 py-0.5 text-[0.5rem] font-semibold", s.bg, s.text)}>{s.label}</span>;
+                    return (
+                      <span
+                        className={cn(
+                          "rounded-full px-1.5 py-0.5 text-[0.5rem] font-semibold",
+                          s.bg,
+                          s.text,
+                        )}
+                      >
+                        {s.label}
+                      </span>
+                    );
                   })()}
                 </button>
               ))}
             </div>
           )}
 
-          {tab === "queue" && <QueueTab queue={queue} onPick={(entry) => {
-            // Pick up → also selects conversation
-            fetch("/api/connect/queue", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ queueId: entry.id, doctorId: doctor.id }),
-            }).then((r) => r.ok ? (toast.success(`Picked up ${entry.connection.patientName}`), loadQueue(), setSelectedId(entry.connection.id), setTab("inbox")) : toast.error("Could not pick up")).catch(() => toast.error("Pickup failed"));
-          }} />}
+          {tab === "queue" && (
+            <QueueTab
+              queue={queue}
+              onPick={(entry) => {
+                // Pick up → also selects conversation
+                fetch("/api/connect/queue", {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ queueId: entry.id, doctorId: doctor.id }),
+                })
+                  .then((r) =>
+                    r.ok
+                      ? (toast.success(`Picked up ${entry.connection.patientName}`),
+                        loadQueue(),
+                        setSelectedId(entry.connection.id),
+                        setTab("inbox"))
+                      : toast.error("Could not pick up"),
+                  )
+                  .catch(() => toast.error("Pickup failed"));
+              }}
+            />
+          )}
 
           {tab === "calls" && <CallsTab calls={calls} />}
         </div>
@@ -443,13 +570,18 @@ export function ConnectApp() {
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-semibold">{doctor.name}</p>
-              <p className="truncate text-[0.6rem] text-white/50">{doctor.specialization || "Doctor"}</p>
+              <p className="truncate text-[0.6rem] text-white/50">
+                {doctor.specialization || "Doctor"}
+              </p>
             </div>
             <span className="flex items-center gap-1 rounded-full bg-[#9DB89E]/15 px-2 py-0.5 text-[0.55rem] font-medium text-[#9DB89E]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#9DB89E] anim-breathe" /> Online
             </span>
           </div>
-          <Link href="/" className="mt-2 flex items-center gap-1.5 text-[0.65rem] text-white/40 hover:text-white/70">
+          <Link
+            href="/"
+            className="mt-2 flex items-center gap-1.5 text-[0.65rem] text-white/40 hover:text-white/70"
+          >
             <ArrowLeft className="h-3 w-3" /> Homepage
           </Link>
         </div>
@@ -461,22 +593,41 @@ export function ConnectApp() {
           <>
             {/* Header */}
             <header className="relative flex items-center justify-between border-b border-[#E5DFD4] bg-white/80 px-5 py-3 backdrop-blur-md">
-              <div aria-hidden className="hairline-gold pointer-events-none absolute inset-x-0 bottom-0 opacity-50" />
+              <div
+                aria-hidden
+                className="hairline-gold pointer-events-none absolute inset-x-0 bottom-0 opacity-50"
+              />
               <div className="flex items-center gap-3">
                 <span className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-[#A16207] to-[#8F5E06] text-sm font-bold text-white shadow-depth">
                   {avatarInitials(selected.patientName)}
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-serif text-base font-semibold text-[#1F1B17]">{selected.patientName}</p>
+                    <p className="font-serif text-base font-semibold text-[#1F1B17]">
+                      {selected.patientName}
+                    </p>
                     {(() => {
                       const s = SOURCE_STYLE[selected.source] || SOURCE_STYLE.clinic;
-                      return <span className={cn("rounded-full px-2 py-0.5 text-[0.55rem] font-semibold", s.bg, s.text)}>{s.label}</span>;
+                      return (
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-0.5 text-[0.55rem] font-semibold",
+                            s.bg,
+                            s.text,
+                          )}
+                        >
+                          {s.label}
+                        </span>
+                      );
                     })()}
                   </div>
                   <p className="text-[0.7rem] text-[#9A8F84]">
-                    {selected.patientAge ? `${selected.patientAge}y` : ""}{selected.patientGender ? ` · ${selected.patientGender}` : ""}{selected.patientPhone ? ` · ${selected.patientPhone}` : ""}
-                    {selected.lastConsultDate ? ` · Last consult ${relativeTime(selected.lastConsultDate)}` : ""}
+                    {selected.patientAge ? `${selected.patientAge}y` : ""}
+                    {selected.patientGender ? ` · ${selected.patientGender}` : ""}
+                    {selected.patientPhone ? ` · ${selected.patientPhone}` : ""}
+                    {selected.lastConsultDate
+                      ? ` · Last consult ${relativeTime(selected.lastConsultDate)}`
+                      : ""}
                   </p>
                 </div>
               </div>
@@ -501,13 +652,17 @@ export function ConnectApp() {
             {/* Messages */}
             <div className="flex-1 space-y-2 overflow-y-auto px-5 py-4">
               {messagesLoading ? (
-                <div className="grid h-40 place-items-center"><Loader2 className="h-5 w-5 animate-spin text-[#9A8F84]" /></div>
+                <div className="grid h-40 place-items-center">
+                  <Loader2 className="h-5 w-5 animate-spin text-[#9A8F84]" />
+                </div>
               ) : messages.length === 0 ? (
                 <div className="grid h-40 place-items-center text-center">
                   <div>
                     <MessageCircle className="mx-auto h-8 w-8 text-[#E5DFD4]" />
                     <p className="mt-2 text-sm text-[#9A8F84]">Start the conversation</p>
-                    <p className="text-[0.65rem] text-[#B5A99E]">Say hello to {selected.patientName}</p>
+                    <p className="text-[0.65rem] text-[#B5A99E]">
+                      Say hello to {selected.patientName}
+                    </p>
                   </div>
                 </div>
               ) : (
@@ -530,15 +685,37 @@ export function ConnectApp() {
                         className={cn("flex items-end gap-2", isDoctor && "justify-end")}
                       >
                         {!isDoctor && (
-                          <span className={cn("grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A16207]/60 to-[#8F5E06]/60 text-[0.55rem] font-bold text-white", !showAvatar && "opacity-0")}>
+                          <span
+                            className={cn(
+                              "grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A16207]/60 to-[#8F5E06]/60 text-[0.55rem] font-bold text-white",
+                              !showAvatar && "opacity-0",
+                            )}
+                          >
                             {avatarInitials(selected.patientName)}
                           </span>
                         )}
-                        <div className={cn("max-w-[68%] rounded-2xl px-3.5 py-2 text-sm shadow-sm", isDoctor ? "bg-[#A16207] text-white rounded-br-sm" : "glass-soft text-[#1F1B17] rounded-bl-sm")}>
+                        <div
+                          className={cn(
+                            "max-w-[68%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
+                            isDoctor
+                              ? "bg-[#A16207] text-white rounded-br-sm"
+                              : "glass-soft text-[#1F1B17] rounded-bl-sm",
+                          )}
+                        >
                           <p className="whitespace-pre-wrap leading-snug">{m.text}</p>
-                          <div className={cn("mt-1 flex items-center justify-end gap-1 text-[0.55rem]", isDoctor ? "text-white/70" : "text-[#9A8F84]")}>
+                          <div
+                            className={cn(
+                              "mt-1 flex items-center justify-end gap-1 text-[0.55rem]",
+                              isDoctor ? "text-white/70" : "text-[#9A8F84]",
+                            )}
+                          >
                             <span>{relativeTime(m.createdAt)}</span>
-                            {isDoctor && (m.read ? <CheckCheck className="h-3 w-3 text-white/80" /> : <Check className="h-3 w-3 text-white/60" />)}
+                            {isDoctor &&
+                              (m.read ? (
+                                <CheckCheck className="h-3 w-3 text-white/80" />
+                              ) : (
+                                <Check className="h-3 w-3 text-white/60" />
+                              ))}
                           </div>
                         </div>
                       </motion.div>
@@ -573,15 +750,21 @@ export function ConnectApp() {
                   <Send className="h-4 w-4" />
                 </button>
               </div>
-              <p className="mt-1.5 text-center text-[0.6rem] text-[#B5A99E]">Press Enter to send · Shift+Enter for newline</p>
+              <p className="mt-1.5 text-center text-[0.6rem] text-[#B5A99E]">
+                Press Enter to send · Shift+Enter for newline
+              </p>
             </div>
           </>
         ) : (
           <div className="grid flex-1 place-items-center">
             <div className="text-center">
               <Inbox className="mx-auto h-10 w-10 text-[#E5DFD4]" />
-              <p className="mt-3 font-serif text-lg font-semibold text-[#1F1B17]">Select a conversation</p>
-              <p className="text-sm text-[#9A8F84]">Choose a patient from the sidebar to start chatting.</p>
+              <p className="mt-3 font-serif text-lg font-semibold text-[#1F1B17]">
+                Select a conversation
+              </p>
+              <p className="text-sm text-[#9A8F84]">
+                Choose a patient from the sidebar to start chatting.
+              </p>
             </div>
           </div>
         )}
@@ -607,7 +790,10 @@ export function ConnectApp() {
     </div>
   );
 
-  async function endCall(callId: string, summary?: { durationSec: number; callSummary?: string; prescriptionJson?: string }) {
+  async function endCall(
+    callId: string,
+    summary?: { durationSec: number; callSummary?: string; prescriptionJson?: string },
+  ) {
     try {
       await fetch("/api/connect/calls", {
         method: "PATCH",
@@ -629,7 +815,13 @@ export function ConnectApp() {
 
 /* ── Queue tab ───────────────────────────────────────────────────── */
 
-function QueueTab({ queue, onPick }: { queue: { chat: QueueEntry[]; voice: QueueEntry[]; video: QueueEntry[] }; onPick: (e: QueueEntry) => void }) {
+function QueueTab({
+  queue,
+  onPick,
+}: {
+  queue: { chat: QueueEntry[]; voice: QueueEntry[]; video: QueueEntry[] };
+  onPick: (e: QueueEntry) => void;
+}) {
   const groups = [
     { id: "video", label: "Video", items: queue.video, color: "#A16207" },
     { id: "voice", label: "Voice", items: queue.voice, color: "#C9962E" },
@@ -645,34 +837,39 @@ function QueueTab({ queue, onPick }: { queue: { chat: QueueEntry[]; voice: Queue
       {total === 0 && (
         <p className="py-6 text-center text-xs text-white/40">No one waiting — queue is clear.</p>
       )}
-      {groups.map((g) => g.items.length > 0 && (
-        <div key={g.id}>
-          <p className="mb-1.5 flex items-center gap-1.5 px-1 text-[0.6rem] font-semibold uppercase tracking-wider text-white/40">
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: g.color }} />
-            {g.label} · {g.items.length}
-          </p>
-          <div className="space-y-1.5">
-            {g.items.map((e) => (
-              <button
-                key={e.id}
-                onClick={() => onPick(e)}
-                className="group w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-left transition-all hover:bg-white/10"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A16207]/40 to-[#8F5E06]/40 text-[0.6rem] font-bold text-white">
-                    {avatarInitials(e.connection.patientName)}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold">{e.connection.patientName}</p>
-                    <p className="truncate text-[0.6rem] text-white/50">{e.reason || "No reason given"}</p>
-                  </div>
-                  <ChevronRight className="h-3.5 w-3.5 text-white/40 transition-transform group-hover:translate-x-0.5" />
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      ))}
+      {groups.map(
+        (g) =>
+          g.items.length > 0 && (
+            <div key={g.id}>
+              <p className="mb-1.5 flex items-center gap-1.5 px-1 text-[0.6rem] font-semibold uppercase tracking-wider text-white/40">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: g.color }} />
+                {g.label} · {g.items.length}
+              </p>
+              <div className="space-y-1.5">
+                {g.items.map((e) => (
+                  <button
+                    key={e.id}
+                    onClick={() => onPick(e)}
+                    className="group w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-left transition-all hover:bg-white/10"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A16207]/40 to-[#8F5E06]/40 text-[0.6rem] font-bold text-white">
+                        {avatarInitials(e.connection.patientName)}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold">{e.connection.patientName}</p>
+                        <p className="truncate text-[0.6rem] text-white/50">
+                          {e.reason || "No reason given"}
+                        </p>
+                      </div>
+                      <ChevronRight className="h-3.5 w-3.5 text-white/40 transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ),
+      )}
     </div>
   );
 }
@@ -688,22 +885,45 @@ function CallsTab({ calls }: { calls: Call[] }) {
       {calls.map((c) => (
         <div key={c.id} className="rounded-xl border border-white/10 bg-white/5 p-2.5">
           <div className="flex items-center gap-2">
-            <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full", c.type === "video" ? "bg-[#A16207]/20 text-[#A16207]" : "bg-[#9DB89E]/20 text-[#9DB89E]")}>
-              {c.type === "video" ? <Video className="h-3.5 w-3.5" /> : <Phone className="h-3.5 w-3.5" />}
+            <span
+              className={cn(
+                "grid h-8 w-8 shrink-0 place-items-center rounded-full",
+                c.type === "video"
+                  ? "bg-[#A16207]/20 text-[#A16207]"
+                  : "bg-[#9DB89E]/20 text-[#9DB89E]",
+              )}
+            >
+              {c.type === "video" ? (
+                <Video className="h-3.5 w-3.5" />
+              ) : (
+                <Phone className="h-3.5 w-3.5" />
+              )}
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-semibold">{c.connection.patientName}</p>
               <p className="text-[0.6rem] text-white/50">
-                {c.initiatedBy === "doctor" ? "You initiated" : "Patient initiated"} · {formatDuration(c.durationSec)} · {relativeTime(c.startedAt)}
+                {c.initiatedBy === "doctor" ? "You initiated" : "Patient initiated"} ·{" "}
+                {formatDuration(c.durationSec)} · {relativeTime(c.startedAt)}
               </p>
             </div>
             {c.prescriptionJson && (
-              <span className={cn("flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[0.5rem] font-semibold", c.prescriptionSynced ? "bg-[#9DB89E]/15 text-[#9DB89E]" : "bg-[#C9962E]/15 text-[#C9962E]")}>
+              <span
+                className={cn(
+                  "flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[0.5rem] font-semibold",
+                  c.prescriptionSynced
+                    ? "bg-[#9DB89E]/15 text-[#9DB89E]"
+                    : "bg-[#C9962E]/15 text-[#C9962E]",
+                )}
+              >
                 <Pill className="h-2.5 w-2.5" /> {c.prescriptionSynced ? "Synced" : "Pending"}
               </span>
             )}
           </div>
-          {c.callSummary && <p className="mt-1.5 line-clamp-2 rounded-lg bg-white/5 px-2 py-1 text-[0.65rem] text-white/60">{c.callSummary}</p>}
+          {c.callSummary && (
+            <p className="mt-1.5 line-clamp-2 rounded-lg bg-white/5 px-2 py-1 text-[0.65rem] text-white/60">
+              {c.callSummary}
+            </p>
+          )}
         </div>
       ))}
     </div>
@@ -712,7 +932,15 @@ function CallsTab({ calls }: { calls: Call[] }) {
 
 /* ── Video call overlay (with Rx panel) ──────────────────────────── */
 
-type RxItem = { id: string; name: string; salt: string; dosage: string; frequency: string; duration: string; quantity: number };
+type RxItem = {
+  id: string;
+  name: string;
+  salt: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  quantity: number;
+};
 
 function CallOverlay({
   call,
@@ -722,7 +950,11 @@ function CallOverlay({
 }: {
   call: { callId: string; type: "voice" | "video"; connection: Connection };
   doctor: { id: string; name: string; specialization: string | null };
-  onEnd: (summary?: { durationSec: number; callSummary?: string; prescriptionJson?: string }) => void;
+  onEnd: (summary?: {
+    durationSec: number;
+    callSummary?: string;
+    prescriptionJson?: string;
+  }) => void;
   onSynced: () => void;
 }) {
   const [seconds, setSeconds] = useState(0);
@@ -746,32 +978,41 @@ function CallOverlay({
   // drug autocomplete
   useEffect(() => {
     const q = drugQuery.trim().toLowerCase();
-    if (!q || q.length < 1) { setDrugResults([]); return; }
+    if (!q || q.length < 1) {
+      setDrugResults([]);
+      return;
+    }
     const t = setTimeout(async () => {
       try {
         const res = await fetch(`/api/clinic/drugs?q=${encodeURIComponent(q)}`);
         const d = await res.json();
         setDrugResults(d.drugs || []);
-      } catch { setDrugResults([]); }
+      } catch {
+        setDrugResults([]);
+      }
     }, 200);
     return () => clearTimeout(t);
   }, [drugQuery]);
 
   const addDrug = (drug: any) => {
-    setRx((r) => [...r, {
-      id: `rx-${Date.now()}`,
-      name: drug.brandName,
-      salt: drug.saltName,
-      dosage: drug.strength || "",
-      frequency: "1-0-1",
-      duration: "5 days",
-      quantity: 1,
-    }]);
+    setRx((r) => [
+      ...r,
+      {
+        id: `rx-${Date.now()}`,
+        name: drug.brandName,
+        salt: drug.saltName,
+        dosage: drug.strength || "",
+        frequency: "1-0-1",
+        duration: "5 days",
+        quantity: 1,
+      },
+    ]);
     setDrugQuery("");
     setDrugResults([]);
   };
 
-  const updateRx = (id: string, patch: Partial<RxItem>) => setRx((r) => r.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+  const updateRx = (id: string, patch: Partial<RxItem>) =>
+    setRx((r) => r.map((x) => (x.id === id ? { ...x, ...patch } : x)));
   const removeRx = (id: string) => setRx((r) => r.filter((x) => x.id !== id));
 
   const syncPrescription = async () => {
@@ -786,7 +1027,14 @@ function CallOverlay({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           callId: call.callId,
-          items: rx.map((x) => ({ name: x.name, salt: x.salt, dosage: x.dosage, frequency: x.frequency, duration: x.duration, quantity: x.quantity })),
+          items: rx.map((x) => ({
+            name: x.name,
+            salt: x.salt,
+            dosage: x.dosage,
+            frequency: x.frequency,
+            duration: x.duration,
+            quantity: x.quantity,
+          })),
         }),
       });
       if (!res.ok) throw new Error();
@@ -805,7 +1053,8 @@ function CallOverlay({
   };
 
   const handleEnd = () => {
-    const prescriptionJson = rx.length > 0 ? JSON.stringify(rx.map(({ id, ...rest }) => rest)) : undefined;
+    const prescriptionJson =
+      rx.length > 0 ? JSON.stringify(rx.map(({ id, ...rest }) => rest)) : undefined;
     onEnd({
       durationSec: seconds,
       callSummary: `Call with ${call.connection.patientName}. ${rx.length > 0 ? `Rx: ${rx.map((x) => x.name).join(", ")}.` : ""}`,
@@ -835,7 +1084,10 @@ function CallOverlay({
               <span className="pulse-ring absolute inset-0 rounded-full" />
             </div>
             <p className="mt-4 font-serif text-xl font-semibold">{call.connection.patientName}</p>
-            <p className="text-xs text-white/60">{call.connection.patientAge ? `${call.connection.patientAge}y` : ""} {call.connection.patientGender ? `· ${call.connection.patientGender}` : ""}</p>
+            <p className="text-xs text-white/60">
+              {call.connection.patientAge ? `${call.connection.patientAge}y` : ""}{" "}
+              {call.connection.patientGender ? `· ${call.connection.patientGender}` : ""}
+            </p>
             <div className="mt-3 flex items-center justify-center gap-2">
               <span className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#9DB89E] anim-breathe" /> Simulated
@@ -859,16 +1111,24 @@ function CallOverlay({
               </span>
             )}
           </div>
-          <p className="absolute bottom-1 left-1 right-1 truncate rounded bg-black/40 px-1 py-0.5 text-center text-[0.5rem] font-medium backdrop-blur-sm">{doctor.name}</p>
+          <p className="absolute bottom-1 left-1 right-1 truncate rounded bg-black/40 px-1 py-0.5 text-center text-[0.5rem] font-medium backdrop-blur-sm">
+            {doctor.name}
+          </p>
         </div>
 
         {/* Top bar */}
         <div className="absolute left-4 top-4 flex items-center gap-2">
           <span className="flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-            {call.type === "video" ? <Video className="h-3.5 w-3.5 text-[#A16207]" /> : <Phone className="h-3.5 w-3.5 text-[#9DB89E]" />}
+            {call.type === "video" ? (
+              <Video className="h-3.5 w-3.5 text-[#A16207]" />
+            ) : (
+              <Phone className="h-3.5 w-3.5 text-[#9DB89E]" />
+            )}
             {call.type === "video" ? "Video consult · demo" : "Voice consult · demo"}
           </span>
-          <span className="rounded-full bg-black/40 px-2 py-1 text-[0.6rem] text-white/60 backdrop-blur-sm">with {call.connection.patientName}</span>
+          <span className="rounded-full bg-black/40 px-2 py-1 text-[0.6rem] text-white/60 backdrop-blur-sm">
+            with {call.connection.patientName}
+          </span>
         </div>
 
         {/* Rx panel toggle */}
@@ -877,7 +1137,11 @@ function CallOverlay({
           className="absolute right-4 bottom-4 flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm hover:bg-white/20"
         >
           <Pill className="h-3.5 w-3.5 text-[#A16207]" /> {showRx ? "Hide" : "Show"} Rx
-          {rx.length > 0 && <span className="grid h-4 min-w-4 place-items-center rounded-full bg-[#A16207] px-1 text-[0.5rem] font-bold">{rx.length}</span>}
+          {rx.length > 0 && (
+            <span className="grid h-4 min-w-4 place-items-center rounded-full bg-[#A16207] px-1 text-[0.5rem] font-bold">
+              {rx.length}
+            </span>
+          )}
         </button>
 
         {/* Rx panel */}
@@ -894,7 +1158,12 @@ function CallOverlay({
                 <p className="flex items-center gap-1.5 text-sm font-semibold">
                   <Pill className="h-4 w-4 text-[#A16207]" aria-hidden="true" /> Live Prescription
                 </p>
-                <button onClick={() => setShowRx(false)} className="grid h-6 w-6 place-items-center rounded-full text-white/50 hover:bg-white/10"><X className="h-3.5 w-3.5" /></button>
+                <button
+                  onClick={() => setShowRx(false)}
+                  className="grid h-6 w-6 place-items-center rounded-full text-white/50 hover:bg-white/10"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
               </div>
 
               {/* drug search */}
@@ -909,11 +1178,19 @@ function CallOverlay({
                 {drugResults.length > 0 && (
                   <div className="absolute z-10 mt-1 max-h-44 w-full overflow-auto rounded-lg bg-[#1F1B17] shadow-depth-lg ring-1 ring-white/10">
                     {drugResults.map((d) => (
-                      <button key={d.id} onMouseDown={() => addDrug(d)} className="flex w-full items-center gap-2 border-b border-white/5 px-2.5 py-2 text-left last:border-0 hover:bg-white/5">
+                      <button
+                        key={d.id}
+                        onMouseDown={() => addDrug(d)}
+                        className="flex w-full items-center gap-2 border-b border-white/5 px-2.5 py-2 text-left last:border-0 hover:bg-white/5"
+                      >
                         <Pill className="h-3 w-3 text-[#9DB89E]" />
                         <div className="flex-1">
-                          <p className="text-xs font-medium">{d.brandName} {d.strength}</p>
-                          <p className="text-[0.55rem] text-white/50">{d.saltName} · {d.company}</p>
+                          <p className="text-xs font-medium">
+                            {d.brandName} {d.strength}
+                          </p>
+                          <p className="text-[0.55rem] text-white/50">
+                            {d.saltName} · {d.company}
+                          </p>
                         </div>
                         <Plus className="h-3 w-3 text-[#A16207]" />
                       </button>
@@ -932,14 +1209,39 @@ function CallOverlay({
                 {rx.map((x) => (
                   <div key={x.id} className="rounded-lg border border-white/10 bg-white/5 p-2">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-xs font-semibold">{x.name} <span className="text-white/50">{x.dosage}</span></p>
-                      <button onClick={() => removeRx(x.id)} className="shrink-0 text-white/50 hover:text-[#A16207]"><X className="h-3 w-3" /></button>
+                      <p className="truncate text-xs font-semibold">
+                        {x.name} <span className="text-white/50">{x.dosage}</span>
+                      </p>
+                      <button
+                        onClick={() => removeRx(x.id)}
+                        className="shrink-0 text-white/50 hover:text-[#A16207]"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </div>
                     <p className="text-[0.55rem] text-white/50">{x.salt}</p>
                     <div className="mt-1.5 grid grid-cols-3 gap-1">
-                      <input value={x.frequency} onChange={(e) => updateRx(x.id, { frequency: e.target.value })} placeholder="1-0-1" className="h-6 rounded bg-white/5 px-1.5 text-[0.6rem] outline-none focus:bg-white/10" />
-                      <input value={x.duration} onChange={(e) => updateRx(x.id, { duration: e.target.value })} placeholder="5 days" className="h-6 rounded bg-white/5 px-1.5 text-[0.6rem] outline-none focus:bg-white/10" />
-                      <input type="number" min={1} value={x.quantity} onChange={(e) => updateRx(x.id, { quantity: Math.max(1, Number(e.target.value) || 1) })} className="h-6 rounded bg-white/5 px-1.5 text-[0.6rem] outline-none focus:bg-white/10" />
+                      <input
+                        value={x.frequency}
+                        onChange={(e) => updateRx(x.id, { frequency: e.target.value })}
+                        placeholder="1-0-1"
+                        className="h-6 rounded bg-white/5 px-1.5 text-[0.6rem] outline-none focus:bg-white/10"
+                      />
+                      <input
+                        value={x.duration}
+                        onChange={(e) => updateRx(x.id, { duration: e.target.value })}
+                        placeholder="5 days"
+                        className="h-6 rounded bg-white/5 px-1.5 text-[0.6rem] outline-none focus:bg-white/10"
+                      />
+                      <input
+                        type="number"
+                        min={1}
+                        value={x.quantity}
+                        onChange={(e) =>
+                          updateRx(x.id, { quantity: Math.max(1, Number(e.target.value) || 1) })
+                        }
+                        className="h-6 rounded bg-white/5 px-1.5 text-[0.6rem] outline-none focus:bg-white/10"
+                      />
                     </div>
                   </div>
                 ))}
@@ -951,11 +1253,16 @@ function CallOverlay({
                 disabled={syncing || rx.length === 0}
                 className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#A16207] to-[#C9962E] px-3 py-2 text-xs font-semibold text-white shadow-depth transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                {syncing ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}
                 {syncing ? "Syncing…" : "Sync to Pharmacia"}
               </button>
               <p className="mt-1.5 flex items-center justify-center gap-1 text-[0.55rem] text-white/40">
-                <ShieldCheck className="h-2.5 w-2.5" aria-hidden="true" /> Creates a Sale invoice in pharmacy demo branch
+                <ShieldCheck className="h-2.5 w-2.5" aria-hidden="true" /> Creates a Sale invoice in
+                pharmacy demo branch
               </p>
             </motion.div>
           )}
@@ -965,7 +1272,10 @@ function CallOverlay({
         <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/40 px-3 py-2 backdrop-blur-md">
           <button
             onClick={() => setMuted(!muted)}
-            className={cn("grid h-10 w-10 place-items-center rounded-full transition-colors", muted ? "bg-[#A16207] text-white" : "bg-white/10 text-white hover:bg-white/20")}
+            className={cn(
+              "grid h-10 w-10 place-items-center rounded-full transition-colors",
+              muted ? "bg-[#A16207] text-white" : "bg-white/10 text-white hover:bg-white/20",
+            )}
             title={muted ? "Unmute" : "Mute"}
           >
             {muted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
@@ -973,7 +1283,10 @@ function CallOverlay({
           {call.type === "video" && (
             <button
               onClick={() => setCameraOff(!cameraOff)}
-              className={cn("grid h-10 w-10 place-items-center rounded-full transition-colors", cameraOff ? "bg-[#A16207] text-white" : "bg-white/10 text-white hover:bg-white/20")}
+              className={cn(
+                "grid h-10 w-10 place-items-center rounded-full transition-colors",
+                cameraOff ? "bg-[#A16207] text-white" : "bg-white/10 text-white hover:bg-white/20",
+              )}
               title={cameraOff ? "Camera on" : "Camera off"}
             >
               {cameraOff ? <VideoOff className="h-4 w-4" /> : <Video className="h-4 w-4" />}

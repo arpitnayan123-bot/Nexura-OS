@@ -6,25 +6,57 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import {
-  ShoppingCart, Boxes, PackagePlus, Truck, Users,
-  ShieldAlert, BarChart3, Settings, ArrowLeft,
-  Wifi, Loader2, Pill,
+  ShoppingCart,
+  Boxes,
+  PackagePlus,
+  Truck,
+  Users,
+  ShieldAlert,
+  BarChart3,
+  Settings,
+  ArrowLeft,
+  Wifi,
+  Loader2,
+  Pill,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CreditsFooter } from "./credits-footer";
 
 const BillingModule = dynamic(() => import("./modules3/billing").then((m) => m.BillingModule));
-const InventoryModule = dynamic(() => import("./modules3/inventory").then((m) => m.InventoryModule));
-const PurchasesModule = dynamic(() => import("./modules3/purchases").then((m) => m.PurchasesModule));
-const SuppliersModule = dynamic(() => import("./modules3/suppliers").then((m) => m.SuppliersModule));
-const CustomersModule = dynamic(() => import("./modules3/customers").then((m) => m.CustomersModule));
-const ScheduleHModule = dynamic(() => import("./modules3/schedule-h").then((m) => m.ScheduleHModule));
+const InventoryModule = dynamic(() =>
+  import("./modules3/inventory").then((m) => m.InventoryModule),
+);
+const PurchasesModule = dynamic(() =>
+  import("./modules3/purchases").then((m) => m.PurchasesModule),
+);
+const SuppliersModule = dynamic(() =>
+  import("./modules3/suppliers").then((m) => m.SuppliersModule),
+);
+const CustomersModule = dynamic(() =>
+  import("./modules3/customers").then((m) => m.CustomersModule),
+);
+const ScheduleHModule = dynamic(() =>
+  import("./modules3/schedule-h").then((m) => m.ScheduleHModule),
+);
 const ReportsModule = dynamic(() => import("./modules3/reports").then((m) => m.ReportsModule));
 const SettingsModule = dynamic(() => import("./modules3/settings").then((m) => m.SettingsModule));
 
-type ModuleId = "billing" | "inventory" | "purchases" | "suppliers" | "customers" | "schedule-h" | "reports" | "settings";
+type ModuleId =
+  | "billing"
+  | "inventory"
+  | "purchases"
+  | "suppliers"
+  | "customers"
+  | "schedule-h"
+  | "reports"
+  | "settings";
 
-const NAV: { id: ModuleId; label: string; icon: React.ComponentType<{ className?: string }>; short: string }[] = [
+const NAV: {
+  id: ModuleId;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  short: string;
+}[] = [
   { id: "billing", label: "Billing", icon: ShoppingCart, short: "Bill" },
   { id: "inventory", label: "Inventory", icon: Boxes, short: "Inv" },
   { id: "purchases", label: "Purchases", icon: PackagePlus, short: "Pur" },
@@ -61,11 +93,16 @@ export function PharmaciaApp() {
           credit: d.creditSales || 0,
           lowStock: 0,
         });
-      } catch { /* keep defaults */ }
+      } catch {
+        /* keep defaults */
+      }
     };
     load();
     const id = setInterval(load, 30000);
-    return () => { active = false; clearInterval(id); };
+    return () => {
+      active = false;
+      clearInterval(id);
+    };
   }, []);
 
   useEffect(() => {
@@ -73,15 +110,27 @@ export function PharmaciaApp() {
     on();
     window.addEventListener("online", on);
     window.addEventListener("offline", on);
-    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", on); };
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", on);
+    };
   }, []);
 
   return (
     <div className="flex min-h-screen bg-[#0D0F12] text-white">
       {/* champagne ambient wash behind the shell */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute -top-40 right-[-8%] h-96 w-[38rem] rounded-full opacity-25 blur-3xl anim-aurora" style={{ background: "radial-gradient(circle, rgba(232,176,75,0.35), transparent 65%)" }} />
-        <div className="absolute bottom-[-20%] left-[8%] h-80 w-96 rounded-full opacity-15 blur-3xl anim-aurora" style={{ background: "radial-gradient(circle, rgba(217,184,124,0.3), transparent 65%)", animationDelay: "-9s" }} />
+        <div
+          className="absolute -top-40 right-[-8%] h-96 w-[38rem] rounded-full opacity-25 blur-3xl anim-aurora"
+          style={{ background: "radial-gradient(circle, rgba(232,176,75,0.35), transparent 65%)" }}
+        />
+        <div
+          className="absolute bottom-[-20%] left-[8%] h-80 w-96 rounded-full opacity-15 blur-3xl anim-aurora"
+          style={{
+            background: "radial-gradient(circle, rgba(217,184,124,0.3), transparent 65%)",
+            animationDelay: "-9s",
+          }}
+        />
       </div>
       {/* Fixed left sidebar */}
       <aside className="sticky top-0 z-30 flex h-screen w-16 shrink-0 flex-col items-center border-r border-[#1E2228] bg-[#0D0F12]/95 backdrop-blur-xl py-4 lg:w-56">
@@ -93,7 +142,12 @@ export function PharmaciaApp() {
           <div className="hidden leading-none lg:block">
             <h1 className="font-serif text-sm font-semibold">Nexura Pharmacia</h1>
             <div className="mt-0.5 flex items-center gap-1">
-              <span className={cn("h-1.5 w-1.5 rounded-full", online ? "bg-[#22C55E] animate-pulse" : "bg-red-500")} />
+              <span
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  online ? "bg-[#22C55E] animate-pulse" : "bg-red-500",
+                )}
+              />
               <span className="text-[0.55rem] text-[#828894]">{online ? "Live" : "Offline"}</span>
             </div>
           </div>
@@ -112,7 +166,7 @@ export function PharmaciaApp() {
                   "group relative flex items-center gap-3 rounded-xl px-2 py-2.5 text-left transition-all lg:px-3",
                   isActive
                     ? "bg-[#E8B04B]/10 text-[#E8B04B]"
-                    : "text-[#828894] hover:bg-[#1E2228] hover:text-white"
+                    : "text-[#828894] hover:bg-[#1E2228] hover:text-white",
                 )}
               >
                 <item.icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.9} />
@@ -130,7 +184,10 @@ export function PharmaciaApp() {
         </nav>
 
         {/* Exit */}
-        <Link href="/" className="mt-auto flex items-center gap-3 rounded-xl px-2 py-2.5 text-[#828894] transition-colors hover:bg-[#1E2228] hover:text-white lg:px-3">
+        <Link
+          href="/"
+          className="mt-auto flex items-center gap-3 rounded-xl px-2 py-2.5 text-[#828894] transition-colors hover:bg-[#1E2228] hover:text-white lg:px-3"
+        >
           <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={1.9} />
           <span className="hidden text-[13px] font-medium lg:block">Homepage</span>
         </Link>
@@ -140,15 +197,36 @@ export function PharmaciaApp() {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mini-dashboard strip — champagne glass with gold hairline */}
         <div className="sticky top-0 z-20 relative flex items-center gap-3 border-b border-[#1E2228] bg-[#111418]/90 px-4 py-2.5 backdrop-blur-xl lg:px-6">
-          <div aria-hidden className="hairline-gold pointer-events-none absolute inset-x-0 bottom-0 opacity-60" />
-          <MiniStat label="Today's Sales" value={`₹${miniData.sales.toLocaleString("en-IN")}`} color="#F59E0B" />
-          <MiniStat label="Cash" value={`₹${miniData.cash.toLocaleString("en-IN")}`} color="#22C55E" />
-          <MiniStat label="UPI" value={`₹${miniData.upi.toLocaleString("en-IN")}`} color="#3B82F6" />
-          <MiniStat label="Credit" value={`₹${miniData.credit.toLocaleString("en-IN")}`} color="#EF4444" />
+          <div
+            aria-hidden
+            className="hairline-gold pointer-events-none absolute inset-x-0 bottom-0 opacity-60"
+          />
+          <MiniStat
+            label="Today's Sales"
+            value={`₹${miniData.sales.toLocaleString("en-IN")}`}
+            color="#F59E0B"
+          />
+          <MiniStat
+            label="Cash"
+            value={`₹${miniData.cash.toLocaleString("en-IN")}`}
+            color="#22C55E"
+          />
+          <MiniStat
+            label="UPI"
+            value={`₹${miniData.upi.toLocaleString("en-IN")}`}
+            color="#3B82F6"
+          />
+          <MiniStat
+            label="Credit"
+            value={`₹${miniData.credit.toLocaleString("en-IN")}`}
+            color="#EF4444"
+          />
           <MiniStat label="Low Stock" value={String(miniData.lowStock)} color="#F59E0B" />
           <div className="ml-auto flex items-center gap-1.5 text-[0.65rem] text-[#828894]">
             <Wifi className={cn("h-3.5 w-3.5", online ? "text-[#22C55E]" : "text-red-500")} />
-            <span className="hidden sm:inline">{online ? "Real-time sync" : "Offline — auto-sync on reconnect"}</span>
+            <span className="hidden sm:inline">
+              {online ? "Real-time sync" : "Offline — auto-sync on reconnect"}
+            </span>
           </div>
         </div>
 
@@ -200,8 +278,12 @@ export function PharmaciaApp() {
 function MiniStat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="hidden text-[0.6rem] uppercase tracking-wide text-[#828894] sm:inline">{label}</span>
-      <span className="text-xs font-bold tabular-nums" style={{ color }}>{value}</span>
+      <span className="hidden text-[0.6rem] uppercase tracking-wide text-[#828894] sm:inline">
+        {label}
+      </span>
+      <span className="text-xs font-bold tabular-nums" style={{ color }}>
+        {value}
+      </span>
     </div>
   );
 }
