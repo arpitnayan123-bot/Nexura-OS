@@ -1,4 +1,5 @@
-import { describe, it, expect, afterAll } from "vitest";
+
+   import { describe, it, expect, afterAll } from "vitest";
 import {
   resolveConsentState,
   resolveAllConsentStates,
@@ -16,7 +17,7 @@ const NOW = new Date("2026-09-17T10:00:00Z");
 const d = (s: string) => new Date(s);
 
 function row(
-  partial: Omit<Partial<ConsentRowLike>, "grantedAt"> & { type: string; grantedAt: string },
+  partial: Omit<Partial<ConsentRowLike>, "grantedAt"> & { type: string; grantedAt: string }
 ): ConsentRowLike {
   return {
     status: "granted",
@@ -33,11 +34,7 @@ describe("resolveConsentState (latest-event-wins)", () => {
   });
 
   it("granted → granted", () => {
-    const r = resolveConsentState(
-      [row({ type: "ai_assist", grantedAt: "2026-09-01T00:00:00Z" })],
-      "ai_assist",
-      NOW,
-    );
+    const r = resolveConsentState([row({ type: "ai_assist", grantedAt: "2026-09-01T00:00:00Z" })], "ai_assist", NOW);
     expect(r.state).toBe("granted");
     expect(r.lastEventAt).toEqual(d("2026-09-01T00:00:00Z"));
   });
@@ -46,15 +43,10 @@ describe("resolveConsentState (latest-event-wins)", () => {
     const r = resolveConsentState(
       [
         row({ type: "ai_assist", grantedAt: "2026-09-01T00:00:00Z" }),
-        row({
-          type: "ai_assist",
-          grantedAt: "2026-09-10T00:00:00Z",
-          status: "withdrawn",
-          withdrawnAt: d("2026-09-10T00:00:00Z"),
-        }),
+        row({ type: "ai_assist", grantedAt: "2026-09-10T00:00:00Z", status: "withdrawn", withdrawnAt: d("2026-09-10T00:00:00Z") }),
       ],
       "ai_assist",
-      NOW,
+      NOW
     );
     expect(r.state).toBe("withdrawn");
   });
@@ -66,7 +58,7 @@ describe("resolveConsentState (latest-event-wins)", () => {
         row({ type: "ai_assist", grantedAt: "2026-09-12T00:00:00Z" }),
       ],
       "ai_assist",
-      NOW,
+      NOW
     );
     expect(r.state).toBe("granted");
   });
@@ -78,22 +70,16 @@ describe("resolveConsentState (latest-event-wins)", () => {
         row({ type: "research", grantedAt: "2026-09-08T00:00:00Z", status: "denied" }),
       ],
       "research",
-      NOW,
+      NOW
     );
     expect(r.state).toBe("not_granted");
   });
 
   it("granted-but-expired → expired", () => {
     const r = resolveConsentState(
-      [
-        row({
-          type: "telemedicine",
-          grantedAt: "2026-01-01T00:00:00Z",
-          expiresAt: d("2026-06-01T00:00:00Z"),
-        }),
-      ],
+      [row({ type: "telemedicine", grantedAt: "2026-01-01T00:00:00Z", expiresAt: d("2026-06-01T00:00:00Z") })],
       "telemedicine",
-      NOW,
+      NOW
     );
     expect(r.state).toBe("expired");
   });
@@ -105,7 +91,7 @@ describe("resolveConsentState (latest-event-wins)", () => {
         row({ type: "research", grantedAt: "2026-09-13T00:00:00Z", status: "withdrawn" }),
       ],
       "ai_assist",
-      NOW,
+      NOW
     );
     expect(r.state).toBe("not_granted");
   });
@@ -125,75 +111,70 @@ describe("checkAiConsent against the real ledger", () => {
   let hospitalId = "";
   let patientId = "";
 
-  afterAll(async () => {
-    if (createdIds.length > 0) {
-      await db.nxConsent.deleteMany({ where: { id: { in: createdIds } } }).catch(() => {});
-    }
-  });
+afterAll(async () => {
+  if (createdIds.length > 0) {
+    await db.nxConsent
+      .deleteMany({ where: { id: { in: createdIds } } })
+      .catch(() => {});
+  }
+
+  if (patientId) {
+    await db.hospitalPatient
+      .delete({ where: { id: patientId } })
+      .catch(() => {});
+  }
+
+  if (hospitalId) {
+    await db.hospital
+      .delete({ where: { id: hospitalId } })
+      .catch(() => {});
+  }
+});
 
   it("resolves the latest ai_assist/data_share event — grant, withdraw, re-grant", async () => {
-    const hospital = await db.hospital.findFirst({ select: { id: true } });
-    const patient = await db.hospitalPatient.findFirst({
-      select: { id: true },
-      where: { hospitalId: hospital!.id },
-    });
-    hospitalId = hospital!.id;
-    patientId = patient!.id;
+    const hospital = await db.hospital.create({
+  data: {
+    name: "CI Test Hospital",
+  },
+});
 
-    const insert = (data: {
-      type: string;
-      status: string;
-      grantedAt: Date;
-      withdrawnAt?: Date | null;
-    }) =>
-      db.nxConsent
-        .create({
-          data: { hospitalId, patientId, patientUhid: "TEST-SS", recordedBy: "test", ...data },
-        })
-        .then((r) => {
-          createdIds.push(r.id);
-          return r;
-        });
+const patient = await db.hospitalPatient.create({
+  data: {
+    hospitalId: hospital.id,
+    uhid: `TEST-SS-${Date.now()}`,
+    fullName: "CI Test Patient",
+  },
+});
+
+hospitalId = hospital.id;
+patientId = patient.id;
+
+    const insert = (data: { type: string; status: string; grantedAt: Date; withdrawnAt?: Date | null }) =>
+      db.nxConsent.create({ data: { hospitalId, patientId, patientUhid: "TEST-SS", recordedBy: "test", ...data } }).then((r) => {
+        createdIds.push(r.id);
+        return r;
+      });
     // Inline cleanup keeps the seeded patient's real ledger intact the moment
     // the test finishes (afterAll is belt-and-braces if an assertion throws).
     const cleanup = async () => {
-      if (createdIds.length > 0)
-        await db.nxConsent.deleteMany({ where: { id: { in: createdIds } } });
+      if (createdIds.length > 0) await db.nxConsent.deleteMany({ where: { id: { in: createdIds } } });
       createdIds = [];
     };
 
     // grant ai_assist (future-timestamped so it is the newest event) → true
-    await insert({
-      type: "ai_assist",
-      status: "granted",
-      grantedAt: new Date(Date.now() + 60_000),
-    });
+    await insert({ type: "ai_assist", status: "granted", grantedAt: new Date(Date.now() + 60_000) });
     expect(await checkAiConsent(hospitalId, patientId)).toBe(true);
 
     // withdraw (newest event) → must flip to false — the heart of self-service
-    const w = await insert({
-      type: "ai_assist",
-      status: "withdrawn",
-      grantedAt: new Date(Date.now() + 120_000),
-      withdrawnAt: new Date(Date.now() + 120_000),
-    });
+    await insert({ type: "ai_assist", status: "withdrawn", grantedAt: new Date(Date.now() + 120_000), withdrawnAt: new Date(Date.now() + 120_000) });
     expect(await checkAiConsent(hospitalId, patientId)).toBe(false);
 
     // re-grant via data_share (either type authorizes AI) → true again
-    await insert({
-      type: "data_share",
-      status: "granted",
-      grantedAt: new Date(Date.now() + 180_000),
-    });
+    await insert({ type: "data_share", status: "granted", grantedAt: new Date(Date.now() + 180_000) });
     expect(await checkAiConsent(hospitalId, patientId)).toBe(true);
 
     // withdraw again via ai_assist newest → false
-    await insert({
-      type: "ai_assist",
-      status: "withdrawn",
-      grantedAt: new Date(Date.now() + 240_000),
-      withdrawnAt: new Date(Date.now() + 240_000),
-    });
+    await insert({ type: "ai_assist", status: "withdrawn", grantedAt: new Date(Date.now() + 240_000), withdrawnAt: new Date(Date.now() + 240_000) });
     expect(await checkAiConsent(hospitalId, patientId)).toBe(false);
 
     await cleanup();
