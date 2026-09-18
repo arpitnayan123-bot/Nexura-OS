@@ -954,3 +954,15 @@ Work Log:
 - GitHub-side: Discussions enabled (config.yml contact link now resolves), v1.2.0 tagged + released with notes
 
 Gates at v1.2.0: prettier --check ALL GREEN · eslint 0 · tsc 0 · vitest 345/345 (30 files, real Postgres + Redis)
+
+---
+## Session 2026-09-18 — v1.2.0 push + CI green
+
+Work Log:
+- Pushed 3 commits to origin/main: 792bc6e (Prettier adoption + metadata), e887369 (CHANGELOG/PR-template/README), 6d9c271 (worklog exempted from format gate — first CI run correctly caught the unformatted journal append; the gate works)
+- v1.2.0 tag moved to 6d9c271 and released: "v1.2.0 — Repository Excellence"
+- GitHub Discussions enabled (issue-template contact link now resolves)
+- CI run #39 on 6d9c271: completed success — full chain (install → prisma → typecheck → lint → format:check → migrate → seed → 345 unit tests → 49-check smoke → standalone build)
+- Sandbox preview re-synced to the pushed tree; guardian rebuilt 13:22, homepage + Hospital OS demo login re-verified in browser
+
+Gates at v1.2.0 (local + CI): prettier --check ALL GREEN · eslint 0 · tsc 0 · vitest 345/345 · CI #39 success
