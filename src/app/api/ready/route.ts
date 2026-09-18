@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { connectionCount } from "@/lib/nx/bus";
+import { isRedisConfigured, redis } from "@/lib/redis";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/* Readiness probe — DB reachable, schema usable, env valid. */
+/* Readiness probe — DB reachable, schema usable, env valid. Redis is
+ * REPORTED but not scored: a down Redis fails auth routes closed (503)
+ * yet must not flip this probe during boot, or the supervisor's health
+ * gate would restart-loop an app that is seconds from being fine. */
 export async function GET(_req: NextRequest) {
   const e = env();
   const checks: Record<string, { ok: boolean; detail?: string; ms?: number }> = {};
@@ -25,10 +29,28 @@ export async function GET(_req: NextRequest) {
     await db.nxStaffUser.findFirst({ select: { id: true } });
     checks.seed = { ok: true };
   } catch {
-    checks.seed = { ok: false, detail: "schema query failed — run prisma db push" };
+    checks.seed = { ok: false, detail: "schema query failed — run prisma migrate deploy" };
   }
 
-  const okAll = Object.values(checks).every((c) => c.ok) && e.ok;
+  // Informational — excluded from okAll (see header comment).
+  if (isRedisConfigured()) {
+    const r = redis();
+    const t1 = Date.now();
+    try {
+      await r!.ping();
+      checks.redis = { ok: true, ms: Date.now() - t1 };
+    } catch {
+      checks.redis = {
+        ok: false,
+        detail: "redis unreachable — rate-limited routes fail closed (503)",
+      };
+    }
+  } else {
+    checks.redis = { ok: false, detail: "REDIS_URL not set — in-process fallbacks active" };
+  }
+
+  // Scored: database + seed only. Redis is informational (see header).
+  const okAll = checks.database.ok && checks.seed.ok && e.ok;
   return NextResponse.json(
     {
       status: okAll ? "ready" : "degraded",
