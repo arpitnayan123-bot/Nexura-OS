@@ -7,6 +7,10 @@ package-lock.json
 # `docker compose config`, not by Prettier's stricter YAML parser
 docker-compose.yml
 
+# Append-only session journal — prose entries land here unformatted by
+# design (worklog protocol), so the format gate must not police it
+worklog.md
+
 # Build output
 .next/
 out/
