@@ -94,7 +94,60 @@ export async function enqueueJob(input: NxJobInput): Promise<string | null> {
  *  existed, a crashed claim blocked the job's dedupeKey forever. */
 const STALE_RUNNING_MIN = 10;
 
+/** The packaged demo package runs on SQLite (platform publish contract),
+ *  whose dialect has no now()/interval/FOR UPDATE SKIP LOCKED. Postgres keeps
+ *  the atomic SKIP LOCKED claim; SQLite (single-writer) uses guarded
+ *  conditional claims, which are equally race-free there. */
+function isSqliteDatasource(): boolean {
+  return (process.env.DATABASE_URL ?? "").startsWith("file:");
+}
+
 async function claimDueJobs(limit: number): Promise<NxJobRecord[]> {
+  if (isSqliteDatasource()) {
+    const now = new Date();
+    const staleBefore = new Date(now.getTime() - STALE_RUNNING_MIN * 60_000);
+    const candidates = await db.nxJob.findMany({
+      where: {
+        OR: [
+          { status: "pending", runAt: { lte: now } },
+          { status: "running", startedAt: { lt: staleBefore } },
+        ],
+      },
+      orderBy: { runAt: "asc" },
+      take: limit,
+      select: { id: true, status: true },
+    });
+    const claimed: NxJobRecord[] = [];
+    for (const row of candidates) {
+      const stale = row.status === "running";
+      // Conditional claim — the status/startedAt guard makes it atomic enough
+      // for SQLite's single-writer model (no double-claim across workers).
+      const res = await db.nxJob.updateMany({
+        where: stale
+          ? { id: row.id, status: "running", startedAt: { lt: staleBefore } }
+          : { id: row.id, status: "pending" },
+        data: {
+          status: "running",
+          startedAt: now,
+          ...(stale ? {} : { attempts: { increment: 1 } }),
+        },
+      });
+      if (!res.count) continue;
+      const job = await db.nxJob.findUnique({
+        where: { id: row.id },
+        select: {
+          id: true,
+          type: true,
+          dedupeKey: true,
+          payload: true,
+          attempts: true,
+          maxAttempts: true,
+        },
+      });
+      if (job) claimed.push(job);
+    }
+    return claimed;
+  }
   return db.$transaction(
     async (tx) => {
       const due = await tx.$queryRaw<Array<{ id: string; stale: boolean }>>`
