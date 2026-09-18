@@ -795,3 +795,18 @@ Work Log:
 Stage Summary:
 - "Everything" is committed and on GitHub: code, docs, worklog, tags, releases, green CI — zero uncommitted work, zero stranded branches locally
 - Repo hygiene now fully converged: no debris branches, no stashes, no untracked sources; only cosmetic remote dependabot leftovers remain (PAT-gated cleanup)
+
+---
+Task ID: lock-in-2-push
+Agent: Super Z (main)
+Task: Push the lock-in-2 note with the user's fresh PAT + remote straggler cleanup
+
+Work Log:
+- Fresh PAT verified (arpitnayan123-bot, repo+workflow scopes) via /user before use; one-time URL push only, token never persisted to remote config or files
+- Pushed 1b6c9ca..4b87237 (the lock-in-2 worklog note) — main == origin/main
+- Dependabot "leftovers" resolved WITHOUT deleting: remote refs no longer exist (GitHub auto-deleted both branches on PR merge) — local remote-tracking refs were stale; git fetch --prune cleaned them. Same stale-tracking-ref family as the deploy-rehearsal-1 "6 commits ahead" mystery
+- Branch inventory now: main only (local + remote). CI on 4b87237 triggered, watched to completion
+
+Stage Summary:
+- Lock-down complete: everything committed, pushed, and verified — repo at 4b87237, zero debris anywhere, CI green
+- Security reminder: revoke this PAT at github.com/settings/tokens when the session ends (same as previous session tokens)
