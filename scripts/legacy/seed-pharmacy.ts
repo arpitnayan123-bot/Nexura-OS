@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
    database by accident. Override requires an explicit, intentional flag. */
 if (process.env.NODE_ENV === "production" && process.env.SEED_DEMO_OVERRIDE !== "true") {
   console.error(
-    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true."
+    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true.",
   );
   process.exit(1);
 }
@@ -77,14 +77,126 @@ async function main() {
   });
 
   const products = [
-    { name: "Crocin Advance 500mg", genericName: "Paracetamol", brand: "Crocin", category: "tablet", hsn: "30049099", schedule: "OTC", salts: "Paracetamol 500mg", packaging: "strip of 15", stripsPerBox: 10, tabletsPerStrip: 15, cgstRate: 6, sgstRate: 6, reorderLevel: 20 },
-    { name: "Dolo 650", genericName: "Paracetamol", brand: "Dolo", category: "tablet", hsn: "30049099", schedule: "OTC", salts: "Paracetamol 650mg", packaging: "strip of 15", stripsPerBox: 10, tabletsPerStrip: 15, cgstRate: 6, sgstRate: 6, reorderLevel: 30 },
-    { name: "Azithral 500", genericName: "Azithromycin", brand: "Azithral", category: "tablet", hsn: "30042099", schedule: "H", salts: "Azithromycin 500mg", packaging: "strip of 5", stripsPerBox: 10, tabletsPerStrip: 5, cgstRate: 6, sgstRate: 6, reorderLevel: 15 },
-    { name: "Augmentin 625", genericName: "Amoxicillin + Clavulanic Acid", brand: "Augmentin", category: "tablet", hsn: "30042099", schedule: "H", salts: "Amoxicillin 500mg, Clavulanic Acid 125mg", packaging: "strip of 6", stripsPerBox: 10, tabletsPerStrip: 6, cgstRate: 6, sgstRate: 6, reorderLevel: 12 },
-    { name: "Cetzine", genericName: "Cetirizine", brand: "Cetzine", category: "tablet", hsn: "30049099", schedule: "OTC", salts: "Cetirizine 10mg", packaging: "strip of 10", stripsPerBox: 10, tabletsPerStrip: 10, cgstRate: 6, sgstRate: 6, reorderLevel: 25 },
-    { name: "Glycomet 500", genericName: "Metformin", brand: "Glycomet", category: "tablet", hsn: "30049099", schedule: "H1", salts: "Metformin 500mg", packaging: "strip of 20", stripsPerBox: 10, tabletsPerStrip: 20, cgstRate: 6, sgstRate: 6, reorderLevel: 18 },
-    { name: "Shelcal 500", genericName: "Calcium + Vitamin D3", brand: "Shelcal", category: "tablet", hsn: "30049099", schedule: "OTC", salts: "Calcium Carbonate 1250mg, Vitamin D3 250IU", packaging: "strip of 15", stripsPerBox: 10, tabletsPerStrip: 15, cgstRate: 6, sgstRate: 6, reorderLevel: 20 },
-    { name: "Benadryl Syrup", genericName: "Diphenhydramine + Ammonium Chloride", brand: "Benadryl", category: "syrup", hsn: "30049099", schedule: "OTC", salts: "Diphenhydramine 14mg, Ammonium Chloride 138mg / 5ml", packaging: "bottle 100ml", stripsPerBox: 1, tabletsPerStrip: 1, cgstRate: 6, sgstRate: 6, reorderLevel: 10 },
+    {
+      name: "Crocin Advance 500mg",
+      genericName: "Paracetamol",
+      brand: "Crocin",
+      category: "tablet",
+      hsn: "30049099",
+      schedule: "OTC",
+      salts: "Paracetamol 500mg",
+      packaging: "strip of 15",
+      stripsPerBox: 10,
+      tabletsPerStrip: 15,
+      cgstRate: 6,
+      sgstRate: 6,
+      reorderLevel: 20,
+    },
+    {
+      name: "Dolo 650",
+      genericName: "Paracetamol",
+      brand: "Dolo",
+      category: "tablet",
+      hsn: "30049099",
+      schedule: "OTC",
+      salts: "Paracetamol 650mg",
+      packaging: "strip of 15",
+      stripsPerBox: 10,
+      tabletsPerStrip: 15,
+      cgstRate: 6,
+      sgstRate: 6,
+      reorderLevel: 30,
+    },
+    {
+      name: "Azithral 500",
+      genericName: "Azithromycin",
+      brand: "Azithral",
+      category: "tablet",
+      hsn: "30042099",
+      schedule: "H",
+      salts: "Azithromycin 500mg",
+      packaging: "strip of 5",
+      stripsPerBox: 10,
+      tabletsPerStrip: 5,
+      cgstRate: 6,
+      sgstRate: 6,
+      reorderLevel: 15,
+    },
+    {
+      name: "Augmentin 625",
+      genericName: "Amoxicillin + Clavulanic Acid",
+      brand: "Augmentin",
+      category: "tablet",
+      hsn: "30042099",
+      schedule: "H",
+      salts: "Amoxicillin 500mg, Clavulanic Acid 125mg",
+      packaging: "strip of 6",
+      stripsPerBox: 10,
+      tabletsPerStrip: 6,
+      cgstRate: 6,
+      sgstRate: 6,
+      reorderLevel: 12,
+    },
+    {
+      name: "Cetzine",
+      genericName: "Cetirizine",
+      brand: "Cetzine",
+      category: "tablet",
+      hsn: "30049099",
+      schedule: "OTC",
+      salts: "Cetirizine 10mg",
+      packaging: "strip of 10",
+      stripsPerBox: 10,
+      tabletsPerStrip: 10,
+      cgstRate: 6,
+      sgstRate: 6,
+      reorderLevel: 25,
+    },
+    {
+      name: "Glycomet 500",
+      genericName: "Metformin",
+      brand: "Glycomet",
+      category: "tablet",
+      hsn: "30049099",
+      schedule: "H1",
+      salts: "Metformin 500mg",
+      packaging: "strip of 20",
+      stripsPerBox: 10,
+      tabletsPerStrip: 20,
+      cgstRate: 6,
+      sgstRate: 6,
+      reorderLevel: 18,
+    },
+    {
+      name: "Shelcal 500",
+      genericName: "Calcium + Vitamin D3",
+      brand: "Shelcal",
+      category: "tablet",
+      hsn: "30049099",
+      schedule: "OTC",
+      salts: "Calcium Carbonate 1250mg, Vitamin D3 250IU",
+      packaging: "strip of 15",
+      stripsPerBox: 10,
+      tabletsPerStrip: 15,
+      cgstRate: 6,
+      sgstRate: 6,
+      reorderLevel: 20,
+    },
+    {
+      name: "Benadryl Syrup",
+      genericName: "Diphenhydramine + Ammonium Chloride",
+      brand: "Benadryl",
+      category: "syrup",
+      hsn: "30049099",
+      schedule: "OTC",
+      salts: "Diphenhydramine 14mg, Ammonium Chloride 138mg / 5ml",
+      packaging: "bottle 100ml",
+      stripsPerBox: 1,
+      tabletsPerStrip: 1,
+      cgstRate: 6,
+      sgstRate: 6,
+      reorderLevel: 10,
+    },
   ];
 
   const createdProducts = [];
@@ -110,9 +222,14 @@ async function main() {
   ];
 
   const mrpTable: Record<string, number> = {
-    "Crocin Advance 500mg": 30, "Dolo 650": 35, "Azithral 500": 90,
-    "Augmentin 625": 220, Cetzine: 18, "Glycomet 500": 28,
-    "Shelcal 500": 125, "Benadryl Syrup": 110,
+    "Crocin Advance 500mg": 30,
+    "Dolo 650": 35,
+    "Azithral 500": 90,
+    "Augmentin 625": 220,
+    Cetzine: 18,
+    "Glycomet 500": 28,
+    "Shelcal 500": 125,
+    "Benadryl Syrup": 110,
   };
 
   for (const prod of createdProducts) {
@@ -138,5 +255,10 @@ async function main() {
 }
 
 main()
-  .catch((e) => { console.error(e); process.exit(1); })
-  .finally(async () => { await db.$disconnect(); });
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await db.$disconnect();
+  });

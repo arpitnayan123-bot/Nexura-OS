@@ -74,7 +74,11 @@ async function aggregate(): Promise<Record<string, unknown>> {
   const spo2 = spo2Wearable ?? (vitals._avg.spo2 ? Math.round(vitals._avg.spo2) : null);
 
   const stress =
-    hrv != null ? deriveStressFromHrv(hrv) : heart != null ? deriveStressFromRestingHr(heart) : null;
+    hrv != null
+      ? deriveStressFromHrv(hrv)
+      : heart != null
+        ? deriveStressFromRestingHr(heart)
+        : null;
 
   const series = hrSamples.length > 0 ? buildHourlySeries(hrSamples, 14, now) : [];
 

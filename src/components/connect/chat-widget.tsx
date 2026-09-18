@@ -76,7 +76,7 @@ export function PatientChatWidget({
   const load = useCallback(async () => {
     try {
       const res = await fetch(
-        `/api/connect/messages?connectionId=${encodeURIComponent(connectionId)}`
+        `/api/connect/messages?connectionId=${encodeURIComponent(connectionId)}`,
       );
       if (!res.ok) return;
       const d = await res.json();
@@ -138,9 +138,7 @@ export function PatientChatWidget({
       if (!res.ok) throw new Error();
       const d = await res.json();
       if (d?.message) {
-        setMessages((prev) =>
-          prev.map((m) => (m.id === optimistic.id ? d.message : m))
-        );
+        setMessages((prev) => prev.map((m) => (m.id === optimistic.id ? d.message : m)));
       }
     } catch {
       toast.error("Message not delivered — please try again");
@@ -164,7 +162,7 @@ export function PatientChatWidget({
       className={cn(
         "flex flex-col overflow-hidden rounded-2xl bg-white shadow-depth-lg",
         asOverlay ? "h-[80vh] w-full max-w-lg" : "h-[28rem] w-full",
-        compact ? "text-sm" : "text-base"
+        compact ? "text-sm" : "text-base",
       )}
     >
       {/* Header */}
@@ -173,12 +171,8 @@ export function PatientChatWidget({
           {initials || "DR"}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-serif text-sm font-semibold text-[#1F1B17]">
-            {doctorName}
-          </p>
-          <p className="text-[0.65rem] text-[#9A8F84]">
-            {doctorSpecialty || "General Physician"}
-          </p>
+          <p className="truncate font-serif text-sm font-semibold text-[#1F1B17]">{doctorName}</p>
+          <p className="text-[0.65rem] text-[#9A8F84]">{doctorSpecialty || "General Physician"}</p>
         </div>
         {onClose && (
           <button
@@ -192,10 +186,7 @@ export function PatientChatWidget({
       </div>
 
       {/* Messages */}
-      <div
-        ref={scrollRef}
-        className="flex-1 space-y-2 overflow-y-auto bg-[#FAF7F2] px-4 py-4"
-      >
+      <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto bg-[#FAF7F2] px-4 py-4">
         {loading ? (
           <div className="grid h-full place-items-center">
             <Loader2 className="h-5 w-5 animate-spin text-[#9A8F84]" />
@@ -220,26 +211,17 @@ export function PatientChatWidget({
             ) : (
               messages.map((m, i) => {
                 const isPatient = m.fromRole === "patient";
-                const showAvatar =
-                  i === 0 || messages[i - 1].fromRole !== m.fromRole;
+                const showAvatar = i === 0 || messages[i - 1].fromRole !== m.fromRole;
                 return (
                   <motion.div
                     key={m.id}
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: Math.min(i * 0.015, 0.3) }}
-                    className={cn(
-                      "flex gap-2",
-                      isPatient ? "justify-end" : "justify-start"
-                    )}
+                    className={cn("flex gap-2", isPatient ? "justify-end" : "justify-start")}
                   >
                     {!isPatient && (
-                      <span
-                        className={cn(
-                          "w-7 shrink-0",
-                          showAvatar && "grid place-items-center"
-                        )}
-                      >
+                      <span className={cn("w-7 shrink-0", showAvatar && "grid place-items-center")}>
                         {showAvatar && (
                           <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-[#A16207] to-[#8F5E06] text-[0.55rem] font-bold text-white">
                             {initials}
@@ -250,16 +232,14 @@ export function PatientChatWidget({
                     <div
                       className={cn(
                         "max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
-                        isPatient
-                          ? "bg-[#A16207] text-white"
-                          : "glass-soft text-[#1F1B17]"
+                        isPatient ? "bg-[#A16207] text-white" : "glass-soft text-[#1F1B17]",
                       )}
                     >
                       <p className="leading-snug">{m.text}</p>
                       <div
                         className={cn(
                           "mt-0.5 flex items-center justify-end gap-1 text-[0.55rem]",
-                          isPatient ? "text-white/70" : "text-[#9A8F84]"
+                          isPatient ? "text-white/70" : "text-[#9A8F84]",
                         )}
                       >
                         {new Date(m.createdAt).toLocaleTimeString("en-IN", {
@@ -302,11 +282,7 @@ export function PatientChatWidget({
           className="grid h-9 w-9 place-items-center rounded-full bg-[#A16207] text-white shadow-md transition-all hover:scale-110 disabled:opacity-40"
           aria-label="Send message"
         >
-          {sending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Send className="h-4 w-4" />
-          )}
+          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </button>
       </div>
     </motion.div>
@@ -355,9 +331,7 @@ export function ConnectDoctorCta({
             <Stethoscope className="h-5 w-5" />
           </span>
           <div>
-            <p className="font-serif text-sm font-semibold text-[#1F1B17]">
-              {label}
-            </p>
+            <p className="font-serif text-sm font-semibold text-[#1F1B17]">{label}</p>
             <p className="text-[0.65rem] text-[#9A8F84]">{note}</p>
           </div>
         </div>

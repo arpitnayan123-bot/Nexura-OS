@@ -58,7 +58,9 @@ export function ActionsBoard({
     else delete copy[key];
     try {
       window.localStorage.setItem(STORE_KEY, JSON.stringify(copy));
-    } catch { /* private mode */ }
+    } catch {
+      /* private mode */
+    }
     onChange(copy);
   };
 
@@ -80,7 +82,14 @@ export function ActionsBoard({
         {hasCustom && (
           <button
             type="button"
-            onClick={() => { try { window.localStorage.removeItem(STORE_KEY); } catch { /* noop */ } onChange({}); }}
+            onClick={() => {
+              try {
+                window.localStorage.removeItem(STORE_KEY);
+              } catch {
+                /* noop */
+              }
+              onChange({});
+            }}
             className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[11.5px] font-semibold nxf-body transition hover:border-amber-300/50 hover:text-amber-100"
           >
             <RotateCcw className="h-3 w-3" aria-hidden="true" /> Reset tracking
@@ -91,7 +100,10 @@ export function ActionsBoard({
       {active.length === 0 ? (
         <div className="nxf-glass rounded-3xl p-8 text-center">
           <p className="text-[15px] font-semibold nxf-hi">No open recommendations on this run</p>
-          <p className="mt-1 text-[13px] nxf-dim">Every suggested action has been dismissed or completed. Re-run a check-in after your changes land.</p>
+          <p className="mt-1 text-[13px] nxf-dim">
+            Every suggested action has been dismissed or completed. Re-run a check-in after your
+            changes land.
+          </p>
         </div>
       ) : (
         <ol className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -107,22 +119,33 @@ export function ActionsBoard({
                 transition={{ duration: 0.5, delay: (i % 3) * 0.06 }}
                 className={cn(
                   "nxf-glass nxf-glass-hover flex flex-col rounded-2xl p-4 transition",
-                  done && "opacity-60"
+                  done && "opacity-60",
                 )}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <span className={cn("rounded-full border px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.12em]", prio.cls)}>
+                  <span
+                    className={cn(
+                      "rounded-full border px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.12em]",
+                      prio.cls,
+                    )}
+                  >
                     {prio.label}
                   </span>
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
                       aria-pressed={done}
-                      aria-label={done ? `Mark "${a.title}" as not done` : `Mark "${a.title}" as done`}
+                      aria-label={
+                        done ? `Mark "${a.title}" as not done` : `Mark "${a.title}" as done`
+                      }
                       onClick={() => update(a.key, done ? undefined : "done")}
                       className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-emerald-300 transition hover:border-emerald-300/50"
                     >
-                      {done ? <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> : <Circle className="h-4 w-4" aria-hidden="true" />}
+                      {done ? (
+                        <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <Circle className="h-4 w-4" aria-hidden="true" />
+                      )}
                     </button>
                     <button
                       type="button"
@@ -135,7 +158,12 @@ export function ActionsBoard({
                   </div>
                 </div>
 
-                <p className={cn("mt-2.5 text-[14px] font-semibold leading-snug nxf-hi", done && "line-through decoration-emerald-300/50")}>
+                <p
+                  className={cn(
+                    "mt-2.5 text-[14px] font-semibold leading-snug nxf-hi",
+                    done && "line-through decoration-emerald-300/50",
+                  )}
+                >
                   {a.title}
                 </p>
                 <p className="mt-1 text-[12.5px] leading-relaxed nxf-dim">{a.detail}</p>

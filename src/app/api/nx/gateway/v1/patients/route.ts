@@ -15,14 +15,29 @@ export const GET = withRoute("gateway.v1.patients", async (req: NextRequest, { r
   const p = paginate(req, { perPage: 25, maxPerPage: 100 });
   const where = {
     hospitalId: { in: auth.auth.hospitalIds },
-    ...(p.q ? { OR: [{ fullName: { contains: p.q, mode: "insensitive" as const } }, { uhid: { contains: p.q, mode: "insensitive" as const } }] } : {}),
+    ...(p.q
+      ? {
+          OR: [
+            { fullName: { contains: p.q, mode: "insensitive" as const } },
+            { uhid: { contains: p.q, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
   };
   const [rows, total] = await Promise.all([
     db.hospitalPatient.findMany({
       where,
       select: {
-        id: true, uhid: true, fullName: true, gender: true, dob: true, bloodGroup: true,
-        state: true, insuranceProvider: true, hospitalId: true, createdAt: true,
+        id: true,
+        uhid: true,
+        fullName: true,
+        gender: true,
+        dob: true,
+        bloodGroup: true,
+        state: true,
+        insuranceProvider: true,
+        hospitalId: true,
+        createdAt: true,
       },
       skip: p.skip,
       take: p.take,
@@ -30,5 +45,8 @@ export const GET = withRoute("gateway.v1.patients", async (req: NextRequest, { r
     }),
     db.hospitalPatient.count({ where }),
   ]);
-  return ok({ patients: rows, tenant: auth.auth.tenantCode }, { requestId, headers: { "x-page-meta": JSON.stringify(pageMeta(p, total)) } });
+  return ok(
+    { patients: rows, tenant: auth.auth.tenantCode },
+    { requestId, headers: { "x-page-meta": JSON.stringify(pageMeta(p, total)) } },
+  );
 });

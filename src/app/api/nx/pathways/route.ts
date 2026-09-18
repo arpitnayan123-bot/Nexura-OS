@@ -14,15 +14,20 @@ const DefSchema = z.object({
   code: z.string().min(2).max(60),
   name: z.string().min(2).max(120),
   specialty: z.string().max(60).optional(),
-  steps: z.array(z.object({
-    id: z.string().min(1).max(40),
-    title: z.string().min(1).max(120),
-    withinMin: z.number().int().min(1).max(2880),
-    critical: z.boolean().optional(),
-    requires: z.array(z.string().max(40)).max(8).optional(),
-    ownerRole: z.string().max(30).optional(),
-    detail: z.string().max(200).optional(),
-  })).min(2).max(15),
+  steps: z
+    .array(
+      z.object({
+        id: z.string().min(1).max(40),
+        title: z.string().min(1).max(120),
+        withinMin: z.number().int().min(1).max(2880),
+        critical: z.boolean().optional(),
+        requires: z.array(z.string().max(40)).max(8).optional(),
+        ownerRole: z.string().max(30).optional(),
+        detail: z.string().max(200).optional(),
+      }),
+    )
+    .min(2)
+    .max(15),
 });
 
 const StartSchema = z.object({
@@ -50,20 +55,38 @@ export const GET = withRoute("pathways.list", async (req: NextRequest, { request
     db.nxPathwayRun.findMany({ where: { hospitalId }, orderBy: { startedAt: "desc" }, take: 30 }),
   ]);
   const now = new Date();
-  return ok({
-    definitions: defs.map((d) => ({ id: d.id, code: d.code, name: d.name, specialty: d.specialty, version: d.version, steps: parseSteps(d.stepsJson) })),
-    runs: runs.map((r) => {
-      const def = defs.find((d) => d.id === r.defId);
-      const steps = def ? parseSteps(def.stepsJson) : [];
-      const current = steps.find((s) => s.id === r.currentStep);
-      return {
-        ...r,
-        pathway: def?.name,
-        stepOverdue: current ? stepOverdue(current, r.startedAt, now) : false,
-        progressPct: steps.length ? Math.round(((steps.filter((s) => (JSON.parse(r.stateJson || "{}").completed ?? []).includes(s.id)).length) / steps.length) * 100) : 0,
-      };
-    }),
-  }, { requestId });
+  return ok(
+    {
+      definitions: defs.map((d) => ({
+        id: d.id,
+        code: d.code,
+        name: d.name,
+        specialty: d.specialty,
+        version: d.version,
+        steps: parseSteps(d.stepsJson),
+      })),
+      runs: runs.map((r) => {
+        const def = defs.find((d) => d.id === r.defId);
+        const steps = def ? parseSteps(def.stepsJson) : [];
+        const current = steps.find((s) => s.id === r.currentStep);
+        return {
+          ...r,
+          pathway: def?.name,
+          stepOverdue: current ? stepOverdue(current, r.startedAt, now) : false,
+          progressPct: steps.length
+            ? Math.round(
+                (steps.filter((s) =>
+                  (JSON.parse(r.stateJson || "{}").completed ?? []).includes(s.id),
+                ).length /
+                  steps.length) *
+                  100,
+              )
+            : 0,
+        };
+      }),
+    },
+    { requestId },
+  );
 });
 
 export const POST = withRoute("pathways.post", async (req: NextRequest, { requestId }) => {
@@ -76,22 +99,43 @@ export const POST = withRoute("pathways.post", async (req: NextRequest, { reques
 
   if (intent === "create_def") {
     const body = DefSchema.safeParse(raw);
-    if (!body.success) return fail("invalid_request", 400, body.error.issues.map((i) => i.message).join("; "), requestId);
+    if (!body.success)
+      return fail(
+        "invalid_request",
+        400,
+        body.error.issues.map((i) => i.message).join("; "),
+        requestId,
+      );
     // cycles guard: requires must reference EARLIER steps only
     const seen = new Set<string>();
     for (const s of body.data.steps) {
       if ((s.requires ?? []).some((r) => !seen.has(r))) {
-        return fail("forward_dependency", 422, `Step "${s.id}" depends on a later step — pathways flow forward.`, requestId);
+        return fail(
+          "forward_dependency",
+          422,
+          `Step "${s.id}" depends on a later step — pathways flow forward.`,
+          requestId,
+        );
       }
       seen.add(s.id);
     }
     const def = await db.nxPathwayDef.create({
       data: {
-        hospitalId, code: body.data.code, name: body.data.name, specialty: body.data.specialty,
+        hospitalId,
+        code: body.data.code,
+        name: body.data.name,
+        specialty: body.data.specialty,
         stepsJson: JSON.stringify(body.data.steps),
       },
     });
-    await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "pathway.def.create", entityType: "nx_pathway_def", entityId: def.id });
+    await audit({
+      hospitalId,
+      actorName: g.session.name,
+      actorRole: g.session.role,
+      action: "pathway.def.create",
+      entityType: "nx_pathway_def",
+      entityId: def.id,
+    });
     return ok({ id: def.id }, { requestId, status: 201 });
   }
 
@@ -101,15 +145,34 @@ export const POST = withRoute("pathways.post", async (req: NextRequest, { reques
     const def = await db.nxPathwayDef.findFirst({ where: { id: body.data.defId, hospitalId } });
     if (!def) return fail("unknown_definition", 404, undefined, requestId);
     const { startRun } = await import("@/lib/nx/pathway");
-    const run = await startRun(def.id, { hospitalId, patientId: body.data.patientId, patientName: body.data.patientName, startedBy: g.session.name });
-    await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "pathway.run.start", entityType: "nx_pathway_run", entityId: run.runId, detail: { code: def.code } });
+    const run = await startRun(def.id, {
+      hospitalId,
+      patientId: body.data.patientId,
+      patientName: body.data.patientName,
+      startedBy: g.session.name,
+    });
+    await audit({
+      hospitalId,
+      actorName: g.session.name,
+      actorRole: g.session.role,
+      action: "pathway.run.start",
+      entityType: "nx_pathway_run",
+      entityId: run.runId,
+      detail: { code: def.code },
+    });
     return ok({ runId: run.runId, firstStep: run.firstStep }, { requestId, status: 201 });
   }
 
   if (intent === "advance") {
     const body = AdvanceSchema.safeParse(raw);
-    if (!body.success) return fail("invalid_request", 400, "advance requires runId/stepId/action", requestId);
-    const result = await advanceRun(body.data.runId, { stepId: body.data.stepId, action: body.data.action, evidence: body.data.evidence, actorName: g.session.name });
+    if (!body.success)
+      return fail("invalid_request", 400, "advance requires runId/stepId/action", requestId);
+    const result = await advanceRun(body.data.runId, {
+      stepId: body.data.stepId,
+      action: body.data.action,
+      evidence: body.data.evidence,
+      actorName: g.session.name,
+    });
     if (!result.ok) return fail(result.reason ?? "advance_failed", 422, result.reason, requestId);
     return ok(result, { requestId });
   }

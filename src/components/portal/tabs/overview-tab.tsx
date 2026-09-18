@@ -2,8 +2,20 @@
 
 import { motion } from "framer-motion";
 import {
-  CalendarDays, FlaskConical, Receipt, ShieldCheck, Activity, Droplet,
-  ArrowRight, Sparkles, AlertTriangle, Info, Heart, TrendingUp, Clock, Stethoscope,
+  CalendarDays,
+  FlaskConical,
+  Receipt,
+  ShieldCheck,
+  Activity,
+  Droplet,
+  ArrowRight,
+  Sparkles,
+  AlertTriangle,
+  Info,
+  Heart,
+  TrendingUp,
+  Clock,
+  Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DashboardData, BloodBooking } from "../portal-types";
@@ -32,8 +44,17 @@ type Props = {
 
 export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Props) {
   const stats = data.stats ?? {};
-  const upcoming = data.appointments.filter((a) => new Date(a.date) >= new Date() && a.status === "scheduled").slice(0, 3);
-  const activeBlood = data.bloodBookings.filter((b) => b.status === "booked" || b.status === "assigned" || b.status === "en_route" || b.status === "sample_collected" || b.status === "in_lab");
+  const upcoming = data.appointments
+    .filter((a) => new Date(a.date) >= new Date() && a.status === "scheduled")
+    .slice(0, 3);
+  const activeBlood = data.bloodBookings.filter(
+    (b) =>
+      b.status === "booked" ||
+      b.status === "assigned" ||
+      b.status === "en_route" ||
+      b.status === "sample_collected" ||
+      b.status === "in_lab",
+  );
   const recentTimeline = data.timeline.slice(0, 5);
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
@@ -68,12 +89,17 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
             {data.user.fullName?.split(" ")[0] ?? "Patient"} 🙏
           </h1>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-white/90">
-            Your unified health view — hospital visits, blood tests at home, and health insights, all in one calm place.
+            Your unified health view — hospital visits, blood tests at home, and health insights,
+            all in one calm place.
           </p>
 
           {/* Stats */}
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <StatChip label="Appointments" value={stats.totalAppointments ?? 0} icon={CalendarDays} />
+            <StatChip
+              label="Appointments"
+              value={stats.totalAppointments ?? 0}
+              icon={CalendarDays}
+            />
             <StatChip label="Lab reports" value={stats.totalLabReports ?? 0} icon={FlaskConical} />
             <StatChip label="Bills" value={stats.totalBills ?? 0} icon={Receipt} />
             <StatChip label="Blood tests" value={stats.totalBloodTests ?? 0} icon={Droplet} />
@@ -114,7 +140,12 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
                   className={cn("rounded-2xl border bg-white p-4", style.border)}
                 >
                   <div className="flex items-start gap-2.5">
-                    <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-xl", style.bg)}>
+                    <span
+                      className={cn(
+                        "grid h-8 w-8 shrink-0 place-items-center rounded-xl",
+                        style.bg,
+                      )}
+                    >
                       <Icon className={cn("h-4 w-4", style.text)} />
                     </span>
                     <div className="min-w-0">
@@ -162,7 +193,10 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-semibold text-stone-800">{e.title}</p>
                         <span className="shrink-0 text-[0.7rem] text-stone-400">
-                          {new Date(e.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                          {new Date(e.date).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                          })}
                         </span>
                       </div>
                       <p className="mt-0.5 text-xs text-stone-500">{e.subtitle}</p>
@@ -188,15 +222,27 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
               </span>
             </div>
             {upcoming.length === 0 ? (
-              <EmptyState icon={CalendarDays} title="No upcoming visits" desc="Schedule your next check-up via the clinic portal." compact />
+              <EmptyState
+                icon={CalendarDays}
+                title="No upcoming visits"
+                desc="Schedule your next check-up via the clinic portal."
+                compact
+              />
             ) : (
               <div className="space-y-2">
                 {upcoming.map((a) => (
                   <div key={a.id} className="rounded-2xl border border-[#E7E5E4] bg-[#FAF7F2] p-3">
-                    <p className="text-sm font-semibold text-stone-800">Dr. {a.doctor?.name ?? "—"}</p>
+                    <p className="text-sm font-semibold text-stone-800">
+                      Dr. {a.doctor?.name ?? "—"}
+                    </p>
                     <p className="mt-0.5 flex items-center gap-1.5 text-xs text-stone-500">
                       <CalendarDays className="h-3 w-3" />
-                      {new Date(a.date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} · {a.timeSlot}
+                      {new Date(a.date).toLocaleDateString("en-IN", {
+                        weekday: "short",
+                        day: "numeric",
+                        month: "short",
+                      })}{" "}
+                      · {a.timeSlot}
                     </p>
                     {a.chiefComplaint && (
                       <p className="mt-0.5 text-[0.7rem] text-stone-400">For: {a.chiefComplaint}</p>
@@ -222,7 +268,12 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
               </button>
             </div>
             {activeBlood.length === 0 ? (
-              <EmptyState icon={Droplet} title="No active bookings" desc="Book a phlebotomist visit at home." compact />
+              <EmptyState
+                icon={Droplet}
+                title="No active bookings"
+                desc="Book a phlebotomist visit at home."
+                compact
+              />
             ) : (
               <div className="space-y-2">
                 {activeBlood.slice(0, 2).map((b) => (
@@ -234,7 +285,11 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
                     <p className="text-sm font-semibold text-stone-800">{b.testPanelName}</p>
                     <p className="mt-0.5 flex items-center gap-1.5 text-xs text-stone-500">
                       <Clock className="h-3 w-3" />
-                      {new Date(b.scheduledDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {b.timeSlot}
+                      {new Date(b.scheduledDate).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                      })}{" "}
+                      · {b.timeSlot}
                     </p>
                     <span className="mt-1.5 inline-block rounded-full bg-[#C9962E]/20 px-2 py-0.5 text-[0.6rem] font-semibold text-[#A87C45] capitalize">
                       {b.status.replace("_", " ")}
@@ -260,16 +315,36 @@ export function OverviewTab({ data, onBookTest, onViewReport, onGoToBlood }: Pro
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <SummaryCard label="Blood Group" value={data.user.bloodGroup ?? "—"} icon={Droplet} />
-          <SummaryCard label="Total visits" value={String(stats.totalAppointments ?? 0)} icon={Stethoscope} />
-          <SummaryCard label="Active insurance" value={String(stats.activeInsurance ?? 0)} icon={ShieldCheck} />
-          <SummaryCard label="Family members" value={String(stats.familyMembers ?? 0)} icon={Activity} />
+          <SummaryCard
+            label="Total visits"
+            value={String(stats.totalAppointments ?? 0)}
+            icon={Stethoscope}
+          />
+          <SummaryCard
+            label="Active insurance"
+            value={String(stats.activeInsurance ?? 0)}
+            icon={ShieldCheck}
+          />
+          <SummaryCard
+            label="Family members"
+            value={String(stats.familyMembers ?? 0)}
+            icon={Activity}
+          />
         </div>
       </section>
     </div>
   );
 }
 
-function StatChip({ label, value, icon: Icon }: { label: string; value: number; icon: typeof CalendarDays }) {
+function StatChip({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: number;
+  icon: typeof CalendarDays;
+}) {
   return (
     <div className="rounded-2xl bg-white/15 p-3 backdrop-blur">
       <Icon className="h-4 w-4 text-white/85" />
@@ -279,7 +354,15 @@ function StatChip({ label, value, icon: Icon }: { label: string; value: number; 
   );
 }
 
-function SummaryCard({ label, value, icon: Icon }: { label: string; value: string; icon: typeof CalendarDays }) {
+function SummaryCard({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: string;
+  icon: typeof CalendarDays;
+}) {
   return (
     <div className="rounded-2xl border border-[#E7E5E4] bg-[#FAF7F2] p-4">
       <div className="flex items-center gap-1.5 text-[0.7rem] font-medium uppercase tracking-wider text-stone-500">
@@ -309,8 +392,16 @@ function TimelineDot({ type }: { type: string }) {
 }
 
 function EmptyState({
-  icon: Icon, title, desc, compact,
-}: { icon: typeof Clock; title: string; desc: string; compact?: boolean }) {
+  icon: Icon,
+  title,
+  desc,
+  compact,
+}: {
+  icon: typeof Clock;
+  title: string;
+  desc: string;
+  compact?: boolean;
+}) {
   return (
     <div className={cn("flex flex-col items-center text-center", compact ? "py-6" : "py-10")}>
       <span className="grid h-12 w-12 place-items-center rounded-full bg-[#FAF7F2] text-stone-400">

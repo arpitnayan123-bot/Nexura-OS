@@ -32,6 +32,9 @@ export async function register() {
     const { startJobWorker } = await import("@/lib/nx/jobs/runner");
     startJobWorker();
   } catch (err) {
-    console.error("[nxjobs] instrumentation boot failed:", err instanceof Error ? err.message : err);
+    console.error(
+      "[nxjobs] instrumentation boot failed:",
+      err instanceof Error ? err.message : err,
+    );
   }
 }

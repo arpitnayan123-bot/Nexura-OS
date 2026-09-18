@@ -33,29 +33,79 @@ interface TriageEntry {
 
 /** Deterministic emergency screen — checked before AI, always. */
 const RED_FLAGS: { pattern: RegExp; action: string; specialty: string }[] = [
-  { pattern: /chest pain|chest pressure|chest tightness|सीने में दर्द/i, action: "Go to ER immediately — possible cardiac event. ECG within 10 minutes.", specialty: "Emergency / Cardiology" },
-  { pattern: /shortness of breath|can'?t breathe|breathless|सांस नहीं/i, action: "Visit ER now — respiratory distress.", specialty: "Emergency / Pulmonology" },
-  { pattern: /unconscious|fainted|blackout|not responding|बेहोश/i, action: "Call ambulance immediately — loss of consciousness.", specialty: "Emergency" },
-  { pattern: /seizure|fits|convulsion|झटके/i, action: "Visit ER now — active or recent seizure.", specialty: "Emergency / Neurology" },
-  { pattern: /stroke|slurred speech|face drooping|arm weakness|लकवा/i, action: "Call ambulance NOW — stroke window is 4.5 hours (FAST criteria).", specialty: "Emergency / Neurology" },
-  { pattern: /heavy bleeding|bleeding won'?t stop|hemorrhage|खून/i, action: "Go to ER immediately — uncontrolled bleeding.", specialty: "Emergency" },
-  { pattern: /suicide|kill myself|self harm|आत्महत्या/i, action: "Escalate now — contact mental-health crisis team; do not leave the patient alone.", specialty: "Psychiatry (crisis)" },
-  { pattern: /severe allergic|anaphyla|throat swelling|anaphylaxis/i, action: "ER immediately — possible anaphylaxis; adrenaline ready.", specialty: "Emergency" },
+  {
+    pattern: /chest pain|chest pressure|chest tightness|सीने में दर्द/i,
+    action: "Go to ER immediately — possible cardiac event. ECG within 10 minutes.",
+    specialty: "Emergency / Cardiology",
+  },
+  {
+    pattern: /shortness of breath|can'?t breathe|breathless|सांस नहीं/i,
+    action: "Visit ER now — respiratory distress.",
+    specialty: "Emergency / Pulmonology",
+  },
+  {
+    pattern: /unconscious|fainted|blackout|not responding|बेहोश/i,
+    action: "Call ambulance immediately — loss of consciousness.",
+    specialty: "Emergency",
+  },
+  {
+    pattern: /seizure|fits|convulsion|झटके/i,
+    action: "Visit ER now — active or recent seizure.",
+    specialty: "Emergency / Neurology",
+  },
+  {
+    pattern: /stroke|slurred speech|face drooping|arm weakness|लकवा/i,
+    action: "Call ambulance NOW — stroke window is 4.5 hours (FAST criteria).",
+    specialty: "Emergency / Neurology",
+  },
+  {
+    pattern: /heavy bleeding|bleeding won'?t stop|hemorrhage|खून/i,
+    action: "Go to ER immediately — uncontrolled bleeding.",
+    specialty: "Emergency",
+  },
+  {
+    pattern: /suicide|kill myself|self harm|आत्महत्या/i,
+    action: "Escalate now — contact mental-health crisis team; do not leave the patient alone.",
+    specialty: "Psychiatry (crisis)",
+  },
+  {
+    pattern: /severe allergic|anaphyla|throat swelling|anaphylaxis/i,
+    action: "ER immediately — possible anaphylaxis; adrenaline ready.",
+    specialty: "Emergency",
+  },
 ];
 
 /** Legacy keyword table retained as the AI-failure fallback (labelled). */
 const FALLBACK_TRIAGE: Record<string, TriageEntry[]> = {
   fever: [
-    { urgency: "routine", action: "Book OPD appointment — likely viral", specialty: "General Medicine" },
+    {
+      urgency: "routine",
+      action: "Book OPD appointment — likely viral",
+      specialty: "General Medicine",
+    },
     { urgency: "urgent", action: "If fever >103°F or >5 days — visit ER", specialty: "Emergency" },
   ],
-  "chest pain": [{ urgency: "emergency", action: "Go to ER immediately — possible cardiac event", specialty: "Cardiology" }],
-  "shortness of breath": [{ urgency: "urgent", action: "Visit hospital within 2 hours", specialty: "Pulmonology" }],
+  "chest pain": [
+    {
+      urgency: "emergency",
+      action: "Go to ER immediately — possible cardiac event",
+      specialty: "Cardiology",
+    },
+  ],
+  "shortness of breath": [
+    { urgency: "urgent", action: "Visit hospital within 2 hours", specialty: "Pulmonology" },
+  ],
   "abdominal pain": [
     { urgency: "routine", action: "Book OPD appointment", specialty: "General Medicine" },
     { urgency: "urgent", action: "If severe — visit ER", specialty: "Emergency" },
   ],
-  headache: [{ urgency: "routine", action: "Book OPD — likely migraine/tension", specialty: "General Medicine" }],
+  headache: [
+    {
+      urgency: "routine",
+      action: "Book OPD — likely migraine/tension",
+      specialty: "General Medicine",
+    },
+  ],
 };
 
 const SYSTEM_PROMPT = `You are the triage assistant for Nexura Clinic (Indian outpatient setting).
@@ -77,8 +127,12 @@ function sanitizeTriage(raw: unknown): TriageEntry[] {
   const entries: TriageEntry[] = [];
   for (const e of list.slice(0, 3)) {
     if (!e || !isUrgency((e as TriageEntry).urgency)) continue;
-    const action = typeof (e as TriageEntry).action === "string" ? (e as TriageEntry).action.slice(0, 300) : "";
-    const specialty = typeof (e as TriageEntry).specialty === "string" ? (e as TriageEntry).specialty.slice(0, 80) : "General Medicine";
+    const action =
+      typeof (e as TriageEntry).action === "string" ? (e as TriageEntry).action.slice(0, 300) : "";
+    const specialty =
+      typeof (e as TriageEntry).specialty === "string"
+        ? (e as TriageEntry).specialty.slice(0, 80)
+        : "General Medicine";
     if (action) entries.push({ urgency: (e as TriageEntry).urgency, action, specialty });
   }
   const rank: Record<Urgency, number> = { emergency: 0, urgent: 1, routine: 2 };
@@ -111,7 +165,7 @@ async function POST_impl(req: NextRequest) {
       const parsed = await runText<{ summary?: string; triage?: unknown }>(
         `Patient symptoms: "${q}"`,
         SYSTEM_PROMPT,
-        "clinic.symptom-triage"
+        "clinic.symptom-triage",
       );
       const triage = sanitizeTriage(parsed);
       if (triage.length > 0) {
@@ -132,7 +186,14 @@ async function POST_impl(req: NextRequest) {
     for (const [k, v] of Object.entries(FALLBACK_TRIAGE)) {
       if (lower.includes(k)) results = results.concat(v);
     }
-    if (results.length === 0) results = [{ urgency: "routine", action: "Book OPD appointment for evaluation", specialty: "General Medicine" }];
+    if (results.length === 0)
+      results = [
+        {
+          urgency: "routine",
+          action: "Book OPD appointment for evaluation",
+          specialty: "General Medicine",
+        },
+      ];
     return NextResponse.json({
       triage: results,
       symptom: lower,

@@ -43,7 +43,9 @@ const LEVEL_COLOR: Record<string, string> = {
 
 function prefersReducedMotion(): boolean {
   try {
-    return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return (
+      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
   } catch {
     return false;
   }
@@ -105,7 +107,13 @@ function useTweenedArray(target: number[], duration = 800): number[] {
 /* ---------------- Health Halo ---------------- */
 
 export function HealthHalo({
-  domains, score, band, size = 460, onSelectDomain, activeId, live = false,
+  domains,
+  score,
+  band,
+  size = 460,
+  onSelectDomain,
+  activeId,
+  live = false,
 }: {
   domains: DomainResult[];
   score: number;
@@ -185,21 +193,40 @@ export function HealthHalo({
         {rings.map((k, ri) => {
           const r = rMin + (rMax - rMin) * k;
           return (
-            <circle key={ri} cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+            <circle
+              key={ri}
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill="none"
+              stroke="rgba(255,255,255,0.07)"
+              strokeWidth="1"
+            />
           );
         })}
         {/* axes */}
         {domains.map((_, i) => {
           const [x, y] = pt(i, rMax + 8);
           const [xg, yg] = pt(i, rMin - 6);
-          return <line key={i} x1={xg} y1={yg} x2={x} y2={y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />;
+          return (
+            <line
+              key={i}
+              x1={xg}
+              y1={yg}
+              x2={x}
+              y2={y}
+              stroke="rgba(255,255,255,0.06)"
+              strokeWidth="1"
+            />
+          );
         })}
 
         {/* observatory orbit — faint dotted satellite ring, slowly
             rotating behind the polygon for depth */}
         <circle
           className="nxf-orbit"
-          cx={cx} cy={cy}
+          cx={cx}
+          cy={cy}
           r={rMax + 13}
           fill="none"
           stroke="rgba(255,255,255,0.13)"
@@ -236,16 +263,28 @@ export function HealthHalo({
               onMouseLeave={() => setHovered((h) => (h === i ? null : h))}
               role={interactive ? "button" : undefined}
               tabIndex={interactive ? 0 : undefined}
-              aria-label={interactive ? `${DOMAIN_META[d.id]?.label ?? d.id}: ${d.level.toLowerCase()} signal, burden ${d.burden} of 100 — open details` : undefined}
-              onKeyDown={interactive ? (e) => {
-                if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelectDomain?.(d.id); }
-              } : undefined}
+              aria-label={
+                interactive
+                  ? `${DOMAIN_META[d.id]?.label ?? d.id}: ${d.level.toLowerCase()} signal, burden ${d.burden} of 100 — open details`
+                  : undefined
+              }
+              onKeyDown={
+                interactive
+                  ? (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onSelectDomain?.(d.id);
+                      }
+                    }
+                  : undefined
+              }
               style={{ cursor: interactive ? "pointer" : "default" }}
             >
               {/* generous hit area */}
               <circle cx={x} cy={y} r="16" fill="transparent" />
               <motion.circle
-                cx={x} cy={y}
+                cx={x}
+                cy={y}
                 r={d.level === "LOW" ? 3.4 : 5}
                 fill={LEVEL_COLOR[d.level]}
                 stroke={isActive ? "#FCD34D" : "rgba(7,13,26,0.9)"}
@@ -265,7 +304,8 @@ export function HealthHalo({
           return (
             <text
               key={i}
-              x={x} y={y}
+              x={x}
+              y={y}
               textAnchor="middle"
               dominantBaseline="middle"
               fontSize={size * 0.028}
@@ -296,13 +336,22 @@ export function HealthHalo({
               const fy = ty > cy ? ty - 58 : ty + 22;
               return (
                 <>
-                  <rect x={fx} y={fy} rx="9" width={tw} height={36}
-                    fill="rgba(7,13,26,0.92)" stroke="rgba(252,211,77,0.5)" strokeWidth="1" />
+                  <rect
+                    x={fx}
+                    y={fy}
+                    rx="9"
+                    width={tw}
+                    height={36}
+                    fill="rgba(7,13,26,0.92)"
+                    stroke="rgba(252,211,77,0.5)"
+                    strokeWidth="1"
+                  />
                   <text x={fx + 12} y={fy + 15} fontSize="11.5" fontWeight="700" fill="#FFFEFA">
                     {label}
                   </text>
                   <text x={fx + 12} y={fy + 28} fontSize="10" fill="#DED9CA">
-                    {tooltip.level.toLowerCase()} · burden {Math.round(tweened[hovered ?? 0] ?? tooltip.burden)}/100
+                    {tooltip.level.toLowerCase()} · burden{" "}
+                    {Math.round(tweened[hovered ?? 0] ?? tooltip.burden)}/100
                   </text>
                 </>
               );
@@ -312,7 +361,8 @@ export function HealthHalo({
 
         {/* center score — counts up, drifts with the simulation */}
         <text
-          x={cx} y={cy - 8}
+          x={cx}
+          y={cy - 8}
           textAnchor="middle"
           fontSize={size * 0.13}
           fontWeight="700"
@@ -322,7 +372,8 @@ export function HealthHalo({
           {displayScore}
         </text>
         <text
-          x={cx} y={cy + 18}
+          x={cx}
+          y={cy + 18}
           textAnchor="middle"
           fontSize={size * 0.026}
           fill={live ? "#FDE68A" : "#FDE68A"}
@@ -331,7 +382,9 @@ export function HealthHalo({
           {band}
         </text>
       </svg>
-      <span aria-hidden="true" className="sr-only">{bandInk}</span>
+      <span aria-hidden="true" className="sr-only">
+        {bandInk}
+      </span>
     </div>
   );
 }
@@ -339,7 +392,10 @@ export function HealthHalo({
 /* ---------------- Trajectory ---------------- */
 
 export function TrajectoryChart({
-  unchangedScore, withActionsScore, currentScore, height = 190,
+  unchangedScore,
+  withActionsScore,
+  currentScore,
+  height = 190,
 }: {
   unchangedScore: number;
   withActionsScore: number;
@@ -370,8 +426,12 @@ export function TrajectoryChart({
   const areaPath = (end: number) => `${path(end)} L${x(5)},${y(0)} L${x(0)},${y(0)} Z`;
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="block w-full" role="img"
-      aria-label={`Five-year illustrative trajectory: ${unchangedScore} if nothing changes, ${withActionsScore} with actions`}>
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className="block w-full"
+      role="img"
+      aria-label={`Five-year illustrative trajectory: ${unchangedScore} if nothing changes, ${withActionsScore} with actions`}
+    >
       <defs>
         <linearGradient id="trajRose" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="rgba(251,113,133,0.22)" />
@@ -387,7 +447,9 @@ export function TrajectoryChart({
       {[25, 50, 75, 100].map((v) => (
         <g key={v}>
           <line x1={padX} y1={y(v)} x2={w - padX} y2={y(v)} stroke="rgba(255,255,255,0.05)" />
-          <text x={padX - 8} y={y(v) + 4} textAnchor="end" fontSize="10" fill="#C0BAA9">{v}</text>
+          <text x={padX - 8} y={y(v) + 4} textAnchor="end" fontSize="10" fill="#C0BAA9">
+            {v}
+          </text>
         </g>
       ))}
       {years.map((yr) => (
@@ -399,7 +461,10 @@ export function TrajectoryChart({
       <path d={areaPath(unchangedScore)} fill="url(#trajRose)" />
       <motion.path
         d={path(unchangedScore)}
-        fill="none" stroke="#FB7185" strokeWidth="2.2" strokeLinecap="round"
+        fill="none"
+        stroke="#FB7185"
+        strokeWidth="2.2"
+        strokeLinecap="round"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
         transition={{ duration: 1.6, ease: "easeOut", delay: 0.3 }}
@@ -407,14 +472,42 @@ export function TrajectoryChart({
       <path d={areaPath(withActionsScore)} fill="url(#trajTeal)" />
       <motion.path
         d={path(withActionsScore)}
-        fill="none" stroke="#2DD4BF" strokeWidth="2.2" strokeLinecap="round"
+        fill="none"
+        stroke="#2DD4BF"
+        strokeWidth="2.2"
+        strokeLinecap="round"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
         transition={{ duration: 1.6, ease: "easeOut", delay: 0.55 }}
       />
-      <circle cx={x(0)} cy={y(currentScore)} r="4.5" fill="#F4F9FF" stroke="rgba(7,13,26,0.9)" strokeWidth="2" />
-      <text x={x(5)} y={y(unchangedScore) - 10} textAnchor="end" fontSize="11" fontWeight="700" fill="#FDA4AF">{unchangedScore}</text>
-      <text x={x(5)} y={y(withActionsScore) - 10} textAnchor="end" fontSize="11" fontWeight="700" fill="#5EEAD4">{withActionsScore}</text>
+      <circle
+        cx={x(0)}
+        cy={y(currentScore)}
+        r="4.5"
+        fill="#F4F9FF"
+        stroke="rgba(7,13,26,0.9)"
+        strokeWidth="2"
+      />
+      <text
+        x={x(5)}
+        y={y(unchangedScore) - 10}
+        textAnchor="end"
+        fontSize="11"
+        fontWeight="700"
+        fill="#FDA4AF"
+      >
+        {unchangedScore}
+      </text>
+      <text
+        x={x(5)}
+        y={y(withActionsScore) - 10}
+        textAnchor="end"
+        fontSize="11"
+        fontWeight="700"
+        fill="#5EEAD4"
+      >
+        {withActionsScore}
+      </text>
     </svg>
   );
 }

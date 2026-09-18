@@ -15,12 +15,5 @@ export default function PredictiveError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SegmentErrorBoundary
-      error={error}
-      reset={reset}
-      variant="canvas"
-      tag="predictive"
-    />
-  );
+  return <SegmentErrorBoundary error={error} reset={reset} variant="canvas" tag="predictive" />;
 }

@@ -17,20 +17,14 @@ export async function POST(req: NextRequest) {
         : "early_access";
 
     if (!EMAIL_RE.test(email)) {
-      return NextResponse.json(
-        { ok: false, error: "invalid_email" },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: "invalid_email" }, { status: 400 });
     }
 
     const name = typeof body?.name === "string" ? body.name.trim() : null;
-    const specialty =
-      typeof body?.specialty === "string" ? body.specialty.trim() : null;
+    const specialty = typeof body?.specialty === "string" ? body.specialty.trim() : null;
     const slot = typeof body?.slot === "string" ? body.slot.trim() : null;
-    const reason =
-      typeof body?.reason === "string" ? body.reason.trim().slice(0, 1000) : null;
-    const date =
-      typeof body?.date === "string" ? body.date : null;
+    const reason = typeof body?.reason === "string" ? body.reason.trim().slice(0, 1000) : null;
+    const date = typeof body?.date === "string" ? body.date : null;
 
     const lead = await db.lead.create({
       data: { email, name, type, specialty, slot, reason, date },
@@ -45,11 +39,10 @@ export async function POST(req: NextRequest) {
     // Fallback: keep working even if the DB is unavailable in this request.
     // Never echo err.message to anonymous callers (Prisma errors can carry
     // internal detail) — full context goes to the redacting logger.
-    log.error("api", "appointments.persist_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json(
-      { ok: false, error: "server_error" },
-      { status: 500 }
-    );
+    log.error("api", "appointments.persist_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json({ ok: false, error: "server_error" }, { status: 500 });
   }
 }
 
@@ -63,7 +56,9 @@ export async function GET() {
   } catch (err) {
     // Swallowed failure: the public counter degrades to zeroed counts, but the
     // DB problem must be visible in the structured logs.
-    log.error("api", "appointments.stats_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("api", "appointments.stats_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ earlyAccess: 0, appointments: 0 });
   }
 }

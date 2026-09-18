@@ -35,9 +35,17 @@ const PLANS: Record<string, CarePlan> = {
       { test: "HbA1c", frequency: "Every 3 months", guideline: "ICMR target <7%" },
       { test: "Foot exam", frequency: "Annually", guideline: "ICMR diabetic foot protocol" },
       { test: "Eye exam (fundus)", frequency: "Annually", guideline: "ICMR retinopathy screening" },
-      { test: "Urine microalbumin", frequency: "Annually", guideline: "ICMR nephropathy screening" },
+      {
+        test: "Urine microalbumin",
+        frequency: "Annually",
+        guideline: "ICMR nephropathy screening",
+      },
     ],
-    reminders: ["Take Metformin with meals", "Check blood sugar before meals", "Annual flu vaccine"],
+    reminders: [
+      "Take Metformin with meals",
+      "Check blood sugar before meals",
+      "Annual flu vaccine",
+    ],
   },
   Hypertension: {
     disease: "Hypertension",
@@ -71,10 +79,14 @@ function sanitizePlan(raw: unknown, diagnosis: string): CarePlan | null {
     .filter((c) => c.test && c.frequency);
   if (checkups.length === 0) return null;
   const reminders = Array.isArray(p.reminders)
-    ? p.reminders.filter((r): r is string => typeof r === "string" && r.trim().length > 0).map((r) => r.trim().slice(0, 120)).slice(0, 6)
+    ? p.reminders
+        .filter((r): r is string => typeof r === "string" && r.trim().length > 0)
+        .map((r) => r.trim().slice(0, 120))
+        .slice(0, 6)
     : [];
   return {
-    disease: typeof p.disease === "string" && p.disease.trim() ? p.disease.trim().slice(0, 80) : diagnosis,
+    disease:
+      typeof p.disease === "string" && p.disease.trim() ? p.disease.trim().slice(0, 80) : diagnosis,
     checkups,
     reminders,
   };
@@ -87,7 +99,8 @@ async function GET_impl(req: NextRequest) {
   if (dx) {
     // 1. authoritative ICMR library first
     const key = Object.keys(PLANS).find(
-      (k) => k.toLowerCase().includes(dx.toLowerCase()) || dx.toLowerCase().includes(k.toLowerCase())
+      (k) =>
+        k.toLowerCase().includes(dx.toLowerCase()) || dx.toLowerCase().includes(k.toLowerCase()),
     );
     if (key) {
       return NextResponse.json({ plan: PLANS[key], source: "icmr-plan-library" });
@@ -100,19 +113,22 @@ async function GET_impl(req: NextRequest) {
       const parsed = await runText<Partial<CarePlan>>(
         `Chronic condition: "${dx.slice(0, 120)}"`,
         SYSTEM_PROMPT,
-        "clinic.chronic-care"
+        "clinic.chronic-care",
       );
       const plan = sanitizePlan(parsed, dx);
       if (plan) {
         return NextResponse.json({ plan, source: "ai-generated (ICMR/NPCDCS-guided)" });
       }
     } catch (e) {
-      log.warn("clinic", "chronic_care_ai_fallback", { err: e instanceof Error ? e.message : String(e) });
+      log.warn("clinic", "chronic_care_ai_fallback", {
+        err: e instanceof Error ? e.message : String(e),
+      });
     }
 
     return NextResponse.json({
       plan: null,
-      message: "No ICMR library plan for this condition and the AI plan could not be generated. Try a standard condition name.",
+      message:
+        "No ICMR library plan for this condition and the AI plan could not be generated. Try a standard condition name.",
       source: "none",
     });
   }
@@ -120,7 +136,8 @@ async function GET_impl(req: NextRequest) {
   // list mode: library keys + note that any condition can be generated
   return NextResponse.json({
     plans: Object.keys(PLANS),
-    aiGenerated: "Any other chronic condition can be passed as ?diagnosis= — a plan is generated following the ICMR/NPCDCS structure.",
+    aiGenerated:
+      "Any other chronic condition can be passed as ?diagnosis= — a plan is generated following the ICMR/NPCDCS structure.",
     source: "icmr-plan-library",
   });
 }

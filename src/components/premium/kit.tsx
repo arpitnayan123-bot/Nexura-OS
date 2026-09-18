@@ -47,13 +47,7 @@ export function SectionHeading({
 }) {
   const centered = align === "center";
   return (
-    <div
-      className={cn(
-        "max-w-3xl",
-        centered && "mx-auto text-center",
-        className,
-      )}
-    >
+    <div className={cn("max-w-3xl", centered && "mx-auto text-center", className)}>
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -132,7 +126,10 @@ export function PageHero({
   return (
     <section className={cn("relative overflow-hidden pt-32 pb-14 sm:pt-40 sm:pb-20", className)}>
       {/* ambient gold light + fine grain */}
-      <div aria-hidden className="aurora-gold -top-32 left-1/2 h-[26rem] w-[42rem] -translate-x-1/2" />
+      <div
+        aria-hidden
+        className="aurora-gold -top-32 left-1/2 h-[26rem] w-[42rem] -translate-x-1/2"
+      />
       <div aria-hidden className="grain-fine" />
       <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
         <motion.div
@@ -551,7 +548,10 @@ export function Marquee({
 }) {
   return (
     <div className={cn("marquee-mask overflow-hidden", className)}>
-      <div className="marquee-track" style={{ "--marquee-dur": `${duration}s` } as React.CSSProperties}>
+      <div
+        className="marquee-track"
+        style={{ "--marquee-dur": `${duration}s` } as React.CSSProperties}
+      >
         {children}
         {children}
       </div>

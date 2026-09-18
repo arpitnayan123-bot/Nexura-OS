@@ -13,11 +13,16 @@ async function GET_impl(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const slug = searchParams.get("slug");
     if (!slug) return NextResponse.json({ error: "no_slug" }, { status: 400 });
-    const clinic = await db.clinic.findUnique({ where: { bookingSlug: slug }, include: { doctors: { where: { active: true } } } });
+    const clinic = await db.clinic.findUnique({
+      where: { bookingSlug: slug },
+      include: { doctors: { where: { active: true } } },
+    });
     if (!clinic) return NextResponse.json({ error: "not_found" }, { status: 404 });
     return NextResponse.json({ clinic, doctors: clinic.doctors });
   } catch (err) {
-    log.error("api", "clinic.booking.read_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("api", "clinic.booking.read_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "booking_failed" }, { status: 500 });
   }
 }
@@ -26,7 +31,14 @@ async function GET_impl(req: NextRequest) {
 async function POST_impl(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { clinicId, doctorId, patientName, phone, slot, action } = body as { clinicId?: string; doctorId?: string; patientName?: string; phone?: string; slot?: string; action?: string };
+    const { clinicId, doctorId, patientName, phone, slot, action } = body as {
+      clinicId?: string;
+      doctorId?: string;
+      patientName?: string;
+      phone?: string;
+      slot?: string;
+      action?: string;
+    };
 
     // accept — convert a pending online booking into patient + appointment.
     // This closes the loop: request → clinic accepts → it lands in the queue.
@@ -74,9 +86,14 @@ async function POST_impl(req: NextRequest) {
           });
         }
 
-        const dayStart = new Date(booking.slot); dayStart.setHours(0, 0, 0, 0);
-        const dayEnd = new Date(booking.slot); dayEnd.setHours(23, 59, 59, 999);
-        const tokenNo = (await db.clinicAppointment.count({ where: { clinicId: ctx.clinic.id, slot: { gte: dayStart, lte: dayEnd } } })) + 1;
+        const dayStart = new Date(booking.slot);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(booking.slot);
+        dayEnd.setHours(23, 59, 59, 999);
+        const tokenNo =
+          (await db.clinicAppointment.count({
+            where: { clinicId: ctx.clinic.id, slot: { gte: dayStart, lte: dayEnd } },
+          })) + 1;
 
         // Appointments require a doctor — "any doctor" bookings resolve to
         // the clinic's first active doctor at acceptance time. Fail closed
@@ -89,7 +106,12 @@ async function POST_impl(req: NextRequest) {
             select: { id: true },
           });
           if (!firstDoctor) {
-            await db.onlineBooking.updateMany({ where: { id: booking.id, status: "processing" }, data: { status: "booked" } }).catch(() => {});
+            await db.onlineBooking
+              .updateMany({
+                where: { id: booking.id, status: "processing" },
+                data: { status: "booked" },
+              })
+              .catch(() => {});
             return NextResponse.json({ error: "no_doctor" }, { status: 409 });
           }
           doctorId = firstDoctor.id;
@@ -110,23 +132,35 @@ async function POST_impl(req: NextRequest) {
 
         const updated = await db.onlineBooking.update({
           where: { id: booking.id },
-          data: { status: "converted", convertedPatientId: patient.id, convertedAppointmentId: appointment.id },
+          data: {
+            status: "converted",
+            convertedPatientId: patient.id,
+            convertedAppointmentId: appointment.id,
+          },
         });
 
         return NextResponse.json({ ok: true, booking: updated, appointment, patient });
       } catch (convErr) {
-        await db.onlineBooking.updateMany({ where: { id: booking.id, status: "processing" }, data: { status: "booked" } }).catch(() => {});
+        await db.onlineBooking
+          .updateMany({
+            where: { id: booking.id, status: "processing" },
+            data: { status: "booked" },
+          })
+          .catch(() => {});
         throw convErr;
       }
     }
 
-    if (!clinicId || !patientName || !phone || !slot) return NextResponse.json({ error: "missing" }, { status: 400 });
+    if (!clinicId || !patientName || !phone || !slot)
+      return NextResponse.json({ error: "missing" }, { status: 400 });
     const booking = await db.onlineBooking.create({
       data: { clinicId, doctorId: doctorId || null, patientName, phone, slot: new Date(slot) },
     });
     return NextResponse.json({ ok: true, booking });
   } catch (err) {
-    log.error("api", "clinic.booking.create_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("api", "clinic.booking.create_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "booking_create_failed" }, { status: 500 });
   }
 }

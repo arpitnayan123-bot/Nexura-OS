@@ -47,10 +47,16 @@ export const GET = withRoute("nx.orders.list", async (req: NextRequest) => {
   });
 
   const counts = {
-    stat: await db.hospitalOrder.count({ where: { hospitalId, priority: "stat", status: { notIn: ["completed", "cancelled"] } } }),
-    active: await db.hospitalOrder.count({ where: { hospitalId, status: { in: ["ordered", "acknowledged", "in_progress"] } } }),
+    stat: await db.hospitalOrder.count({
+      where: { hospitalId, priority: "stat", status: { notIn: ["completed", "cancelled"] } },
+    }),
+    active: await db.hospitalOrder.count({
+      where: { hospitalId, status: { in: ["ordered", "acknowledged", "in_progress"] } },
+    }),
     completed: await db.hospitalOrder.count({ where: { hospitalId, status: "completed" } }),
-    criticalResults: orders.flatMap((o) => o.labResults).filter((r) => r.abnormalFlag === "critical").length,
+    criticalResults: orders
+      .flatMap((o) => o.labResults)
+      .filter((r) => r.abnormalFlag === "critical").length,
   };
 
   return NextResponse.json({
@@ -59,12 +65,32 @@ export const GET = withRoute("nx.orders.list", async (req: NextRequest) => {
       patient: o.patient,
       doctor: o.doctor?.name,
       type: o.orderType,
-      details: (() => { try { return JSON.parse(o.orderDetails); } catch { return {}; } })(),
+      details: (() => {
+        try {
+          return JSON.parse(o.orderDetails);
+        } catch {
+          return {};
+        }
+      })(),
       priority: o.priority,
       status: o.status,
       at: o.createdAt,
-      results: o.labResults.map((r) => ({ id: r.id, test: r.testName, value: r.resultValue, unit: r.unit, flag: r.abnormalFlag, ref: [r.refRangeMin, r.refRangeMax] })),
-      timeline: o.nxOrderEvents.map((e) => ({ from: e.fromStatus, to: e.toStatus, actor: e.actorName, role: e.actorRole, at: e.createdAt, note: e.note })),
+      results: o.labResults.map((r) => ({
+        id: r.id,
+        test: r.testName,
+        value: r.resultValue,
+        unit: r.unit,
+        flag: r.abnormalFlag,
+        ref: [r.refRangeMin, r.refRangeMax],
+      })),
+      timeline: o.nxOrderEvents.map((e) => ({
+        from: e.fromStatus,
+        to: e.toStatus,
+        actor: e.actorName,
+        role: e.actorRole,
+        at: e.createdAt,
+        note: e.note,
+      })),
     })),
     counts,
   });
@@ -75,7 +101,13 @@ export const POST = withRoute("nx.orders.create", async (req: NextRequest) => {
   const gate = await requireModule(req, "orders");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!["doctor", "admin"].includes(gate.session.role)) {
-    return NextResponse.json({ error: "only_doctors_can_order", detail: "Ordering requires an authorized prescriber role" }, { status: 403 });
+    return NextResponse.json(
+      {
+        error: "only_doctors_can_order",
+        detail: "Ordering requires an authorized prescriber role",
+      },
+      { status: 403 },
+    );
   }
   const hospitalCtx = await requireHospitalContext(gate.session);
   if ("response" in hospitalCtx) return hospitalCtx.response;
@@ -95,22 +127,45 @@ export const POST = withRoute("nx.orders.create", async (req: NextRequest) => {
       orderingDoctorId: body.doctorId || null,
       admissionId: body.admissionId || null,
       orderType: body.orderType,
-      orderDetails: JSON.stringify({ testName: body.testName, notes: body.notes || "", dose: body.dose, frequency: body.frequency }),
+      orderDetails: JSON.stringify({
+        testName: body.testName,
+        notes: body.notes || "",
+        dose: body.dose,
+        frequency: body.frequency,
+      }),
       priority: ["routine", "urgent", "stat"].includes(body.priority) ? body.priority : "routine",
     },
   });
   await db.nxOrderEvent.create({
-    data: { hospitalId: hospitalId!, orderId: order.id, fromStatus: null, toStatus: "ordered", actorName: gate.session.name, actorRole: gate.session.role, note: body.notes },
+    data: {
+      hospitalId: hospitalId!,
+      orderId: order.id,
+      fromStatus: null,
+      toStatus: "ordered",
+      actorName: gate.session.name,
+      actorRole: gate.session.role,
+      note: body.notes,
+    },
   });
   await audit({
-    hospitalId: hospitalId!, actorName: gate.session.name, actorRole: gate.session.role,
-    action: "order.create", entityType: "HospitalOrder", entityId: order.id, patientId: patient.id,
+    hospitalId: hospitalId!,
+    actorName: gate.session.name,
+    actorRole: gate.session.role,
+    action: "order.create",
+    entityType: "HospitalOrder",
+    entityId: order.id,
+    patientId: patient.id,
     detail: { type: body.orderType, test: body.testName, priority: order.priority },
   });
   await fire("order.created", {
-    hospitalId: hospitalId!, actorName: gate.session.name, actorRole: gate.session.role,
-    patientId: patient.id, patientName: patient.fullName, patientUhid: patient.uhid,
-    relatedId: order.id, detail: { orderType: body.orderType, priority: order.priority },
+    hospitalId: hospitalId!,
+    actorName: gate.session.name,
+    actorRole: gate.session.role,
+    patientId: patient.id,
+    patientName: patient.fullName,
+    patientUhid: patient.uhid,
+    relatedId: order.id,
+    detail: { orderType: body.orderType, priority: order.priority },
   });
   return NextResponse.json({ order });
 });
@@ -124,31 +179,49 @@ export const PATCH = withRoute("nx.orders.transition", async (req: NextRequest) 
   if (!body.id || !body.to) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
 
   // Tenant-scoped: orders from other hospitals are unreachable.
-  const order = await db.hospitalOrder.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId }, include: { patient: true, labResults: true } });
+  const order = await db.hospitalOrder.findFirst({
+    where: { id: body.id, hospitalId: gate.session.hospitalId },
+    include: { patient: true, labResults: true },
+  });
   if (!order) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   if (body.to === "validate_result") {
     // Lab validation path
     const { resultId, flag, value } = body;
     const result = await db.labResult.findUnique({ where: { id: resultId } });
-    if (!result || result.orderId !== order.id) return NextResponse.json({ error: "result_not_found" }, { status: 404 });
+    if (!result || result.orderId !== order.id)
+      return NextResponse.json({ error: "result_not_found" }, { status: 404 });
     // Whitelisted flags only — a forged "critical" would page the escalation chain.
     const VALID_FLAGS = ["normal", "abnormal", "critical"];
     const safeFlag = VALID_FLAGS.includes(flag) ? flag : result.abnormalFlag;
     const updated = await db.labResult.update({
       where: { id: resultId },
-      data: { abnormalFlag: safeFlag, resultValue: value || result.resultValue, reportedAt: new Date() },
+      data: {
+        abnormalFlag: safeFlag,
+        resultValue: value || result.resultValue,
+        reportedAt: new Date(),
+      },
     });
     await audit({
-      hospitalId: order.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-      action: "result.validate", entityType: "LabResult", entityId: resultId, patientId: order.patientId,
+      hospitalId: order.hospitalId,
+      actorName: gate.session.name,
+      actorRole: gate.session.role,
+      action: "result.validate",
+      entityType: "LabResult",
+      entityId: resultId,
+      patientId: order.patientId,
       detail: { test: result.testName, flag: updated.abnormalFlag },
     });
     if (updated.abnormalFlag === "critical") {
       await fire("result.critical", {
-        hospitalId: order.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-        patientId: order.patientId, patientName: order.patient.fullName, patientUhid: order.patientUhid,
-        relatedId: resultId, detail: { testName: result.testName, value: updated.resultValue },
+        hospitalId: order.hospitalId,
+        actorName: gate.session.name,
+        actorRole: gate.session.role,
+        patientId: order.patientId,
+        patientName: order.patient.fullName,
+        patientUhid: order.patientUhid,
+        relatedId: resultId,
+        detail: { testName: result.testName, value: updated.resultValue },
       });
     }
     return NextResponse.json({ result: updated });
@@ -156,16 +229,35 @@ export const PATCH = withRoute("nx.orders.transition", async (req: NextRequest) 
 
   const allowed = ORDER_FLOW[order.status] || [];
   if (!allowed.includes(body.to)) {
-    return NextResponse.json({ error: "invalid_transition", from: order.status, allowed }, { status: 400 });
+    return NextResponse.json(
+      { error: "invalid_transition", from: order.status, allowed },
+      { status: 400 },
+    );
   }
 
-  const updated = await db.hospitalOrder.update({ where: { id: order.id }, data: { status: body.to } });
+  const updated = await db.hospitalOrder.update({
+    where: { id: order.id },
+    data: { status: body.to },
+  });
   await db.nxOrderEvent.create({
-    data: { hospitalId: order.hospitalId, orderId: order.id, fromStatus: order.status, toStatus: body.to, actorName: gate.session.name, actorRole: gate.session.role, note: body.note },
+    data: {
+      hospitalId: order.hospitalId,
+      orderId: order.id,
+      fromStatus: order.status,
+      toStatus: body.to,
+      actorName: gate.session.name,
+      actorRole: gate.session.role,
+      note: body.note,
+    },
   });
   await audit({
-    hospitalId: order.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-    action: "order.lifecycle", entityType: "HospitalOrder", entityId: order.id, patientId: order.patientId,
+    hospitalId: order.hospitalId,
+    actorName: gate.session.name,
+    actorRole: gate.session.role,
+    action: "order.lifecycle",
+    entityType: "HospitalOrder",
+    entityId: order.id,
+    patientId: order.patientId,
     detail: { from: order.status, to: body.to },
   });
   return NextResponse.json({ order: updated });

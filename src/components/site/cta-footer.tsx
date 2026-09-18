@@ -83,13 +83,12 @@ function CtaBanner() {
                   <CalendarHeart className="h-3.5 w-3.5" /> Early access · Q1 cohort
                 </span>
                 <h2 className="title-lux mt-5 text-3xl sm:text-4xl lg:text-[2.9rem]">
-                  Begin a{" "}
-                  <span className="text-gold-gradient">calmer relationship</span>{" "}
-                  with your health today.
+                  Begin a <span className="text-gold-gradient">calmer relationship</span> with your
+                  health today.
                 </h2>
                 <p className="mt-4 max-w-md text-sm text-[#F6F1E7]/75 sm:text-base">
-                  Join 184,000+ people on the early-access list. We'll send you a
-                  warm welcome and your personal scan link.
+                  Join 184,000+ people on the early-access list. We'll send you a warm welcome and
+                  your personal scan link.
                 </p>
 
                 <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#F6F1E7]/70">
@@ -102,8 +101,14 @@ function CtaBanner() {
                 </div>
               </div>
 
-              <form onSubmit={submit} className="rounded-3xl border border-white/12 bg-white/8 p-5 backdrop-blur-md">
-                <label htmlFor="cta-email" className="text-xs font-medium uppercase tracking-[0.18em] text-[#EED9A8]/90">
+              <form
+                onSubmit={submit}
+                className="rounded-3xl border border-white/12 bg-white/8 p-5 backdrop-blur-md"
+              >
+                <label
+                  htmlFor="cta-email"
+                  className="text-xs font-medium uppercase tracking-[0.18em] text-[#EED9A8]/90"
+                >
                   Email
                 </label>
                 <Input
@@ -140,7 +145,13 @@ function Footer() {
   const cols = [
     {
       title: "Platform",
-      links: ["AI diagnostics", "Continuous monitoring", "Care plans", "Telemedicine", "Pharmacy sync"],
+      links: [
+        "AI diagnostics",
+        "Continuous monitoring",
+        "Care plans",
+        "Telemedicine",
+        "Pharmacy sync",
+      ],
     },
     {
       title: "Company",
@@ -169,14 +180,17 @@ function Footer() {
               </div>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              A calmer operating system for health. Quietly listening, gently
-              nudging, always human at the core.
+              A calmer operating system for health. Quietly listening, gently nudging, always human
+              at the core.
             </p>
             <div className="mt-5 space-y-2 text-sm text-muted-foreground">
               <a className="flex items-center gap-2 hover:text-foreground" href="tel:+18005550100">
                 <Phone className="h-3.5 w-3.5" /> +1 (800) 555-0100
               </a>
-              <a className="flex items-center gap-2 hover:text-foreground" href="mailto:care@nexura.os">
+              <a
+                className="flex items-center gap-2 hover:text-foreground"
+                href="mailto:care@nexura.os"
+              >
                 <Mail className="h-3.5 w-3.5" /> care@nexura.os
               </a>
               <p className="flex items-center gap-2">
@@ -209,17 +223,23 @@ function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Nexura. Crafted with warmth. Not a
-            replacement for emergency care.
+            © {new Date().getFullYear()} Nexura. Crafted with warmth. Not a replacement for
+            emergency care.
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-sage anim-breathe" />
               All systems calm
             </span>
-            <a href="/privacy" className="hover:text-foreground">Privacy</a>
-            <a href="/terms" className="hover:text-foreground">Terms</a>
-            <a href="/privacy" className="hover:text-foreground">Cookies</a>
+            <a href="/privacy" className="hover:text-foreground">
+              Privacy
+            </a>
+            <a href="/terms" className="hover:text-foreground">
+              Terms
+            </a>
+            <a href="/privacy" className="hover:text-foreground">
+              Cookies
+            </a>
           </div>
         </div>
       </div>

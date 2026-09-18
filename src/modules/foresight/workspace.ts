@@ -92,7 +92,7 @@ function curve(
   end: number,
   horizon: number,
   completenessPct: number,
-  steps = 20
+  steps = 20,
 ): ForecastPoint[] {
   const out: ForecastPoint[] = [];
   for (let i = 0; i <= steps; i++) {
@@ -114,7 +114,7 @@ function curve(
 export function buildForecast(
   report: ForesightReport,
   historyScores: ScoreSeriesEntry[],
-  opts: { horizon?: HorizonYears; simulation?: ForesightReport | null } = {}
+  opts: { horizon?: HorizonYears; simulation?: ForesightReport | null } = {},
 ): ForecastModel {
   const horizon = opts.horizon ?? 5;
   const generatedAt = new Date(report.generatedAt).getTime();
@@ -136,10 +136,25 @@ export function buildForecast(
     ? observed.map((p) => (Math.abs(p.t) < 0.003 ? { ...p, v: report.foresightScore } : p))
     : [...observed, { t: 0, v: report.foresightScore, at: report.generatedAt }];
 
-  const unchanged = curve(report.foresightScore, report.trajectory.unchangedScore, horizon, report.completeness.pct);
-  const withActions = curve(report.foresightScore, report.trajectory.withActionsScore, horizon, report.completeness.pct);
+  const unchanged = curve(
+    report.foresightScore,
+    report.trajectory.unchangedScore,
+    horizon,
+    report.completeness.pct,
+  );
+  const withActions = curve(
+    report.foresightScore,
+    report.trajectory.withActionsScore,
+    horizon,
+    report.completeness.pct,
+  );
   const simulation = opts.simulation
-    ? curve(opts.simulation.foresightScore, opts.simulation.trajectory.unchangedScore, horizon, report.completeness.pct)
+    ? curve(
+        opts.simulation.foresightScore,
+        opts.simulation.trajectory.unchangedScore,
+        horizon,
+        report.completeness.pct,
+      )
     : null;
 
   /* deltas are derived from the horizon-SLICED curves so a +1y view
@@ -244,7 +259,10 @@ export function buildRisks(report: ForesightReport): RiskRow[] {
       burden: d.burden,
       confidence: d.confidence,
       headline: d.headline,
-      evidence: d.factors.filter((f) => f.direction === "risk").slice(0, 3).map((f) => f.label),
+      evidence: d.factors
+        .filter((f) => f.direction === "risk")
+        .slice(0, 3)
+        .map((f) => f.label),
       mitigation: d.actions[0]?.title ?? null,
       screening: d.screening.find((s) => !s.test.startsWith("None"))?.test ?? null,
     }));
@@ -277,7 +295,7 @@ export function buildActions(report: ForesightReport, limit = 9): ActionRow[] {
         priority: levelPriority[d.level as keyof typeof levelPriority] ?? 3,
         domainId: d.id,
         domainLabel: DOMAIN_LABELS[d.id] ?? d.id,
-      }))
+      })),
     )
     .sort((a, b) => a.priority - b.priority)
     .slice(0, limit);
@@ -326,7 +344,9 @@ export function buildTimeline(report: ForesightReport, from = Date.now()): Miles
   };
 
   /* 1 — now: confirm the loudest signal */
-  const topBurdened = [...report.domains].sort((a, b) => b.burden - a.burden).find((d) => d.burden >= 18);
+  const topBurdened = [...report.domains]
+    .sort((a, b) => b.burden - a.burden)
+    .find((d) => d.burden >= 18);
   if (topBurdened) {
     const screen = topBurdened.screening.find((s) => !s.test.startsWith("None"));
     if (screen) {
@@ -346,7 +366,8 @@ export function buildTimeline(report: ForesightReport, from = Date.now()): Miles
     key: "rescan",
     t: 0.21, // ~10 weeks
     title: "Re-run your check-in",
-    detail: "Compare the two maps after 8–12 weeks of changes — the delta is the honest measure of progress.",
+    detail:
+      "Compare the two maps after 8–12 weeks of changes — the delta is the honest measure of progress.",
     kind: "rescan",
     certainty: "planned",
   });
@@ -372,7 +393,11 @@ export function buildTimeline(report: ForesightReport, from = Date.now()): Miles
   const scan = (end: number, dir: "down" | "up"): number | null => {
     let lastBand = bandFor(report.foresightScore);
     for (let t = 0.05; t <= end; t += 0.05) {
-      const v = trajectoryAt(report.foresightScore, dir === "down" ? report.trajectory.unchangedScore : report.trajectory.withActionsScore, t);
+      const v = trajectoryAt(
+        report.foresightScore,
+        dir === "down" ? report.trajectory.unchangedScore : report.trajectory.withActionsScore,
+        t,
+      );
       const b = bandFor(v);
       if (b !== lastBand) return t;
       lastBand = b;
@@ -382,7 +407,9 @@ export function buildTimeline(report: ForesightReport, from = Date.now()): Miles
 
   const downT = scan(5, "down");
   if (downT != null) {
-    const crossed = bandFor(trajectoryAt(report.foresightScore, report.trajectory.unchangedScore, downT));
+    const crossed = bandFor(
+      trajectoryAt(report.foresightScore, report.trajectory.unchangedScore, downT),
+    );
     push({
       key: "cross-down",
       t: downT,
@@ -395,7 +422,9 @@ export function buildTimeline(report: ForesightReport, from = Date.now()): Miles
 
   const upT = scan(5, "up");
   if (upT != null) {
-    const crossed = bandFor(trajectoryAt(report.foresightScore, report.trajectory.withActionsScore, upT));
+    const crossed = bandFor(
+      trajectoryAt(report.foresightScore, report.trajectory.withActionsScore, upT),
+    );
     push({
       key: "cross-up",
       t: upT,
@@ -435,7 +464,11 @@ const CONF_VALUE: Record<Confidence, string> = {
 };
 
 /** Confidence for the whole map = the top burdened domain's category. */
-export function mapConfidence(report: ForesightReport): { category: Confidence; text: string; value: string } {
+export function mapConfidence(report: ForesightReport): {
+  category: Confidence;
+  text: string;
+  value: string;
+} {
   const top = [...report.domains].sort((a, b) => b.burden - a.burden)[0];
   const category: Confidence = top?.confidence ?? "INSUFFICIENT_INFORMATION";
   return { category, text: CONF_SHORT[category], value: CONF_VALUE[category] };
@@ -444,7 +477,7 @@ export function mapConfidence(report: ForesightReport): { category: Confidence; 
 export function buildInsights(
   report: ForesightReport,
   prev: { score: number; at: string } | null,
-  drivers: DriverRow[]
+  drivers: DriverRow[],
 ): Insight[] {
   const out: Insight[] = [];
   if (report.analysisWithheld) return out;
@@ -456,10 +489,17 @@ export function buildInsights(
     out.push({
       key: "change",
       kind: "change",
-      title: delta === 0 ? "Holding steady since your last check-in" : delta > 0 ? "The map moved up since your last check-in" : "The map moved down since your last check-in",
+      title:
+        delta === 0
+          ? "Holding steady since your last check-in"
+          : delta > 0
+            ? "The map moved up since your last check-in"
+            : "The map moved down since your last check-in",
       body:
         `Your composite is ${report.foresightScore} today vs ${Math.round(prev.score)} about ${days} day${days === 1 ? "" : "s"} ago ` +
-        (delta === 0 ? "— the same band. Re-run after 8–12 weeks of changes for a meaningful delta." : `(${delta > 0 ? "+" : ""}${delta}). ${delta > 0 ? "The actions you took are showing up in the pattern." : "Worth rechecking the signals that slipped — they are highlighted in Drivers below."}`),
+        (delta === 0
+          ? "— the same band. Re-run after 8–12 weeks of changes for a meaningful delta."
+          : `(${delta > 0 ? "+" : ""}${delta}). ${delta > 0 ? "The actions you took are showing up in the pattern." : "Worth rechecking the signals that slipped — they are highlighted in Drivers below."}`),
     });
   }
 
@@ -482,7 +522,10 @@ export function buildInsights(
   out.push({
     key: "trend",
     kind: "trend",
-    title: report.trajectory.withActionsScore > report.foresightScore ? "The direction responds to the plan" : "The direction is close to flat — protect what works",
+    title:
+      report.trajectory.withActionsScore > report.foresightScore
+        ? "The direction responds to the plan"
+        : "The direction is close to flat — protect what works",
     body: `On the current course the composite drifts to ${report.trajectory.unchangedScore} by year five; following the plan bends it to ${report.trajectory.withActionsScore}. Both numbers come from the same versioned engine run — the difference is the size of the prize.`,
   });
 
@@ -525,7 +568,7 @@ export interface ExecStrip {
 export function buildExecStrip(
   report: ForesightReport,
   forecast: ForecastModel,
-  timeline: Milestone[]
+  timeline: Milestone[],
 ): ExecStrip {
   const d = forecast.deltaActions;
   const kind = d > 1 ? "up" : d < -1 ? "down" : "flat";
@@ -575,11 +618,13 @@ export function buildMetricCards(
   report: ForesightReport,
   forecast: ForecastModel,
   timeline: Milestone[],
-  prev: { score: number; at: string } | null
+  prev: { score: number; at: string } | null,
 ): MetricCard[] {
   const series = forecast.observed.map((o) => o.v);
   const deltaPrev = prev ? report.foresightScore - Math.round(prev.score) : null;
-  const elevated = report.domains.filter((x) => x.level === "ELEVATED" || x.level === "HIGH").length;
+  const elevated = report.domains.filter(
+    (x) => x.level === "ELEVATED" || x.level === "HIGH",
+  ).length;
   const top = [...report.domains].sort((a, b) => b.burden - a.burden)[0];
 
   const cards: MetricCard[] = [
@@ -589,7 +634,10 @@ export function buildMetricCards(
       value: String(report.foresightScore),
       unit: "/100",
       trend: deltaPrev == null || deltaPrev === 0 ? "flat" : deltaPrev > 0 ? "up" : "down",
-      trendText: deltaPrev == null ? "first recorded run" : `${deltaPrev > 0 ? "+" : ""}${deltaPrev} vs previous run`,
+      trendText:
+        deltaPrev == null
+          ? "first recorded run"
+          : `${deltaPrev > 0 ? "+" : ""}${deltaPrev} vs previous run`,
       context: `${report.scoreBand.toLowerCase()} band · measured from the signals you shared`,
       spark: series.length >= 2 ? series : undefined,
       sparkInk: "gold",
@@ -632,8 +680,14 @@ export function buildMetricCards(
       value: `${elevated}`,
       unit: "of 12 domains",
       trend: elevated >= 3 ? "down" : elevated >= 1 ? "flat" : "up",
-      trendText: elevated === 0 ? "none elevated or high" : `${top ? (DOMAIN_LABELS[top.id] ?? top.id) : ""} leads at ${top?.burden ?? 0}`,
-      context: elevated === 0 ? "all twelve domains read steady" : "elevated/high signal burden — see Risk register",
+      trendText:
+        elevated === 0
+          ? "none elevated or high"
+          : `${top ? (DOMAIN_LABELS[top.id] ?? top.id) : ""} leads at ${top?.burden ?? 0}`,
+      context:
+        elevated === 0
+          ? "all twelve domains read steady"
+          : "elevated/high signal burden — see Risk register",
     },
     {
       key: "next-event",

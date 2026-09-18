@@ -10,7 +10,8 @@ export const GET = withRoute("events.stream", async (req: NextRequest, { request
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const aggregateType = req.nextUrl.searchParams.get("aggregateType");
   const aggregateId = req.nextUrl.searchParams.get("aggregateId");
-  if (!aggregateType || !aggregateId) return fail("missing_aggregate", 400, "aggregateType + aggregateId required", requestId);
+  if (!aggregateType || !aggregateId)
+    return fail("missing_aggregate", 400, "aggregateType + aggregateId required", requestId);
   const events = await db.nxEventLog.findMany({
     where: { hospitalId, aggregateType, aggregateId },
     orderBy: { seq: "asc" },

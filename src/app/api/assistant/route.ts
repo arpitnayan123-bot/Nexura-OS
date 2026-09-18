@@ -29,21 +29,22 @@ export async function POST(req: NextRequest) {
     const message = typeof body?.message === "string" ? body.message : null;
 
     if (!messages && !message) {
-      return NextResponse.json(
-        { error: "message or messages is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "message or messages is required" }, { status: 400 });
     }
 
     // Payload hygiene: bounded conversation (last 20 turns, 4k chars each)
     // — unbounded arrays let a single request burn the model budget.
-    const raw = Array.isArray(messages)
-      ? messages
-      : [{ role: "user", content: message }];
+    const raw = Array.isArray(messages) ? messages : [{ role: "user", content: message }];
     const conversation = raw
-      .filter((m: { role?: string; content?: string }) => m && typeof m.content === "string" && ["user", "assistant"].includes(String(m.role)))
+      .filter(
+        (m: { role?: string; content?: string }) =>
+          m && typeof m.content === "string" && ["user", "assistant"].includes(String(m.role)),
+      )
       .slice(-20)
-      .map((m: { role: string; content: string }) => ({ role: m.role as "user" | "assistant", content: m.content.slice(0, 4000) }));
+      .map((m: { role: string; content: string }) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content.slice(0, 4000),
+      }));
     if (conversation.length === 0) {
       return NextResponse.json({ error: "message or messages is required" }, { status: 400 });
     }
@@ -52,7 +53,10 @@ export async function POST(req: NextRequest) {
     // "assistant" role; runChatText takes it as "system" and callZAI maps it
     // back for the SDK path, so both providers see the same conversation.
     const reply = (
-      await runChatText([{ role: "system", content: SYSTEM_PROMPT }, ...conversation], "portal.assistant")
+      await runChatText(
+        [{ role: "system", content: SYSTEM_PROMPT }, ...conversation],
+        "portal.assistant",
+      )
     ).trim();
 
     if (!reply) {
@@ -61,10 +65,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ reply });
   } catch (err) {
-    log.error("assistant", "assistant_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("assistant", "assistant_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
-      { error: "assistant_failed", detail: "The assistant could not respond right now. Please retry in a moment." },
-      { status: 500 }
+      {
+        error: "assistant_failed",
+        detail: "The assistant could not respond right now. Please retry in a moment.",
+      },
+      { status: 500 },
     );
   }
 }

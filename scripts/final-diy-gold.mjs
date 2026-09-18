@@ -48,18 +48,34 @@ const CSS_REPLS = [
   ["inset 0 2px 4px rgba(70, 24, 6, 0.35)", "inset 0 2px 4px rgba(74, 52, 6, 0.35)"],
   ["0 4px 10px -6px rgba(150, 76, 40, 0.5)", "0 4px 10px -6px rgba(146, 106, 14, 0.5)"],
   ["0 8px 16px -6px rgba(150, 76, 40, 0.5)", "0 8px 16px -6px rgba(146, 106, 14, 0.5)"],
-  ["/* ---- textured primary button: mineral grain over a bevel ---- */",
-   "/* ---- textured primary button: mineral grain over a bevel ----\n   (accent refined terracotta → Liquid Champagne Gold, FINAL pass) */"],
+  [
+    "/* ---- textured primary button: mineral grain over a bevel ---- */",
+    "/* ---- textured primary button: mineral grain over a bevel ----\n   (accent refined terracotta → Liquid Champagne Gold, FINAL pass) */",
+  ],
 ];
 
 let total = 0;
-for (const f of ["app.tsx", "dashboard.tsx", "onboarding.tsx", "skincare.tsx", "settings.tsx", "consent-sheet.tsx"]) {
+for (const f of [
+  "app.tsx",
+  "dashboard.tsx",
+  "onboarding.tsx",
+  "skincare.tsx",
+  "settings.tsx",
+  "consent-sheet.tsx",
+]) {
   const path = `/home/z/my-project/src/components/diy/${f}`;
   let src;
-  try { src = readFileSync(path, "utf8"); } catch { continue; }
+  try {
+    src = readFileSync(path, "utf8");
+  } catch {
+    continue;
+  }
   let n = 0;
   for (const [from, to] of REPLS) {
-    while (src.includes(from)) { src = src.replace(from, to); n++; }
+    while (src.includes(from)) {
+      src = src.replace(from, to);
+      n++;
+    }
   }
   if (n) writeFileSync(path, src);
   console.log(`diy/${f}: ${n}`);
@@ -70,7 +86,10 @@ for (const f of ["app.tsx", "dashboard.tsx", "onboarding.tsx", "skincare.tsx", "
   let src = readFileSync(path, "utf8");
   let n = 0;
   for (const [from, to] of CSS_REPLS) {
-    while (src.includes(from)) { src = src.replace(from, to); n++; }
+    while (src.includes(from)) {
+      src = src.replace(from, to);
+      n++;
+    }
   }
   writeFileSync(path, src);
   console.log(`globals.css: ${n}`);

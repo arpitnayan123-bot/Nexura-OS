@@ -40,14 +40,13 @@ export function HowItWorks() {
             </Reveal>
             <Reveal delay={0.06}>
               <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.9rem]">
-                Care begins with a{" "}
-                <span className="text-gradient-warm">quiet conversation.</span>
+                Care begins with a <span className="text-gradient-warm">quiet conversation.</span>
               </h2>
             </Reveal>
             <Reveal delay={0.12}>
               <p className="mt-4 max-w-md text-muted-foreground">
-                Three calm steps stand between you and a health companion that
-                never sleeps and never overwhelms.
+                Three calm steps stand between you and a health companion that never sleeps and
+                never overwhelms.
               </p>
             </Reveal>
           </div>
@@ -72,12 +71,7 @@ export function HowItWorks() {
   );
 }
 
-function Step({
-  icon: Icon,
-  n,
-  title,
-  desc,
-}: (typeof STEPS)[number]) {
+function Step({ icon: Icon, n, title, desc }: (typeof STEPS)[number]) {
   return (
     <motion.div
       whileHover={{ x: 4 }}

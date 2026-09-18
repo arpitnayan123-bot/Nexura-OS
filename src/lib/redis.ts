@@ -53,7 +53,9 @@ export function redis(): Redis | null {
     lazyConnect: false,
   });
   client.on("error", (err) => log.error("redis", "connection error", { err: err.message }));
-  client.on("connect", () => log.info("redis", "connected", { url: url.replace(/:\/\/[^@]*@/, "://***@") }));
+  client.on("connect", () =>
+    log.info("redis", "connected", { url: url.replace(/:\/\/[^@]*@/, "://***@") }),
+  );
   g.__nxRedis = client;
   return client;
 }

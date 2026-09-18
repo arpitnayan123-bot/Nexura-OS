@@ -40,12 +40,20 @@ export const POST = withRoute("offline.sync", async (req: NextRequest, { request
     const opKey = `offline:${g.session.userId}:${op.clientId}`;
     const existing = await db.nxIdempotency.findUnique({ where: { key: opKey } });
     if (existing) {
-      receipts.push({ clientId: op.clientId, status: "duplicate_ignored", refId: existing.endpoint });
+      receipts.push({
+        clientId: op.clientId,
+        status: "duplicate_ignored",
+        refId: existing.endpoint,
+      });
       continue;
     }
     const requiredPermission: NxPermission = op.type === "triage" ? "tasks.manage" : "note.edit";
     if (!hasPermission(g.perms, requiredPermission)) {
-      receipts.push({ clientId: op.clientId, status: "rejected", reason: `missing_permission:${requiredPermission}` });
+      receipts.push({
+        clientId: op.clientId,
+        status: "rejected",
+        reason: `missing_permission:${requiredPermission}`,
+      });
       continue;
     }
     if (op.patientUhid) {
@@ -53,43 +61,85 @@ export const POST = withRoute("offline.sync", async (req: NextRequest, { request
         .findFirst({ where: { hospitalId, uhid: op.patientUhid }, select: { id: true } })
         .catch(() => null);
       if (!patient || !(await patientInScope(patient.id, g.session))) {
-        receipts.push({ clientId: op.clientId, status: "rejected", reason: "patient_out_of_scope" });
+        receipts.push({
+          clientId: op.clientId,
+          status: "rejected",
+          reason: "patient_out_of_scope",
+        });
         continue;
       }
     }
     let refId: string | undefined;
     let status = "accepted";
     if (op.type === "triage") {
-      const task = await db.nxTask.create({
-        data: {
-          hospitalId,
-          title: `Offline triage capture — ${op.patientUhid ?? "unknown patient"}`,
-          type: "task", priority: "high", ownerRole: "doctor",
-          sourceModule: "offline", relatedId: op.clientId,
-          reason: "Captured offline; verify patient identity on arrival",
-          detail: JSON.stringify(op.payload).slice(0, 2000),
-        },
-      }).catch(() => null);
-      refId = task?.id; status = task ? "accepted" : "failed";
+      const task = await db.nxTask
+        .create({
+          data: {
+            hospitalId,
+            title: `Offline triage capture — ${op.patientUhid ?? "unknown patient"}`,
+            type: "task",
+            priority: "high",
+            ownerRole: "doctor",
+            sourceModule: "offline",
+            relatedId: op.clientId,
+            reason: "Captured offline; verify patient identity on arrival",
+            detail: JSON.stringify(op.payload).slice(0, 2000),
+          },
+        })
+        .catch(() => null);
+      refId = task?.id;
+      status = task ? "accepted" : "failed";
     } else {
-      const doc = await db.nxDocVersion.create({
-        data: {
-          hospitalId, entityType: op.type === "prescription_draft" ? "care_plan" : "sbar",
-          entityId: op.clientId, version: 1, changeKind: "create",
-          authorName: g.session.name, authorRole: g.session.role,
-          content: JSON.stringify(op.payload).slice(0, 8000),
-          trackedJson: JSON.stringify([{ field: "capturedAt", from: "offline", to: op.capturedAt }]),
-        },
-      }).catch(() => null);
-      refId = doc?.id; status = doc ? "accepted" : "failed";
+      const doc = await db.nxDocVersion
+        .create({
+          data: {
+            hospitalId,
+            entityType: op.type === "prescription_draft" ? "care_plan" : "sbar",
+            entityId: op.clientId,
+            version: 1,
+            changeKind: "create",
+            authorName: g.session.name,
+            authorRole: g.session.role,
+            content: JSON.stringify(op.payload).slice(0, 8000),
+            trackedJson: JSON.stringify([
+              { field: "capturedAt", from: "offline", to: op.capturedAt },
+            ]),
+          },
+        })
+        .catch(() => null);
+      refId = doc?.id;
+      status = doc ? "accepted" : "failed";
     }
     if (status === "accepted") {
-      await db.nxIdempotency.create({
-        data: { key: opKey, endpoint: refId ?? op.type, requestHash: op.clientId, userId: g.session.userId, expiresAt: new Date(Date.now() + 7 * 86400_000) },
-      }).catch(() => {});
-      await appendEvent(hospitalId, "offline_sync", op.clientId, `offline.${op.type}`, { uhid: op.patientUhid }, g.session.name);
+      await db.nxIdempotency
+        .create({
+          data: {
+            key: opKey,
+            endpoint: refId ?? op.type,
+            requestHash: op.clientId,
+            userId: g.session.userId,
+            expiresAt: new Date(Date.now() + 7 * 86400_000),
+          },
+        })
+        .catch(() => {});
+      await appendEvent(
+        hospitalId,
+        "offline_sync",
+        op.clientId,
+        `offline.${op.type}`,
+        { uhid: op.patientUhid },
+        g.session.name,
+      );
     }
-    receipts.push({ clientId: op.clientId, status, refId, reason: status === "failed" ? "write error" : undefined });
+    receipts.push({
+      clientId: op.clientId,
+      status,
+      refId,
+      reason: status === "failed" ? "write error" : undefined,
+    });
   }
-  return ok({ receipts, acceptedCount: receipts.filter((r) => r.status === "accepted").length }, { requestId });
+  return ok(
+    { receipts, acceptedCount: receipts.filter((r) => r.status === "accepted").length },
+    { requestId },
+  );
 });

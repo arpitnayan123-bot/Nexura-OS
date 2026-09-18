@@ -42,7 +42,11 @@ export const POST = withRoute("diy.parse.post", async (req: NextRequest) => {
   const result = parseTranscript(text);
 
   return NextResponse.json({
-    safety: { action: result.safety.action, message: result.safety.message, matched: result.safety.matched },
+    safety: {
+      action: result.safety.action,
+      message: result.safety.message,
+      matched: result.safety.matched,
+    },
     language: result.language,
     goals: result.goals,
     detectedTextSample: normalizeHinglish(text).slice(0, 120),

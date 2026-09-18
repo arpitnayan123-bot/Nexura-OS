@@ -2,9 +2,24 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles, Loader2, HeartPulse, Activity, FlaskConical, TrendingUp,
-  MessageCircle, Send, Stethoscope, AlertTriangle, Users, ArrowRight,
-  CheckCircle2, XCircle, Lightbulb, Beaker, ChevronRight, Siren,
+  Sparkles,
+  Loader2,
+  HeartPulse,
+  Activity,
+  FlaskConical,
+  TrendingUp,
+  MessageCircle,
+  Send,
+  Stethoscope,
+  AlertTriangle,
+  Users,
+  ArrowRight,
+  CheckCircle2,
+  XCircle,
+  Lightbulb,
+  Beaker,
+  ChevronRight,
+  Siren,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -19,7 +34,8 @@ export function SymptomTriageModule() {
 
   const analyze = async () => {
     if (!input.trim()) return;
-    setLoading(true); setResult(null);
+    setLoading(true);
+    setResult(null);
     try {
       const res = await fetch("/api/clinic/symptom-triage", {
         method: "POST",
@@ -50,7 +66,9 @@ export function SymptomTriageModule() {
       />
 
       <div className="rounded-2xl border border-[#E5DFD4] bg-white p-5 shadow-sm">
-        <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Describe patient symptoms</label>
+        <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">
+          Describe patient symptoms
+        </label>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -72,7 +90,11 @@ export function SymptomTriageModule() {
             disabled={loading || !input.trim()}
             className="ml-auto flex items-center gap-1.5 rounded-full bg-[#A16207] px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#8A5A04] disabled:opacity-40"
           >
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5" />
+            )}
             Get AI Triage
           </button>
         </div>
@@ -100,12 +122,18 @@ export function SymptomTriageModule() {
                   style={{ background: s.bg, borderColor: `${s.color}40` }}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white" style={{ background: s.color }}>
+                    <span
+                      className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white"
+                      style={{ background: s.color }}
+                    >
                       <Icon className="h-4 w-4" />
                     </span>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="rounded-full px-2 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider text-white" style={{ background: s.color }}>
+                        <span
+                          className="rounded-full px-2 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider text-white"
+                          style={{ background: s.color }}
+                        >
                           {s.label}
                         </span>
                         <span className="text-xs font-medium text-[#5C544D]">{t.specialty}</span>
@@ -136,7 +164,8 @@ export function SimilarPatientsModule() {
 
   const analyze = async () => {
     if (!input.trim()) return;
-    setLoading(true); setResult(null);
+    setLoading(true);
+    setResult(null);
     try {
       const res = await fetch("/api/clinic/similar-patients", {
         method: "POST",
@@ -161,7 +190,9 @@ export function SimilarPatientsModule() {
       />
 
       <div className="rounded-2xl border border-[#E5DFD4] bg-white p-5 shadow-sm">
-        <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Enter symptoms or diagnosis</label>
+        <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">
+          Enter symptoms or diagnosis
+        </label>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -174,7 +205,11 @@ export function SimilarPatientsModule() {
           disabled={loading || !input.trim()}
           className="mt-3 flex items-center gap-1.5 rounded-full bg-[#A16207] px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#8A5A04] disabled:opacity-40"
         >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+          {loading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5" />
+          )}
           Find Similar Patients
         </button>
       </div>
@@ -188,7 +223,9 @@ export function SimilarPatientsModule() {
             exit={{ opacity: 0, y: -8 }}
             className="space-y-3"
           >
-            <h3 className="font-serif text-base font-semibold text-[#1F1B17]">Aggregated Indian clinical patterns</h3>
+            <h3 className="font-serif text-base font-semibold text-[#1F1B17]">
+              Aggregated Indian clinical patterns
+            </h3>
             {(result.matches || []).map((m: any, i: number) => (
               <motion.div
                 key={i}
@@ -216,10 +253,15 @@ export function SimilarPatientsModule() {
                   />
                 </div>
                 <div className="mt-3">
-                  <p className="text-[0.6rem] font-semibold uppercase tracking-wider text-[#9A8F84]">Commonly prescribed in India</p>
+                  <p className="text-[0.6rem] font-semibold uppercase tracking-wider text-[#9A8F84]">
+                    Commonly prescribed in India
+                  </p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {(m.commonMeds || []).map((med: string) => (
-                      <span key={med} className="rounded-full bg-[#A16207]/8 px-2.5 py-1 text-[0.65rem] font-medium text-[#8A5A04]">
+                      <span
+                        key={med}
+                        className="rounded-full bg-[#A16207]/8 px-2.5 py-1 text-[0.65rem] font-medium text-[#8A5A04]"
+                      >
                         {med}
                       </span>
                     ))}
@@ -266,7 +308,9 @@ export function ChronicCareModule() {
       />
 
       <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Select chronic condition</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">
+          Select chronic condition
+        </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(plans?.plans || ["Diabetes Type 2", "Hypertension"]).map((dx: string) => (
             <button
@@ -298,7 +342,9 @@ export function ChronicCareModule() {
           >
             <div className="flex items-center gap-2">
               <HeartPulse className="h-4 w-4 text-[#A16207]" />
-              <h3 className="font-serif text-base font-semibold text-[#1F1B17]">{selected.disease} — ICMR Monitoring Plan</h3>
+              <h3 className="font-serif text-base font-semibold text-[#1F1B17]">
+                {selected.disease} — ICMR Monitoring Plan
+              </h3>
             </div>
             <div className="mt-3 space-y-2">
               {(selected.checkups || []).map((c: any, i: number) => (
@@ -318,13 +364,17 @@ export function ChronicCareModule() {
                       <p className="text-[0.6rem] text-[#9A8F84]">{c.guideline}</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-[#A16207]/10 px-2.5 py-0.5 text-xs font-semibold text-[#A16207]">{c.frequency}</span>
+                  <span className="rounded-full bg-[#A16207]/10 px-2.5 py-0.5 text-xs font-semibold text-[#A16207]">
+                    {c.frequency}
+                  </span>
                 </motion.div>
               ))}
             </div>
             {(selected.reminders?.length ?? 0) > 0 && (
               <div className="mt-4">
-                <p className="mb-1 text-[0.6rem] font-semibold uppercase tracking-wider text-[#9A8F84]">Patient reminders (WhatsApp)</p>
+                <p className="mb-1 text-[0.6rem] font-semibold uppercase tracking-wider text-[#9A8F84]">
+                  Patient reminders (WhatsApp)
+                </p>
                 <div className="space-y-1">
                   {selected.reminders.map((r: string, i: number) => (
                     <div key={i} className="flex items-start gap-2 text-xs text-[#5C544D]">
@@ -362,7 +412,8 @@ export function LabInterpretationModule() {
 
   const analyze = async () => {
     if (!test || !value) return;
-    setLoading(true); setResult(null);
+    setLoading(true);
+    setResult(null);
     try {
       const res = await fetch("/api/clinic/lab-interpretation", {
         method: "POST",
@@ -395,7 +446,9 @@ export function LabInterpretationModule() {
       <div className="rounded-2xl border border-[#E5DFD4] bg-white p-5 shadow-sm">
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="sm:col-span-2">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Test</label>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">
+              Test
+            </label>
             <select
               value={test}
               onChange={(e) => setTest(e.target.value)}
@@ -403,12 +456,16 @@ export function LabInterpretationModule() {
             >
               <option value="">Select test…</option>
               {TESTS.map((t) => (
-                <option key={t} value={t}>{t}</option>
+                <option key={t} value={t}>
+                  {t}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Value</label>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">
+              Value
+            </label>
             <input
               type="number"
               value={value}
@@ -423,7 +480,11 @@ export function LabInterpretationModule() {
           disabled={loading || !test || !value}
           className="mt-3 flex items-center gap-1.5 rounded-full bg-[#A16207] px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#8A5A04] disabled:opacity-40"
         >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+          {loading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5" />
+          )}
           Interpret with AI
         </button>
       </div>
@@ -453,21 +514,32 @@ export function LabInterpretationModule() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
-                          <span className="grid h-11 w-11 place-items-center rounded-xl text-white" style={{ background: s.color }}>
+                          <span
+                            className="grid h-11 w-11 place-items-center rounded-xl text-white"
+                            style={{ background: s.color }}
+                          >
                             <Icon className="h-5 w-5" />
                           </span>
                           <div>
                             <p className="text-xs text-[#9A8F84]">{result.test}</p>
                             <p className="font-serif text-2xl font-bold text-[#1F1B17]">
-                              {result.value} <span className="text-base font-normal text-[#9A8F84]">{result.unit}</span>
+                              {result.value}{" "}
+                              <span className="text-base font-normal text-[#9A8F84]">
+                                {result.unit}
+                              </span>
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="rounded-full px-3 py-1 text-xs font-bold text-white" style={{ background: s.color }}>
+                          <span
+                            className="rounded-full px-3 py-1 text-xs font-bold text-white"
+                            style={{ background: s.color }}
+                          >
                             {result.status}
                           </span>
-                          <p className="mt-1 text-[0.6rem] text-[#9A8F84]">Range: {result.range} {result.unit}</p>
+                          <p className="mt-1 text-[0.6rem] text-[#9A8F84]">
+                            Range: {result.range} {result.unit}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -478,7 +550,9 @@ export function LabInterpretationModule() {
                 <div className="rounded-2xl border border-[#E5DFD4] bg-white p-4 shadow-sm">
                   <div className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4 text-[#C9962E]" />
-                    <p className="text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">Clinical meaning</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">
+                      Clinical meaning
+                    </p>
                   </div>
                   <p className="mt-2 text-sm text-[#1F1B17]">{result.meaning}</p>
                 </div>
@@ -487,7 +561,9 @@ export function LabInterpretationModule() {
                 <div className="rounded-2xl border border-[#A16207]/20 bg-gradient-to-br from-[#A16207]/8 to-[#C9962E]/8 p-4 shadow-sm">
                   <div className="flex items-center gap-2">
                     <Stethoscope className="h-4 w-4 text-[#A16207]" />
-                    <p className="text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">AI recommendation</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[#9A8F84]">
+                      AI recommendation
+                    </p>
                   </div>
                   <p className="mt-2 text-sm text-[#1F1B17]">{result.advice}</p>
                 </div>
@@ -539,13 +615,19 @@ export function PrescribingAnalyticsModule() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Kpi label="Total visits" value={data?.totalVisits || 0} color="#A16207" />
-        <Kpi label="Top diagnosis" value={data?.topDiagnoses?.[0]?.diagnosis?.slice(0, 10) || "—"} color="#9DB89E" />
+        <Kpi
+          label="Top diagnosis"
+          value={data?.topDiagnoses?.[0]?.diagnosis?.slice(0, 10) || "—"}
+          color="#9DB89E"
+        />
         <Kpi label="Unique drugs" value={data?.topDrugs?.length || 0} color="#C9962E" />
         <Kpi label="Avg per visit" value="2.3" color="#B8860B" />
       </div>
 
       <div className="rounded-2xl border border-[#E5DFD4] bg-white p-5 shadow-sm">
-        <h3 className="mb-3 font-serif text-base font-semibold text-[#1F1B17]">Top Diagnoses (by frequency)</h3>
+        <h3 className="mb-3 font-serif text-base font-semibold text-[#1F1B17]">
+          Top Diagnoses (by frequency)
+        </h3>
         <div className="space-y-3">
           {(data?.topDiagnoses || []).map((d: any, i: number) => (
             <motion.div
@@ -573,7 +655,9 @@ export function PrescribingAnalyticsModule() {
 
       {data?.topDrugs && (
         <div className="rounded-2xl border border-[#E5DFD4] bg-white p-5 shadow-sm">
-          <h3 className="mb-3 font-serif text-base font-semibold text-[#1F1B17]">Most Prescribed Drugs</h3>
+          <h3 className="mb-3 font-serif text-base font-semibold text-[#1F1B17]">
+            Most Prescribed Drugs
+          </h3>
           <div className="flex flex-wrap gap-2">
             {data.topDrugs.map((d: any, i: number) => (
               <span
@@ -595,7 +679,10 @@ export function PrescribingAnalyticsModule() {
 ============================================================ */
 export function PatientChatModule() {
   const [messages, setMessages] = useState<{ role: string; text: string; escalated?: boolean }[]>([
-    { role: "bot", text: "Namaste! I am your AI health assistant. Ask me about medicines, dosage, diet, or side effects. I'll escalate complex questions to your doctor." },
+    {
+      role: "bot",
+      text: "Namaste! I am your AI health assistant. Ask me about medicines, dosage, diet, or side effects. I'll escalate complex questions to your doctor.",
+    },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -616,13 +703,20 @@ export function PatientChatModule() {
       setMessages((m) => [...m, { role: "bot", text: d.answer, escalated: d.escalated }]);
       if (d.escalated) toast.info("Question forwarded to doctor");
     } catch {
-      setMessages((m) => [...m, { role: "bot", text: "Sorry, I couldn't process that. Please try again." }]);
+      setMessages((m) => [
+        ...m,
+        { role: "bot", text: "Sorry, I couldn't process that. Please try again." },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  const SUGGESTED = ["What are side effects of Metformin?", "Can I take Paracetamol with antibiotics?", "Diet for diabetes patient?"];
+  const SUGGESTED = [
+    "What are side effects of Metformin?",
+    "Can I take Paracetamol with antibiotics?",
+    "Diet for diabetes patient?",
+  ];
 
   return (
     <div className="space-y-5">
@@ -649,7 +743,7 @@ export function PatientChatModule() {
                     ? "bg-[#A16207] text-white"
                     : m.escalated
                       ? "bg-[#C9962E]/15 text-[#1F1B17] ring-1 ring-[#C9962E]/30"
-                      : "bg-[#F3EEE6] text-[#1F1B17]"
+                      : "bg-[#F3EEE6] text-[#1F1B17]",
                 )}
               >
                 {m.escalated && (
@@ -729,7 +823,9 @@ function Header({ title, subtitle, icon: Icon }: { title: string; subtitle: stri
 function Kpi({ label, value, color }: { label: string; value: string | number; color: string }) {
   return (
     <div className="rounded-2xl border border-[#E5DFD4] bg-white p-4 shadow-sm">
-      <p className="font-serif text-xl font-bold" style={{ color }}>{value}</p>
+      <p className="font-serif text-xl font-bold" style={{ color }}>
+        {value}
+      </p>
       <p className="mt-0.5 text-[0.6rem] text-[#9A8F84]">{label}</p>
     </div>
   );

@@ -41,7 +41,8 @@ const VARIANTS: Record<SegmentErrorVariant, VariantStyle> = {
   canvas: {
     shell: "nxf-root grid min-h-screen place-items-center px-4",
     shellStyle: { backgroundColor: "#0B1630", minHeight: "100dvh", colorScheme: "dark" },
-    panel: "w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur-sm",
+    panel:
+      "w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur-sm",
     iconWrap: "bg-white/10 ring-1 ring-white/15",
     title: "text-xl font-semibold tracking-tight opacity-95",
     body: "text-sm leading-relaxed opacity-75",
@@ -52,11 +53,13 @@ const VARIANTS: Record<SegmentErrorVariant, VariantStyle> = {
      Accent: Liquid Gold (platform brand) — replaces the pre-gold coral. */
   warm: {
     shell: "grid min-h-screen place-items-center bg-[#FAF7F2] px-4",
-    panel: "w-full max-w-md rounded-2xl bg-white p-8 text-center ring-1 ring-[#EFE9E0] shadow-depth",
+    panel:
+      "w-full max-w-md rounded-2xl bg-white p-8 text-center ring-1 ring-[#EFE9E0] shadow-depth",
     iconWrap: "bg-[#A16207]/10 text-[#8A5A04]",
     title: "text-xl font-semibold tracking-tight text-[#2A2622]",
     body: "text-sm leading-relaxed text-[#7A6F63]",
-    primary: "bg-[#A16207] text-[#FFFDF6] hover:bg-[#8A5A04] shadow-[0_8px_22px_-8px_rgba(166,124,42,0.55)]",
+    primary:
+      "bg-[#A16207] text-[#FFFDF6] hover:bg-[#8A5A04] shadow-[0_8px_22px_-8px_rgba(166,124,42,0.55)]",
     ghost: "border border-[#E7E5E4] text-[#57534E] hover:bg-[#FAF7F2]",
   },
   /* /connect — dark warm-brown canvas used by the connect app shells.
@@ -67,7 +70,8 @@ const VARIANTS: Record<SegmentErrorVariant, VariantStyle> = {
     iconWrap: "bg-[#D9B87C]/15 text-[#D9B87C]",
     title: "text-xl font-semibold tracking-tight text-white",
     body: "text-sm leading-relaxed text-white/60",
-    primary: "bg-[#D9B87C] text-[#1F1B17] hover:bg-[#C9A55F] shadow-[0_8px_22px_-8px_rgba(217,184,124,0.35)]",
+    primary:
+      "bg-[#D9B87C] text-[#1F1B17] hover:bg-[#C9A55F] shadow-[0_8px_22px_-8px_rgba(217,184,124,0.35)]",
     ghost: "border border-white/20 text-white/80 hover:bg-white/10",
   },
   /* /global — white marketing page, slate ink, Liquid Gold accent. */
@@ -77,7 +81,8 @@ const VARIANTS: Record<SegmentErrorVariant, VariantStyle> = {
     iconWrap: "bg-[#A16207]/10 text-[#8A5A04]",
     title: "text-xl font-semibold tracking-tight text-slate-900",
     body: "text-sm leading-relaxed text-slate-500",
-    primary: "bg-[#A16207] text-[#FFFDF6] hover:bg-[#8A5A04] shadow-[0_8px_22px_-8px_rgba(166,124,42,0.55)]",
+    primary:
+      "bg-[#A16207] text-[#FFFDF6] hover:bg-[#8A5A04] shadow-[0_8px_22px_-8px_rgba(166,124,42,0.55)]",
     ghost: "border border-slate-200 text-slate-600 hover:bg-slate-100",
   },
   /* /know-your-health — KYH glass aesthetic on the #FAF7F2 mesh,
@@ -88,7 +93,8 @@ const VARIANTS: Record<SegmentErrorVariant, VariantStyle> = {
     iconWrap: "bg-[#A16207]/12 text-[#8A5A04]",
     title: "text-xl font-semibold tracking-tight text-[#1F1B17]",
     body: "text-sm leading-relaxed text-[#9A8F84]",
-    primary: "bg-[#A16207] text-[#FFFDF6] hover:bg-[#8A5A04] shadow-[0_8px_22px_-8px_rgba(166,124,42,0.55)]",
+    primary:
+      "bg-[#A16207] text-[#FFFDF6] hover:bg-[#8A5A04] shadow-[0_8px_22px_-8px_rgba(166,124,42,0.55)]",
     ghost: "border border-[#E7E0D6] text-[#5A5248] hover:bg-white/70",
   },
 };
@@ -129,10 +135,7 @@ export function SegmentErrorBoundary({
     <div className={v.shell} style={v.shellStyle}>
       <div className={v.panel} role="alert">
         <div
-          className={cn(
-            "mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full",
-            v.iconWrap
-          )}
+          className={cn("mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full", v.iconWrap)}
           aria-hidden="true"
         >
           <AlertTriangle className="h-7 w-7" />
@@ -144,7 +147,12 @@ export function SegmentErrorBoundary({
         </p>
 
         {error.digest && (
-          <p className={cn("mt-5 rounded-lg bg-black/5 px-3 py-2 font-mono text-[0.65rem] opacity-80", v.body)}>
+          <p
+            className={cn(
+              "mt-5 rounded-lg bg-black/5 px-3 py-2 font-mono text-[0.65rem] opacity-80",
+              v.body,
+            )}
+          >
             Error ID: {error.digest}
           </p>
         )}
@@ -155,7 +163,7 @@ export function SegmentErrorBoundary({
             onClick={reset}
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors",
-              v.primary
+              v.primary,
             )}
           >
             <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
@@ -165,7 +173,7 @@ export function SegmentErrorBoundary({
             href="/"
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors",
-              v.ghost
+              v.ghost,
             )}
           >
             <Home className="h-3.5 w-3.5" aria-hidden="true" />

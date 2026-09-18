@@ -17,8 +17,17 @@ import { Landing } from "./landing";
 import { ResultsView } from "./results";
 import { HistoryView, SettingsView, SummarySheet, type HistoryRun } from "./extras";
 import {
-  EMPTY_FORM, StepActivity, StepDiet, StepEnvironment, StepHistory,
-  StepLabs, StepProfile, StepReview, StepSleep, StepSymptoms, StepVitals,
+  EMPTY_FORM,
+  StepActivity,
+  StepDiet,
+  StepEnvironment,
+  StepHistory,
+  StepLabs,
+  StepProfile,
+  StepReview,
+  StepSleep,
+  StepSymptoms,
+  StepVitals,
   type FsForm,
 } from "./intake";
 import { FsError, FsLoader, tr, type FsLang } from "./ui";
@@ -104,7 +113,9 @@ export function ForesightExperience() {
       const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
       el.style.setProperty("--p", p.toFixed(4));
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
     update();
@@ -123,12 +134,18 @@ export function ForesightExperience() {
     const hydrate = async () => {
       const loaded = loadForm();
       let l: string | null = null;
-      try { l = window.localStorage.getItem(LANG_KEY); } catch { /* private mode */ }
+      try {
+        l = window.localStorage.getItem(LANG_KEY);
+      } catch {
+        /* private mode */
+      }
       let count = 0;
       try {
         const j = await fetch("/api/nx/foresight/history").then((r) => r.json());
         if (j?.ok) count = (j.data?.runs ?? []).length;
-      } catch { /* offline — boot still succeeds */ }
+      } catch {
+        /* offline — boot still succeeds */
+      }
       if (!alive) return;
       setFormState(loaded);
       if (l === "hi") setLangState("hi");
@@ -136,7 +153,9 @@ export function ForesightExperience() {
       setBootState("ready");
     };
     void hydrate();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const setForm = useCallback((patch: Partial<FsForm>) => {
@@ -146,14 +165,22 @@ export function ForesightExperience() {
       // (vitals, labs, symptoms, family history). Session-scoped storage
       // keeps the autosave UX but clears it when the tab closes, instead of
       // leaving PHI resident in the browser indefinitely.
-      try { window.sessionStorage.setItem(FORM_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      try {
+        window.sessionStorage.setItem(FORM_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
       return next;
     });
   }, []);
 
   const setLang = useCallback((l: FsLang) => {
     setLangState(l);
-    try { window.localStorage.setItem(LANG_KEY, l); } catch { /* ignore */ }
+    try {
+      window.localStorage.setItem(LANG_KEY, l);
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   /* running narration */
@@ -201,10 +228,15 @@ export function ForesightExperience() {
         setView("results");
         scrollToTop();
       }
-    } catch { /* network — stay on history */ }
+    } catch {
+      /* network — stay on history */
+    }
   }, []);
 
-  const goLanding = () => { setView("landing"); scrollToTop(); };
+  const goLanding = () => {
+    setView("landing");
+    scrollToTop();
+  };
 
   const gotoStep = (next: number) => {
     setStepDir((d) => (next === step ? d : next > step ? 1 : -1));
@@ -214,11 +246,14 @@ export function ForesightExperience() {
   const navBtn = (label: string, target: View, Icon: typeof Activity, active: boolean) => (
     <button
       type="button"
-      onClick={() => { setView(target); scrollToTop(); }}
+      onClick={() => {
+        setView(target);
+        scrollToTop();
+      }}
       aria-current={active ? "page" : undefined}
       className={cn(
         "relative inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition",
-        active ? "text-[#FDE68A]" : "text-[#C0BAA9] hover:bg-white/5 hover:text-[#FFFEFA]"
+        active ? "text-[#FDE68A]" : "text-[#C0BAA9] hover:bg-white/5 hover:text-[#FFFEFA]",
       )}
     >
       {active && (
@@ -236,17 +271,28 @@ export function ForesightExperience() {
 
   const stepComponent = useMemo(() => {
     switch (STEPS[step]?.id) {
-      case "profile": return <StepProfile form={form} set={setForm} />;
-      case "symptoms": return <StepSymptoms form={form} set={setForm} />;
-      case "diet": return <StepDiet form={form} set={setForm} />;
-      case "activity": return <StepActivity form={form} set={setForm} />;
-      case "sleep": return <StepSleep form={form} set={setForm} />;
-      case "vitals": return <StepVitals form={form} set={setForm} />;
-      case "labs": return <StepLabs form={form} set={setForm} />;
-      case "history": return <StepHistory form={form} set={setForm} />;
-      case "environment": return <StepEnvironment form={form} set={setForm} />;
-      case "review": return <StepReview form={form} />;
-      default: return null;
+      case "profile":
+        return <StepProfile form={form} set={setForm} />;
+      case "symptoms":
+        return <StepSymptoms form={form} set={setForm} />;
+      case "diet":
+        return <StepDiet form={form} set={setForm} />;
+      case "activity":
+        return <StepActivity form={form} set={setForm} />;
+      case "sleep":
+        return <StepSleep form={form} set={setForm} />;
+      case "vitals":
+        return <StepVitals form={form} set={setForm} />;
+      case "labs":
+        return <StepLabs form={form} set={setForm} />;
+      case "history":
+        return <StepHistory form={form} set={setForm} />;
+      case "environment":
+        return <StepEnvironment form={form} set={setForm} />;
+      case "review":
+        return <StepReview form={form} />;
+      default:
+        return null;
     }
   }, [step, form, setForm]);
 
@@ -265,7 +311,9 @@ export function ForesightExperience() {
       <div className="sticky top-0 z-30 border-b border-white/[0.10] bg-[#0D1936]/85 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-2 sm:px-6">
           <p className="nxf-eyebrow text-[10.5px] font-bold uppercase nxf-gold">
-            <span aria-hidden="true" className="nxf-glyph-glow mr-1">✦</span>
+            <span aria-hidden="true" className="nxf-glyph-glow mr-1">
+              ✦
+            </span>
             {tr(lang, "app.tag")}
           </p>
           <div className="flex items-center gap-1">
@@ -288,20 +336,44 @@ export function ForesightExperience() {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
         <AnimatePresence mode="wait">
           {view === "landing" && (
-            <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
+            <motion.div
+              key="landing"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+            >
               <Landing
                 lang={lang}
-                onStart={() => { setView("wizard"); setStep(0); scrollToTop(); }}
-                onHistory={() => { setView("history"); scrollToTop(); }}
+                onStart={() => {
+                  setView("wizard");
+                  setStep(0);
+                  scrollToTop();
+                }}
+                onHistory={() => {
+                  setView("history");
+                  scrollToTop();
+                }}
                 hasHistory={historyCount > 0}
               />
             </motion.div>
           )}
 
           {view === "wizard" && (
-            <motion.div key="wizard" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="mx-auto max-w-3xl">
+            <motion.div
+              key="wizard"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              className="mx-auto max-w-3xl"
+            >
               {/* progress */}
-              <div className="mb-7" role="group" aria-label={`${STEPS[step].label}: step ${step + 1} of ${STEPS.length}`}>
+              <div
+                className="mb-7"
+                role="group"
+                aria-label={`${STEPS[step].label}: step ${step + 1} of ${STEPS.length}`}
+              >
                 <div className="flex items-center justify-between">
                   <p className="text-[12px] font-semibold uppercase tracking-[0.16em] nxf-gold">
                     {step + 1}/{STEPS.length} · {STEPS[step].label}
@@ -310,19 +382,35 @@ export function ForesightExperience() {
                 </div>
                 <div className="mt-2.5 flex gap-1.5">
                   {STEPS.map((s, i) => (
-                    <button key={s.id} type="button" aria-label={`Step ${i + 1}: ${s.label}`}
-                      onClick={() => { gotoStep(i); }}
-                      className={cn("h-1.5 flex-1 rounded-full transition-all",
-                        i < step ? "nxf-dot-done bg-amber-400/70" : i === step ? "nxf-dot-active bg-amber-300" : "bg-white/10")} />
+                    <button
+                      key={s.id}
+                      type="button"
+                      aria-label={`Step ${i + 1}: ${s.label}`}
+                      onClick={() => {
+                        gotoStep(i);
+                      }}
+                      className={cn(
+                        "h-1.5 flex-1 rounded-full transition-all",
+                        i < step
+                          ? "nxf-dot-done bg-amber-400/70"
+                          : i === step
+                            ? "nxf-dot-active bg-amber-300"
+                            : "bg-white/10",
+                      )}
+                    />
                   ))}
                 </div>
               </div>
 
-              {step === 0 && !ageValid && form.profile.ageYears > 0 && form.profile.ageYears < 18 && (
-                <div className="mb-5 rounded-xl border border-amber-400/30 bg-amber-400/[0.07] p-4 text-[13px] nxf-body">
-                  Nexura Predictive is built for adults. For under-18s, a paediatrician should lead — growth changes every rule.
-                </div>
-              )}
+              {step === 0 &&
+                !ageValid &&
+                form.profile.ageYears > 0 &&
+                form.profile.ageYears < 18 && (
+                  <div className="mb-5 rounded-xl border border-amber-400/30 bg-amber-400/[0.07] p-4 text-[13px] nxf-body">
+                    Nexura Predictive is built for adults. For under-18s, a paediatrician should
+                    lead — growth changes every rule.
+                  </div>
+                )}
 
               <div className="nxf-glass overflow-hidden p-5 sm:p-7">
                 <AnimatePresence mode="wait" initial={false}>
@@ -339,20 +427,33 @@ export function ForesightExperience() {
               </div>
 
               {runError && (
-                <p className="mt-4 rounded-xl border border-rose-400/30 bg-rose-400/[0.07] p-3.5 text-[13px] nxf-body">{runError}</p>
+                <p className="mt-4 rounded-xl border border-rose-400/30 bg-rose-400/[0.07] p-3.5 text-[13px] nxf-body">
+                  {runError}
+                </p>
               )}
 
               <div className="mt-6 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   className="nxf-cta nxf-cta-ghost"
-                  onClick={() => { if (step === 0) goLanding(); else gotoStep(step - 1); scrollToTop(); }}
+                  onClick={() => {
+                    if (step === 0) goLanding();
+                    else gotoStep(step - 1);
+                    scrollToTop();
+                  }}
                 >
                   {step === 0 ? tr(lang, "app.home") : tr(lang, "app.back")}
                 </button>
                 {step < STEPS.length - 1 ? (
-                  <button type="button" className="nxf-cta" disabled={!canContinue}
-                    onClick={() => { gotoStep(step + 1); scrollToTop(); }}>
+                  <button
+                    type="button"
+                    className="nxf-cta"
+                    disabled={!canContinue}
+                    onClick={() => {
+                      gotoStep(step + 1);
+                      scrollToTop();
+                    }}
+                  >
                     {tr(lang, "app.continue")}
                   </button>
                 ) : (
@@ -365,12 +466,20 @@ export function ForesightExperience() {
           )}
 
           {view === "running" && (
-            <motion.div key="running" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
+            <motion.div
+              key="running"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center"
+            >
               <div className="relative h-24 w-24">
                 {/* radar sweep scans the ring while the engine thinks */}
                 <div className="nxf-radar absolute inset-0" aria-hidden="true" />
-                <div className="absolute inset-0 rounded-full border border-white/10" aria-hidden="true" />
+                <div
+                  className="absolute inset-0 rounded-full border border-white/10"
+                  aria-hidden="true"
+                />
                 <motion.div
                   className="absolute inset-3 rounded-full border border-amber-300/35"
                   animate={{ scale: [1, 1.08, 1], opacity: [0.5, 1, 0.5] }}
@@ -382,35 +491,74 @@ export function ForesightExperience() {
                 </div>
               </div>
               <AnimatePresence mode="wait">
-                <motion.p key={runningLine} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }}
-                  className="text-[14px] nxf-dim">
+                <motion.p
+                  key={runningLine}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.4 }}
+                  className="text-[14px] nxf-dim"
+                >
                   {RUNNING_LINES[runningLine]}
                 </motion.p>
               </AnimatePresence>
-              <p className="text-[11.5px] nxf-mute">deterministic engine · versioned ruleset · no black boxes</p>
+              <p className="text-[11.5px] nxf-mute">
+                deterministic engine · versioned ruleset · no black boxes
+              </p>
             </motion.div>
           )}
 
           {view === "results" && report && (
-            <motion.div key={`results-${runId ?? "x"}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <motion.div
+              key={`results-${runId ?? "x"}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+            >
               <ResultsView
                 report={report}
                 input={input}
-                onRerun={() => { setView("wizard"); setStep(0); scrollToTop(); }}
-                onEditInputs={() => { setView("wizard"); setStep(STEPS.length - 1); scrollToTop(); }}
+                onRerun={() => {
+                  setView("wizard");
+                  setStep(0);
+                  scrollToTop();
+                }}
+                onEditInputs={() => {
+                  setView("wizard");
+                  setStep(STEPS.length - 1);
+                  scrollToTop();
+                }}
                 onSummary={(text) => setSummaryText(text || report.doctorSummary || "")}
               />
             </motion.div>
           )}
 
           {view === "history" && (
-            <motion.div key="history" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
-              <HistoryView lang={lang} onOpen={(id) => void openHistoryItem(id)} onBack={goLanding} />
+            <motion.div
+              key="history"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+            >
+              <HistoryView
+                lang={lang}
+                onOpen={(id) => void openHistoryItem(id)}
+                onBack={goLanding}
+              />
             </motion.div>
           )}
 
           {view === "settings" && (
-            <motion.div key="settings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="mx-auto max-w-2xl">
+            <motion.div
+              key="settings"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              className="mx-auto max-w-2xl"
+            >
               <SettingsView lang={lang} onLang={setLang} onBack={goLanding} />
             </motion.div>
           )}
@@ -420,13 +568,21 @@ export function ForesightExperience() {
       <footer className="mt-auto border-t border-white/[0.06] px-4 py-8 sm:px-6">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-2">
           <p className="text-[11.5px] leading-relaxed nxf-mute">
-            Nexura Predictive reads risk-signal patterns — it does not diagnose, prescribe or replace a doctor.
-            In an emergency call 108. Mental health: Tele-MANAS 14416 (free, 24×7).
+            Nexura Predictive reads risk-signal patterns — it does not diagnose, prescribe or
+            replace a doctor. In an emergency call 108. Mental health: Tele-MANAS 14416 (free,
+            24×7).
           </p>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <a href="/" className="text-[13px] font-medium nxf-gold transition hover:text-[#FDE68A]">Return to Hospital OS</a>
+            <a
+              href="/"
+              className="text-[13px] font-medium nxf-gold transition hover:text-[#FDE68A]"
+            >
+              Return to Hospital OS
+            </a>
             <p className="nxf-mono text-[10px] tracking-wider text-[#C0BAA9]">
-              <span aria-hidden="true" className="nxf-glyph-glow nxf-gold">✦ </span>
+              <span aria-hidden="true" className="nxf-glyph-glow nxf-gold">
+                ✦{" "}
+              </span>
               NEXURA BUILD 1.1.0 · foresight-2.0.0 · india-cal-2.0.0
             </p>
           </div>

@@ -16,7 +16,17 @@ export const GET = withRoute("diy.me.export", async (req: NextRequest) => {
   const g = await guard(req, { consent: "EXPORT" });
   if (g instanceof NextResponse) return g;
 
-  const [goals, plans, tasks, completions, progress, consents, conflicts, safetyEvents, generations] = await Promise.all([
+  const [
+    goals,
+    plans,
+    tasks,
+    completions,
+    progress,
+    consents,
+    conflicts,
+    safetyEvents,
+    generations,
+  ] = await Promise.all([
     db.diyGoal.findMany({ where: { userId: g.userId } }),
     db.diyPlan.findMany({ where: { userId: g.userId } }),
     db.diyTask.findMany({ where: { plan: { userId: g.userId } } }),
@@ -54,7 +64,10 @@ export const DELETE = withRoute("diy.me.wipe", async (req: NextRequest) => {
      threw, making the wipe permanently 400. Read the parsed body. */
   const confirm = (g.body as { confirm?: string } | undefined)?.confirm ?? "";
   if (confirm !== "DELETE") {
-    return NextResponse.json({ error: { code: "DIY_005", message: 'Send { "confirm": "DELETE" } to wipe DIY data.' } }, { status: 400 });
+    return NextResponse.json(
+      { error: { code: "DIY_005", message: 'Send { "confirm": "DELETE" } to wipe DIY data.' } },
+      { status: 400 },
+    );
   }
 
   const plans = await db.diyPlan.findMany({ where: { userId: g.userId }, select: { id: true } });

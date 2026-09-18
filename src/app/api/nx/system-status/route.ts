@@ -20,7 +20,11 @@ async function readAll(hospitalId: string) {
   const map: Record<string, { enabled: boolean; message: string | null; severity: string }> = {};
   for (const k of KEYS) {
     const row = rows.find((r) => r.key === k);
-    map[k] = { enabled: row?.enabled ?? false, message: row?.message ?? null, severity: row?.severity ?? "info" };
+    map[k] = {
+      enabled: row?.enabled ?? false,
+      message: row?.message ?? null,
+      severity: row?.severity ?? "info",
+    };
   }
   void hospitalId;
   return map;
@@ -76,12 +80,32 @@ export const PUT = withRoute("system.status.set", async (req: NextRequest) => {
   const d = parsed.data;
   const row = await db.nxSystemStatus.upsert({
     where: { key: d.key },
-    update: { enabled: d.enabled, message: d.message, severity: d.severity, updatedBy: g.session.name },
-    create: { key: d.key, enabled: d.enabled, message: d.message, severity: d.severity ?? "info", updatedBy: g.session.name },
+    update: {
+      enabled: d.enabled,
+      message: d.message,
+      severity: d.severity,
+      updatedBy: g.session.name,
+    },
+    create: {
+      key: d.key,
+      enabled: d.enabled,
+      message: d.message,
+      severity: d.severity ?? "info",
+      updatedBy: g.session.name,
+    },
   });
-  const hospitalId = g.session.hospitalId ?? (await db.hospital.findFirst({ select: { id: true } }))?.id;
+  const hospitalId =
+    g.session.hospitalId ?? (await db.hospital.findFirst({ select: { id: true } }))?.id;
   if (hospitalId) {
-    await audit({ hospitalId, actorName: g.session.name, actorRole: g.session.role, action: "system.status.set", entityType: "nx_system_status", entityId: row.id, detail: { key: d.key, enabled: d.enabled } });
+    await audit({
+      hospitalId,
+      actorName: g.session.name,
+      actorRole: g.session.role,
+      action: "system.status.set",
+      entityType: "nx_system_status",
+      entityId: row.id,
+      detail: { key: d.key, enabled: d.enabled },
+    });
   }
   return NextResponse.json({ data: { status: row } });
 });

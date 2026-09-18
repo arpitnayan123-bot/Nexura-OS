@@ -23,12 +23,20 @@ export const GET = withRoute("nx.incidents.list", async (req: NextRequest) => {
   if (status) where.status = { in: status.split(",") };
   if (severity) where.severity = { in: severity.split(",") };
 
-  const incidents = await db.nxIncident.findMany({ where, orderBy: { createdAt: "desc" }, take: 100 });
+  const incidents = await db.nxIncident.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take: 100,
+  });
   const counts = {
     open: incidents.filter((i) => i.status === "open").length,
-    critical: incidents.filter((i) => i.severity === "critical" && !["resolved", "closed"].includes(i.status)).length,
+    critical: incidents.filter(
+      (i) => i.severity === "critical" && !["resolved", "closed"].includes(i.status),
+    ).length,
     investigating: incidents.filter((i) => i.status === "investigating").length,
-    resolved30d: await db.nxIncident.count({ where: { hospitalId, resolvedAt: { gte: new Date(Date.now() - 30 * 86400000) } } }),
+    resolved30d: await db.nxIncident.count({
+      where: { hospitalId, resolvedAt: { gte: new Date(Date.now() - 30 * 86400000) } },
+    }),
   };
   return NextResponse.json({ incidents, counts });
 });
@@ -48,7 +56,9 @@ export const POST = withRoute("nx.incidents.report", async (req: NextRequest) =>
       hospitalId: hospitalId!,
       title: String(body.title),
       description: body.description || null,
-      severity: ["info", "minor", "major", "critical"].includes(body.severity) ? body.severity : "minor",
+      severity: ["info", "minor", "major", "critical"].includes(body.severity)
+        ? body.severity
+        : "minor",
       category: body.category || "operational",
       location: body.location || null,
       patientId: body.patientId || null,
@@ -56,8 +66,13 @@ export const POST = withRoute("nx.incidents.report", async (req: NextRequest) =>
     },
   });
   await audit({
-    hospitalId: hospitalId!, actorName: gate.session.name, actorRole: gate.session.role,
-    action: "incident.report", entityType: "NxIncident", entityId: incident.id, patientId: incident.patientId || undefined,
+    hospitalId: hospitalId!,
+    actorName: gate.session.name,
+    actorRole: gate.session.role,
+    action: "incident.report",
+    entityType: "NxIncident",
+    entityId: incident.id,
+    patientId: incident.patientId || undefined,
     detail: { severity: incident.severity, category: incident.category },
   });
   return NextResponse.json({ incident });
@@ -72,7 +87,9 @@ export const PATCH = withRoute("nx.incidents.transition", async (req: NextReques
   if (!body.id) return NextResponse.json({ error: "missing_id" }, { status: 400 });
 
   // Tenant-scoped lookup — never touch another hospital's incident.
-  const incident = await db.nxIncident.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId } });
+  const incident = await db.nxIncident.findFirst({
+    where: { id: body.id, hospitalId: gate.session.hospitalId },
+  });
   if (!incident) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const data: Record<string, unknown> = { status: body.status || "acknowledged" };
@@ -81,8 +98,13 @@ export const PATCH = withRoute("nx.incidents.transition", async (req: NextReques
 
   const updated = await db.nxIncident.update({ where: { id: incident.id }, data });
   await audit({
-    hospitalId: incident.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-    action: `incident.${data.status}`, entityType: "NxIncident", entityId: incident.id, patientId: incident.patientId || undefined,
+    hospitalId: incident.hospitalId,
+    actorName: gate.session.name,
+    actorRole: gate.session.role,
+    action: `incident.${data.status}`,
+    entityType: "NxIncident",
+    entityId: incident.id,
+    patientId: incident.patientId || undefined,
     detail: { from: incident.status, to: updated.status },
   });
   return NextResponse.json({ incident: updated });

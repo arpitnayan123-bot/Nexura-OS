@@ -78,8 +78,7 @@ export function ProductShowcase() {
           <div className="mx-auto max-w-2xl text-center">
             <span className="eyebrow">The Nexura suite</span>
             <h2 className="title-lux mt-4 text-3xl sm:text-4xl lg:text-[2.75rem]">
-              Four products.{" "}
-              <span className="text-gold-gradient">One warm ecosystem.</span>
+              Four products. <span className="text-gold-gradient">One warm ecosystem.</span>
             </h2>
             <p className="lede-lux mt-4 text-base sm:text-lg">
               From a full hospital OS to AI health tools — choose what fits.
@@ -143,7 +142,9 @@ export function ProductShowcase() {
                 {/* bottom champagne hairline wipe */}
                 <div
                   className="absolute inset-x-6 bottom-0 h-px origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
-                  style={{ background: `linear-gradient(90deg, transparent, ${p.accent}, transparent)` }}
+                  style={{
+                    background: `linear-gradient(90deg, transparent, ${p.accent}, transparent)`,
+                  }}
                 />
               </Link>
             </Reveal>

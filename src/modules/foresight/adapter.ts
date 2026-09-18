@@ -12,8 +12,7 @@
 import type { ForesightInput } from "./types";
 
 export type NormalizeResult =
-  | { ok: true; input: ForesightInput }
-  | { ok: false; reason: "underage" };
+  { ok: true; input: ForesightInput } | { ok: false; reason: "underage" };
 
 const SEXES = new Set(["male", "female", "intersex", "undisclosed"]);
 const DIET_TYPES = new Set(["vegetarian", "eggetarian", "non_veg", "vegan", "jain"]);
@@ -31,7 +30,15 @@ const TOBACCOS = new Set(["never", "former", "current_smoke", "smokeless"]);
 const ALCOHOLS = new Set(["never", "occasional", "weekly", "daily"]);
 const STRESSES = new Set(["low", "moderate", "high"]);
 const AQIS = new Set(["unknown", "good", "moderate", "poor", "very_poor", "severe"]);
-const FAM_KEYS = new Set(["diabetes", "heart_disease", "hypertension", "thyroid", "cancer", "pcos", "obesity"]);
+const FAM_KEYS = new Set([
+  "diabetes",
+  "heart_disease",
+  "hypertension",
+  "thyroid",
+  "cancer",
+  "pcos",
+  "obesity",
+]);
 
 const num = (v: unknown, min: number, max: number): number | undefined => {
   const n = typeof v === "string" ? Number(v) : v;
@@ -56,15 +63,18 @@ export function normalizeForesightInput(raw: unknown): NormalizeResult {
   if (!ageYears || ageYears < 18) return { ok: false, reason: "underage" };
 
   const symptomsRaw = Array.isArray(src.symptoms) ? src.symptoms : [];
-  const symptoms = symptomsRaw.slice(0, 40).map((s) => {
-    const o = (s ?? {}) as Record<string, unknown>;
-    return {
-      id: String(o.id ?? "").slice(0, 64),
-      severity: num(o.severity, 1, 10) ?? 5,
-      onsetDays: num(o.onsetDays, 0, 3650) ?? 1,
-      worsening: o.worsening === true,
-    };
-  }).filter((s) => s.id.startsWith("sym."));
+  const symptoms = symptomsRaw
+    .slice(0, 40)
+    .map((s) => {
+      const o = (s ?? {}) as Record<string, unknown>;
+      return {
+        id: String(o.id ?? "").slice(0, 64),
+        severity: num(o.severity, 1, 10) ?? 5,
+        onsetDays: num(o.onsetDays, 0, 3650) ?? 1,
+        worsening: o.worsening === true,
+      };
+    })
+    .filter((s) => s.id.startsWith("sym."));
 
   return {
     ok: true,
@@ -124,13 +134,22 @@ export function normalizeForesightInput(raw: unknown): NormalizeResult {
       history: {
         conditions: Array.isArray(hist.conditions) ? hist.conditions.map(String).slice(0, 15) : [],
         familyHistory: Array.isArray(hist.familyHistory)
-          ? (hist.familyHistory.map(String).filter((k) => FAM_KEYS.has(k)) as ForesightInput["history"]["familyHistory"])
+          ? (hist.familyHistory
+              .map(String)
+              .filter((k) => FAM_KEYS.has(k)) as ForesightInput["history"]["familyHistory"])
           : [],
         tobacco: pick(hist.tobacco, TOBACCOS, "never"),
         alcohol: pick(hist.alcohol, ALCOHOLS, "never"),
         stress: pick(hist.stress, STRESSES, "moderate"),
         moodLowDays: num(hist.moodLowDays, 0, 14) ?? 0,
-        menstruationRegular: p.sexAtBirth === "female" ? (hist.menstruationRegular === true ? true : hist.menstruationRegular === false ? false : undefined) : undefined,
+        menstruationRegular:
+          p.sexAtBirth === "female"
+            ? hist.menstruationRegular === true
+              ? true
+              : hist.menstruationRegular === false
+                ? false
+                : undefined
+            : undefined,
       },
       environment: {
         aqiBand: pick(env.aqiBand, AQIS, "unknown"),

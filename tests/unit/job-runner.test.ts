@@ -1,11 +1,6 @@
 import { describe, it, expect, afterAll } from "vitest";
 import { db } from "@/lib/db";
-import {
-  enqueueJob,
-  tick,
-  healQueueChain,
-  registerJob,
-} from "@/lib/nx/jobs/runner";
+import { enqueueJob, tick, healQueueChain, registerJob } from "@/lib/nx/jobs/runner";
 
 /* ============================================================
    NxJob DURABLE QUEUE (backend-core-1)
@@ -21,7 +16,9 @@ const createdIds: string[] = [];
 
 afterAll(async () => {
   // Remove suite-owned jobs only.
-  await db.nxJob.deleteMany({ where: { OR: [{ type: { startsWith: TEST_PREFIX } }, { id: { in: createdIds } }] } });
+  await db.nxJob.deleteMany({
+    where: { OR: [{ type: { startsWith: TEST_PREFIX } }, { id: { in: createdIds } }] },
+  });
 });
 
 describe("enqueueJob dedupe", () => {
@@ -43,7 +40,10 @@ describe("tick claim + run", () => {
     registerJob(`${TEST_PREFIX}run`, async () => {
       ran += 1;
     });
-    const id = await enqueueJob({ type: `${TEST_PREFIX}run`, dedupeKey: `${TEST_PREFIX}run-${Date.now()}` });
+    const id = await enqueueJob({
+      type: `${TEST_PREFIX}run`,
+      dedupeKey: `${TEST_PREFIX}run-${Date.now()}`,
+    });
     expect(id).toBeTruthy();
     createdIds.push(id as string);
     await tick();
@@ -75,16 +75,23 @@ describe("tick claim + run", () => {
 describe("self-healing chain", () => {
   it("re-seeds queue-scan when the chain is dead, and a tick reschedules + purges", async () => {
     // Kill the chain (only queue-scan rows — this is the dead state).
-    await db.nxJob.updateMany({ where: { type: "queue-scan" }, data: { status: "done", finishedAt: new Date() } });
+    await db.nxJob.updateMany({
+      where: { type: "queue-scan" },
+      data: { status: "done", finishedAt: new Date() },
+    });
     await healQueueChain();
-    const alive = await db.nxJob.count({ where: { type: "queue-scan", status: { in: ["pending", "running"] } } });
+    const alive = await db.nxJob.count({
+      where: { type: "queue-scan", status: { in: ["pending", "running"] } },
+    });
     expect(alive).toBeGreaterThan(0);
 
     // Run the scan: it must schedule the next minute's scan AND today's purge.
     await tick();
     const nextScan = await db.nxJob.count({ where: { type: "queue-scan", status: "pending" } });
     expect(nextScan).toBeGreaterThan(0);
-    const purge = await db.nxJob.findFirst({ where: { type: "retention-purge", status: { in: ["pending", "done"] } } });
+    const purge = await db.nxJob.findFirst({
+      where: { type: "retention-purge", status: { in: ["pending", "done"] } },
+    });
     expect(purge).toBeTruthy();
 
     // healQueueChain must stay quiet when the chain is alive.

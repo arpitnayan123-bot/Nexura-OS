@@ -18,13 +18,32 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Siren, Ambulance, MapPin, Clock3, Droplets, Phone, HeartPulse,
-  ShieldCheck, Radio, ChevronDown, Check, Navigation, FileText,
-  Zap, Users,
+  Siren,
+  Ambulance,
+  MapPin,
+  Clock3,
+  Droplets,
+  Phone,
+  HeartPulse,
+  ShieldCheck,
+  Radio,
+  ChevronDown,
+  Check,
+  Navigation,
+  FileText,
+  Zap,
+  Users,
 } from "lucide-react";
 import {
-  Eyebrow, SectionHeading, Ornament, Counter, StaggerGroup, StaggerItem,
-  Magnetic, TextReveal, ScrollProgress,
+  Eyebrow,
+  SectionHeading,
+  Ornament,
+  Counter,
+  StaggerGroup,
+  StaggerItem,
+  Magnetic,
+  TextReveal,
+  ScrollProgress,
 } from "@/components/premium/kit";
 
 /* ---------- press-and-hold SOS button ---------- */
@@ -73,22 +92,38 @@ function SosButton() {
         onMouseDown={begin}
         onMouseUp={stop}
         onMouseLeave={stop}
-        onTouchStart={(e) => { e.preventDefault(); begin(); }}
-        onTouchEnd={(e) => { e.preventDefault(); stop(); }}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          begin();
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          stop();
+        }}
         onContextMenu={(e) => e.preventDefault()}
-        aria-label={armed ? "Emergency dispatch armed" : "Press and hold to dispatch emergency help"}
+        aria-label={
+          armed ? "Emergency dispatch armed" : "Press and hold to dispatch emergency help"
+        }
         aria-pressed={armed}
         className={`relative flex h-56 w-56 select-none items-center justify-center rounded-full outline-none transition-transform sm:h-64 sm:w-64 ${
           held ? "scale-[0.97]" : ""
         } focus-visible:ring-4 focus-visible:ring-[#E58F7A]/40`}
       >
         {/* progress ring */}
-        <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 200 200" aria-hidden="true">
+        <svg
+          className="absolute inset-0 h-full w-full -rotate-90"
+          viewBox="0 0 200 200"
+          aria-hidden="true"
+        >
           <circle cx="100" cy="100" r={R} fill="none" stroke="#2E2A20" strokeWidth="4" />
           <circle
-            cx="100" cy="100" r={R} fill="none"
+            cx="100"
+            cy="100"
+            r={R}
+            fill="none"
             stroke={armed ? "#E58F7A" : "#D9B87C"}
-            strokeWidth="4" strokeLinecap="round"
+            strokeWidth="4"
+            strokeLinecap="round"
             strokeDasharray={C}
             strokeDashoffset={C * (1 - (armed ? 1 : progress))}
             style={{ transition: armed ? "stroke-dashoffset 0.3s ease" : "none" }}
@@ -97,9 +132,7 @@ function SosButton() {
         {/* breathing halo */}
         <span
           aria-hidden
-          className={`absolute inset-6 rounded-full ${
-            armed ? "nxl-sos-armed" : "nxl-sos-halo"
-          }`}
+          className={`absolute inset-6 rounded-full ${armed ? "nxl-sos-armed" : "nxl-sos-halo"}`}
         />
         <span
           className={`relative flex h-40 w-40 flex-col items-center justify-center rounded-full text-center shadow-[0_24px_70px_-18px_rgba(229,70,54,0.55)] sm:h-44 sm:w-44 ${
@@ -111,13 +144,17 @@ function SosButton() {
           {armed ? (
             <>
               <Radio className="h-9 w-9 nxl-pulse" aria-hidden="true" />
-              <span className="mt-2 text-sm font-bold uppercase tracking-[0.18em]">Dispatch armed</span>
+              <span className="mt-2 text-sm font-bold uppercase tracking-[0.18em]">
+                Dispatch armed
+              </span>
               <span className="mt-1 text-xs text-white/80">help is being routed</span>
             </>
           ) : (
             <>
               <Siren className="h-9 w-9" aria-hidden="true" />
-              <span className="mt-2 text-sm font-bold uppercase tracking-[0.18em]">Hold for SOS</span>
+              <span className="mt-2 text-sm font-bold uppercase tracking-[0.18em]">
+                Hold for SOS
+              </span>
               <span className="mt-1 text-xs text-white/75">1.5 seconds</span>
             </>
           )}
@@ -135,12 +172,15 @@ function SosButton() {
           >
             <p className="max-w-md text-sm leading-relaxed text-[#E8DFCB]">
               <strong className="text-[#F5EDD8]">Demo armed.</strong> In production this instantly
-              alerts the nearest Nexura ambulance, your emergency contacts, and streams your
-              medical ID to the responding paramedic.
+              alerts the nearest Nexura ambulance, your emergency contacts, and streams your medical
+              ID to the responding paramedic.
             </p>
             <button
               type="button"
-              onClick={() => { setArmed(false); setProgress(0); }}
+              onClick={() => {
+                setArmed(false);
+                setProgress(0);
+              }}
               className="text-xs text-[#C8A55B] underline-offset-4 hover:underline"
             >
               Reset demo
@@ -189,7 +229,11 @@ function Fleet() {
     <section className="relative px-6 py-20 sm:py-24" aria-labelledby="fleet-heading">
       <SectionHeading
         eyebrow="The fleet"
-        title={<span id="fleet-heading">Right vehicle. <em className="text-gold-gradient not-italic">Right crew.</em></span>}
+        title={
+          <span id="fleet-heading">
+            Right vehicle. <em className="text-gold-gradient not-italic">Right crew.</em>
+          </span>
+        }
         lede="Every unit is GPS-tracked, equipment-audited daily, and staffed beyond state norms. The app assigns by acuity — not by queue."
       />
       <StaggerGroup className="mx-auto mt-14 grid max-w-6xl gap-5 md:grid-cols-3">
@@ -203,13 +247,21 @@ function Fleet() {
                 </span>
               </div>
               <h3 className="mt-5 font-serif text-xl font-semibold text-[#F5EDD8]">{f.name}</h3>
-              <div className="mt-1 text-xs font-mono uppercase tracking-wider text-[#8A8070]">{f.code}</div>
-              <p className="mt-4 text-sm leading-relaxed text-[#B3A892]"><strong className="text-[#E8DFCB]">Crew:</strong> {f.crew}</p>
-              <p className="mt-2 text-sm leading-relaxed text-[#B3A892]"><strong className="text-[#E8DFCB]">Onboard:</strong> {f.gear}</p>
+              <div className="mt-1 text-xs font-mono uppercase tracking-wider text-[#8A8070]">
+                {f.code}
+              </div>
+              <p className="mt-4 text-sm leading-relaxed text-[#B3A892]">
+                <strong className="text-[#E8DFCB]">Crew:</strong> {f.crew}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-[#B3A892]">
+                <strong className="text-[#E8DFCB]">Onboard:</strong> {f.gear}
+              </p>
               <div className="mt-6 flex items-end justify-between border-t border-[#2E2A20] pt-5">
                 <div>
                   <div className="text-xs text-[#8A8070]">Avg arrival</div>
-                  <div className="font-serif text-2xl font-semibold tabular-nums text-[#F5EDD8]">{f.eta}</div>
+                  <div className="font-serif text-2xl font-semibold tabular-nums text-[#F5EDD8]">
+                    {f.eta}
+                  </div>
                 </div>
                 <div className="text-right text-xs tabular-nums text-[#9C927E]">{f.price}</div>
               </div>
@@ -224,10 +276,34 @@ function Fleet() {
 /* ---------- nearest ER network ---------- */
 
 const ERS = [
-  { name: "Nexura City Hospital", dist: "1.8 km", eta: "6 min", beds: "ICU 3 · Gen 11", open: "24×7 trauma" },
-  { name: "Manipal — Old Airport Rd", dist: "3.4 km", eta: "9 min", beds: "ICU 5 · Gen 8", open: "24×7" },
-  { name: "Fortis — Cunningham Rd", dist: "5.1 km", eta: "13 min", beds: "ICU 2 · Gen 14", open: "24×7 cardiac" },
-  { name: "Apollo — Sheshadripuram", dist: "6.7 km", eta: "17 min", beds: "ICU 6 · Gen 9", open: "24×7" },
+  {
+    name: "Nexura City Hospital",
+    dist: "1.8 km",
+    eta: "6 min",
+    beds: "ICU 3 · Gen 11",
+    open: "24×7 trauma",
+  },
+  {
+    name: "Manipal — Old Airport Rd",
+    dist: "3.4 km",
+    eta: "9 min",
+    beds: "ICU 5 · Gen 8",
+    open: "24×7",
+  },
+  {
+    name: "Fortis — Cunningham Rd",
+    dist: "5.1 km",
+    eta: "13 min",
+    beds: "ICU 2 · Gen 14",
+    open: "24×7 cardiac",
+  },
+  {
+    name: "Apollo — Sheshadripuram",
+    dist: "6.7 km",
+    eta: "17 min",
+    beds: "ICU 6 · Gen 9",
+    open: "24×7",
+  },
 ];
 
 function ErNetwork() {
@@ -252,7 +328,9 @@ function ErNetwork() {
               <div className="flex flex-wrap items-center gap-4 border-b border-[#241F16] px-6 py-5 last:border-b-0 transition-colors hover:bg-[#1D1912]/80">
                 <div className="min-w-0 flex-1">
                   <div className="text-[15px] font-medium text-[#EFE7D3]">{er.name}</div>
-                  <div className="mt-0.5 text-xs text-[#8A8070]">{er.open} · {er.beds} open now</div>
+                  <div className="mt-0.5 text-xs text-[#8A8070]">
+                    {er.open} · {er.beds} open now
+                  </div>
                 </div>
                 <div className="text-right">
                   <div className="text-sm tabular-nums text-[#E8DFCB]">{er.dist}</div>
@@ -263,8 +341,8 @@ function ErNetwork() {
           ))}
         </StaggerGroup>
         <p className="mt-5 text-xs leading-relaxed text-[#6E6654]">
-          Bed counts are simulated for the demo. In production, Nexura ERs stream availability
-          every 30 seconds through the Hospital OS network.
+          Bed counts are simulated for the demo. In production, Nexura ERs stream availability every
+          30 seconds through the Hospital OS network.
         </p>
       </div>
     </section>
@@ -275,20 +353,36 @@ function ErNetwork() {
 
 const BLOOD_TYPES = ["O+", "O−", "A+", "A−", "B+", "B−", "AB+", "AB−"];
 const UNITS: Record<string, number> = {
-  "O+": 34, "O−": 6, "A+": 28, "A−": 9, "B+": 31, "B−": 7, "AB+": 12, "AB−": 4,
+  "O+": 34,
+  "O−": 6,
+  "A+": 28,
+  "A−": 9,
+  "B+": 31,
+  "B−": 7,
+  "AB+": 12,
+  "AB−": 4,
 };
 
 function BloodBank() {
   const [type, setType] = useState("O+");
   const units = UNITS[type];
   const level = units >= 20 ? "Healthy" : units >= 8 ? "Low" : "Critical";
-  const levelCls = units >= 20 ? "text-[#8FBF8F] border-[#8FBF8F]/40" : units >= 8 ? "text-[#E3C578] border-[#E3C578]/40" : "text-[#E58F7A] border-[#E58F7A]/40";
+  const levelCls =
+    units >= 20
+      ? "text-[#8FBF8F] border-[#8FBF8F]/40"
+      : units >= 8
+        ? "text-[#E3C578] border-[#E3C578]/40"
+        : "text-[#E58F7A] border-[#E58F7A]/40";
 
   return (
     <section className="relative px-6 py-20 sm:py-24" aria-labelledby="blood-heading">
       <SectionHeading
         eyebrow="Blood bank, live"
-        title={<span id="blood-heading">Know before <em className="text-gold-gradient not-italic">you rush.</em></span>}
+        title={
+          <span id="blood-heading">
+            Know before <em className="text-gold-gradient not-italic">you rush.</em>
+          </span>
+        }
         lede="Tap a blood type to see simulated unit availability across the Nexura network right now. In production, this syncs with Hospital OS blood-bank modules."
       />
       <div className="mx-auto mt-12 max-w-3xl rounded-3xl border border-[#2E2A20] bg-[#191611]/80 p-7 sm:p-9">
@@ -327,10 +421,14 @@ function BloodBank() {
                 <div className="font-serif text-3xl font-semibold tabular-nums text-[#F5EDD8]">
                   {units} <span className="text-base font-normal text-[#8A8070]">units</span>
                 </div>
-                <div className="text-xs text-[#8A8070]">{type} available across 6 network banks</div>
+                <div className="text-xs text-[#8A8070]">
+                  {type} available across 6 network banks
+                </div>
               </div>
             </div>
-            <span className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] ${levelCls}`}>
+            <span
+              className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] ${levelCls}`}
+            >
               {level}
             </span>
           </motion.div>
@@ -380,7 +478,9 @@ function MedicalId() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-[#C8A55B]">
                 <HeartPulse className="h-5 w-5" aria-hidden="true" />
-                <span className="text-xs font-semibold uppercase tracking-[0.16em]">Nexura Medical ID</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.16em]">
+                  Nexura Medical ID
+                </span>
               </div>
               <ShieldCheck className="h-4 w-4 text-[#8A8070]" aria-hidden="true" />
             </div>
@@ -393,7 +493,10 @@ function MedicalId() {
                 ["Meds", "Salbutamol inhaler PRN"],
                 ["Emergency", "Priya Mehta · +91 98••• 4•2•1"],
               ].map(([k, v]) => (
-                <div key={k} className="flex items-baseline justify-between gap-4 border-b border-dashed border-[#2E2A20] pb-2.5 last:border-b-0">
+                <div
+                  key={k}
+                  className="flex items-baseline justify-between gap-4 border-b border-dashed border-[#2E2A20] pb-2.5 last:border-b-0"
+                >
                   <span className="text-xs uppercase tracking-[0.12em] text-[#8A8070]">{k}</span>
                   <span className="text-right text-[13px] text-[#EFE7D3]">{v}</span>
                 </div>
@@ -415,19 +518,39 @@ function MedicalId() {
 const GUIDES = [
   {
     q: "Choking (adult, conscious)",
-    steps: ["Ask “Are you choking?” — if they can't speak, act.", "Give 5 firm back blows between shoulder blades.", "Then 5 abdominal thrusts (Heimlich), above the navel.", "Alternate 5+5 until the object clears or they collapse → start CPR."],
+    steps: [
+      "Ask “Are you choking?” — if they can't speak, act.",
+      "Give 5 firm back blows between shoulder blades.",
+      "Then 5 abdominal thrusts (Heimlich), above the navel.",
+      "Alternate 5+5 until the object clears or they collapse → start CPR.",
+    ],
   },
   {
     q: "Burns — first 60 seconds",
-    steps: ["Cool the burn under gently running cool water for 20 minutes.", "Remove rings/watches near the area before swelling starts.", "Cover loosely with cling film or a clean, non-fluffy cloth.", "Never apply ice, toothpaste, ghee or ointments. Chemical/electrical burns → hospital."],
+    steps: [
+      "Cool the burn under gently running cool water for 20 minutes.",
+      "Remove rings/watches near the area before swelling starts.",
+      "Cover loosely with cling film or a clean, non-fluffy cloth.",
+      "Never apply ice, toothpaste, ghee or ointments. Chemical/electrical burns → hospital.",
+    ],
   },
   {
     q: "CPR — hands-only, adult",
-    steps: ["Check response and breathing. No response, no normal breathing → act.", "Call 108 / dispatch the SOS above; put on speaker.", "Heel of hand centre of chest, other hand on top, arms locked.", "Push hard and fast — 100–120/min, 5–6 cm deep. Don't stop until help takes over."],
+    steps: [
+      "Check response and breathing. No response, no normal breathing → act.",
+      "Call 108 / dispatch the SOS above; put on speaker.",
+      "Heel of hand centre of chest, other hand on top, arms locked.",
+      "Push hard and fast — 100–120/min, 5–6 cm deep. Don't stop until help takes over.",
+    ],
   },
   {
     q: "Seizure — do's and hard don'ts",
-    steps: ["Clear the area; cushion the head. Time the seizure.", "Turn them on their side once movements ease (recovery position).", "Do NOT restrain, hold down, or put anything in the mouth.", "Seizure > 5 min, first-ever, pregnancy, or injury → ambulance immediately."],
+    steps: [
+      "Clear the area; cushion the head. Time the seizure.",
+      "Turn them on their side once movements ease (recovery position).",
+      "Do NOT restrain, hold down, or put anything in the mouth.",
+      "Seizure > 5 min, first-ever, pregnancy, or injury → ambulance immediately.",
+    ],
   },
 ];
 
@@ -437,7 +560,11 @@ function FirstAid() {
     <section className="relative px-6 py-20 sm:py-24" aria-labelledby="aid-heading">
       <SectionHeading
         eyebrow="While help is coming"
-        title={<span id="aid-heading">Four moves that <em className="text-gold-gradient not-italic">save the minute.</em></span>}
+        title={
+          <span id="aid-heading">
+            Four moves that <em className="text-gold-gradient not-italic">save the minute.</em>
+          </span>
+        }
         lede="Offline, image-free, written with emergency physicians. Review them once — they compress to memory remarkably well."
       />
       <div className="mx-auto mt-12 max-w-3xl overflow-hidden rounded-3xl border border-[#2E2A20] bg-[#191611]/80">
@@ -453,7 +580,10 @@ function FirstAid() {
                 className="flex w-full items-center justify-between gap-4 px-7 py-5 text-left transition-colors hover:bg-[#1D1912]/70"
               >
                 <span className="text-[15px] font-medium text-[#EFE7D3]">{g.q}</span>
-                <ChevronDown className={`h-4 w-4 shrink-0 text-[#C8A55B] transition-transform ${isOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+                <ChevronDown
+                  className={`h-4 w-4 shrink-0 text-[#C8A55B] transition-transform ${isOpen ? "rotate-180" : ""}`}
+                  aria-hidden="true"
+                />
               </button>
               <AnimatePresence initial={false}>
                 {isOpen && (
@@ -467,8 +597,13 @@ function FirstAid() {
                   >
                     <ol className="space-y-2.5 px-7 pb-6">
                       {g.steps.map((s, j) => (
-                        <li key={j} className="flex items-start gap-3 text-sm leading-relaxed text-[#B3A892]">
-                          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#3A3428] text-[11px] tabular-nums text-[#C8A55B]">{j + 1}</span>
+                        <li
+                          key={j}
+                          className="flex items-start gap-3 text-sm leading-relaxed text-[#B3A892]"
+                        >
+                          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#3A3428] text-[11px] tabular-nums text-[#C8A55B]">
+                            {j + 1}
+                          </span>
                           {s}
                         </li>
                       ))}
@@ -481,7 +616,8 @@ function FirstAid() {
         })}
       </div>
       <p className="mx-auto mt-6 max-w-2xl px-6 text-center text-xs text-[#6E6654]">
-        Guides are awareness aids, not a substitute for certified first-aid training or professional medical direction.
+        Guides are awareness aids, not a substitute for certified first-aid training or professional
+        medical direction.
       </p>
     </section>
   );
@@ -508,7 +644,11 @@ export function EmergencyExperience() {
       <header className="relative overflow-hidden px-6 pt-36 pb-16 sm:pt-44">
         <div className="aurora-gold" aria-hidden="true" />
         <div className="relative mx-auto max-w-5xl text-center">
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             <Eyebrow>Nexura Emergency · 24×7</Eyebrow>
           </motion.div>
           <h1 className="display-xl mt-6 text-balance">
@@ -555,9 +695,15 @@ export function EmergencyExperience() {
               <div className="spotlight-card rounded-2xl border border-[#2E2A20] bg-[#191611]/80 p-6 text-center">
                 <s.icon className="mx-auto h-5 w-5 text-[#C8A55B]" aria-hidden="true" />
                 <div className="mt-3 font-serif text-3xl font-semibold tabular-nums text-[#F5EDD8]">
-                  <Counter to={s.value} suffix={s.suffix} decimals={"decimals" in s ? s.decimals : 0} />
+                  <Counter
+                    to={s.value}
+                    suffix={s.suffix}
+                    decimals={"decimals" in s ? s.decimals : 0}
+                  />
                 </div>
-                <div className="mt-2 text-xs uppercase tracking-[0.14em] text-[#9C927E]">{s.label}</div>
+                <div className="mt-2 text-xs uppercase tracking-[0.14em] text-[#9C927E]">
+                  {s.label}
+                </div>
               </div>
             </StaggerItem>
           ))}
@@ -601,9 +747,11 @@ export function EmergencyExperience() {
       </section>
 
       <footer className="border-t border-[#241F16] px-6 py-10 text-center text-xs leading-relaxed text-[#6E6654]">
-        Nexura Emergency is a demo experience — in production it coordinates licensed ambulance partners and hospital ERs.
+        Nexura Emergency is a demo experience — in production it coordinates licensed ambulance
+        partners and hospital ERs.
         <br />
-        India national emergency numbers: Ambulance 108 · Police 100 · All-in-one 112. A product of Nexura OS
+        India national emergency numbers: Ambulance 108 · Police 100 · All-in-one 112. A product of
+        Nexura OS
       </footer>
     </div>
   );

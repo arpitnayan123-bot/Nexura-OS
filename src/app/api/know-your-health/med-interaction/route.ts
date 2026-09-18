@@ -8,8 +8,12 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 interface Input {
-  medications: string[]; conditions: string[]; age: number | null; gender: string;
-  kidneyFunction: string; liverFunction: string;
+  medications: string[];
+  conditions: string[];
+  age: number | null;
+  gender: string;
+  kidneyFunction: string;
+  liverFunction: string;
 }
 
 // POST /api/know-your-health/med-interaction
@@ -18,12 +22,23 @@ export async function POST(req: NextRequest) {
   if (__ai) return __ai;
   try {
     const body = (await req.json().catch(() => ({}))) as Partial<Input>;
-    const meds = Array.isArray(body?.medications) ? body.medications.map((m) => String(m || "").trim()).filter(Boolean) : [];
-    if (meds.length < 2) return NextResponse.json({ error: "need_at_least_2_meds", detail: "Add at least 2 medications to check interactions" }, { status: 400 });
+    const meds = Array.isArray(body?.medications)
+      ? body.medications.map((m) => String(m || "").trim()).filter(Boolean)
+      : [];
+    if (meds.length < 2)
+      return NextResponse.json(
+        {
+          error: "need_at_least_2_meds",
+          detail: "Add at least 2 medications to check interactions",
+        },
+        { status: 400 },
+      );
 
     const profile: Input = {
       medications: meds,
-      conditions: Array.isArray(body?.conditions) ? body.conditions.map((c) => String(c || "").trim()).filter(Boolean) : [],
+      conditions: Array.isArray(body?.conditions)
+        ? body.conditions.map((c) => String(c || "").trim()).filter(Boolean)
+        : [],
       age: Number(body.age) || null,
       gender: String(body.gender || ""),
       kidneyFunction: String(body.kidneyFunction || "Normal"),
@@ -66,7 +81,15 @@ Rules:
     if (!result || !Array.isArray(result.interactions)) throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
-    log.error("kyh", "med_interaction_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "med_interaction_failed", detail: "The interaction check could not be completed. Please retry." }, { status: 500 });
+    log.error("kyh", "med_interaction_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "med_interaction_failed",
+        detail: "The interaction check could not be completed. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }

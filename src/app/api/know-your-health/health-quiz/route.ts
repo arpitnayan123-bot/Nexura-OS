@@ -34,11 +34,15 @@ Rules:
 - Use Indian context (ICMR ranges, Indian foods, NFHS-5 stats).
 - No markdown. JSON only.`;
     const result = await runText<any>(prompt, INDIA_PREAMBLE, "kyh.health-quiz");
-    if (!Array.isArray(result?.questions) || result.questions.length === 0) throw new Error("invalid_response");
+    if (!Array.isArray(result?.questions) || result.questions.length === 0)
+      throw new Error("invalid_response");
     return NextResponse.json(result);
   } catch (err) {
     log.error("kyh", "quiz_gen_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "quiz_gen_failed", detail: "The quiz could not be generated. Please retry." }, { status: 500 });
+    return NextResponse.json(
+      { error: "quiz_gen_failed", detail: "The quiz could not be generated. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -77,7 +81,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ score, total, percentage, grade, results });
   } catch (err) {
-    log.error("kyh", "quiz_score_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "quiz_score_failed", detail: "The quiz could not be scored. Please retry." }, { status: 500 });
+    log.error("kyh", "quiz_score_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "quiz_score_failed", detail: "The quiz could not be scored. Please retry." },
+      { status: 500 },
+    );
   }
 }

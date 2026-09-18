@@ -32,7 +32,9 @@ function SeverityGlyphs({ level }: { level: RiskRow["level"] }) {
           />
         ))}
       </span>
-      <span className={cn("text-[10.5px] font-bold uppercase tracking-[0.12em]", meta.ink)}>{meta.word}</span>
+      <span className={cn("text-[10.5px] font-bold uppercase tracking-[0.12em]", meta.ink)}>
+        {meta.word}
+      </span>
     </span>
   );
 }
@@ -51,8 +53,8 @@ export function RisksPanel({ risks }: { risks: RiskRow[] }) {
           <ShieldCheck aria-hidden="true" className="h-8 w-8 nxf-teal" />
           <p className="text-[15px] font-semibold nxf-hi">No significant risks detected</p>
           <p className="max-w-md text-[13px] leading-relaxed nxf-dim">
-            All twelve domains read steady on this run. Keep the protective patterns running and re-check in
-            after 8–12 weeks or any major change.
+            All twelve domains read steady on this run. Keep the protective patterns running and
+            re-check in after 8–12 weeks or any major change.
           </p>
         </div>
       ) : (
@@ -76,11 +78,26 @@ export function RisksPanel({ risks }: { risks: RiskRow[] }) {
                 <p className="mt-1.5 text-[12.5px] leading-relaxed nxf-body">{r.headline}</p>
 
                 <div className="mt-3">
-                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.13em] nxf-mute">Evidence on this run</p>
+                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.13em] nxf-mute">
+                    Evidence on this run
+                  </p>
                   <ul className="mt-1.5 space-y-1">
                     {r.evidence.map((e, j) => (
-                      <li key={j} className="flex items-start gap-1.5 text-[12.5px] leading-relaxed nxf-dim">
-                        <span aria-hidden="true" className={cn("mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full", r.level === "HIGH" ? "bg-rose-300" : r.level === "ELEVATED" ? "bg-orange-300" : "bg-amber-300")} />
+                      <li
+                        key={j}
+                        className="flex items-start gap-1.5 text-[12.5px] leading-relaxed nxf-dim"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full",
+                            r.level === "HIGH"
+                              ? "bg-rose-300"
+                              : r.level === "ELEVATED"
+                                ? "bg-orange-300"
+                                : "bg-amber-300",
+                          )}
+                        />
                         {e}
                       </li>
                     ))}
@@ -90,8 +107,12 @@ export function RisksPanel({ risks }: { risks: RiskRow[] }) {
                 <div className="mt-auto space-y-2 pt-3">
                   {r.mitigation && (
                     <div className="rounded-xl border border-teal-400/20 bg-teal-400/[0.06] p-3">
-                      <p className="text-[10.5px] font-semibold uppercase tracking-[0.13em] nxf-teal">Strongest mitigation</p>
-                      <p className="mt-0.5 text-[12.5px] font-semibold text-teal-100">{r.mitigation}</p>
+                      <p className="text-[10.5px] font-semibold uppercase tracking-[0.13em] nxf-teal">
+                        Strongest mitigation
+                      </p>
+                      <p className="mt-0.5 text-[12.5px] font-semibold text-teal-100">
+                        {r.mitigation}
+                      </p>
                     </div>
                   )}
                   <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] nxf-mute">
@@ -100,7 +121,9 @@ export function RisksPanel({ risks }: { risks: RiskRow[] }) {
                         <Stethoscope aria-hidden="true" className="h-3.5 w-3.5 nxf-violet" />
                         discuss: <span className="nxf-dim">{r.screening}</span>
                       </span>
-                    ) : <span />}
+                    ) : (
+                      <span />
+                    )}
                     <span className="nxf-mono">burden {r.burden}/100</span>
                   </div>
                 </div>

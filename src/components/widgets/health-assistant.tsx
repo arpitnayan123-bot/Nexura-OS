@@ -62,17 +62,14 @@ export function HealthAssistant() {
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
-      const reply =
-        data?.reply ??
-        "I'm having a quiet moment — could you say that again?";
+      const reply = data?.reply ?? "I'm having a quiet moment — could you say that again?";
       setMessages((m) => [...m, { role: "assistant", content: reply }]);
     } catch {
       setMessages((m) => [
         ...m,
         {
           role: "assistant",
-          content:
-            "I lost my train of thought for a second. Please try once more — I'm listening.",
+          content: "I lost my train of thought for a second. Please try once more — I'm listening.",
         },
       ]);
     } finally {
@@ -92,12 +89,7 @@ export function HealthAssistant() {
         whileTap={{ scale: 0.94 }}
         className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full shadow-[0_14px_40px_-10px_oklch(0.70_0.145_45/0.7)] sm:bottom-7 sm:right-7"
       >
-        <BreathingOrb
-          size={56}
-          color="var(--coral)"
-          ring
-          className="!absolute inset-0"
-        />
+        <BreathingOrb size={56} color="var(--coral)" ring className="!absolute inset-0" />
         <AnimatePresence mode="wait">
           {open ? (
             <motion.span
@@ -166,10 +158,7 @@ export function HealthAssistant() {
             </div>
 
             {/* messages */}
-            <div
-              ref={scrollRef}
-              className="flex-1 space-y-3 overflow-y-auto bg-background/40 p-4"
-            >
+            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-background/40 p-4">
               {messages.map((m, i) => (
                 <Bubble key={i} msg={m} />
               ))}
@@ -251,7 +240,7 @@ function Bubble({ msg }: { msg: Msg }) {
           "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
           isUser
             ? "rounded-br-md bg-primary text-primary-foreground"
-            : "rounded-bl-md border border-border bg-card text-foreground"
+            : "rounded-bl-md border border-border bg-card text-foreground",
         )}
       >
         {msg.content}

@@ -30,13 +30,13 @@ const AXE = "https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.2/axe.min.js";
       const res = await page.evaluate(async () => {
         const r = await window.axe.run(document, {
           resultTypes: ["violations"],
-          rules: { "region": { enabled: false } }, // marketing pages w/o landmass regions: noisy, tracked separately
+          rules: { region: { enabled: false } }, // marketing pages w/o landmass regions: noisy, tracked separately
         });
-        return r.violations.map(v => ({
+        return r.violations.map((v) => ({
           id: v.id,
           impact: v.impact,
           nodes: v.nodes.length,
-          sample: v.nodes.slice(0, 30).map(n => ({
+          sample: v.nodes.slice(0, 30).map((n) => ({
             t: (n.target[0] || "").toString().slice(0, 90),
             why: (n.failureSummary || "").replace(/\n\s*/g, " | ").slice(0, 200),
           })),
@@ -45,13 +45,27 @@ const AXE = "https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.2/axe.min.js";
       });
       report[name] = res;
     } catch (e) {
-      report[name] = [{ id: "AUDIT_ERROR", impact: "unknown", nodes: 0, sample: [String(e).slice(0, 120)], help: "" }];
+      report[name] = [
+        {
+          id: "AUDIT_ERROR",
+          impact: "unknown",
+          nodes: 0,
+          sample: [String(e).slice(0, 120)],
+          help: "",
+        },
+      ];
     }
-    await page.close ? null : null;
+    (await page.close) ? null : null;
     await browser.contexts()[0].pages().length; // noop
-    if (ctx.pages) ctx.pages().forEach(p => { if (p !== page && !p.isClosed()) p.close().catch(()=>{}); });
+    if (ctx.pages)
+      ctx.pages().forEach((p) => {
+        if (p !== page && !p.isClosed()) p.close().catch(() => {});
+      });
   }
-  fs.writeFileSync("/home/z/my-project/scripts/audit/axe-report.json", JSON.stringify(report, null, 1));
+  fs.writeFileSync(
+    "/home/z/my-project/scripts/audit/axe-report.json",
+    JSON.stringify(report, null, 1),
+  );
   // compact console summary
   for (const [name, vs] of Object.entries(report)) {
     console.log(`\n=== ${name} — ${vs.reduce((a, v) => a + v.nodes, 0)} violation nodes`);

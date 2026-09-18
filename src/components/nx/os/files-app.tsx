@@ -2,8 +2,18 @@
 
 import { useMemo, useState } from "react";
 import {
-  ArrowLeft, ClipboardList, FileText, FileWarning, FlaskConical, FolderOpen, LayoutGrid, List,
-  RotateCcw, Search, Trash2, UserRound,
+  ArrowLeft,
+  ClipboardList,
+  FileText,
+  FileWarning,
+  FlaskConical,
+  FolderOpen,
+  LayoutGrid,
+  List,
+  RotateCcw,
+  Search,
+  Trash2,
+  UserRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "./toast";
@@ -54,17 +64,33 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
   const [trashed, setTrashed] = useState<string[]>([]);
 
   const { data: patientsRes, error: patientsErr } = useNx<{
-    patients: Array<{ id: string; fullName: string; uhid: string; currentLocation: string | null; isAdmitted: boolean }>;
+    patients: Array<{
+      id: string;
+      fullName: string;
+      uhid: string;
+      currentLocation: string | null;
+      isAdmitted: boolean;
+    }>;
   }>("/api/nx/patients?take=14");
   const { data: ordersRes, error: ordersErr } = useNx<{
     orders: Array<{
-      id: string; patient: { fullName: string; uhid: string }; doctor?: string;
-      type: string; priority: string; status: string; at: string;
+      id: string;
+      patient: { fullName: string; uhid: string };
+      doctor?: string;
+      type: string;
+      priority: string;
+      status: string;
+      at: string;
       results: Array<{ test: string; value: string; unit: string; flag: string }>;
     }>;
   }>("/api/nx/orders");
   const { data: overview } = useNx<{
-    census?: { total?: number; occupancyPct?: number; dischargesToday?: number; admissionsToday?: number };
+    census?: {
+      total?: number;
+      occupancyPct?: number;
+      dischargesToday?: number;
+      admissionsToday?: number;
+    };
     hospital?: { name?: string };
     critical?: { openTasks?: number; openIncidents?: number };
   }>("/api/nx/overview", { pollMs: 120000 });
@@ -80,8 +106,11 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
         ts: Date.now() - 1000 * 60 * 12,
         patientId: p.id,
         data: {
-          Patient: p.fullName, UHID: p.uhid, Location: p.currentLocation || "Outpatient",
-          Status: p.isAdmitted ? "Admitted" : "Ambulatory", Type: "Universal record",
+          Patient: p.fullName,
+          UHID: p.uhid,
+          Location: p.currentLocation || "Outpatient",
+          Status: p.isAdmitted ? "Admitted" : "Ambulatory",
+          Type: "Universal record",
         },
       });
     }
@@ -94,9 +123,15 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
         sub: `${o.type} · ${o.status.replace("_", " ")}`,
         ts: new Date(o.at).getTime(),
         data: {
-          Patient: o.patient.fullName, UHID: o.patient.uhid, Type: o.type,
-          Priority: o.priority, Status: o.status.replace("_", " "), Doctor: o.doctor || "—",
-          Results: o.results.length ? o.results.map((r) => `${r.test}: ${r.value}${r.unit || ""} (${r.flag})`).join("\n") : "pending",
+          Patient: o.patient.fullName,
+          UHID: o.patient.uhid,
+          Type: o.type,
+          Priority: o.priority,
+          Status: o.status.replace("_", " "),
+          Doctor: o.doctor || "—",
+          Results: o.results.length
+            ? o.results.map((r) => `${r.test}: ${r.value}${r.unit || ""} (${r.flag})`).join("\n")
+            : "pending",
         },
       });
     }
@@ -110,7 +145,8 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
         data: {
           Hospital: overview.hospital?.name || "—",
           "Census (inpatients)": overview.census.total ?? "—",
-          "Occupancy": overview.census.occupancyPct != null ? `${overview.census.occupancyPct}%` : "—",
+          Occupancy:
+            overview.census.occupancyPct != null ? `${overview.census.occupancyPct}%` : "—",
           "Critical tasks": overview.critical?.openTasks ?? 0,
           "Open incidents": overview.critical?.openIncidents ?? 0,
         },
@@ -120,9 +156,10 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
   }, [patientsRes, ordersRes, overview]);
 
   const visible = useMemo(() => {
-    let list = trashed.length && folder === "trash"
-      ? files.filter((f) => trashed.includes(f.id))
-      : files.filter((f) => !trashed.includes(f.id));
+    let list =
+      trashed.length && folder === "trash"
+        ? files.filter((f) => trashed.includes(f.id))
+        : files.filter((f) => !trashed.includes(f.id));
     if (folder !== "all" && folder !== "trash") list = list.filter((f) => f.kind === folder);
     const s = q.trim().toLowerCase();
     if (s) list = list.filter((f) => `${f.name} ${f.sub}`.toLowerCase().includes(s));
@@ -152,26 +189,37 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
   return (
     <div className="flex h-full min-h-0">
       {/* sidebar */}
-      <nav className="nx-scroll w-48 shrink-0 overflow-y-auto border-r border-line p-3" aria-label="Folders">
+      <nav
+        className="nx-scroll w-48 shrink-0 overflow-y-auto border-r border-line p-3"
+        aria-label="Folders"
+      >
         {FOLDERS.map((f) => (
           <button
             key={f.key}
-            onClick={() => { setFolder(f.key); setSelected(null); }}
+            onClick={() => {
+              setFolder(f.key);
+              setSelected(null);
+            }}
             aria-current={folder === f.key ? "page" : undefined}
             className={cn(
               "mb-0.5 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] transition",
-              folder === f.key ? "bg-accent-soft font-medium text-accent" : "text-ink-2 hover:bg-inset hover:text-ink"
+              folder === f.key
+                ? "bg-accent-soft font-medium text-accent"
+                : "text-ink-2 hover:bg-inset hover:text-ink",
             )}
           >
             <f.icon className="h-4 w-4 shrink-0" />
             <span className="flex-1 truncate">{f.label}</span>
             {f.key === "trash" && trashed.length > 0 && (
-              <span className="rounded-full bg-crit-soft px-1.5 text-[10px] font-bold text-crit">{trashed.length}</span>
+              <span className="rounded-full bg-crit-soft px-1.5 text-[10px] font-bold text-crit">
+                {trashed.length}
+              </span>
             )}
           </button>
         ))}
         <div className="mt-4 border-t border-line px-3 pt-3 text-[11px] leading-relaxed text-ink-4">
-          Documents are generated live from hospital data — nothing is stored outside the record system.
+          Documents are generated live from hospital data — nothing is stored outside the record
+          system.
           {patientsErr && <p className="mt-1 text-warn">Records need Patients access.</p>}
           {ordersErr && <p className="mt-1 text-warn">Orders need Orders access.</p>}
         </div>
@@ -190,15 +238,25 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
               className="w-full rounded-lg border border-line bg-inset py-1.5 pl-8 pr-3 text-[12.5px] text-ink outline-none placeholder:text-ink-4 focus:border-accent-line"
             />
           </div>
-          <span className="text-[11px] text-ink-4">{visible.length} document{visible.length === 1 ? "" : "s"}</span>
+          <span className="text-[11px] text-ink-4">
+            {visible.length} document{visible.length === 1 ? "" : "s"}
+          </span>
           <div className="ml-auto flex rounded-lg border border-line bg-inset p-0.5">
-            {([["grid", LayoutGrid], ["list", List]] as const).map(([v, Icon]) => (
+            {(
+              [
+                ["grid", LayoutGrid],
+                ["list", List],
+              ] as const
+            ).map(([v, Icon]) => (
               <button
                 key={v}
                 onClick={() => setView(v)}
                 aria-label={`${v} view`}
                 aria-pressed={view === v}
-                className={cn("rounded-md px-2 py-1", view === v ? "bg-panel-3 text-ink" : "text-ink-4 hover:text-ink-2")}
+                className={cn(
+                  "rounded-md px-2 py-1",
+                  view === v ? "bg-panel-3 text-ink" : "text-ink-4 hover:text-ink-2",
+                )}
               >
                 <Icon className="h-3.5 w-3.5" />
               </button>
@@ -224,13 +282,24 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
           ) : view === "grid" ? (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
               {visible.map((f) => (
-                <FileCard key={f.id} file={f} selected={selected === f.id} onSelect={() => setSelected(f.id)} />
+                <FileCard
+                  key={f.id}
+                  file={f}
+                  selected={selected === f.id}
+                  onSelect={() => setSelected(f.id)}
+                />
               ))}
             </div>
           ) : (
             <div className="overflow-hidden rounded-xl border border-line">
               {visible.map((f, i) => (
-                <FileRow key={f.id} file={f} selected={selected === f.id} onSelect={() => setSelected(f.id)} zebra={i % 2 === 1} />
+                <FileRow
+                  key={f.id}
+                  file={f}
+                  selected={selected === f.id}
+                  onSelect={() => setSelected(f.id)}
+                  zebra={i % 2 === 1}
+                />
               ))}
             </div>
           )}
@@ -243,7 +312,10 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
           file={selectedFile}
           onClose={() => setSelected(null)}
           onTrash={() => trashFile(selectedFile)}
-          onRestore={() => { setTrashed((t) => t.filter((id) => id !== selectedFile.id)); toast("Document restored"); }}
+          onRestore={() => {
+            setTrashed((t) => t.filter((id) => id !== selectedFile.id));
+            toast("Document restored");
+          }}
           inTrash={trashed.includes(selectedFile.id)}
           ctx={ctx}
         />
@@ -252,7 +324,15 @@ export function FilesApp({ ctx }: { ctx: AppCtx }) {
   );
 }
 
-function FileCard({ file, selected, onSelect }: { file: NxFile; selected: boolean; onSelect: () => void }) {
+function FileCard({
+  file,
+  selected,
+  onSelect,
+}: {
+  file: NxFile;
+  selected: boolean;
+  onSelect: () => void;
+}) {
   const Icon = FILE_ICONS[file.kind];
   return (
     <button
@@ -260,20 +340,36 @@ function FileCard({ file, selected, onSelect }: { file: NxFile; selected: boolea
       data-sel={selected}
       className={cn(
         "nx-file-row flex flex-col items-start gap-2.5 rounded-2xl border p-3.5 text-left transition",
-        selected ? "border-accent-line bg-accent-soft" : "border-line bg-panel hover:border-line-2 hover:bg-panel-2"
+        selected
+          ? "border-accent-line bg-accent-soft"
+          : "border-line bg-panel hover:border-line-2 hover:bg-panel-2",
       )}
       aria-pressed={selected}
     >
-      <span className="nx-file-tile"><Icon className="h-5 w-5" /></span>
+      <span className="nx-file-tile">
+        <Icon className="h-5 w-5" />
+      </span>
       <span className="min-w-0">
         <span className="block truncate text-[13px] font-medium text-ink">{file.name}</span>
-        <span className="mt-0.5 block truncate text-[11px] text-ink-4">{file.sub} · {timeAgo(new Date(file.ts))}</span>
+        <span className="mt-0.5 block truncate text-[11px] text-ink-4">
+          {file.sub} · {timeAgo(new Date(file.ts))}
+        </span>
       </span>
     </button>
   );
 }
 
-function FileRow({ file, selected, onSelect, zebra }: { file: NxFile; selected: boolean; onSelect: () => void; zebra: boolean }) {
+function FileRow({
+  file,
+  selected,
+  onSelect,
+  zebra,
+}: {
+  file: NxFile;
+  selected: boolean;
+  onSelect: () => void;
+  zebra: boolean;
+}) {
   const Icon = FILE_ICONS[file.kind];
   return (
     <button
@@ -282,19 +378,28 @@ function FileRow({ file, selected, onSelect, zebra }: { file: NxFile; selected: 
       className={cn(
         "nx-file-row flex w-full items-center gap-3 px-3.5 py-2.5 text-left",
         !selected && (zebra ? "bg-inset/40" : "bg-panel"),
-        selected ? "bg-accent-soft" : "hover:bg-panel-2"
+        selected ? "bg-accent-soft" : "hover:bg-panel-2",
       )}
       aria-pressed={selected}
     >
       <Icon className="h-4 w-4 shrink-0 text-accent" />
       <span className="min-w-0 flex-1 truncate text-[13px] text-ink">{file.name}</span>
       <span className="hidden w-44 truncate text-[11px] text-ink-4 sm:block">{file.sub}</span>
-      <span className="w-16 shrink-0 text-right text-[11px] tabular-nums text-ink-4">{timeAgo(new Date(file.ts))}</span>
+      <span className="w-16 shrink-0 text-right text-[11px] tabular-nums text-ink-4">
+        {timeAgo(new Date(file.ts))}
+      </span>
     </button>
   );
 }
 
-function FilePreview({ file, onClose, onTrash, onRestore, inTrash, ctx }: {
+function FilePreview({
+  file,
+  onClose,
+  onTrash,
+  onRestore,
+  inTrash,
+  ctx,
+}: {
   file: NxFile;
   onClose: () => void;
   onTrash: () => void;
@@ -305,20 +410,38 @@ function FilePreview({ file, onClose, onTrash, onRestore, inTrash, ctx }: {
   const Icon = FILE_ICONS[file.kind];
   const critical = file.name.startsWith("Critical");
   return (
-    <aside className="nx-scroll w-72 shrink-0 overflow-y-auto border-l border-line bg-panel-2 p-5" aria-label="Document preview">
+    <aside
+      className="nx-scroll w-72 shrink-0 overflow-y-auto border-l border-line bg-panel-2 p-5"
+      aria-label="Document preview"
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          <button onClick={onClose} className="nx-back-tb" aria-label="Back to Documents" title="Back to Documents">
+          <button
+            onClick={onClose}
+            className="nx-back-tb"
+            aria-label="Back to Documents"
+            title="Back to Documents"
+          >
             <ArrowLeft className="h-3.5 w-3.5" />
           </button>
-          <span className={cn("nx-file-tile", critical && "!border-crit-line !bg-crit-soft !text-crit")}>
+          <span
+            className={cn("nx-file-tile", critical && "!border-crit-line !bg-crit-soft !text-crit")}
+          >
             {critical ? <FileWarning className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
           </span>
         </div>
-        <button onClick={onClose} className="nx-bar-item h-7 px-2 text-[11px]" aria-label="Close preview">Close</button>
+        <button
+          onClick={onClose}
+          className="nx-bar-item h-7 px-2 text-[11px]"
+          aria-label="Close preview"
+        >
+          Close
+        </button>
       </div>
       <p className="mt-3 text-[14.5px] font-semibold leading-snug text-ink">{file.name}</p>
-      <p className="mt-1 text-[11.5px] text-ink-4">{file.sub} · modified {timeAgo(new Date(file.ts))}</p>
+      <p className="mt-1 text-[11.5px] text-ink-4">
+        {file.sub} · modified {timeAgo(new Date(file.ts))}
+      </p>
 
       <dl className="mt-4 space-y-2.5">
         {Object.entries(file.data).map(([k, v]) => (
@@ -342,7 +465,9 @@ function FilePreview({ file, onClose, onTrash, onRestore, inTrash, ctx }: {
             {file.kind === "record" && file.patientId && (
               <button
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent("nx-open-patient", { detail: file.patientId }));
+                  window.dispatchEvent(
+                    new CustomEvent("nx-open-patient", { detail: file.patientId }),
+                  );
                   ctx.open("patients");
                 }}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-3 py-2 text-[12.5px] font-semibold text-accent-ink transition hover:brightness-110"

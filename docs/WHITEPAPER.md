@@ -6,13 +6,13 @@ Hospitals do not need another app; they need an operating system. Nexura Hospita
 
 ## 2. Architecture
 
-| Layer | Implementation | Property |
-|---|---|---|
-| Shell | Next.js 16 App Router + React 19, code-split apps, window manager (zustand kernel) | boots in seconds, zero install, offline-capable (PWA + IndexedDB write buffer) |
-| Domain | 131 Prisma models, dialect-agnostic (SQLite dev / PostgreSQL prod) | additive migrations, tenant-scoped |
-| Contracts | dual-envelope `/api/nx/*` (ok/error + meta.requestId), OpenAPI v2, FHIR R4 + HL7 v2 + signed webhooks + DICOM registry | enterprise interoperability without framework lock-in |
-| Trust | JWT httpOnly sessions, RBAC-as-data + ABAC policies, step-up MFA, break-glass, hash-chained audit + Merkle block anchoring | every action attributable, tamper-evident, externally verifiable |
-| Intelligence | deterministic automation engine (never AI for safety paths) + AI layer with confidence heuristics, consent gates, per-feature thresholds, human-in-the-loop feedback loop | explainable, governable, regulator-defensible |
+| Layer        | Implementation                                                                                                                                                            | Property                                                                       |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Shell        | Next.js 16 App Router + React 19, code-split apps, window manager (zustand kernel)                                                                                        | boots in seconds, zero install, offline-capable (PWA + IndexedDB write buffer) |
+| Domain       | 131 Prisma models, dialect-agnostic (SQLite dev / PostgreSQL prod)                                                                                                        | additive migrations, tenant-scoped                                             |
+| Contracts    | dual-envelope `/api/nx/*` (ok/error + meta.requestId), OpenAPI v2, FHIR R4 + HL7 v2 + signed webhooks + DICOM registry                                                    | enterprise interoperability without framework lock-in                          |
+| Trust        | JWT httpOnly sessions, RBAC-as-data + ABAC policies, step-up MFA, break-glass, hash-chained audit + Merkle block anchoring                                                | every action attributable, tamper-evident, externally verifiable               |
+| Intelligence | deterministic automation engine (never AI for safety paths) + AI layer with confidence heuristics, consent gates, per-feature thresholds, human-in-the-loop feedback loop | explainable, governable, regulator-defensible                                  |
 
 ## 3. What makes it defensible
 

@@ -20,7 +20,11 @@ const TEST_CAPS = ["test.cap-a", "test.cap-b", "test.cap-c"];
  * before its DB write lands, so a fixed sleep races under CI load — poll the
  * probe instead (50ms interval, 8s budget) and assert on the final state.
  */
-async function waitForLedger<T>(probe: () => Promise<T>, ok: (v: T) => boolean, timeoutMs = 8000): Promise<T> {
+async function waitForLedger<T>(
+  probe: () => Promise<T>,
+  ok: (v: T) => boolean,
+  timeoutMs = 8000,
+): Promise<T> {
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     const v = await probe();
@@ -69,7 +73,9 @@ describe("pricing + integer cost math", () => {
 
 describe("normalizeProviderUsage", () => {
   it("normalizes the OpenRouter shape", () => {
-    expect(normalizeProviderUsage({ prompt_tokens: 10.4, completion_tokens: 20, total_tokens: 30 })).toEqual({
+    expect(
+      normalizeProviderUsage({ prompt_tokens: 10.4, completion_tokens: 20, total_tokens: 30 }),
+    ).toEqual({
       prompt: 10,
       completion: 20,
       total: 30,
@@ -77,7 +83,11 @@ describe("normalizeProviderUsage", () => {
   });
 
   it("normalizes the SDK flat { tokens } shape", () => {
-    expect(normalizeProviderUsage({ tokens: 42 })).toEqual({ prompt: null, completion: null, total: 42 });
+    expect(normalizeProviderUsage({ tokens: 42 })).toEqual({
+      prompt: null,
+      completion: null,
+      total: 42,
+    });
   });
 
   it("rejects garbage and negative values", () => {
@@ -142,7 +152,9 @@ describe("ledger writes (real DB)", () => {
     expect(row!.errorCode!.length).toBeLessThanOrEqual(200);
     // Don't pollute the ledger with fake unattributed failures — the
     // truncated error marks exactly the rows this test wrote.
-    await db.aiUsageLog.deleteMany({ where: { capability: "unattributed", errorCode: "x".repeat(200) } });
+    await db.aiUsageLog.deleteMany({
+      where: { capability: "unattributed", errorCode: "x".repeat(200) },
+    });
   });
 
   it("never throws — a record that fails the DB write must not break the caller", async () => {
@@ -162,7 +174,7 @@ describe("ledger writes (real DB)", () => {
         latencyMs: Number.NaN,
         success: false,
         fallbackUsed: false,
-      })
+      }),
     ).not.toThrow();
     await new Promise((r) => setTimeout(r, 300)); // a rejected write would surface here as an unhandled rejection
     const stored = await db.aiUsageLog.count({ where: { capability: "test.cap-c" } });

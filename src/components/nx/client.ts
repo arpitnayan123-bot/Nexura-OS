@@ -24,7 +24,11 @@ export async function nx<T = unknown>(path: string, init?: RequestInit): Promise
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const err = new Error((data as { error?: string; detail?: string }).detail || (data as { error?: string }).error || `Request failed (${res.status})`);
+    const err = new Error(
+      (data as { error?: string; detail?: string }).detail ||
+        (data as { error?: string }).error ||
+        `Request failed (${res.status})`,
+    );
     (err as Error & { status?: number; data?: unknown }).status = res.status;
     (err as Error & { data?: unknown }).data = data;
     throw err;
@@ -125,28 +129,41 @@ export function useNxMutation() {
   const alive = useRef(true);
   useEffect(() => {
     alive.current = true;
-    return () => { alive.current = false; };
+    return () => {
+      alive.current = false;
+    };
   }, []);
 
-  const run = useCallback(async (
-    id: string | null,
-    fn: () => Promise<unknown>,
-    opts?: { success?: string; error?: string; onDone?: () => void | Promise<void>; onFail?: () => void | Promise<void> }
-  ) => {
-    if (alive.current) setBusyId(id ?? "__global");
-    try {
-      await fn();
-      if (opts?.success) toast.success(opts.success);
-      await opts?.onDone?.();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : (opts?.error ?? "Action failed"));
-      await opts?.onFail?.();
-    } finally {
-      if (alive.current) setBusyId(null);
-    }
-  }, []);
+  const run = useCallback(
+    async (
+      id: string | null,
+      fn: () => Promise<unknown>,
+      opts?: {
+        success?: string;
+        error?: string;
+        onDone?: () => void | Promise<void>;
+        onFail?: () => void | Promise<void>;
+      },
+    ) => {
+      if (alive.current) setBusyId(id ?? "__global");
+      try {
+        await fn();
+        if (opts?.success) toast.success(opts.success);
+        await opts?.onDone?.();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : (opts?.error ?? "Action failed"));
+        await opts?.onFail?.();
+      } finally {
+        if (alive.current) setBusyId(null);
+      }
+    },
+    [],
+  );
 
-  const isBusy = useCallback((id?: string | null) => busyId !== null && (id == null || busyId === id), [busyId]);
+  const isBusy = useCallback(
+    (id?: string | null) => busyId !== null && (id == null || busyId === id),
+    [busyId],
+  );
   return { busyId, isBusy, run };
 }
 
@@ -194,10 +211,20 @@ async function verifyEventSig(ev: NxStreamEvent, key: string): Promise<boolean> 
   try {
     const enc = new TextEncoder();
     const cryptoKey = await crypto.subtle.importKey(
-      "raw", enc.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]
+      "raw",
+      enc.encode(key),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"],
     );
-    const mac = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(`${ev.seq}|${ev.event}|${JSON.stringify(ev.data ?? null)}`));
-    const hex = Array.from(new Uint8Array(mac)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    const mac = await crypto.subtle.sign(
+      "HMAC",
+      cryptoKey,
+      enc.encode(`${ev.seq}|${ev.event}|${JSON.stringify(ev.data ?? null)}`),
+    );
+    const hex = Array.from(new Uint8Array(mac))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
     return hex === ev.sig;
   } catch {
     return false;
@@ -232,26 +259,31 @@ export function useNxStream(opts?: { onEvent?: (ev: NxStreamEvent) => void; enab
           // Alert-integrity: per-hospital HMAC key delivered only over the
           // authenticated stream — injected code cannot forge signed events.
           if (data.signingKey) signingKey = String(data.signingKey);
-        } catch { /* noop */ }
+        } catch {
+          /* noop */
+        }
         setConnected(true);
       });
       es.addEventListener("nx", (e) => {
         void (async () => {
-        try {
-          const ev = JSON.parse((e as MessageEvent).data) as NxStreamEvent;
-          // duplicate suppression: server seq per connection cycle
-          if (typeof ev.seq === "number") {
-            if (seen.current.has(ev.seq)) return;
-            seen.current.add(ev.seq);
-            if (seen.current.size > 500) seen.current = new Set(Array.from(seen.current).slice(-200));
+          try {
+            const ev = JSON.parse((e as MessageEvent).data) as NxStreamEvent;
+            // duplicate suppression: server seq per connection cycle
+            if (typeof ev.seq === "number") {
+              if (seen.current.has(ev.seq)) return;
+              seen.current.add(ev.seq);
+              if (seen.current.size > 500)
+                seen.current = new Set(Array.from(seen.current).slice(-200));
+            }
+            // Drop unsigned/mismatched events (anti-spoof for critical alerts)
+            const verified = signingKey ? await verifyEventSig(ev, signingKey) : true;
+            if (!verified) return;
+            setLastSyncedAt(ev.at ?? new Date().toISOString());
+            handler.current?.(ev);
+            window.dispatchEvent(new CustomEvent("nx-live-event", { detail: ev }));
+          } catch {
+            /* noop */
           }
-          // Drop unsigned/mismatched events (anti-spoof for critical alerts)
-          const verified = signingKey ? await verifyEventSig(ev, signingKey) : true;
-          if (!verified) return;
-          setLastSyncedAt(ev.at ?? new Date().toISOString());
-          handler.current?.(ev);
-          window.dispatchEvent(new CustomEvent("nx-live-event", { detail: ev }));
-        } catch { /* noop */ }
         })();
       });
       es.onerror = () => {

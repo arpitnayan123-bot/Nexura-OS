@@ -4,9 +4,25 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
-  X, ArrowUpRight, Building2, Stethoscope, Pill, HeartPulse,
-  MessageCircle, Sparkles, Globe, BrainCircuit, Clock, TrendingUp,
-  Shield, Sprout, FlaskConical, Siren, Activity, Users, type LucideIcon,
+  X,
+  ArrowUpRight,
+  Building2,
+  Stethoscope,
+  Pill,
+  HeartPulse,
+  MessageCircle,
+  Sparkles,
+  Globe,
+  BrainCircuit,
+  Clock,
+  TrendingUp,
+  Shield,
+  Sprout,
+  FlaskConical,
+  Siren,
+  Activity,
+  Users,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBooking } from "./booking-context";
@@ -33,29 +49,240 @@ type NavEntry = {
 };
 
 const PRODUCTS: NavEntry[] = [
-  { id: "hospital", name: "Hospital OS", sub: "Flagship · HMS", desc: "22-module hospital operating system — OPD, IPD, OT, EHR, Nursing, Lab, Radiology, Blood Bank, Billing, Insurance, AI Assistant. ABDM-ready workflows.", icon: Building2, accent: "#A16207", accent2: "#C88A1F", href: "/hospital", badge: "Flagship", group: "products" },
-  { id: "predictive", name: "Nexura Predictive", sub: "Health Foresight Engine", desc: "Healthcare is Reactive. But Nexura is Predictive. Twelve disease-risk domains mapped from symptoms, diet, BMI, fitness, sleep and history — calibrated for India.", icon: BrainCircuit, accent: "#6D28D9", accent2: "#8B5CF6", href: "/predictive", badge: "AI 2.0", group: "products" },
-  { id: "clinic", name: "Clinic OS", sub: "EMR", desc: "HealthPlix-style EMR with SOAP consultation, drug autocomplete with interaction guard, ABHA lookup (simulated), public booking page.", icon: Stethoscope, accent: "#0F766E", accent2: "#14B8A6", href: "/clinic", badge: "New", group: "products" },
-  { id: "pharmacy", name: "Pharmacia", sub: "POS", desc: "AI-powered pharmacy POS with voice billing, prescription OCR, GST e-invoice, Schedule H register, predictive analytics.", icon: Pill, accent: "#3F6C51", accent2: "#5A8F6B", href: "/pharmacy", badge: "New", group: "products" },
-  { id: "portal", name: "Patient Portal", sub: "Unified Health", desc: "Unified health record across all products. Blood test at home with phlebotomist visit + AI report interpretation.", icon: HeartPulse, accent: "#A16207", accent2: "#C88A1F", href: "/portal", badge: "New", group: "products" },
-  { id: "connect", name: "Nexura Connect", sub: "Communication", desc: "Doctor-patient chat, call coordination & Rx sync across all products.", icon: MessageCircle, accent: "#B45309", accent2: "#F59E0B", href: "/connect", group: "products" },
-  { id: "kyh", name: "Know Your Health", sub: "AI Tools", desc: "15 AI tools — symptom checker, derma scan, X-ray reader, diet planner, lab analyzer & more.", icon: Sparkles, accent: "#C2410C", accent2: "#EA580C", href: "/know-your-health", group: "products" },
-  { id: "labs", name: "Nexura Labs", sub: "Diagnostics, Decoded", desc: "400+ tests collected at home in 30-minute windows, run in NABL-certified labs, decoded by AI into plain language — reports in 4–12 hours.", icon: FlaskConical, accent: "#0E7490", accent2: "#22D3EE", href: "/labs", badge: "New", group: "products" },
-  { id: "global", name: "Nexura Global", sub: "Medical Tourism", desc: "World-class Indian healthcare for global patients. Discovery portal, cost calculator, coordinator dashboard.", icon: Globe, accent: "#1D4ED8", accent2: "#3B82F6", href: "/global", group: "products" },
-  { id: "vitals", name: "Nexura Vitals", sub: "Your body, in real time", desc: "Connect the wearables you already own — heart rate, SpO₂, HRV, sleep and stress become one calm, physician-grade picture with trends explained.", icon: Activity, accent: "#BE123C", accent2: "#F43F5E", href: "/vitals", badge: "New", group: "products" },
-  { id: "care", name: "Nexura Care Circle", sub: "Family health", desc: "One calm view for the whole family — kids' vaccines, elders' medication adherence, shared insurance, DPDP consent controls. Up to 8 members.", icon: Users, accent: "#9F5B6B", accent2: "#C48B9F", href: "/care", badge: "New", group: "products" },
-  { id: "emergency", name: "Nexura Emergency", sub: "Seconds, respected", desc: "Press-and-hold SOS dispatches the nearest ambulance with your medical ID streaming to the crew. Live ER beds, blood-bank availability, offline first-aid.", icon: Siren, accent: "#B91C1C", accent2: "#EF4444", href: "/emergency", badge: "SOS", group: "products" },
-  { id: "diy", name: "Nexura DIY", sub: "Free · No sign-in", desc: "Tell it like it is — one chat builds a safe, realistic wellness roadmap with safety screen and honest timeframes.", icon: Sprout, accent: "#4D7C0F", accent2: "#7BB661", href: "/diy", badge: "New", group: "products" },
-  { id: "founder", name: "The Founder", sub: "Arpit Nayan", desc: "The story behind Nexura OS — from Bihar to building an operating system for health.", icon: HeartPulse, accent: "#C8A55B", accent2: "#E3C77E", href: "/founder", badge: "Story", group: "products" },
+  {
+    id: "hospital",
+    name: "Hospital OS",
+    sub: "Flagship · HMS",
+    desc: "22-module hospital operating system — OPD, IPD, OT, EHR, Nursing, Lab, Radiology, Blood Bank, Billing, Insurance, AI Assistant. ABDM-ready workflows.",
+    icon: Building2,
+    accent: "#A16207",
+    accent2: "#C88A1F",
+    href: "/hospital",
+    badge: "Flagship",
+    group: "products",
+  },
+  {
+    id: "predictive",
+    name: "Nexura Predictive",
+    sub: "Health Foresight Engine",
+    desc: "Healthcare is Reactive. But Nexura is Predictive. Twelve disease-risk domains mapped from symptoms, diet, BMI, fitness, sleep and history — calibrated for India.",
+    icon: BrainCircuit,
+    accent: "#6D28D9",
+    accent2: "#8B5CF6",
+    href: "/predictive",
+    badge: "AI 2.0",
+    group: "products",
+  },
+  {
+    id: "clinic",
+    name: "Clinic OS",
+    sub: "EMR",
+    desc: "HealthPlix-style EMR with SOAP consultation, drug autocomplete with interaction guard, ABHA lookup (simulated), public booking page.",
+    icon: Stethoscope,
+    accent: "#0F766E",
+    accent2: "#14B8A6",
+    href: "/clinic",
+    badge: "New",
+    group: "products",
+  },
+  {
+    id: "pharmacy",
+    name: "Pharmacia",
+    sub: "POS",
+    desc: "AI-powered pharmacy POS with voice billing, prescription OCR, GST e-invoice, Schedule H register, predictive analytics.",
+    icon: Pill,
+    accent: "#3F6C51",
+    accent2: "#5A8F6B",
+    href: "/pharmacy",
+    badge: "New",
+    group: "products",
+  },
+  {
+    id: "portal",
+    name: "Patient Portal",
+    sub: "Unified Health",
+    desc: "Unified health record across all products. Blood test at home with phlebotomist visit + AI report interpretation.",
+    icon: HeartPulse,
+    accent: "#A16207",
+    accent2: "#C88A1F",
+    href: "/portal",
+    badge: "New",
+    group: "products",
+  },
+  {
+    id: "connect",
+    name: "Nexura Connect",
+    sub: "Communication",
+    desc: "Doctor-patient chat, call coordination & Rx sync across all products.",
+    icon: MessageCircle,
+    accent: "#B45309",
+    accent2: "#F59E0B",
+    href: "/connect",
+    group: "products",
+  },
+  {
+    id: "kyh",
+    name: "Know Your Health",
+    sub: "AI Tools",
+    desc: "15 AI tools — symptom checker, derma scan, X-ray reader, diet planner, lab analyzer & more.",
+    icon: Sparkles,
+    accent: "#C2410C",
+    accent2: "#EA580C",
+    href: "/know-your-health",
+    group: "products",
+  },
+  {
+    id: "labs",
+    name: "Nexura Labs",
+    sub: "Diagnostics, Decoded",
+    desc: "400+ tests collected at home in 30-minute windows, run in NABL-certified labs, decoded by AI into plain language — reports in 4–12 hours.",
+    icon: FlaskConical,
+    accent: "#0E7490",
+    accent2: "#22D3EE",
+    href: "/labs",
+    badge: "New",
+    group: "products",
+  },
+  {
+    id: "global",
+    name: "Nexura Global",
+    sub: "Medical Tourism",
+    desc: "World-class Indian healthcare for global patients. Discovery portal, cost calculator, coordinator dashboard.",
+    icon: Globe,
+    accent: "#1D4ED8",
+    accent2: "#3B82F6",
+    href: "/global",
+    group: "products",
+  },
+  {
+    id: "vitals",
+    name: "Nexura Vitals",
+    sub: "Your body, in real time",
+    desc: "Connect the wearables you already own — heart rate, SpO₂, HRV, sleep and stress become one calm, physician-grade picture with trends explained.",
+    icon: Activity,
+    accent: "#BE123C",
+    accent2: "#F43F5E",
+    href: "/vitals",
+    badge: "New",
+    group: "products",
+  },
+  {
+    id: "care",
+    name: "Nexura Care Circle",
+    sub: "Family health",
+    desc: "One calm view for the whole family — kids' vaccines, elders' medication adherence, shared insurance, DPDP consent controls. Up to 8 members.",
+    icon: Users,
+    accent: "#9F5B6B",
+    accent2: "#C48B9F",
+    href: "/care",
+    badge: "New",
+    group: "products",
+  },
+  {
+    id: "emergency",
+    name: "Nexura Emergency",
+    sub: "Seconds, respected",
+    desc: "Press-and-hold SOS dispatches the nearest ambulance with your medical ID streaming to the crew. Live ER beds, blood-bank availability, offline first-aid.",
+    icon: Siren,
+    accent: "#B91C1C",
+    accent2: "#EF4444",
+    href: "/emergency",
+    badge: "SOS",
+    group: "products",
+  },
+  {
+    id: "diy",
+    name: "Nexura DIY",
+    sub: "Free · No sign-in",
+    desc: "Tell it like it is — one chat builds a safe, realistic wellness roadmap with safety screen and honest timeframes.",
+    icon: Sprout,
+    accent: "#4D7C0F",
+    accent2: "#7BB661",
+    href: "/diy",
+    badge: "New",
+    group: "products",
+  },
+  {
+    id: "founder",
+    name: "The Founder",
+    sub: "Arpit Nayan",
+    desc: "The story behind Nexura OS — from Bihar to building an operating system for health.",
+    icon: HeartPulse,
+    accent: "#C8A55B",
+    accent2: "#E3C77E",
+    href: "/founder",
+    badge: "Story",
+    group: "products",
+  },
 ];
 
 const ACTIONS: NavEntry[] = [
-  { id: "book", name: "Book Appointment", sub: "Schedule a visit", desc: "Book a doctor appointment", icon: Clock, accent: "#A16207", accent2: "#C88A1F", href: "#book", group: "actions" },
-  { id: "symptoms", name: "Check Symptoms", sub: "AI triage", desc: "AI-powered symptom checker", icon: Sparkles, accent: "#C2410C", accent2: "#EA580C", href: "/know-your-health#symptoms-checker", group: "actions" },
-  { id: "connect-doc", name: "Chat with Doctor", sub: "Nexura Connect", desc: "Start a conversation", icon: MessageCircle, accent: "#0F766E", accent2: "#14B8A6", href: "/connect/patient", group: "actions" },
-  { id: "investors", name: "Investor Deck", sub: "Seed Round", desc: "Vision, market, traction, ask", icon: TrendingUp, accent: "#6D28D9", accent2: "#8B5CF6", href: "/investors", group: "actions" },
-  { id: "pricing", name: "Pricing", sub: "SaaS Plans", desc: "Transparent pricing in INR", icon: TrendingUp, accent: "#B45309", accent2: "#F59E0B", href: "/pricing", group: "actions" },
-  { id: "compliance", name: "Compliance", sub: "Regulatory", desc: "ABDM, DPDP, NABH, CDSCO, IRDAI", icon: Shield, accent: "#3F6C51", accent2: "#5A8F6B", href: "/compliance", group: "actions" },
+  {
+    id: "book",
+    name: "Book Appointment",
+    sub: "Schedule a visit",
+    desc: "Book a doctor appointment",
+    icon: Clock,
+    accent: "#A16207",
+    accent2: "#C88A1F",
+    href: "#book",
+    group: "actions",
+  },
+  {
+    id: "symptoms",
+    name: "Check Symptoms",
+    sub: "AI triage",
+    desc: "AI-powered symptom checker",
+    icon: Sparkles,
+    accent: "#C2410C",
+    accent2: "#EA580C",
+    href: "/know-your-health#symptoms-checker",
+    group: "actions",
+  },
+  {
+    id: "connect-doc",
+    name: "Chat with Doctor",
+    sub: "Nexura Connect",
+    desc: "Start a conversation",
+    icon: MessageCircle,
+    accent: "#0F766E",
+    accent2: "#14B8A6",
+    href: "/connect/patient",
+    group: "actions",
+  },
+  {
+    id: "investors",
+    name: "Investor Deck",
+    sub: "Seed Round",
+    desc: "Vision, market, traction, ask",
+    icon: TrendingUp,
+    accent: "#6D28D9",
+    accent2: "#8B5CF6",
+    href: "/investors",
+    group: "actions",
+  },
+  {
+    id: "pricing",
+    name: "Pricing",
+    sub: "SaaS Plans",
+    desc: "Transparent pricing in INR",
+    icon: TrendingUp,
+    accent: "#B45309",
+    accent2: "#F59E0B",
+    href: "/pricing",
+    group: "actions",
+  },
+  {
+    id: "compliance",
+    name: "Compliance",
+    sub: "Regulatory",
+    desc: "ABDM, DPDP, NABH, CDSCO, IRDAI",
+    icon: Shield,
+    accent: "#3F6C51",
+    accent2: "#5A8F6B",
+    href: "/compliance",
+    group: "actions",
+  },
 ];
 
 /* staggered spring entrance — critically damped, Apple-style */
@@ -99,14 +326,19 @@ export function HamburgerMenu() {
     };
   }, [open]);
 
-  const handleSelect = useCallback((item: NavEntry) => {
-    setOpen(false);
-    if (item.href === "#book") {
-      setTimeout(() => openBooking(), 120);
-    } else if (!item.href.startsWith("#")) {
-      setTimeout(() => { window.location.href = item.href; }, 120);
-    }
-  }, [openBooking]);
+  const handleSelect = useCallback(
+    (item: NavEntry) => {
+      setOpen(false);
+      if (item.href === "#book") {
+        setTimeout(() => openBooking(), 120);
+      } else if (!item.href.startsWith("#")) {
+        setTimeout(() => {
+          window.location.href = item.href;
+        }, 120);
+      }
+    },
+    [openBooking],
+  );
 
   return (
     <>
@@ -127,7 +359,12 @@ export function HamburgerMenu() {
 
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="Nexura OS menu">
+          <div
+            className="fixed inset-0 z-[70]"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Nexura OS menu"
+          >
             {/* Scrim — warm dim + blur */}
             <motion.button
               aria-label="Close menu"
@@ -183,7 +420,9 @@ export function HamburgerMenu() {
                 <p className="flex items-center gap-2 px-2 pb-2 text-[0.55rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
                   Products
                   <span className="h-px flex-1 bg-gradient-to-r from-[#C88A1F]/30 to-transparent" />
-                  <span className="rounded-full bg-[#A16207]/10 px-1.5 py-0.5 text-[0.5rem] tracking-normal text-[#8a6510] dark:text-[#E3C77E]">14</span>
+                  <span className="rounded-full bg-[#A16207]/10 px-1.5 py-0.5 text-[0.5rem] tracking-normal text-[#8a6510] dark:text-[#E3C77E]">
+                    14
+                  </span>
                 </p>
                 <motion.div
                   variants={productsList}
@@ -199,7 +438,9 @@ export function HamburgerMenu() {
                 <p className="flex items-center gap-2 px-2 pb-2 pt-5 text-[0.55rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
                   Quick Actions
                   <span className="h-px flex-1 bg-gradient-to-r from-[#0F766E]/30 to-transparent" />
-                  <span className="rounded-full bg-[#0F766E]/10 px-1.5 py-0.5 text-[0.5rem] tracking-normal text-[#0F766E] dark:text-[#2DD4BF]">6</span>
+                  <span className="rounded-full bg-[#0F766E]/10 px-1.5 py-0.5 text-[0.5rem] tracking-normal text-[#0F766E] dark:text-[#2DD4BF]">
+                    6
+                  </span>
                 </p>
                 <motion.div
                   variants={actionsList}
@@ -208,7 +449,12 @@ export function HamburgerMenu() {
                   className="space-y-1"
                 >
                   {ACTIONS.map((item) => (
-                    <MenuRow key={item.id} item={item} compact onSelect={() => handleSelect(item)} />
+                    <MenuRow
+                      key={item.id}
+                      item={item}
+                      compact
+                      onSelect={() => handleSelect(item)}
+                    />
                   ))}
                 </motion.div>
               </div>
@@ -247,8 +493,14 @@ export function HamburgerMenu() {
 
 /* ---------- Drawer row — per-product material identity ---------- */
 function MenuRow({
-  item, compact, onSelect,
-}: { item: NavEntry; compact?: boolean; onSelect: () => void }) {
+  item,
+  compact,
+  onSelect,
+}: {
+  item: NavEntry;
+  compact?: boolean;
+  onSelect: () => void;
+}) {
   const Icon = item.icon;
   const isPredictive = item.id === "predictive";
   return (
@@ -263,9 +515,11 @@ function MenuRow({
         }}
         className={cn(
           "menu-row group flex items-start gap-3 rounded-xl px-3 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C88A1F]/45",
-          isPredictive && "bg-violet-500/[0.06] ring-1 ring-violet-500/25"
+          isPredictive && "bg-violet-500/[0.06] ring-1 ring-violet-500/25",
         )}
-        style={{ "--row-accent": item.accent, "--row-accent-2": item.accent2 } as React.CSSProperties}
+        style={
+          { "--row-accent": item.accent, "--row-accent-2": item.accent2 } as React.CSSProperties
+        }
       >
         <span
           className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg text-white transition-transform duration-300 group-hover:scale-105"

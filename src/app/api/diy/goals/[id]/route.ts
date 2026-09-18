@@ -34,7 +34,11 @@ export const POST = withRoute<{ id: string }>("diy.goal.action", async (req: Nex
   if (g instanceof NextResponse) return g;
 
   const { id } = await ctx.params;
-  const { action, rawGoalText, category } = g.body as { action: string; rawGoalText?: string; category?: string };
+  const { action, rawGoalText, category } = g.body as {
+    action: string;
+    rawGoalText?: string;
+    category?: string;
+  };
 
   const goal = await db.diyGoal.findFirst({ where: { id, userId: g.userId } });
   if (!goal) return guardFail("NOT_FOUND", "Goal not found.", 404);
@@ -43,7 +47,12 @@ export const POST = withRoute<{ id: string }>("diy.goal.action", async (req: Nex
   if (action === "reparse") {
     if (!rawGoalText) return guardFail("INVALID_BODY", "Edited goal text is required for reparse.");
     const verdict = evaluateSafety(rawGoalText);
-    await recordSafetyEvent({ userId: g.userId, text: rawGoalText, verdict, surface: "goal_reparse" });
+    await recordSafetyEvent({
+      userId: g.userId,
+      text: rawGoalText,
+      verdict,
+      surface: "goal_reparse",
+    });
     if (verdict.action === "EMERGENCY" || verdict.action === "STOP_AND_REFER") {
       return NextResponse.json({ safety: { action: verdict.action, message: verdict.message } });
     }

@@ -13,7 +13,10 @@ import { useOs, type Wallpaper } from "./store";
    reads or drives the same system the UI does.
    ============================================================ */
 
-interface Line { text: string; kind: "in" | "out" | "ok" | "err" | "sys" }
+interface Line {
+  text: string;
+  kind: "in" | "out" | "ok" | "err" | "sys";
+}
 
 const BANNER = [
   "  _   _                 _            _     ___  ___",
@@ -39,7 +42,8 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [lines, busy]);
 
-  const print = (text: string, kind: Line["kind"] = "out") => setLines((l) => [...l, { text, kind }]);
+  const print = (text: string, kind: Line["kind"] = "out") =>
+    setLines((l) => [...l, { text, kind }]);
 
   async function run(raw: string) {
     const cmd = raw.trim();
@@ -53,39 +57,53 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
     try {
       switch (name.toLowerCase()) {
         case "help":
-          print([
-            "help              list commands",
-            "whoami            current staff session",
-            "census            live hospital overview",
-            "beds              bed availability by status",
-            "tasks             active work queue counts",
-            "apps              installed applications",
-            "open <app>        launch an app (try: open files)",
-            "theme <mode>      auto | light | dark",
-            "wallpaper <name>  aurora | dawn | meadow | mono",
-            "lock              lock the screen",
-            "date              current date & time",
-            "uptime            session info",
-            "clear             clear the console",
-            "echo <text>       print text",
-          ].join("\n"));
+          print(
+            [
+              "help              list commands",
+              "whoami            current staff session",
+              "census            live hospital overview",
+              "beds              bed availability by status",
+              "tasks             active work queue counts",
+              "apps              installed applications",
+              "open <app>        launch an app (try: open files)",
+              "theme <mode>      auto | light | dark",
+              "wallpaper <name>  aurora | dawn | meadow | mono",
+              "lock              lock the screen",
+              "date              current date & time",
+              "uptime            session info",
+              "clear             clear the console",
+              "echo <text>       print text",
+            ].join("\n"),
+          );
           break;
 
         case "whoami": {
-          const r = await nx<{ user: { name: string; role: string; department?: string; hospitalId?: string } }>("/api/nx/auth");
-          print(`${r.user.name} — ${r.user.role}${r.user.department ? ` · ${r.user.department}` : ""}`, "ok");
+          const r = await nx<{
+            user: { name: string; role: string; department?: string; hospitalId?: string };
+          }>("/api/nx/auth");
+          print(
+            `${r.user.name} — ${r.user.role}${r.user.department ? ` · ${r.user.department}` : ""}`,
+            "ok",
+          );
           break;
         }
 
         case "census": {
           try {
-            const r = await nx<{ census?: Record<string, number>; hospital?: { name?: string }; critical?: Record<string, number> }>("/api/nx/overview");
-            print([
-              `${r.hospital?.name ?? "Hospital"}`,
-              `census      ${r.census?.total ?? "—"}`,
-              `occupancy   ${r.census?.occupancyPct ?? "—"}%`,
-              `critical    ${(r.critical?.openTasks ?? 0) + (r.critical?.openIncidents ?? 0)} open items`,
-            ].join("\n"), "ok");
+            const r = await nx<{
+              census?: Record<string, number>;
+              hospital?: { name?: string };
+              critical?: Record<string, number>;
+            }>("/api/nx/overview");
+            print(
+              [
+                `${r.hospital?.name ?? "Hospital"}`,
+                `census      ${r.census?.total ?? "—"}`,
+                `occupancy   ${r.census?.occupancyPct ?? "—"}%`,
+                `critical    ${(r.critical?.openTasks ?? 0) + (r.critical?.openIncidents ?? 0)} open items`,
+              ].join("\n"),
+              "ok",
+            );
           } catch {
             print("census needs the Command Center module — try `beds` or `tasks` instead.", "err");
           }
@@ -93,33 +111,55 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
         }
 
         case "beds": {
-          const r = await nx<{ counts: Record<string, number>; total: number; occupancyPct: number }>("/api/nx/beds");
-          print([
-            `total       ${r.total}`,
-            `occupancy   ${r.occupancyPct}%`,
-            ...Object.entries(r.counts ?? {}).map(([k, v]) => `${k.padEnd(11)} ${v}`),
-          ].join("\n"), "ok");
+          const r = await nx<{
+            counts: Record<string, number>;
+            total: number;
+            occupancyPct: number;
+          }>("/api/nx/beds");
+          print(
+            [
+              `total       ${r.total}`,
+              `occupancy   ${r.occupancyPct}%`,
+              ...Object.entries(r.counts ?? {}).map(([k, v]) => `${k.padEnd(11)} ${v}`),
+            ].join("\n"),
+            "ok",
+          );
           break;
         }
 
         case "tasks": {
-          const r = await nx<{ counts: Record<string, number>; tasks?: Array<{ title: string; dueAt?: string }> }>("/api/nx/tasks?status=active");
-          print([
-            `critical    ${r.counts.critical ?? 0}`,
-            `overdue     ${r.counts.overdue ?? 0}`,
-            ...(r.tasks ?? []).slice(0, 5).map((t) => `• ${t.title}${t.dueAt ? ` — due ${timeAgo(t.dueAt)}` : ""}`),
-          ].join("\n"), "ok");
+          const r = await nx<{
+            counts: Record<string, number>;
+            tasks?: Array<{ title: string; dueAt?: string }>;
+          }>("/api/nx/tasks?status=active");
+          print(
+            [
+              `critical    ${r.counts.critical ?? 0}`,
+              `overdue     ${r.counts.overdue ?? 0}`,
+              ...(r.tasks ?? [])
+                .slice(0, 5)
+                .map((t) => `• ${t.title}${t.dueAt ? ` — due ${timeAgo(t.dueAt)}` : ""}`),
+            ].join("\n"),
+            "ok",
+          );
           break;
         }
 
         case "apps":
-          print(APPS.filter((a) => a.system || true).map((a) => `${a.key.padEnd(16)} ${a.label}`).join("\n"));
+          print(
+            APPS.filter((a) => a.system || true)
+              .map((a) => `${a.key.padEnd(16)} ${a.label}`)
+              .join("\n"),
+          );
           break;
 
         case "open": {
           const key = arg.toLowerCase().trim();
           const def = appFor(key) || APPS.find((a) => a.label.toLowerCase() === arg.toLowerCase());
-          if (!def) { print(`no app named “${arg}” — try \`apps\``, "err"); break; }
+          if (!def) {
+            print(`no app named “${arg}” — try \`apps\``, "err");
+            break;
+          }
           ctx.open(def.key);
           print(`launching ${def.label}…`, "ok");
           break;
@@ -127,7 +167,10 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
 
         case "theme": {
           const v = arg.toLowerCase();
-          if (!["auto", "light", "dark"].includes(v)) { print("usage: theme auto|light|dark", "err"); break; }
+          if (!["auto", "light", "dark"].includes(v)) {
+            print("usage: theme auto|light|dark", "err");
+            break;
+          }
           useOs.getState().setTheme(v as "auto" | "light" | "dark");
           print(`appearance set to ${v}`, "ok");
           break;
@@ -135,7 +178,10 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
 
         case "wallpaper": {
           const v = arg.toLowerCase();
-          if (!["aurora", "dawn", "meadow", "mono"].includes(v)) { print("usage: wallpaper aurora|dawn|meadow|mono", "err"); break; }
+          if (!["aurora", "dawn", "meadow", "mono"].includes(v)) {
+            print("usage: wallpaper aurora|dawn|meadow|mono", "err");
+            break;
+          }
           useOs.getState().setWallpaper(v as Wallpaper);
           print(`wallpaper set to ${v}`, "ok");
           break;
@@ -147,11 +193,17 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
           break;
 
         case "date":
-          print(new Date().toLocaleString("en-IN", { dateStyle: "full", timeStyle: "short" }) + " IST", "ok");
+          print(
+            new Date().toLocaleString("en-IN", { dateStyle: "full", timeStyle: "short" }) + " IST",
+            "ok",
+          );
           break;
 
         case "uptime":
-          print("Hospital OS v4 “Foundation” — session up since you signed in. Audit chain: intact.", "ok");
+          print(
+            "Hospital OS v4 “Foundation” — session up since you signed in. Audit chain: intact.",
+            "ok",
+          );
           break;
 
         case "echo":
@@ -175,7 +227,12 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
   }
 
   return (
-    <div className="nx-console" onClick={() => inputRef.current?.focus()} role="terminal" aria-label="Hospital OS console">
+    <div
+      className="nx-console"
+      onClick={() => inputRef.current?.focus()}
+      role="terminal"
+      aria-label="Hospital OS console"
+    >
       <div ref={scrollRef} className="nx-console-scroll nx-scroll">
         {lines.map((ln, i) => (
           <div
@@ -186,7 +243,7 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
               ln.kind === "ok" && "text-good",
               ln.kind === "err" && "text-crit",
               ln.kind === "sys" && "text-accent",
-              ln.kind === "out" && "text-ink-2"
+              ln.kind === "out" && "text-ink-2",
             )}
           >
             {ln.text || "\u00A0"}
@@ -201,11 +258,17 @@ export function ConsoleApp({ ctx }: { ctx: AppCtx }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !busy) { const v = input; setInput(""); void run(v); }
-            else if (e.key === "ArrowUp") {
+            if (e.key === "Enter" && !busy) {
+              const v = input;
+              setInput("");
+              void run(v);
+            } else if (e.key === "ArrowUp") {
               e.preventDefault();
               const next = Math.min(histIdx + 1, history.length - 1);
-              if (next >= 0) { setHistIdx(next); setInput(history[next]); }
+              if (next >= 0) {
+                setHistIdx(next);
+                setInput(history[next]);
+              }
             } else if (e.key === "ArrowDown") {
               e.preventDefault();
               const next = histIdx - 1;

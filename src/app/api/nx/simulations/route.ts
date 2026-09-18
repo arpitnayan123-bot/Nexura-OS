@@ -15,10 +15,17 @@ export const GET = withRoute("simulations.list", async (req: NextRequest, { requ
     where: { active: true, ...(audience ? { audience } : {}) },
     orderBy: { difficulty: "asc" },
   });
-  return ok(scenarios.map((s) => ({
-    id: s.id, code: s.code, title: s.title, audience: s.audience, difficulty: s.difficulty,
-    tree: JSON.parse(s.treeJson),
-  })), { requestId });
+  return ok(
+    scenarios.map((s) => ({
+      id: s.id,
+      code: s.code,
+      title: s.title,
+      audience: s.audience,
+      difficulty: s.difficulty,
+      tree: JSON.parse(s.treeJson),
+    })),
+    { requestId },
+  );
 });
 
 const RunSchema = z.object({
@@ -38,7 +45,9 @@ export const POST = withRoute("simulations.run", async (req: NextRequest, { requ
   if ("response" in g) return g.response;
   const body = await parseBody(req, RunSchema);
   if ("response" in body) return body.response;
-  const scenario = await db.nxSimulationScenario.findUnique({ where: { id: body.data.scenarioId } });
+  const scenario = await db.nxSimulationScenario.findUnique({
+    where: { id: body.data.scenarioId },
+  });
   if (!scenario || !scenario.active) return fail("not_found", 404, undefined, requestId);
   const tree = JSON.parse(scenario.treeJson) as TreeNode;
   const steps: { step: number; question: string; chosen: string; correct: boolean }[] = [];
@@ -46,19 +55,46 @@ export const POST = withRoute("simulations.run", async (req: NextRequest, { requ
   let i = 0;
   while (node && i < body.data.choices.length) {
     const opt = node.options.find((o) => o.label === body.data.choices[i]);
-    if (!opt) return fail("invalid_choice", 400, `Step ${i + 1}: "${body.data.choices[i]}" is not an option here.`, requestId);
+    if (!opt)
+      return fail(
+        "invalid_choice",
+        400,
+        `Step ${i + 1}: "${body.data.choices[i]}" is not an option here.`,
+        requestId,
+      );
     steps.push({ step: i + 1, question: node.question, chosen: opt.label, correct: opt.correct });
     node = opt.next;
     i += 1;
   }
   const totalCorrect = steps.filter((s) => s.correct).length;
   const score = steps.length ? Number((totalCorrect / steps.length).toFixed(2)) : 0;
-  const outcome = totalCorrect === steps.length && steps.length > 0 ? "optimal_path" : totalCorrect > 0 ? "partial" : "incorrect_path";
+  const outcome =
+    totalCorrect === steps.length && steps.length > 0
+      ? "optimal_path"
+      : totalCorrect > 0
+        ? "partial"
+        : "incorrect_path";
   const run = await db.nxSimulationRun.create({
     data: {
-      scenarioId: scenario.id, subjectType: "staff", subjectName: body.data.subjectName ?? g.session.name,
-      choicesJson: JSON.stringify(steps), outcome, score,
+      scenarioId: scenario.id,
+      subjectType: "staff",
+      subjectName: body.data.subjectName ?? g.session.name,
+      choicesJson: JSON.stringify(steps),
+      outcome,
+      score,
     },
   });
-  return ok({ runId: run.id, outcome, score, steps, teachingNote: outcome === "optimal_path" ? "Textbook management." : "Review the guideline path — the tree shows where the chosen route diverged." }, { requestId });
+  return ok(
+    {
+      runId: run.id,
+      outcome,
+      score,
+      steps,
+      teachingNote:
+        outcome === "optimal_path"
+          ? "Textbook management."
+          : "Review the guideline path — the tree shows where the chosen route diverged.",
+    },
+    { requestId },
+  );
 });

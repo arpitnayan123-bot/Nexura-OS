@@ -35,7 +35,11 @@ const drawer = page.locator(".menu-drawer");
 ok("drawer present", (await drawer.count()) === 1);
 const box = await drawer.boundingBox();
 const vw = page.viewportSize().width;
-ok("drawer anchored to RIGHT edge (same side as button)", box && Math.abs(box.x + box.width - vw) < 8, `x=${box?.x} vw=${vw}`);
+ok(
+  "drawer anchored to RIGHT edge (same side as button)",
+  box && Math.abs(box.x + box.width - vw) < 8,
+  `x=${box?.x} vw=${vw}`,
+);
 ok("drawer width ≈ 26rem", box && Math.abs(box.width - 416) < 4, `w=${box?.width}`);
 await page.screenshot({ path: "logs/menu-open-right.png" });
 
@@ -46,7 +50,7 @@ const chips = await page.locator(".menu-row span.grid").count();
 ok("glowing icon chips", chips >= 20, `chips=${chips}`);
 const badges = await page.locator(".menu-row span.rounded-full", { hasText: "." }).count();
 console.log(`INFO  badges=${badges}`);
-const violetRow = await page.locator('.menu-row.ring-1.ring-violet-500\\/25').count();
+const violetRow = await page.locator(".menu-row.ring-1.ring-violet-500\\/25").count();
 ok("Predictive violet spotlight row", violetRow === 1);
 const footerChips = await page.locator("text=ABDM").count();
 ok("footer compliance chips (ABDM/DPDP/NABH)", footerChips >= 1);
@@ -63,13 +67,20 @@ const haloAnim = await halo.evaluate((el) => getComputedStyle(el).animationName)
 ok("halo spinning (hero-halo-spin)", haloAnim.includes("hero-halo-spin"), haloAnim);
 const orbits = await page.locator(".hero-orbit").count();
 ok("2 orbit rings", orbits === 2, `orbits=${orbits}`);
-const orbitAnim = await page.locator(".hero-orbit").first().evaluate((el) => getComputedStyle(el).animationName);
+const orbitAnim = await page
+  .locator(".hero-orbit")
+  .first()
+  .evaluate((el) => getComputedStyle(el).animationName);
 ok("orbit A spinning", orbitAnim.includes("hero-orbit-spin"), orbitAnim);
-const orbitBAnim = await page.locator(".hero-orbit--b").evaluate((el) => getComputedStyle(el).animationName);
+const orbitBAnim = await page
+  .locator(".hero-orbit--b")
+  .evaluate((el) => getComputedStyle(el).animationName);
 ok("orbit B counter-spinning", orbitBAnim.includes("hero-orbit-rev"), orbitBAnim);
 ok("2 satellites (gold + teal)", (await page.locator(".hero-sat").count()) === 2);
 const sheen = page.locator(".hero-photo, .hero-sheen").last();
-const sheenAnim = await page.locator(".hero-sheen").evaluate((el) => getComputedStyle(el).animationName);
+const sheenAnim = await page
+  .locator(".hero-sheen")
+  .evaluate((el) => getComputedStyle(el).animationName);
 ok("sheen sweep looping", sheenAnim.includes("hero-sheen-loop"), sheenAnim);
 ok("5 twinkling sparks", (await page.locator(".hero-spark").count()) === 5);
 ok("3 material chips (neon/glass/clay)", (await page.locator(".mat-chip").count()) === 3);
@@ -77,9 +88,14 @@ ok("neon amber AI chip", (await page.locator(".mat-chip--neon").count()) === 1);
 ok("crimson glass vitals chip", (await page.locator(".mat-chip--glass").count()) === 1);
 ok("rose clay care chip", (await page.locator(".mat-chip--clay").count()) === 1);
 ok("DPDP seal + rotating ring", (await page.locator(".hero-seal-ring").count()) === 1);
-const sealAnim = await page.locator(".hero-seal-ring").evaluate((el) => getComputedStyle(el).animationName);
+const sealAnim = await page
+  .locator(".hero-seal-ring")
+  .evaluate((el) => getComputedStyle(el).animationName);
 ok("seal ring rotating", sealAnim.includes("hero-seal-rot"), sealAnim);
-ok("gold inset hairline on portrait", (await page.locator("img[alt='Nexura OS care companion']").count()) === 1);
+ok(
+  "gold inset hairline on portrait",
+  (await page.locator("img[alt='Nexura OS care companion']").count()) === 1,
+);
 await page.screenshot({ path: "logs/hero-showpiece.png" });
 
 /* 5 · console errors */
@@ -96,11 +112,19 @@ const overflow = await mob.evaluate(() => {
   const d = document.documentElement;
   return { sw: d.scrollWidth, iw: window.innerWidth };
 });
-ok("mobile 390: no horizontal overflow", overflow.sw <= overflow.iw + 1, `scrollW=${overflow.sw} innerW=${overflow.iw}`);
+ok(
+  "mobile 390: no horizontal overflow",
+  overflow.sw <= overflow.iw + 1,
+  `scrollW=${overflow.sw} innerW=${overflow.iw}`,
+);
 await mob.locator(".menu-trigger").click();
 await mob.waitForTimeout(800);
 const mbox = await mob.locator(".menu-drawer").boundingBox();
-ok("mobile drawer full-width from right", mbox && mbox.x <= 2 && mbox.width >= 388, `x=${mbox?.x} w=${mbox?.width}`);
+ok(
+  "mobile drawer full-width from right",
+  mbox && mbox.x <= 2 && mbox.width >= 388,
+  `x=${mbox?.x} w=${mbox?.width}`,
+);
 await mob.screenshot({ path: "logs/menu-open-mobile.png" });
 ok("mobile zero console errors", merr.length === 0, merr.slice(0, 3).join(" | "));
 await mob.close();

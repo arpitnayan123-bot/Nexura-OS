@@ -70,7 +70,7 @@ export interface ResolvedConsent {
 export function resolveConsentState(
   rows: ConsentRowLike[],
   type: string,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): ResolvedConsent {
   const relevant = rows
     .filter((r) => r.type === type)
@@ -89,7 +89,7 @@ export function resolveConsentState(
 /** Resolve every self-service type at once, keyed by type. */
 export function resolveAllConsentStates(
   rows: ConsentRowLike[],
-  now: Date = new Date()
+  now: Date = new Date(),
 ): Record<string, ResolvedConsent> {
   const out: Record<string, ResolvedConsent> = {};
   for (const meta of SELF_SERVICE_CONSENT_TYPES) {

@@ -7,7 +7,14 @@ import { audit } from "@/lib/nx/audit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-interface PreOpChecklist { consent?: boolean; fasted?: boolean; site_marked?: boolean; allergies_verified?: boolean; blood_arranged?: boolean; equipment_checked?: boolean }
+interface PreOpChecklist {
+  consent?: boolean;
+  fasted?: boolean;
+  site_marked?: boolean;
+  allergies_verified?: boolean;
+  blood_arranged?: boolean;
+  equipment_checked?: boolean;
+}
 
 /** GET — operating room schedule + readiness. */
 export const GET = withRoute("nx.or.schedule", async (req: NextRequest) => {
@@ -24,18 +31,26 @@ export const GET = withRoute("nx.or.schedule", async (req: NextRequest) => {
     include: {
       surgeon: { select: { name: true, specialty: true } },
       anesthetist: { select: { name: true } },
-      patient: { select: { fullName: true, age: true, gender: true, bloodGroup: true, allergy: true } },
+      patient: {
+        select: { fullName: true, age: true, gender: true, bloodGroup: true, allergy: true },
+      },
     },
   });
 
   const rooms = Array.from(new Set(surgeries.map((s) => s.otRoomNumber)));
   const byRoom = rooms.map((room) => ({
     room,
-    cases: surgeries.filter((s) => s.otRoomNumber === room).map((s) => {
-      let checklist: PreOpChecklist = {};
-      try { checklist = JSON.parse(s.preOpChecklist || "{}"); } catch { /* ignore */ }
-      return { ...s, checklist, readiness: computeReadiness(checklist) };
-    }),
+    cases: surgeries
+      .filter((s) => s.otRoomNumber === room)
+      .map((s) => {
+        let checklist: PreOpChecklist = {};
+        try {
+          checklist = JSON.parse(s.preOpChecklist || "{}");
+        } catch {
+          /* ignore */
+        }
+        return { ...s, checklist, readiness: computeReadiness(checklist) };
+      }),
   }));
 
   return NextResponse.json({
@@ -62,7 +77,12 @@ function computeReadiness(c: PreOpChecklist): { pct: number; missing: string[] }
 }
 
 /** PATCH — tick checklist item / change surgery status. */
-const CHECKLIST_KEYS = ["patient_verified", "consent_signed", "anesthesia_cleared", "equipment_checked"] as const;
+const CHECKLIST_KEYS = [
+  "patient_verified",
+  "consent_signed",
+  "anesthesia_cleared",
+  "equipment_checked",
+] as const;
 export const PATCH = withRoute("nx.or.update", async (req: NextRequest) => {
   const gate = await requireModule(req, "or");
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
@@ -71,24 +91,42 @@ export const PATCH = withRoute("nx.or.update", async (req: NextRequest) => {
   if (!body.id) return NextResponse.json({ error: "missing_id" }, { status: 400 });
 
   // Tenant-scoped: surgeries outside this hospital are unreachable.
-  const surgery = await db.oTSurgery.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId } });
+  const surgery = await db.oTSurgery.findFirst({
+    where: { id: body.id, hospitalId: gate.session.hospitalId },
+  });
   if (!surgery) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const data: Record<string, unknown> = {};
   if (body.checklistKey) {
     // Whitelist the checklist keys — arbitrary keys must never be persisted.
     if (!(CHECKLIST_KEYS as readonly string[]).includes(body.checklistKey)) {
-      return NextResponse.json({ error: "invalid_checklist_key", allowed: CHECKLIST_KEYS }, { status: 400 });
+      return NextResponse.json(
+        { error: "invalid_checklist_key", allowed: CHECKLIST_KEYS },
+        { status: 400 },
+      );
     }
     let checklist: PreOpChecklist = {};
-    try { checklist = JSON.parse(surgery.preOpChecklist || "{}"); } catch { /* ignore */ }
+    try {
+      checklist = JSON.parse(surgery.preOpChecklist || "{}");
+    } catch {
+      /* ignore */
+    }
     checklist[body.checklistKey as keyof PreOpChecklist] = Boolean(body.value);
     data.preOpChecklist = JSON.stringify(checklist);
   }
   if (body.status) {
-    const flow: Record<string, string[]> = { planned: ["in_progress", "cancelled", "postponed"], in_progress: ["completed"], completed: [], cancelled: [], postponed: ["planned"] };
+    const flow: Record<string, string[]> = {
+      planned: ["in_progress", "cancelled", "postponed"],
+      in_progress: ["completed"],
+      completed: [],
+      cancelled: [],
+      postponed: ["planned"],
+    };
     if (!(flow[surgery.status] || []).includes(body.status)) {
-      return NextResponse.json({ error: "invalid_transition", from: surgery.status }, { status: 400 });
+      return NextResponse.json(
+        { error: "invalid_transition", from: surgery.status },
+        { status: 400 },
+      );
     }
     data.status = body.status;
     if (body.status === "in_progress") data.actualStartTime = new Date();
@@ -97,9 +135,15 @@ export const PATCH = withRoute("nx.or.update", async (req: NextRequest) => {
 
   const updated = await db.oTSurgery.update({ where: { id: surgery.id }, data });
   await audit({
-    hospitalId: surgery.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-    action: body.checklistKey ? "or.checklist" : "or.status", entityType: "OTSurgery", entityId: surgery.id,
-    detail: body.checklistKey ? { item: body.checklistKey, value: body.value } : { from: surgery.status, to: body.status },
+    hospitalId: surgery.hospitalId,
+    actorName: gate.session.name,
+    actorRole: gate.session.role,
+    action: body.checklistKey ? "or.checklist" : "or.status",
+    entityType: "OTSurgery",
+    entityId: surgery.id,
+    detail: body.checklistKey
+      ? { item: body.checklistKey, value: body.value }
+      : { from: surgery.status, to: body.status },
   });
   return NextResponse.json({ surgery: updated });
 });

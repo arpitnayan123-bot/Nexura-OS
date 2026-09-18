@@ -14,7 +14,12 @@ async function POST_impl(req: NextRequest) {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
     const body = await req.json().catch(() => ({}));
-    const { qrCode, medicineName, batchNo, category } = body as { qrCode?: string; medicineName?: string; batchNo?: string; category?: string };
+    const { qrCode, medicineName, batchNo, category } = body as {
+      qrCode?: string;
+      medicineName?: string;
+      batchNo?: string;
+      category?: string;
+    };
 
     if (!qrCode) return NextResponse.json({ error: "no_qr" }, { status: 400 });
 
@@ -45,12 +50,19 @@ async function POST_impl(req: NextRequest) {
         expiry: parts[2] || null,
         serial: parts[3] || null,
         category: parsedCategory,
-        message: verified ? "QR verified — authentic product" : "QR could not be verified — check packaging",
+        message: verified
+          ? "QR verified — authentic product"
+          : "QR could not be verified — check packaging",
       },
     });
   } catch (err) {
-    log.error("pharmacy", "qr_verify_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "qr_verify_failed", detail: "The QR code could not be verified. Please retry." }, { status: 500 });
+    log.error("pharmacy", "qr_verify_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "qr_verify_failed", detail: "The QR code could not be verified. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -64,20 +76,39 @@ async function GET_impl() {
       orderBy: { verifiedAt: "desc" },
       take: 50,
     });
-    const byCategory = await db.h2QRVerification.groupBy({ by: ["category"], where: { branchId: ctx.branch.id }, _count: { _all: true } });
+    const byCategory = await db.h2QRVerification.groupBy({
+      by: ["category"],
+      where: { branchId: ctx.branch.id },
+      _count: { _all: true },
+    });
     return NextResponse.json({ logs, byCategory, total: logs.length });
   } catch (err) {
-    log.error("pharmacy", "qr_list_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "qr_list_failed", detail: "QR codes could not be loaded. Please retry." }, { status: 500 });
+    log.error("pharmacy", "qr_list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "qr_list_failed", detail: "QR codes could not be loaded. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
 function detectCategory(name: string): string {
   const lower = name.toLowerCase();
-  if (lower.includes("vaccine") || lower.includes("covaxin") || lower.includes("covishield")) return "vaccine";
-  if (lower.includes("amox") || lower.includes("azith") || lower.includes("cipro") || lower.includes("cef") || lower.includes("oflox")) return "antimicrobial";
-  if (lower.includes("chemo") || lower.includes("cancer") || lower.includes("oncology")) return "anticancer";
-  if (lower.includes("morphine") || lower.includes("codeine") || lower.includes("tramadol")) return "ndps";
+  if (lower.includes("vaccine") || lower.includes("covaxin") || lower.includes("covishield"))
+    return "vaccine";
+  if (
+    lower.includes("amox") ||
+    lower.includes("azith") ||
+    lower.includes("cipro") ||
+    lower.includes("cef") ||
+    lower.includes("oflox")
+  )
+    return "antimicrobial";
+  if (lower.includes("chemo") || lower.includes("cancer") || lower.includes("oncology"))
+    return "anticancer";
+  if (lower.includes("morphine") || lower.includes("codeine") || lower.includes("tramadol"))
+    return "ndps";
   return "antimicrobial"; // default
 }
 

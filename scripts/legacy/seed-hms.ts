@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
    database by accident. Override requires an explicit, intentional flag. */
 if (process.env.NODE_ENV === "production" && process.env.SEED_DEMO_OVERRIDE !== "true") {
   console.error(
-    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true."
+    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true.",
   );
   process.exit(1);
 }
@@ -30,20 +30,89 @@ async function main() {
 
   // ---- OT Rooms ----
   const otRooms = [];
-  for (const [name, type] of [["OT-1", "general"], ["OT-2", "general"], ["Cardiac OT", "cardiac"], ["Ortho OT", "ortho"]] as const) {
+  for (const [name, type] of [
+    ["OT-1", "general"],
+    ["OT-2", "general"],
+    ["Cardiac OT", "cardiac"],
+    ["Ortho OT", "ortho"],
+  ] as const) {
     otRooms.push(await db.oTRoom.create({ data: { hospitalId: hId, name, type, floor: "3" } }));
   }
 
   // ---- OT Surgeries (today's schedule) ----
-  const today = new Date(); today.setHours(8, 0, 0, 0);
+  const today = new Date();
+  today.setHours(8, 0, 0, 0);
   const surgeries = [
-    { room: 0, patient: 0, surgeon: 0, procedure: "Laparoscopic Cholecystectomy", dx: "Gallstones", startH: 1, dur: 90, status: "completed" },
-    { room: 0, patient: 3, surgeon: 1, procedure: "Appendectomy", dx: "Acute Appendicitis", startH: 3, dur: 60, status: "in_progress" },
-    { room: 0, patient: 6, surgeon: 0, procedure: "Hernia Repair", dx: "Inguinal Hernia", startH: 5, dur: 75, status: "scheduled" },
-    { room: 1, patient: 1, surgeon: 2, procedure: "Cataract Surgery", dx: "Mature Cataract", startH: 0.5, dur: 30, status: "completed" },
-    { room: 1, patient: 8, surgeon: 2, procedure: "Tonsillectomy", dx: "Chronic Tonsillitis", startH: 2, dur: 45, status: "scheduled" },
-    { room: 2, patient: 0, surgeon: 0, procedure: "CABG", dx: "Triple Vessel Disease", startH: 2, dur: 240, status: "in_progress" },
-    { room: 3, patient: 4, surgeon: 2, procedure: "TKR", dx: "Osteoarthritis Knee", startH: 1, dur: 120, status: "scheduled" },
+    {
+      room: 0,
+      patient: 0,
+      surgeon: 0,
+      procedure: "Laparoscopic Cholecystectomy",
+      dx: "Gallstones",
+      startH: 1,
+      dur: 90,
+      status: "completed",
+    },
+    {
+      room: 0,
+      patient: 3,
+      surgeon: 1,
+      procedure: "Appendectomy",
+      dx: "Acute Appendicitis",
+      startH: 3,
+      dur: 60,
+      status: "in_progress",
+    },
+    {
+      room: 0,
+      patient: 6,
+      surgeon: 0,
+      procedure: "Hernia Repair",
+      dx: "Inguinal Hernia",
+      startH: 5,
+      dur: 75,
+      status: "scheduled",
+    },
+    {
+      room: 1,
+      patient: 1,
+      surgeon: 2,
+      procedure: "Cataract Surgery",
+      dx: "Mature Cataract",
+      startH: 0.5,
+      dur: 30,
+      status: "completed",
+    },
+    {
+      room: 1,
+      patient: 8,
+      surgeon: 2,
+      procedure: "Tonsillectomy",
+      dx: "Chronic Tonsillitis",
+      startH: 2,
+      dur: 45,
+      status: "scheduled",
+    },
+    {
+      room: 2,
+      patient: 0,
+      surgeon: 0,
+      procedure: "CABG",
+      dx: "Triple Vessel Disease",
+      startH: 2,
+      dur: 240,
+      status: "in_progress",
+    },
+    {
+      room: 3,
+      patient: 4,
+      surgeon: 2,
+      procedure: "TKR",
+      dx: "Osteoarthritis Knee",
+      startH: 1,
+      dur: 120,
+      status: "scheduled",
+    },
   ];
   for (const s of surgeries) {
     const pat = patients[s.patient];
@@ -71,7 +140,7 @@ async function main() {
     "Acute MI": "I21.0",
     "Atrial Fibrillation": "I48",
     "Community-acquired Pneumonia": "J18.9",
-    "Gallstones": "K80.2",
+    Gallstones: "K80.2",
     "Diabetes Type 2": "E11.9",
   };
   const insPatients = patients.filter((p) => p.insuranceProvider);
@@ -80,9 +149,13 @@ async function main() {
     if (!p) continue;
     const dx = Object.keys(icdCodes)[i % 5];
     const est = [150000, 85000, 45000, 220000, 60000][i % 5];
-    const status = ["submitted", "approved", "query_raised", "partially_approved", "rejected"][i % 5];
-    const approvedAmt = status === "approved" ? est : status === "partially_approved" ? Math.round(est * 0.7) : 0;
-    const coPay = status === "approved" || status === "partially_approved" ? est - approvedAmt : est;
+    const status = ["submitted", "approved", "query_raised", "partially_approved", "rejected"][
+      i % 5
+    ];
+    const approvedAmt =
+      status === "approved" ? est : status === "partially_approved" ? Math.round(est * 0.7) : 0;
+    const coPay =
+      status === "approved" || status === "partially_approved" ? est - approvedAmt : est;
     await db.tPAClaim.create({
       data: {
         hospitalId: hId,
@@ -92,13 +165,22 @@ async function main() {
         policyNo: `POL-${20000 + i}`,
         diagnosis: dx,
         icd10Code: icdCodes[dx],
-        plannedProcedure: ["Angioplasty", "Gallbladder Surgery", "Medical Management", "Knee Replacement", "Appendectomy"][i % 5],
+        plannedProcedure: [
+          "Angioplasty",
+          "Gallbladder Surgery",
+          "Medical Management",
+          "Knee Replacement",
+          "Appendectomy",
+        ][i % 5],
         estimatedCost: est,
         approvedAmount: approvedAmt,
         patientCoPay: coPay,
         tpaPayable: approvedAmt,
         status,
-        queryNotes: status === "query_raised" ? "Please provide past medical history and latest lab reports" : null,
+        queryNotes:
+          status === "query_raised"
+            ? "Please provide past medical history and latest lab reports"
+            : null,
         approvalDate: status === "approved" || status === "partially_approved" ? new Date() : null,
       },
     });
@@ -158,7 +240,16 @@ async function main() {
     });
   }
 
-  console.log(`✅ HMS seed complete — ${otRooms.length} OT rooms, ${surgeries.length} surgeries, 5 TPA claims, nurse roster, discharge summaries`);
+  console.log(
+    `✅ HMS seed complete — ${otRooms.length} OT rooms, ${surgeries.length} surgeries, 5 TPA claims, nurse roster, discharge summaries`,
+  );
 }
 
-main().catch((e) => { console.error(e); process.exit(1); }).finally(async () => { await db.$disconnect(); });
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await db.$disconnect();
+  });

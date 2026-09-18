@@ -82,12 +82,27 @@ export const PURCHASE_ITEM_PAISE = ["mrp", "purchaseRate", "lineTotal"] as const
 export const NEAR_EXPIRY_RETURN_PAISE = ["cgst", "sgst", "total"] as const;
 export const NEAR_EXPIRY_RETURN_ITEM_PAISE = ["mrp", "lineTotal"] as const;
 export const DAY_CLOSING_PAISE = [
-  "cashSales", "upiSales", "cardSales", "creditSales", "totalSales",
-  "cgstCollected", "sgstCollected", "totalGst", "totalPurchases", "totalDiscount", "netProfit",
+  "cashSales",
+  "upiSales",
+  "cardSales",
+  "creditSales",
+  "totalSales",
+  "cgstCollected",
+  "sgstCollected",
+  "totalGst",
+  "totalPurchases",
+  "totalDiscount",
+  "netProfit",
 ] as const;
 export const AMOUNT_PAISE = ["amount"] as const; // SupplierPayment, CustomerPayment, ClinicInvoice-style
 export const CREDIT_LIMIT_PAISE = ["creditLimit"] as const;
-export const HOSPITAL_BILL_PAISE = ["subtotal", "discount", "cgst", "sgst", "totalPayable"] as const;
+export const HOSPITAL_BILL_PAISE = [
+  "subtotal",
+  "discount",
+  "cgst",
+  "sgst",
+  "totalPayable",
+] as const;
 export const INSURANCE_CLAIM_PAISE = ["estimatedCost", "approvedAmount", "patientCopay"] as const;
 export const CLINIC_INVOICE_PAISE = ["amount", "discount", "total"] as const;
 export const CONSULT_FEE_PAISE = ["consultationFee"] as const; // HospitalDoctor
@@ -113,16 +128,16 @@ export function tourismInquiryToWire<T extends Money>(i: T) {
   const { estimatedCostUSDCents, estimatedCostINRPaise, totalBilledUSDCents, ...rest } = i;
   return {
     ...rest,
-    estimatedCostUSD: estimatedCostUSDCents == null ? null : centsToUsd(estimatedCostUSDCents as number),
-    estimatedCostINR: estimatedCostINRPaise == null ? null : paiseToRupee(estimatedCostINRPaise as number),
+    estimatedCostUSD:
+      estimatedCostUSDCents == null ? null : centsToUsd(estimatedCostUSDCents as number),
+    estimatedCostINR:
+      estimatedCostINRPaise == null ? null : paiseToRupee(estimatedCostINRPaise as number),
     totalBilledUSD: totalBilledUSDCents == null ? null : centsToUsd(totalBilledUSDCents as number),
   };
 }
 
 /** Sale + nested items (the pharmacy billing response shape). */
-export function saleWithItemsToRupees<
-  S extends Money & { items?: Money[] },
->(sale: S): S {
+export function saleWithItemsToRupees<S extends Money & { items?: Money[] }>(sale: S): S {
   const out = toRupees(sale, SALE_PAISE);
   if (Array.isArray(out.items)) {
     out.items = out.items.map((it) => toRupees(it, SALE_ITEM_PAISE));

@@ -26,8 +26,19 @@ export const GET = withRoute("nx.audit.trail", async (req: NextRequest) => {
 
   // verify the chain over the returned window
   const withChain = events.map((e, idx) => ({
-    id: e.id, actorName: e.actorName, actorRole: e.actorRole, action: e.action,
-    entityType: e.entityType, entityId: e.entityId, detail: (() => { try { return e.detail ? (JSON.parse(e.detail) as Record<string, unknown>) : null; } catch { return null; } })(),
+    id: e.id,
+    actorName: e.actorName,
+    actorRole: e.actorRole,
+    action: e.action,
+    entityType: e.entityType,
+    entityId: e.entityId,
+    detail: (() => {
+      try {
+        return e.detail ? (JSON.parse(e.detail) as Record<string, unknown>) : null;
+      } catch {
+        return null;
+      }
+    })(),
     at: e.createdAt,
     chainOk: Boolean(e.hash && e.prevHash !== undefined),
     seq: events.length - idx,

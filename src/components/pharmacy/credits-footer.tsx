@@ -4,10 +4,19 @@ import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 
 const CREDITS = [
-  { text: "Curated India medicine reference — brand, salt, HSN and Schedule H data maintained in-platform", link: null },
+  {
+    text: "Curated India medicine reference — brand, salt, HSN and Schedule H data maintained in-platform",
+    link: null,
+  },
   { text: "CDSCO Schedule H & Schedule X compliance checks applied at billing time", link: null },
-  { text: "AI prescription reading — server-side AI vision; images are processed, not stored", link: null },
-  { text: "Built on Next.js — DPDP-aligned, self-hostable, works offline-first on shop networks", link: null },
+  {
+    text: "AI prescription reading — server-side AI vision; images are processed, not stored",
+    link: null,
+  },
+  {
+    text: "Built on Next.js — DPDP-aligned, self-hostable, works offline-first on shop networks",
+    link: null,
+  },
 ];
 
 export function CreditsFooter() {
@@ -71,7 +80,12 @@ export function CreditsFooter() {
             >
               Nexura AI
             </motion.span>{" "}
-            <a href="https://nexuraai.in" target="_blank" rel="noreferrer" className="text-[#A3762A] underline hover:text-[#E8B04B]">
+            <a
+              href="https://nexuraai.in"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[#A3762A] underline hover:text-[#E8B04B]"
+            >
               (nexuraai.in)
             </a>
           </p>

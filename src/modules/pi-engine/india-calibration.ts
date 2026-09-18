@@ -85,7 +85,7 @@ const BASELINE: Record<DiseaseKey, number> = {
    Western ones, so growth starts early and compounds steadily. */
 const AGE_GROWTH: Record<DiseaseKey, number> = {
   type2: 1.032,
-  hypertension: 1.040,
+  hypertension: 1.04,
   cardiac: 1.046,
 };
 
@@ -105,7 +105,8 @@ function multipliers(p: RiskProfile): Record<DiseaseKey, number> {
 
   // Sleep: U-curve, trough at 7–8 h.
   const sl = p.sleepHours;
-  const sleepFactor = sl >= 7 && sl <= 8 ? 1.0 : sl < 7 ? 1 + 0.055 * (7 - sl) : 1 + 0.03 * (sl - 8);
+  const sleepFactor =
+    sl >= 7 && sl <= 8 ? 1.0 : sl < 7 ? 1 + 0.055 * (7 - sl) : 1 + 0.03 * (sl - 8);
   mm.type2 *= sleepFactor;
   mm.hypertension *= sleepFactor * 1.02;
   mm.cardiac *= sleepFactor * 1.04;
@@ -137,7 +138,18 @@ function multipliers(p: RiskProfile): Record<DiseaseKey, number> {
 
   // Air quality: India-specific cardiac/hypertension load.
   const aqi = clamp(p.cityAqi, 40, 350);
-  const aqiFactor = aqi <= 50 ? 1.0 : aqi <= 100 ? 1.02 : aqi <= 150 ? 1.06 : aqi <= 200 ? 1.1 : aqi <= 250 ? 1.15 : 1.2;
+  const aqiFactor =
+    aqi <= 50
+      ? 1.0
+      : aqi <= 100
+        ? 1.02
+        : aqi <= 150
+          ? 1.06
+          : aqi <= 200
+            ? 1.1
+            : aqi <= 250
+              ? 1.15
+              : 1.2;
   mm.cardiac *= aqiFactor;
   mm.hypertension *= 1 + (aqiFactor - 1) * 0.8;
   mm.type2 *= 1 + (aqiFactor - 1) * 0.3; // emerging evidence, kept conservative
@@ -162,9 +174,23 @@ const FEATURE_LABELS: Record<string, string> = {
 export function computeOnsetRisk(p: RiskProfile): OnsetResult {
   const mm = multipliers(p);
   const risks: Record<DiseaseKey, number> = {
-    type2: clamp(BASELINE.type2 * mm.type2 * Math.pow(AGE_GROWTH.type2, Math.max(0, p.age - 32)), 0.02, 0.85),
-    hypertension: clamp(BASELINE.hypertension * mm.hypertension * Math.pow(AGE_GROWTH.hypertension, Math.max(0, p.age - 30)), 0.02, 0.85),
-    cardiac: clamp(BASELINE.cardiac * mm.cardiac * Math.pow(AGE_GROWTH.cardiac, Math.max(0, p.age - 30)), 0.02, 0.85),
+    type2: clamp(
+      BASELINE.type2 * mm.type2 * Math.pow(AGE_GROWTH.type2, Math.max(0, p.age - 32)),
+      0.02,
+      0.85,
+    ),
+    hypertension: clamp(
+      BASELINE.hypertension *
+        mm.hypertension *
+        Math.pow(AGE_GROWTH.hypertension, Math.max(0, p.age - 30)),
+      0.02,
+      0.85,
+    ),
+    cardiac: clamp(
+      BASELINE.cardiac * mm.cardiac * Math.pow(AGE_GROWTH.cardiac, Math.max(0, p.age - 30)),
+      0.02,
+      0.85,
+    ),
   };
 
   // Composite early-warning score: weighted, then scaled so that the
@@ -177,11 +203,30 @@ export function computeOnsetRisk(p: RiskProfile): OnsetResult {
   const raw: Record<string, number> = {
     exercise: Math.log(multipliers(p).type2 / multipliers({ ...p, exerciseMinPerDay: 45 }).type2),
     sleep: Math.log(multipliers(p).type2 / multipliers({ ...p, sleepHours: 7.5 }).type2),
-    outsideFoodOften: p.diet.outsideFoodOften ? Math.log(multipliers(p).type2 / multipliers({ ...p, diet: { ...p.diet, outsideFoodOften: false } }).type2) : 0,
-    sugaryDrinks: p.diet.sugaryDrinks ? Math.log(multipliers(p).type2 / multipliers({ ...p, diet: { ...p.diet, sugaryDrinks: false } }).type2) : 0,
-    lateNightMeals: p.diet.lateNightMeals ? Math.log(multipliers(p).type2 / multipliers({ ...p, diet: { ...p.diet, lateNightMeals: false } }).type2) : 0,
-    familyHistory: p.familyHistory ? Math.log(multipliers(p).type2 / multipliers({ ...p, familyHistory: false }).type2) : 0,
-    smoker: p.smoker ? Math.log(multipliers(p).cardiac / multipliers({ ...p, smoker: false }).cardiac) : 0,
+    outsideFoodOften: p.diet.outsideFoodOften
+      ? Math.log(
+          multipliers(p).type2 /
+            multipliers({ ...p, diet: { ...p.diet, outsideFoodOften: false } }).type2,
+        )
+      : 0,
+    sugaryDrinks: p.diet.sugaryDrinks
+      ? Math.log(
+          multipliers(p).type2 /
+            multipliers({ ...p, diet: { ...p.diet, sugaryDrinks: false } }).type2,
+        )
+      : 0,
+    lateNightMeals: p.diet.lateNightMeals
+      ? Math.log(
+          multipliers(p).type2 /
+            multipliers({ ...p, diet: { ...p.diet, lateNightMeals: false } }).type2,
+        )
+      : 0,
+    familyHistory: p.familyHistory
+      ? Math.log(multipliers(p).type2 / multipliers({ ...p, familyHistory: false }).type2)
+      : 0,
+    smoker: p.smoker
+      ? Math.log(multipliers(p).cardiac / multipliers({ ...p, smoker: false }).cardiac)
+      : 0,
     aqi: Math.log(multipliers(p).cardiac / multipliers({ ...p, cityAqi: 60 }).cardiac),
     age: Math.log(multipliers(p).cardiac / multipliers({ ...p, age: 30 }).cardiac),
   };
@@ -201,7 +246,16 @@ export function computeOnsetRisk(p: RiskProfile): OnsetResult {
     ? `Strongest signal: ${top.feature.toLowerCase()}${top.modifiable ? " — and it is modifiable" : " — watch it with earlier screening"}`
     : "Balanced profile — keep the annual twin check";
 
-  return { risks: { type2: round3(risks.type2), hypertension: round3(risks.hypertension), cardiac: round3(risks.cardiac) }, earlyWarning, drivers, topDriverText };
+  return {
+    risks: {
+      type2: round3(risks.type2),
+      hypertension: round3(risks.hypertension),
+      cardiac: round3(risks.cardiac),
+    },
+    earlyWarning,
+    drivers,
+    topDriverText,
+  };
 }
 
 export type OnsetBand = "low" | "moderate" | "high";
@@ -214,7 +268,10 @@ export function bandOfOnset(risk: number): OnsetBand {
 }
 
 /** The engine's signature move: quantify what changing ONE thing buys. */
-export function nudgeFor(p: RiskProfile, result: OnsetResult): { label: string; from: number; to: number } | null {
+export function nudgeFor(
+  p: RiskProfile,
+  result: OnsetResult,
+): { label: string; from: number; to: number } | null {
   const candidate: RiskProfile = { ...p, diet: { ...p.diet } };
   let label = "";
 

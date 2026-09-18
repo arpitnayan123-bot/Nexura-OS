@@ -4,9 +4,22 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft, MessageCircle, Phone, Video, Send, X, Loader2,
-  Stethoscope, ShieldCheck, Clock, PhoneOff, Sparkles, Heart,
-  Activity, CheckCheck, Check,
+  ArrowLeft,
+  MessageCircle,
+  Phone,
+  Video,
+  Send,
+  X,
+  Loader2,
+  Stethoscope,
+  ShieldCheck,
+  Clock,
+  PhoneOff,
+  Sparkles,
+  Heart,
+  Activity,
+  CheckCheck,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -21,7 +34,14 @@ type Connection = {
   patientName: string;
   patientPhone: string | null;
   lastConsultDate: string | null;
-  lastMessage: { id: string; text: string; fromRole: string; fromName: string | null; createdAt: string; read: boolean } | null;
+  lastMessage: {
+    id: string;
+    text: string;
+    fromRole: string;
+    fromName: string | null;
+    createdAt: string;
+    read: boolean;
+  } | null;
   unreadCount: number;
   updatedAt: string;
 };
@@ -51,7 +71,14 @@ type CallLog = {
 };
 
 const avatarInitials = (name: string) =>
-  name.replace(/^Dr\.?\s*/i, "").split(" ").map((x) => x[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
+  name
+    .replace(/^Dr\.?\s*/i, "")
+    .split(" ")
+    .map((x) => x[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
 const relativeTime = (iso: string | null): string => {
   if (!iso) return "—";
@@ -84,8 +111,15 @@ export function PatientView() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [draft, setDraft] = useState("");
-  const [activeCall, setActiveCall] = useState<{ callId: string; type: "voice" | "video"; doctor: Connection } | null>(null);
-  const [consultStatus, setConsultStatus] = useState<{ call: CallLog | null; waiting: boolean }>({ call: null, waiting: false });
+  const [activeCall, setActiveCall] = useState<{
+    callId: string;
+    type: "voice" | "video";
+    doctor: Connection;
+  } | null>(null);
+  const [consultStatus, setConsultStatus] = useState<{ call: CallLog | null; waiting: boolean }>({
+    call: null,
+    waiting: false,
+  });
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // Resolve this viewer's patient identity (portal session or demo posture)
@@ -108,14 +142,18 @@ export function PatientView() {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Load connections for this patient
   const loadConnections = useCallback(async () => {
     if (!patientId) return;
     try {
-      const res = await fetch(`/api/connect/connections?patientId=${encodeURIComponent(patientId)}`);
+      const res = await fetch(
+        `/api/connect/connections?patientId=${encodeURIComponent(patientId)}`,
+      );
       if (!res.ok) return;
       const d = await res.json();
       setConnections(d.connections || []);
@@ -146,7 +184,9 @@ export function PatientView() {
       if (res.ok) {
         const d = await res.json();
         const q = d.queue || { chat: [], voice: [], video: [] };
-        waiting = [...q.chat, ...q.voice, ...q.video].some((e: { connectionId: string }) => e.connectionId === conn.id);
+        waiting = [...q.chat, ...q.voice, ...q.video].some(
+          (e: { connectionId: string }) => e.connectionId === conn.id,
+        );
       }
     } catch {}
     setConsultStatus({ call, waiting });
@@ -164,11 +204,14 @@ export function PatientView() {
     setMessagesLoading(true);
     (async () => {
       try {
-        const res = await fetch(`/api/connect/messages?connectionId=${encodeURIComponent(activeConn.id)}`);
+        const res = await fetch(
+          `/api/connect/messages?connectionId=${encodeURIComponent(activeConn.id)}`,
+        );
         if (!res.ok) return;
         const d = await res.json();
         if (!cancelled) setMessages(d.messages || []);
-      } catch {} finally {
+      } catch {
+      } finally {
         if (!cancelled) setMessagesLoading(false);
       }
     })();
@@ -177,8 +220,12 @@ export function PatientView() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ connectionId: activeConn.id, readByRole: "patient" }),
-    }).then(() => loadConnections()).catch(() => {});
-    return () => { cancelled = true; };
+    })
+      .then(() => loadConnections())
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [activeConn, loadConnections]);
 
   // Auto-scroll on new messages
@@ -207,7 +254,12 @@ export function PatientView() {
       const res = await fetch("/api/connect/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ connectionId: activeConn.id, fromRole: "patient", fromName: patientName, text }),
+        body: JSON.stringify({
+          connectionId: activeConn.id,
+          fromRole: "patient",
+          fromName: patientName,
+          text,
+        }),
       });
       if (!res.ok) throw new Error();
       const d = await res.json();
@@ -269,15 +321,24 @@ export function PatientView() {
       <div className="mesh-bg grid min-h-screen place-items-center px-4">
         <div className="max-w-md rounded-3xl glass-soft p-6 text-center shadow-depth">
           <Stethoscope className="mx-auto h-10 w-10 text-[#A16207]" />
-          <h2 className="mt-3 font-serif text-xl font-semibold text-[#1F1B17]">Connect with your care team</h2>
+          <h2 className="mt-3 font-serif text-xl font-semibold text-[#1F1B17]">
+            Connect with your care team
+          </h2>
           <p className="mt-1 text-sm text-[#9A8F84]">
-            Sign in to the patient portal to securely message your doctors, share updates, and join consultations.
+            Sign in to the patient portal to securely message your doctors, share updates, and join
+            consultations.
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <Link href="/portal/login" className="inline-flex items-center gap-1.5 rounded-full bg-[#2A2622] px-4 py-2 text-sm font-semibold text-white">
+            <Link
+              href="/portal/login"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#2A2622] px-4 py-2 text-sm font-semibold text-white"
+            >
               Sign in to Portal
             </Link>
-            <Link href="/" className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-[#5C544D] ring-1 ring-[#E5DFD4]">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-[#5C544D] ring-1 ring-[#E5DFD4]"
+            >
               <ArrowLeft className="h-4 w-4" /> Homepage
             </Link>
           </div>
@@ -291,7 +352,10 @@ export function PatientView() {
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-[#E5DFD4] bg-white/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-          <Link href="/" className="flex items-center gap-1.5 text-xs text-[#9A8F84] hover:text-[#5C544D]">
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-xs text-[#9A8F84] hover:text-[#5C544D]"
+          >
             <ArrowLeft className="h-3.5 w-3.5" /> Home
           </Link>
           <div className="flex items-center gap-2">
@@ -308,13 +372,20 @@ export function PatientView() {
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
         {/* Hero header */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-center">
-          <p className="text-xs font-medium uppercase tracking-wider text-[#9A8F84]">Welcome back</p>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 text-center"
+        >
+          <p className="text-xs font-medium uppercase tracking-wider text-[#9A8F84]">
+            Welcome back
+          </p>
           <h1 className="display-lg mt-1 text-[#1F1B17]">
             Your Doctors, <span className="text-gradient-warm">One Tap Away</span>
           </h1>
           <p className="mt-2 text-sm text-[#9A8F84] sm:max-w-xl sm:mx-auto">
-            Hi {patientName?.split(" ")[0]}, your care team is here for follow-up. Message them anytime, or log a call request and the clinic calls you back at its slot.
+            Hi {patientName?.split(" ")[0]}, your care team is here for follow-up. Message them
+            anytime, or log a call request and the clinic calls you back at its slot.
           </p>
         </motion.div>
 
@@ -322,14 +393,17 @@ export function PatientView() {
           <div className="rounded-3xl glass-soft p-10 text-center shadow-depth">
             <Heart className="mx-auto h-10 w-10 text-[#A16207]" />
             <p className="mt-3 font-serif text-lg font-semibold">No active connections yet</p>
-            <p className="mt-1 text-sm text-[#9A8F84]">Once your doctor completes a consultation or admission, you will see them here.</p>
+            <p className="mt-1 text-sm text-[#9A8F84]">
+              Once your doctor completes a consultation or admission, you will see them here.
+            </p>
           </div>
         ) : (
           <>
             {/* Grid of doctor cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {connections.map((c, i) => {
-                const color = SPECIALTY_COLOR[c.doctorSpecialty || "default"] || SPECIALTY_COLOR.default;
+                const color =
+                  SPECIALTY_COLOR[c.doctorSpecialty || "default"] || SPECIALTY_COLOR.default;
                 return (
                   <motion.div
                     key={c.id}
@@ -339,20 +413,35 @@ export function PatientView() {
                     className="group overflow-hidden rounded-3xl glass-soft shadow-depth transition-all hover:-translate-y-1 hover:shadow-depth-lg"
                   >
                     {/* header */}
-                    <div className="relative overflow-hidden p-5 pb-4" style={{ background: `linear-gradient(135deg, ${color}18, ${color}08)` }}>
+                    <div
+                      className="relative overflow-hidden p-5 pb-4"
+                      style={{ background: `linear-gradient(135deg, ${color}18, ${color}08)` }}
+                    >
                       <div className="flex items-start justify-between">
-                        <span className="grid h-14 w-14 place-items-center rounded-2xl font-serif text-xl font-bold text-white shadow-depth" style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}>
+                        <span
+                          className="grid h-14 w-14 place-items-center rounded-2xl font-serif text-xl font-bold text-white shadow-depth"
+                          style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}
+                        >
                           {avatarInitials(c.doctorName)}
                         </span>
-                        {c.lastMessage && !c.lastMessage.read && c.lastMessage.fromRole === "doctor" && (
-                          <span className="rounded-full bg-[#A16207] px-2 py-0.5 text-[0.55rem] font-bold text-white anim-breathe">New</span>
-                        )}
+                        {c.lastMessage &&
+                          !c.lastMessage.read &&
+                          c.lastMessage.fromRole === "doctor" && (
+                            <span className="rounded-full bg-[#A16207] px-2 py-0.5 text-[0.55rem] font-bold text-white anim-breathe">
+                              New
+                            </span>
+                          )}
                       </div>
-                      <p className="mt-3 font-serif text-base font-semibold leading-tight">{c.doctorName}</p>
+                      <p className="mt-3 font-serif text-base font-semibold leading-tight">
+                        {c.doctorName}
+                      </p>
                       <p className="text-xs text-[#9A8F84]">{c.doctorSpecialty || "Doctor"}</p>
                       <div className="mt-2 flex items-center gap-1.5 text-[0.65rem] text-[#9A8F84]">
                         <Clock className="h-3 w-3" aria-hidden="true" />
-                        Last consult: <span className="font-medium text-[#5C544D]">{relativeTime(c.lastConsultDate)}</span>
+                        Last consult:{" "}
+                        <span className="font-medium text-[#5C544D]">
+                          {relativeTime(c.lastConsultDate)}
+                        </span>
                       </div>
                     </div>
 
@@ -360,7 +449,9 @@ export function PatientView() {
                     {c.lastMessage && (
                       <div className="border-t border-[#E5DFD4] px-5 py-2.5">
                         <p className="line-clamp-1 text-xs text-[#9A8F84]">
-                          <span className="font-medium text-[#5C544D]">{c.lastMessage.fromRole === "doctor" ? "Doctor: " : "You: "}</span>
+                          <span className="font-medium text-[#5C544D]">
+                            {c.lastMessage.fromRole === "doctor" ? "Doctor: " : "You: "}
+                          </span>
                           {c.lastMessage.text}
                         </p>
                       </div>
@@ -418,7 +509,9 @@ export function PatientView() {
             onClose={() => setActiveConn(null)}
             messagesEndRef={messagesEndRef}
             consultStatus={consultStatus}
-            onStartCall={(t) => { startCall(activeConn, t); }}
+            onStartCall={(t) => {
+              startCall(activeConn, t);
+            }}
           />
         )}
       </AnimatePresence>
@@ -429,7 +522,10 @@ export function PatientView() {
           <PatientCallOverlay
             call={activeCall}
             patientName={patientName || "You"}
-            onEnd={(duration) => { endCall(activeCall.callId, duration); setActiveCall(null); }}
+            onEnd={(duration) => {
+              endCall(activeCall.callId, duration);
+              setActiveCall(null);
+            }}
           />
         )}
       </AnimatePresence>
@@ -440,7 +536,17 @@ export function PatientView() {
 /* ── Chat drawer (slides up from bottom on mobile, side on desktop) ── */
 
 function ChatDrawer({
-  conn, patientName, messages, messagesLoading, draft, setDraft, sendMessage, onClose, messagesEndRef, consultStatus, onStartCall,
+  conn,
+  patientName,
+  messages,
+  messagesLoading,
+  draft,
+  setDraft,
+  sendMessage,
+  onClose,
+  messagesEndRef,
+  consultStatus,
+  onStartCall,
 }: {
   conn: Connection;
   patientName: string;
@@ -482,9 +588,28 @@ function ChatDrawer({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <button onClick={() => onStartCall("voice")} className="grid h-8 w-8 place-items-center rounded-full text-[#9DB89E] ring-1 ring-[#E5DFD4] hover:bg-[#9DB89E]/10" title="Request a voice call" aria-label="Request a voice call"><Phone className="h-3.5 w-3.5" /></button>
-            <button onClick={() => onStartCall("video")} className="grid h-8 w-8 place-items-center rounded-full text-[#A16207] ring-1 ring-[#E5DFD4] hover:bg-[#A16207]/10" title="Request a video call" aria-label="Request a video call"><Video className="h-3.5 w-3.5" /></button>
-            <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]"><X className="h-4 w-4" /></button>
+            <button
+              onClick={() => onStartCall("voice")}
+              className="grid h-8 w-8 place-items-center rounded-full text-[#9DB89E] ring-1 ring-[#E5DFD4] hover:bg-[#9DB89E]/10"
+              title="Request a voice call"
+              aria-label="Request a voice call"
+            >
+              <Phone className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => onStartCall("video")}
+              className="grid h-8 w-8 place-items-center rounded-full text-[#A16207] ring-1 ring-[#E5DFD4] hover:bg-[#A16207]/10"
+              title="Request a video call"
+              aria-label="Request a video call"
+            >
+              <Video className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={onClose}
+              className="grid h-8 w-8 place-items-center rounded-full text-[#9A8F84] hover:bg-[#F3EEE6]"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         </header>
 
@@ -493,7 +618,9 @@ function ChatDrawer({
         {/* messages */}
         <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
           {messagesLoading ? (
-            <div className="grid h-40 place-items-center"><Loader2 className="h-5 w-5 animate-spin text-[#9A8F84]" /></div>
+            <div className="grid h-40 place-items-center">
+              <Loader2 className="h-5 w-5 animate-spin text-[#9A8F84]" />
+            </div>
           ) : messages.length === 0 ? (
             <div className="grid h-40 place-items-center text-center">
               <div>
@@ -508,17 +635,44 @@ function ChatDrawer({
                 const prev = messages[i - 1];
                 const showAvatar = !prev || prev.fromRole !== m.fromRole;
                 return (
-                  <motion.div key={m.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className={cn("flex items-end gap-2", isPatient && "justify-end")}>
+                  <motion.div
+                    key={m.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={cn("flex items-end gap-2", isPatient && "justify-end")}
+                  >
                     {!isPatient && (
-                      <span className={cn("grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#9DB89E] to-[#5A7A5B] text-[0.55rem] font-bold text-white", !showAvatar && "opacity-0")}>
+                      <span
+                        className={cn(
+                          "grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#9DB89E] to-[#5A7A5B] text-[0.55rem] font-bold text-white",
+                          !showAvatar && "opacity-0",
+                        )}
+                      >
                         {avatarInitials(conn.doctorName)}
                       </span>
                     )}
-                    <div className={cn("max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm", isPatient ? "bg-[#A16207] text-white rounded-br-sm" : "glass-soft text-[#1F1B17] rounded-bl-sm")}>
+                    <div
+                      className={cn(
+                        "max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
+                        isPatient
+                          ? "bg-[#A16207] text-white rounded-br-sm"
+                          : "glass-soft text-[#1F1B17] rounded-bl-sm",
+                      )}
+                    >
                       <p className="whitespace-pre-wrap leading-snug">{m.text}</p>
-                      <div className={cn("mt-1 flex items-center justify-end gap-1 text-[0.55rem]", isPatient ? "text-white/70" : "text-[#9A8F84]")}>
+                      <div
+                        className={cn(
+                          "mt-1 flex items-center justify-end gap-1 text-[0.55rem]",
+                          isPatient ? "text-white/70" : "text-[#9A8F84]",
+                        )}
+                      >
                         <span>{relativeTime(m.createdAt)}</span>
-                        {isPatient && (m.read ? <CheckCheck className="h-3 w-3 text-white/80" /> : <Check className="h-3 w-3 text-white/60" />)}
+                        {isPatient &&
+                          (m.read ? (
+                            <CheckCheck className="h-3 w-3 text-white/80" />
+                          ) : (
+                            <Check className="h-3 w-3 text-white/60" />
+                          ))}
                       </div>
                     </div>
                   </motion.div>
@@ -535,7 +689,12 @@ function ChatDrawer({
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
               placeholder={`Message ${conn.doctorName}…`}
               rows={1}
               className="glass-input max-h-32 flex-1 resize-none rounded-2xl px-3.5 py-2.5 text-sm outline-none"
@@ -558,7 +717,9 @@ function ChatDrawer({
 /* ── Patient call overlay (simpler — no Rx panel) ── */
 
 function PatientCallOverlay({
-  call, patientName, onEnd,
+  call,
+  patientName,
+  onEnd,
 }: {
   call: { callId: string; type: "voice" | "video"; doctor: Connection };
   patientName: string;
@@ -568,12 +729,16 @@ function PatientCallOverlay({
   const startTimeRef = useRef(Date.now());
 
   useEffect(() => {
-    const id = setInterval(() => setSeconds(Math.floor((Date.now() - startTimeRef.current) / 1000)), 1000);
+    const id = setInterval(
+      () => setSeconds(Math.floor((Date.now() - startTimeRef.current) / 1000)),
+      1000,
+    );
     return () => clearInterval(id);
   }, []);
 
   const timer = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-  const color = SPECIALTY_COLOR[call.doctor.doctorSpecialty || "default"] || SPECIALTY_COLOR.default;
+  const color =
+    SPECIALTY_COLOR[call.doctor.doctorSpecialty || "default"] || SPECIALTY_COLOR.default;
 
   return (
     <motion.div
@@ -585,8 +750,14 @@ function PatientCallOverlay({
       <div className="relative flex-1 grid place-items-center mesh-bg-dark">
         <div className="text-center">
           <div className="relative mx-auto h-32 w-32">
-            <span className="absolute inset-0 rounded-full anim-breathe" style={{ background: color }} />
-            <span className="absolute inset-2 grid place-items-center rounded-full font-serif text-4xl font-bold text-white shadow-depth" style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}>
+            <span
+              className="absolute inset-0 rounded-full anim-breathe"
+              style={{ background: color }}
+            />
+            <span
+              className="absolute inset-2 grid place-items-center rounded-full font-serif text-4xl font-bold text-white shadow-depth"
+              style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}
+            >
               {avatarInitials(call.doctor.doctorName)}
             </span>
             <span className="pulse-ring absolute inset-0 rounded-full" />
@@ -599,7 +770,9 @@ function PatientCallOverlay({
             </span>
             <span className="font-mono text-xs tabular-nums text-white/80">{timer}</span>
           </div>
-          <p className="mt-3 text-[0.65rem] text-white/40">Demo consultation slot · the call log is saved for your clinic</p>
+          <p className="mt-3 text-[0.65rem] text-white/40">
+            Demo consultation slot · the call log is saved for your clinic
+          </p>
         </div>
 
         <button
@@ -623,13 +796,19 @@ function ConsultationStatus({ call, waiting }: { call: CallLog | null; waiting: 
   const steps = ["Requested", "Seen by clinic", "Completed"];
   return (
     <div className="flex items-center gap-1.5 border-b border-[#E5DFD4] bg-white/60 px-4 py-2">
-      <span className="mr-0.5 shrink-0 text-[0.55rem] font-semibold uppercase tracking-wider text-[#9A8F84]">Consultation</span>
+      <span className="mr-0.5 shrink-0 text-[0.55rem] font-semibold uppercase tracking-wider text-[#9A8F84]">
+        Consultation
+      </span>
       {steps.map((label, i) => (
         <span
           key={label}
           className={cn(
             "flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.55rem] font-medium",
-            i < stage ? "bg-[#9DB89E]/15 text-[#5A7A5B]" : i === stage ? "bg-[#A16207]/15 text-[#A16207]" : "bg-[#F3EEE6] text-[#B5A99E]"
+            i < stage
+              ? "bg-[#9DB89E]/15 text-[#5A7A5B]"
+              : i === stage
+                ? "bg-[#A16207]/15 text-[#A16207]"
+                : "bg-[#F3EEE6] text-[#B5A99E]",
           )}
         >
           {i < stage ? (

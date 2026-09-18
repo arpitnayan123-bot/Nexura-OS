@@ -4,7 +4,10 @@ import { guard, ok, parseBody, withRoute } from "@/lib/nx/api";
 import { db } from "@/lib/db";
 import { buildTwinState } from "@/modules/pi-engine/db";
 import { computeBaseline } from "@/modules/pi-engine/twin/digital-twin";
-import { INTERVENTION_CATALOG, simulateIntervention } from "@/modules/pi-engine/twin/counterfactual";
+import {
+  INTERVENTION_CATALOG,
+  simulateIntervention,
+} from "@/modules/pi-engine/twin/counterfactual";
 import { patientInScope } from "@/lib/nx/patient-scope";
 
 /* GET /api/nx/predict/twin/[patientId] — the Living Twin: current state
@@ -28,7 +31,7 @@ export const GET = withRoute<{ patientId: string }>(
     if (!state) return ok({ error: "patient_not_found" }, { requestId: g.requestId, status: 404 });
     const baseline = computeBaseline(state);
     return ok({ state, baseline, catalog: INTERVENTION_CATALOG }, { requestId: g.requestId });
-  }
+  },
 );
 
 export const POST = withRoute<{ patientId: string }>(
@@ -49,5 +52,5 @@ export const POST = withRoute<{ patientId: string }>(
       .filter((i): i is NonNullable<typeof i> => Boolean(i))
       .map((i) => simulateIntervention(state, i));
     return ok({ outcomes }, { requestId: g.requestId });
-  }
+  },
 );

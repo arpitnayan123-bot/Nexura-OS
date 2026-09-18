@@ -37,7 +37,12 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ ok: true, marked: result.count });
   } catch (err) {
-    log.error("connect", "mark_read_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "mark_read_failed", detail: "Messages could not be marked as read. Please retry." }, { status: 500 });
+    log.error("connect", "mark_read_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "mark_read_failed", detail: "Messages could not be marked as read. Please retry." },
+      { status: 500 },
+    );
   }
 }

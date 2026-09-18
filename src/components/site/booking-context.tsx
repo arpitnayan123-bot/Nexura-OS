@@ -36,7 +36,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo(
     () => ({ open, prefill, openBooking, closeBooking }),
-    [open, prefill, openBooking, closeBooking]
+    [open, prefill, openBooking, closeBooking],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

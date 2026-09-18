@@ -8,33 +8,98 @@
 
 import { describe, expect, it } from "vitest";
 import type { TwinStateVector } from "@/modules/pi-engine/types";
-import { cleanseSeries, dailySlope, ewma, median, modifiedZScores, toLifeStreamPoint, unifyStream } from "@/modules/pi-engine/ingest/data-ingestion";
-import { ingestBioBatch, nightSummary, variabilityFeatures } from "@/modules/pi-engine/ingest/bio-signals";
+import {
+  cleanseSeries,
+  dailySlope,
+  ewma,
+  median,
+  modifiedZScores,
+  toLifeStreamPoint,
+  unifyStream,
+} from "@/modules/pi-engine/ingest/data-ingestion";
+import {
+  ingestBioBatch,
+  nightSummary,
+  variabilityFeatures,
+} from "@/modules/pi-engine/ingest/bio-signals";
 import { extractFromNote } from "@/modules/pi-engine/ingest/nlp-notes";
 import { adherenceScore, engagementCollapse } from "@/modules/pi-engine/ingest/adherence";
 import { getSdoh, sdohRiskModifiers, bundledProvider } from "@/modules/pi-engine/ingest/sdoh";
-import { syncPatientToGraph, similarPatients, DRUG_GENE_INTERACTIONS, type GraphRepo, type GraphEdge, type GraphNode } from "@/modules/pi-engine/graph/patient-graph";
-import { computeBaseline, decayOneDay, egfr2021, meanArterialPressure } from "@/modules/pi-engine/twin/digital-twin";
-import { featurize, predictScore, trainStep, defaultWeights } from "@/modules/pi-engine/twin/series";
+import {
+  syncPatientToGraph,
+  similarPatients,
+  DRUG_GENE_INTERACTIONS,
+  type GraphRepo,
+  type GraphEdge,
+  type GraphNode,
+} from "@/modules/pi-engine/graph/patient-graph";
+import {
+  computeBaseline,
+  decayOneDay,
+  egfr2021,
+  meanArterialPressure,
+} from "@/modules/pi-engine/twin/digital-twin";
+import {
+  featurize,
+  predictScore,
+  trainStep,
+  defaultWeights,
+} from "@/modules/pi-engine/twin/series";
 import { bandOfScore, sepsisRisk, stratify } from "@/modules/pi-engine/twin/risk";
-import { INTERVENTION_CATALOG, simulateIntervention } from "@/modules/pi-engine/twin/counterfactual";
+import {
+  INTERVENTION_CATALOG,
+  simulateIntervention,
+} from "@/modules/pi-engine/twin/counterfactual";
 import { decideProtocol, protocolFor } from "@/modules/pi-engine/protocols/generator";
-import { planCoordination, executeCoordination, type CoordinationSink } from "@/modules/pi-engine/protocols/coordination";
-import { federatedAverage, validateDeltaPrivacy, sanitizeOutgoingDelta, applyGlobalUpdate } from "@/modules/pi-engine/federation/federated";
+import {
+  planCoordination,
+  executeCoordination,
+  type CoordinationSink,
+} from "@/modules/pi-engine/protocols/coordination";
+import {
+  federatedAverage,
+  validateDeltaPrivacy,
+  sanitizeOutgoingDelta,
+  applyGlobalUpdate,
+} from "@/modules/pi-engine/federation/federated";
 import { explain, attributionBars } from "@/modules/pi-engine/governance/explain";
-import { updateDrift, biasAudit, enforceConfidenceGate, SAMD_REGISTRY } from "@/modules/pi-engine/governance/drift";
+import {
+  updateDrift,
+  biasAudit,
+  enforceConfidenceGate,
+  SAMD_REGISTRY,
+} from "@/modules/pi-engine/governance/drift";
 
 const daysAgo = (d: number) => new Date(Date.now() - d * 86_400_000).toISOString();
 
 function baseState(over: Partial<TwinStateVector> = {}): TwinStateVector {
   return {
     patientId: "p_test",
-    age: 54, sex: "male", weightKg: 78,
-    hr: 76, sbp: 124, dbp: 78, rr: 14, tempC: 36.7, spo2: 98,
-    wbc: 7.2, creatinine: 1.0, hba1c: 6.8, glucose: 120, potassium: 4.1, ntProBnp: 140,
-    hrTrend: 0.2, tempTrend: 0.01, wbcTrend: 0.01, weightTrend: 0, creatinineTrend: 0.002,
-    activeInfections: [], medications: ["metformin"], chronicConditions: ["E11"],
-    geneticMarkers: [], adherenceScore: 0.85,
+    age: 54,
+    sex: "male",
+    weightKg: 78,
+    hr: 76,
+    sbp: 124,
+    dbp: 78,
+    rr: 14,
+    tempC: 36.7,
+    spo2: 98,
+    wbc: 7.2,
+    creatinine: 1.0,
+    hba1c: 6.8,
+    glucose: 120,
+    potassium: 4.1,
+    ntProBnp: 140,
+    hrTrend: 0.2,
+    tempTrend: 0.01,
+    wbcTrend: 0.01,
+    weightTrend: 0,
+    creatinineTrend: 0.002,
+    activeInfections: [],
+    medications: ["metformin"],
+    chronicConditions: ["E11"],
+    geneticMarkers: [],
+    adherenceScore: 0.85,
     sdoh: { aqi: 90, foodDesertKm: 0.9, crimeIndex: 35 },
     updatedAt: new Date().toISOString(),
     ...over,
@@ -70,16 +135,34 @@ describe("PIE Phase 1 — data ingestion", () => {
 
   it("toLifeStreamPoint cleanses against the patient series and flags it", () => {
     const p = toLifeStreamPoint(
-      { source: "vitals", kind: "observation", title: "Heart rate", value: 280, ts: new Date().toISOString() },
-      [72, 74, 73, 71, 75, 74]
+      {
+        source: "vitals",
+        kind: "observation",
+        title: "Heart rate",
+        value: 280,
+        ts: new Date().toISOString(),
+      },
+      [72, 74, 73, 71, 75, 74],
     );
     expect(p.outlier).toBe(true);
     expect(p.data?.method).toBe("modified_z_mad");
   });
 
   it("unifyStream sorts multi-source events chronologically", () => {
-    const a = { source: "labs" as const, kind: "result" as const, title: "HbA1c", value: 7.1, ts: daysAgo(1) };
-    const b = { source: "vitals" as const, kind: "observation" as const, title: "BP", value: 128, ts: daysAgo(2) };
+    const a = {
+      source: "labs" as const,
+      kind: "result" as const,
+      title: "HbA1c",
+      value: 7.1,
+      ts: daysAgo(1),
+    };
+    const b = {
+      source: "vitals" as const,
+      kind: "observation" as const,
+      title: "BP",
+      value: 128,
+      ts: daysAgo(2),
+    };
     const merged = unifyStream([a], [b]);
     expect(merged[0].title).toBe("BP");
   });
@@ -109,7 +192,9 @@ describe("PIE Phase 1 — data ingestion", () => {
 
   it("night summary computes deep/REM percentages and awakenings", () => {
     const samples = Array.from({ length: 84 }, (_, i) => ({
-      metric: "sleep_stage" as const, value: i < 20 ? 1 : i < 62 ? 2 : i < 76 ? 3 : 0, capturedAt: daysAgo(0),
+      metric: "sleep_stage" as const,
+      value: i < 20 ? 1 : i < 62 ? 2 : i < 76 ? 3 : 0,
+      capturedAt: daysAgo(0),
     }));
     const ns = nightSummary(samples);
     expect(ns.deepPct).toBeCloseTo(23.8, 0);
@@ -124,7 +209,9 @@ describe("PIE Phase 1 — data ingestion", () => {
   });
 
   it("clinical NLP extracts SNOMED/ICD concepts + deterioration signals", () => {
-    const ex = extractFromNote("Patient reports worsening shortness of breath and fever. Non-adherent with metformin. Smoker.");
+    const ex = extractFromNote(
+      "Patient reports worsening shortness of breath and fever. Non-adherent with metformin. Smoker.",
+    );
     const codes = ex.concepts.map((c) => c.code);
     expect(codes).toContain("267036007"); // dyspnea SNOMED
     expect(codes).toContain("Z720"); // tobacco ICD10
@@ -133,8 +220,14 @@ describe("PIE Phase 1 — data ingestion", () => {
   });
 
   it("adherence EWMA: recent misses pull the score down; collapse detected after silence", () => {
-    const good = adherenceScore([{ kind: "med_logged", ts: daysAgo(1) }, { kind: "med_logged", ts: daysAgo(2) }]);
-    const bad = adherenceScore([{ kind: "med_missed", ts: daysAgo(1) }, { kind: "med_missed", ts: daysAgo(1.1) }]);
+    const good = adherenceScore([
+      { kind: "med_logged", ts: daysAgo(1) },
+      { kind: "med_logged", ts: daysAgo(2) },
+    ]);
+    const bad = adherenceScore([
+      { kind: "med_missed", ts: daysAgo(1) },
+      { kind: "med_missed", ts: daysAgo(1.1) },
+    ]);
     expect(good.score).toBeGreaterThan(bad.score);
     const silent = engagementCollapse([{ kind: "app_login", ts: daysAgo(9) }]);
     expect(silent.collapsed).toBe(true);
@@ -155,9 +248,16 @@ describe("PIE Phase 1.2 — patient graph", () => {
     const nodes = new Map<string, GraphNode>();
     const edges: GraphEdge[] = [];
     const repo: GraphRepo = {
-      async upsertNode(n) { nodes.set(n.id, n); return n.key; },
-      async upsertEdge(e) { edges.push(e); },
-      async neighbors() { return []; },
+      async upsertNode(n) {
+        nodes.set(n.id, n);
+        return n.key;
+      },
+      async upsertEdge(e) {
+        edges.push(e);
+      },
+      async neighbors() {
+        return [];
+      },
     };
     const res = await syncPatientToGraph(repo, {
       patientKey: "uhid:HX1",
@@ -175,7 +275,10 @@ describe("PIE Phase 1.2 — patient graph", () => {
   });
 
   it("swarm cohort finds similar gene-drug profiles above the overlap floor", () => {
-    const index = { patientKey: "p1", concepts: new Set(["icd:E11", "drug:metformin", "gene:cyp2c19_lof"]) };
+    const index = {
+      patientKey: "p1",
+      concepts: new Set(["icd:E11", "drug:metformin", "gene:cyp2c19_lof"]),
+    };
     const cohort = [
       { patientKey: "p2", concepts: new Set(["icd:E11", "drug:metformin", "gene:cyp2c19_lof"]) },
       { patientKey: "p3", concepts: new Set(["icd:J44", "drug:salbutamol"]) },
@@ -213,7 +316,12 @@ describe("PIE Phase 2 — living twin", () => {
   });
 
   it("readmission risk rewards adherence and punishes degradation", () => {
-    const low = baseState({ adherenceScore: 0.3, creatinineTrend: 0.05, weightTrend: -0.3, chronicConditions: ["E11", "I50", "N18"] });
+    const low = baseState({
+      adherenceScore: 0.3,
+      creatinineTrend: 0.05,
+      weightTrend: -0.3,
+      chronicConditions: ["E11", "I50", "N18"],
+    });
     const good = baseState({ adherenceScore: 0.95 });
     expect(bandOfScore(0)).toBe("green");
     const lowScore = stratify(low).byDomain.readmission.score;
@@ -222,10 +330,16 @@ describe("PIE Phase 2 — living twin", () => {
   });
 
   it("chronic decay rises with cumulative exposure and SDoH burden", () => {
-    const exposure = baseState({ hba1c: 9.4, sbp: 168, creatinine: 1.9, adherenceScore: 0.4, sdoh: { aqi: 180, foodDesertKm: 2.5, crimeIndex: 60 } });
+    const exposure = baseState({
+      hba1c: 9.4,
+      sbp: 168,
+      creatinine: 1.9,
+      adherenceScore: 0.4,
+      sdoh: { aqi: 180, foodDesertKm: 2.5, crimeIndex: 60 },
+    });
     const controlled = baseState({ hba1c: 6.2, sbp: 122 });
     expect(stratify(exposure).byDomain.chronic_deterioration.score).toBeGreaterThan(
-      stratify(controlled).byDomain.chronic_deterioration.score + 25
+      stratify(controlled).byDomain.chronic_deterioration.score + 25,
     );
   });
 
@@ -301,7 +415,9 @@ describe("PIE Phase 3 — pre-emptive protocols", () => {
 
   it("yellow/green never generates; open protocol prevents alert storms", () => {
     const a = stratify(baseState()).composite;
-    expect(decideProtocol({ ...a, band: "yellow", score: 50, confidence: 0.95 }, false).action).toBe("below_threshold");
+    expect(
+      decideProtocol({ ...a, band: "yellow", score: 50, confidence: 0.95 }, false).action,
+    ).toBe("below_threshold");
     const red = { ...a, band: "red" as const, score: 90, confidence: 0.95 };
     expect(decideProtocol(red, true).action).toBe("existing_protocol_active");
   });
@@ -309,7 +425,9 @@ describe("PIE Phase 3 — pre-emptive protocols", () => {
   it("domain→protocol mapping is clinically coherent", () => {
     expect(protocolFor("sepsis", [])?.code).toBe("sepsis_bundle");
     expect(protocolFor("cardiac", [])?.code).toBe("hf_exacerbation");
-    expect(protocolFor("chronic_deterioration", ["Cumulative glycemic exposure — HbA1c 9%"])?.code).toBe("dka_risk");
+    expect(
+      protocolFor("chronic_deterioration", ["Cumulative glycemic exposure — HbA1c 9%"])?.code,
+    ).toBe("dka_risk");
     expect(protocolFor("readmission", [])).toBeNull();
   });
 });
@@ -329,11 +447,21 @@ describe("PIE Phase 3.2 — Alert → Approve → Execute coordination", () => {
     const created: { title: string; role: string }[] = [];
     const notified: string[] = [];
     const sink: CoordinationSink = {
-      async createTasks(tasks) { tasks.forEach((t) => created.push({ title: t.title, role: t.assigneeRole })); return tasks.length; },
-      async notify(items) { items.forEach((i) => notified.push(i.audience)); return items.length; },
+      async createTasks(tasks) {
+        tasks.forEach((t) => created.push({ title: t.title, role: t.assigneeRole }));
+        return tasks.length;
+      },
+      async notify(items) {
+        items.forEach((i) => notified.push(i.audience));
+        return items.length;
+      },
     };
     const hf = protocolFor("cardiac", [])!;
-    const res = await executeCoordination(sink, hf, { patientId: "p1", patientLabel: "Test Patient", protocolId: "prot1" });
+    const res = await executeCoordination(sink, hf, {
+      patientId: "p1",
+      patientLabel: "Test Patient",
+      protocolId: "prot1",
+    });
     expect(res.tasks).toBeGreaterThan(0);
     expect(created.length).toBe(res.tasks);
     expect(notified).toContain("attending_physician");
@@ -342,10 +470,28 @@ describe("PIE Phase 3.2 — Alert → Approve → Execute coordination", () => {
 
 describe("PIE Phase 4 — federated learning", () => {
   it("FedAvg weights tenants by sample count", () => {
-    const g = federatedAverage("sepsis_early_warning", [
-      { tenantId: "rural", modelId: "sepsis_early_warning", versionBase: "1.2.0", versionNew: "1.2.0", weights: { hr_dev: 0.10 }, samples: 100 },
-      { tenantId: "mumbai", modelId: "sepsis_early_warning", versionBase: "1.2.0", versionNew: "1.2.0", weights: { hr_dev: 0.02 }, samples: 300 },
-    ], "1.2.0");
+    const g = federatedAverage(
+      "sepsis_early_warning",
+      [
+        {
+          tenantId: "rural",
+          modelId: "sepsis_early_warning",
+          versionBase: "1.2.0",
+          versionNew: "1.2.0",
+          weights: { hr_dev: 0.1 },
+          samples: 100,
+        },
+        {
+          tenantId: "mumbai",
+          modelId: "sepsis_early_warning",
+          versionBase: "1.2.0",
+          versionNew: "1.2.0",
+          weights: { hr_dev: 0.02 },
+          samples: 300,
+        },
+      ],
+      "1.2.0",
+    );
     expect(g).not.toBeNull();
     // 0.10*(100/400) + 0.02*(300/400) = 0.04
     expect(g!.weights.hr_dev).toBeCloseTo(0.04, 3);
@@ -354,16 +500,56 @@ describe("PIE Phase 4 — federated learning", () => {
   });
 
   it("PRIVACY: oversized deltas are rejected as possible data leaks", () => {
-    expect(validateDeltaPrivacy({ tenantId: "t", modelId: "m", versionBase: "1", versionNew: "1", weights: { hr_dev: 0.01 }, samples: 10 }).ok).toBe(true);
-    expect(validateDeltaPrivacy({ tenantId: "t", modelId: "m", versionBase: "1", versionNew: "1", weights: { hr_dev: 99 }, samples: 10 }).ok).toBe(false);
-    expect(validateDeltaPrivacy({ tenantId: "t", modelId: "m", versionBase: "1", versionNew: "1", weights: {}, samples: 0 }).ok).toBe(false);
+    expect(
+      validateDeltaPrivacy({
+        tenantId: "t",
+        modelId: "m",
+        versionBase: "1",
+        versionNew: "1",
+        weights: { hr_dev: 0.01 },
+        samples: 10,
+      }).ok,
+    ).toBe(true);
+    expect(
+      validateDeltaPrivacy({
+        tenantId: "t",
+        modelId: "m",
+        versionBase: "1",
+        versionNew: "1",
+        weights: { hr_dev: 99 },
+        samples: 10,
+      }).ok,
+    ).toBe(false);
+    expect(
+      validateDeltaPrivacy({
+        tenantId: "t",
+        modelId: "m",
+        versionBase: "1",
+        versionNew: "1",
+        weights: {},
+        samples: 0,
+      }).ok,
+    ).toBe(false);
   });
 
   it("outgoing deltas are clipped + noised; global updates apply bounded", () => {
     const s = sanitizeOutgoingDelta({ hr_dev: 4, temp_dev: -0.4 }, 1.0, 0.01);
     expect(Math.abs(s.hr_dev)).toBeLessThanOrEqual(1.01);
     const local = defaultWeights();
-    const g = federatedAverage("m", [{ tenantId: "t", modelId: "m", versionBase: local.version, versionNew: local.version, weights: { hr_dev: 0.05 }, samples: 10 }], local.version)!;
+    const g = federatedAverage(
+      "m",
+      [
+        {
+          tenantId: "t",
+          modelId: "m",
+          versionBase: local.version,
+          versionNew: local.version,
+          weights: { hr_dev: 0.05 },
+          samples: 10,
+        },
+      ],
+      local.version,
+    )!;
     const updated = applyGlobalUpdate(local, g, 0.5);
     expect(updated.w.hr_dev).toBeCloseTo(local.w.hr_dev + 0.025, 3);
   });
@@ -383,15 +569,15 @@ describe("PIE Phase 6 — governance", () => {
   it("drift detection fires below baseline − ε", () => {
     const okRun = updateDrift(0.85, 0.86, 0.87);
     expect(okRun.driftDetected).toBe(false);
-    const drift = updateDrift(0.85, 0.81, 0.60);
+    const drift = updateDrift(0.85, 0.81, 0.6);
     expect(drift.driftDetected).toBe(true);
     expect(drift.message).toContain("drift");
   });
 
   it("bias audit enforces the four-fifths rule", () => {
-    const fair = biasAudit("gender", { male: 0.30, female: 0.28 });
+    const fair = biasAudit("gender", { male: 0.3, female: 0.28 });
     expect(fair[0].pass).toBe(true);
-    const unfair = biasAudit("gender", { male: 0.50, female: 0.25 });
+    const unfair = biasAudit("gender", { male: 0.5, female: 0.25 });
     expect(unfair[0].pass).toBe(false);
     expect(unfair[0].ratio).toBeCloseTo(0.5, 2);
   });

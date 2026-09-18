@@ -14,12 +14,5 @@ export default function KnowYourHealthError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SegmentErrorBoundary
-      error={error}
-      reset={reset}
-      variant="kyh"
-      tag="know-your-health"
-    />
-  );
+  return <SegmentErrorBoundary error={error} reset={reset} variant="kyh" tag="know-your-health" />;
 }

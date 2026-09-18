@@ -59,10 +59,7 @@ export function AiStrip() {
 
   useEffect(() => {
     if (!animate) return;
-    const id = window.setInterval(
-      () => setPromptIndex((i) => (i + 1) % PROMPTS.length),
-      2600
-    );
+    const id = window.setInterval(() => setPromptIndex((i) => (i + 1) % PROMPTS.length), 2600);
     return () => window.clearInterval(id);
   }, [animate]);
 
@@ -73,8 +70,7 @@ export function AiStrip() {
           <div
             className="relative overflow-hidden rounded-[2rem] border px-5 py-5 sm:px-8 lg:px-10 lg:py-5"
             style={{
-              background:
-                "linear-gradient(180deg, #FFFCF6 0%, #FBF0DE 58%, #F6E7CF 100%)",
+              background: "linear-gradient(180deg, #FFFCF6 0%, #FBF0DE 58%, #F6E7CF 100%)",
               borderColor: "#EFE9E0",
               boxShadow: "0 1px 2px rgba(46,42,38,0.05)",
             }}
@@ -187,32 +183,86 @@ export function AiStrip() {
               {/* the garden on the sand — swaying stems + blooms */}
               <div className="nx-stem" style={{ left: "5%", animationDuration: "7.6s" }}>
                 <svg width="58" height="96" viewBox="0 0 58 96" fill="none">
-                  <path d="M30 96 C28 70 31 46 30 22" stroke="rgba(90,122,91,0.6)" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M30 54 C21 51 15 44 14 34 C24 37 29 44 30 52 Z" fill="rgba(122,154,123,0.55)" />
-                  <path d="M30 74 C39 71 45 64 46 54 C36 57 31 64 30 72 Z" fill="rgba(122,154,123,0.45)" />
+                  <path
+                    d="M30 96 C28 70 31 46 30 22"
+                    stroke="rgba(90,122,91,0.6)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M30 54 C21 51 15 44 14 34 C24 37 29 44 30 52 Z"
+                    fill="rgba(122,154,123,0.55)"
+                  />
+                  <path
+                    d="M30 74 C39 71 45 64 46 54 C36 57 31 64 30 72 Z"
+                    fill="rgba(122,154,123,0.45)"
+                  />
                   <circle cx="30" cy="18" r="2.6" fill="#C4704B" />
                   <circle cx="30" cy="18" r="1" fill="#FFF8F3" />
                 </svg>
               </div>
-              <div className="nx-stem" style={{ left: "12%", animationDuration: "6.4s", animationDelay: "1.1s" }}>
+              <div
+                className="nx-stem"
+                style={{ left: "12%", animationDuration: "6.4s", animationDelay: "1.1s" }}
+              >
                 <svg width="46" height="58" viewBox="0 0 46 58" fill="none">
-                  <path d="M23 58 C22 42 24 28 23 14" stroke="rgba(90,122,91,0.5)" strokeWidth="1.4" strokeLinecap="round" />
-                  <path d="M23 34 C31 31 36 24 37 16 C29 19 24 26 23 32 Z" fill="rgba(122,154,123,0.5)" />
+                  <path
+                    d="M23 58 C22 42 24 28 23 14"
+                    stroke="rgba(90,122,91,0.5)"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M23 34 C31 31 36 24 37 16 C29 19 24 26 23 32 Z"
+                    fill="rgba(122,154,123,0.5)"
+                  />
                   <circle cx="23" cy="10" r="2.2" fill="#D9B87C" />
                 </svg>
               </div>
-              <div className="nx-stem hidden sm:block" style={{ left: "44%", animationDuration: "7s", animationDelay: "2s" }}>
+              <div
+                className="nx-stem hidden sm:block"
+                style={{ left: "44%", animationDuration: "7s", animationDelay: "2s" }}
+              >
                 <svg width="50" height="38" viewBox="0 0 50 38" fill="none">
-                  <path d="M13 38 C12 26 9 18 5 12" stroke="rgba(90,122,91,0.45)" strokeWidth="1.3" strokeLinecap="round" />
-                  <path d="M25 38 C25 24 25 14 25 6" stroke="rgba(90,122,91,0.55)" strokeWidth="1.3" strokeLinecap="round" />
-                  <path d="M37 38 C38 26 41 18 45 12" stroke="rgba(90,122,91,0.45)" strokeWidth="1.3" strokeLinecap="round" />
+                  <path
+                    d="M13 38 C12 26 9 18 5 12"
+                    stroke="rgba(90,122,91,0.45)"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M25 38 C25 24 25 14 25 6"
+                    stroke="rgba(90,122,91,0.55)"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M37 38 C38 26 41 18 45 12"
+                    stroke="rgba(90,122,91,0.45)"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </div>
-              <div className="nx-stem" style={{ right: "6%", animationDuration: "8.4s", animationDelay: "0.5s" }}>
+              <div
+                className="nx-stem"
+                style={{ right: "6%", animationDuration: "8.4s", animationDelay: "0.5s" }}
+              >
                 <svg width="56" height="84" viewBox="0 0 56 84" fill="none">
-                  <path d="M27 84 C25 60 29 42 27 18" stroke="rgba(90,122,91,0.58)" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M27 46 C18 43 12 36 11 26 C21 29 27 36 27 44 Z" fill="rgba(122,154,123,0.5)" />
-                  <path d="M27 66 C36 63 42 56 43 46 C33 49 28 56 27 64 Z" fill="rgba(122,154,123,0.42)" />
+                  <path
+                    d="M27 84 C25 60 29 42 27 18"
+                    stroke="rgba(90,122,91,0.58)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M27 46 C18 43 12 36 11 26 C21 29 27 36 27 44 Z"
+                    fill="rgba(122,154,123,0.5)"
+                  />
+                  <path
+                    d="M27 66 C36 63 42 56 43 46 C33 49 28 56 27 64 Z"
+                    fill="rgba(122,154,123,0.42)"
+                  />
                   <circle cx="27" cy="13" r="2.6" fill="#C4704B" />
                   <circle cx="27" cy="13" r="1" fill="#FFF8F3" />
                 </svg>
@@ -222,8 +272,14 @@ export function AiStrip() {
               <div className="nx-butterfly absolute bottom-[44px] left-[9%]">
                 <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
                   <path d="M7 5 L7 11" stroke="#8A6A50" strokeWidth="1" strokeLinecap="round" />
-                  <path d="M7 5 C3 0.5 0.5 2.5 3 6.5 C4.5 8.5 6.5 7 7 5 Z" fill="rgba(201,130,93,0.85)" />
-                  <path d="M7 5 C11 0.5 13.5 2.5 11 6.5 C9.5 8.5 7.5 7 7 5 Z" fill="rgba(217,160,91,0.8)" />
+                  <path
+                    d="M7 5 C3 0.5 0.5 2.5 3 6.5 C4.5 8.5 6.5 7 7 5 Z"
+                    fill="rgba(201,130,93,0.85)"
+                  />
+                  <path
+                    d="M7 5 C11 0.5 13.5 2.5 11 6.5 C9.5 8.5 7.5 7 7 5 Z"
+                    fill="rgba(217,160,91,0.8)"
+                  />
                 </svg>
               </div>
 

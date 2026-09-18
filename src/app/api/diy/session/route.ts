@@ -30,7 +30,10 @@ export const POST = withRoute("diy.session.guest", async (req: NextRequest) => {
   const ip = ipOf(req);
   const rl = rateLimit(`diy-session:${ip}`, 8, 60 * 60_000);
   if (!rl.allowed) {
-    return NextResponse.json({ error: { code: "DIY_029", message: "Too many session requests — try again later." } }, { status: 429 });
+    return NextResponse.json(
+      { error: { code: "DIY_029", message: "Too many session requests — try again later." } },
+      { status: 429 },
+    );
   }
   const store = await cookies();
   const hasPortal = Boolean(store.get(PORTAL_SESSION_COOKIE)?.value);

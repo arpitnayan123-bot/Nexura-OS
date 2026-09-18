@@ -27,25 +27,30 @@ export const GET = withRoute("journey.annotations", async (req: NextRequest, { r
   return ok(rows, { requestId });
 });
 
-export const POST = withRoute("journey.annotations.create", async (req: NextRequest, { requestId }) => {
-  const g = await guard(req, "patient.clinical.view");
-  if ("response" in g) return g.response;
-  const hospitalId = g.session.hospitalId;
-  if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
-  const body = await parseBody(req, CreateSchema);
-  if ("response" in body) return body.response;
-  const patient = await db.hospitalPatient.findFirst({ where: { id: body.data.patientId, hospitalId } });
-  if (!patient) return fail("unknown_patient", 404, undefined, requestId);
-  const row = await db.nxJourneyAnnotation.create({
-    data: {
-      hospitalId,
-      patientId: patient.id,
-      eventRef: body.data.eventRef,
-      body: body.data.body,
-      decisionLog: body.data.decisionLog ?? false,
-      authorName: g.session.name,
-      authorRole: g.session.role,
-    },
-  });
-  return ok(row, { requestId, status: 201 });
-});
+export const POST = withRoute(
+  "journey.annotations.create",
+  async (req: NextRequest, { requestId }) => {
+    const g = await guard(req, "patient.clinical.view");
+    if ("response" in g) return g.response;
+    const hospitalId = g.session.hospitalId;
+    if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
+    const body = await parseBody(req, CreateSchema);
+    if ("response" in body) return body.response;
+    const patient = await db.hospitalPatient.findFirst({
+      where: { id: body.data.patientId, hospitalId },
+    });
+    if (!patient) return fail("unknown_patient", 404, undefined, requestId);
+    const row = await db.nxJourneyAnnotation.create({
+      data: {
+        hospitalId,
+        patientId: patient.id,
+        eventRef: body.data.eventRef,
+        body: body.data.body,
+        decisionLog: body.data.decisionLog ?? false,
+        authorName: g.session.name,
+        authorRole: g.session.role,
+      },
+    });
+    return ok(row, { requestId, status: 201 });
+  },
+);

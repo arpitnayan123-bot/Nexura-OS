@@ -5,9 +5,19 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, Droplet, FileStack, CalendarClock, Users,
-  HeartPulse, LogOut, Bell, ChevronDown, Loader2, AlertTriangle,
-  RefreshCw, ShieldCheck,
+  LayoutDashboard,
+  Droplet,
+  FileStack,
+  CalendarClock,
+  Users,
+  HeartPulse,
+  LogOut,
+  Bell,
+  ChevronDown,
+  Loader2,
+  AlertTriangle,
+  RefreshCw,
+  ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -176,13 +186,17 @@ export function PortalApp() {
       <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
         <motion.div
           className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full"
-          style={{ background: "radial-gradient(circle, oklch(0.85 0.09 80 / 0.25), transparent 70%)" }}
+          style={{
+            background: "radial-gradient(circle, oklch(0.85 0.09 80 / 0.25), transparent 70%)",
+          }}
           animate={{ x: [0, -20, 10, 0], y: [0, 20, -10, 0] }}
           transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
           className="absolute top-1/2 -left-40 h-[24rem] w-[24rem] rounded-full"
-          style={{ background: "radial-gradient(circle, oklch(0.86 0.07 155 / 0.18), transparent 70%)" }}
+          style={{
+            background: "radial-gradient(circle, oklch(0.86 0.07 155 / 0.18), transparent 70%)",
+          }}
           animate={{ x: [0, 20, -10, 0], y: [0, -15, 10, 0] }}
           transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -196,8 +210,12 @@ export function PortalApp() {
               <HeartPulse className="h-5 w-5" />
             </span>
             <div className="hidden sm:block">
-              <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-stone-400">Nexura</p>
-              <p className="font-display text-base font-semibold leading-none text-stone-800">Patient Portal</p>
+              <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-stone-400">
+                Nexura
+              </p>
+              <p className="font-display text-base font-semibold leading-none text-stone-800">
+                Patient Portal
+              </p>
             </div>
           </div>
 
@@ -254,13 +272,21 @@ export function PortalApp() {
                     "group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-all",
                     active
                       ? "bg-gradient-to-r from-[#A16207] to-[#8A5A04] text-white shadow-[0_6px_20px_-8px_oklch(0.65_0.13_45/0.5)]"
-                      : "text-stone-600 hover:bg-[#FAF7F2]"
+                      : "text-stone-600 hover:bg-[#FAF7F2]",
                   )}
                 >
-                  <t.icon className={cn("h-4 w-4", active ? "text-white" : "text-stone-400 group-hover:text-[#A16207]")} />
+                  <t.icon
+                    className={cn(
+                      "h-4 w-4",
+                      active ? "text-white" : "text-stone-400 group-hover:text-[#A16207]",
+                    )}
+                  />
                   {t.label}
                   {active && (
-                    <motion.span layoutId="tab-indicator" className="ml-auto h-1.5 w-1.5 rounded-full bg-white" />
+                    <motion.span
+                      layoutId="tab-indicator"
+                      className="ml-auto h-1.5 w-1.5 rounded-full bg-white"
+                    />
                   )}
                 </button>
               );
@@ -270,13 +296,17 @@ export function PortalApp() {
           {/* ABHA / profile mini-card */}
           {user && (
             <div className="mt-3 rounded-3xl border border-[#E7E5E4] bg-white p-3 shadow-sm">
-              <p className="text-[0.65rem] font-medium uppercase tracking-wider text-stone-400">ABHA ID</p>
+              <p className="text-[0.65rem] font-medium uppercase tracking-wider text-stone-400">
+                ABHA ID
+              </p>
               <p className="mt-0.5 text-sm font-semibold text-stone-800">{user.abhaId ?? "—"}</p>
               <div className="mt-2 flex items-center gap-1.5 text-[0.7rem]">
                 <span className="rounded-full bg-[#A16207]/10 px-2 py-0.5 font-semibold text-[#A16207]">
                   {user.bloodGroup ?? "?"}
                 </span>
-                <span className="rounded-full bg-[#9DB89E]/15 px-2 py-0.5 font-semibold text-[#5E8A60]">ABHA on file</span>
+                <span className="rounded-full bg-[#9DB89E]/15 px-2 py-0.5 font-semibold text-[#5E8A60]">
+                  ABHA on file
+                </span>
               </div>
             </div>
           )}
@@ -346,7 +376,7 @@ export function PortalApp() {
                 onClick={() => setTab(t.id)}
                 className={cn(
                   "flex flex-col items-center gap-0.5 rounded-xl px-1 py-1.5 text-[0.65rem] font-medium transition-all",
-                  active ? "text-[#A16207]" : "text-stone-400"
+                  active ? "text-[#A16207]" : "text-stone-400",
                 )}
               >
                 <t.icon className={cn("h-5 w-5", active && "scale-110")} />
@@ -400,7 +430,9 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
       <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#A16207]/15 text-[#A16207]">
         <AlertTriangle className="h-7 w-7" />
       </div>
-      <h2 className="mt-4 font-display text-lg font-semibold text-stone-800">Something went wrong</h2>
+      <h2 className="mt-4 font-display text-lg font-semibold text-stone-800">
+        Something went wrong
+      </h2>
       <p className="mt-1 text-sm text-stone-500">{message}</p>
       <button
         onClick={onRetry}

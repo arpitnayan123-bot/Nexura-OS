@@ -72,7 +72,10 @@ export async function hospitalIdsForTenant(tenantId: string): Promise<string[]> 
 }
 
 /** Is a module key enabled for this tenant? null modulesJson = everything standard. */
-export function moduleEnabledForTenant(tenant: { modulesJson: string | null } | null, moduleKey: string): boolean {
+export function moduleEnabledForTenant(
+  tenant: { modulesJson: string | null } | null,
+  moduleKey: string,
+): boolean {
   if (!tenant) return true;
   const mods = parseModules(tenant);
   if (!mods) return true;

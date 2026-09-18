@@ -30,15 +30,21 @@ async function GET_impl(req: NextRequest) {
         where: { createdAt: { gte: dayStart, lte: dayEnd }, status: "received" },
         select: { total: true },
       }),
-      db.dayClosing.findUnique({ where: { branchId_closingDate: { branchId: ctx.branch.id, closingDate: date } } }),
+      db.dayClosing.findUnique({
+        where: { branchId_closingDate: { branchId: ctx.branch.id, closingDate: date } },
+      }),
     ]);
 
     const byMode = { cash: 0, upi: 0, card: 0, credit: 0 };
     /* Sale.total/cgst/sgst/discount and Purchase.total are INTEGER PAISE —
        these aggregates are exact integer sums, converted to rupees once below. */
-    let cgstPaise = 0, sgstPaise = 0, discountPaise = 0, totalSalesPaise = 0;
+    let cgstPaise = 0,
+      sgstPaise = 0,
+      discountPaise = 0,
+      totalSalesPaise = 0;
     for (const s of sales) {
-      byMode[s.payMode as keyof typeof byMode] = (byMode[s.payMode as keyof typeof byMode] || 0) + s.total;
+      byMode[s.payMode as keyof typeof byMode] =
+        (byMode[s.payMode as keyof typeof byMode] || 0) + s.total;
       cgstPaise += s.cgst;
       sgstPaise += s.sgst;
       discountPaise += s.discount;
@@ -64,8 +70,13 @@ async function GET_impl(req: NextRequest) {
       netProfit: ru(totalSalesPaise - discountPaise),
     });
   } catch (err) {
-    log.error("pharmacy", "day_closing_list_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "day_closing_failed", detail: "The day summary could not be loaded. Please retry." }, { status: 500 });
+    log.error("pharmacy", "day_closing_list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "day_closing_failed", detail: "The day summary could not be loaded. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -74,7 +85,10 @@ async function GET_impl(req: NextRequest) {
 // whitelist — the historical `...data` spread allowed mass assignment of
 // arbitrary columns.
 const DayCloseSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
   data: z.object({
     cashSales: z.number().min(0).max(100_000_000).default(0),
     upiSales: z.number().min(0).max(100_000_000).default(0),
@@ -98,7 +112,10 @@ async function POST_impl(req: NextRequest) {
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
     const parsed = DayCloseSchema.safeParse(await req.json().catch(() => null));
     if (!parsed.success) {
-      return NextResponse.json({ error: "invalid_request", detail: "Invalid day-closing payload." }, { status: 400 });
+      return NextResponse.json(
+        { error: "invalid_request", detail: "Invalid day-closing payload." },
+        { status: 400 },
+      );
     }
     const date = parsed.data.date || new Date().toISOString().slice(0, 10);
     const d = parsed.data.data;
@@ -125,8 +142,13 @@ async function POST_impl(req: NextRequest) {
     });
     return NextResponse.json({ ok: true, closing: toRupees(closing, DAY_CLOSING_PAISE) });
   } catch (err) {
-    log.error("pharmacy", "day_close_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "day_close_failed", detail: "The business day could not be closed. Please retry." }, { status: 500 });
+    log.error("pharmacy", "day_close_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "day_close_failed", detail: "The business day could not be closed. Please retry." },
+      { status: 500 },
+    );
   }
 }
 

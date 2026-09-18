@@ -46,7 +46,11 @@ export function estimateTokens(text: string): number {
 /** Integer micro-USD for the given token counts. Token counts are small
  *  (≤ ~8k each) and prices ≤ 1e6, so the product stays far below 2^53 —
  *  exact integer math, no float rounding surprises. */
-export function estimateCostMicroUsd(model: string, promptTokens: number, completionTokens: number): number {
+export function estimateCostMicroUsd(
+  model: string,
+  promptTokens: number,
+  completionTokens: number,
+): number {
   const p = priceFor(model);
   return Math.round((promptTokens * p.prompt + completionTokens * p.completion) / 1_000_000);
 }
@@ -133,7 +137,7 @@ export function recordAiUsage(rec: AiUsageRecord): void {
     .catch((e: unknown) =>
       log.warn("ai-usage", "ledger write failed (call unaffected)", {
         err: e instanceof Error ? e.message : String(e),
-      })
+      }),
     );
 }
 
@@ -162,7 +166,11 @@ export interface AiUsageSummary {
   unattributedRows: number;
 }
 
-function sumBuckets(map: Map<string, AiUsageBucket>, key: string, row: { calls: number; failures: number; tokens: number | null; cost: number | null }): void {
+function sumBuckets(
+  map: Map<string, AiUsageBucket>,
+  key: string,
+  row: { calls: number; failures: number; tokens: number | null; cost: number | null },
+): void {
   const b = map.get(key) ?? { key, calls: 0, failures: 0, tokensTotal: 0, costMicroUsd: 0 };
   b.calls += row.calls;
   b.failures += row.failures;
@@ -185,7 +193,11 @@ export async function aiUsageSummary(windowDays = 30): Promise<AiUsageSummary> {
       _count: { _all: true },
       _sum: { tokensTotal: true, costMicroUsd: true },
     }),
-    db.aiUsageLog.groupBy({ by: ["capability"], where: { ...base, success: false }, _count: { _all: true } }),
+    db.aiUsageLog.groupBy({
+      by: ["capability"],
+      where: { ...base, success: false },
+      _count: { _all: true },
+    }),
     db.aiUsageLog.groupBy({
       by: ["provider"],
       where: base,
@@ -241,7 +253,7 @@ export async function aiUsageSummary(windowDays = 30): Promise<AiUsageSummary> {
       tokensTotal: acc.tokensTotal + b.tokensTotal,
       costMicroUsd: acc.costMicroUsd + b.costMicroUsd,
     }),
-    { key: "all", calls: 0, failures: 0, tokensTotal: 0, costMicroUsd: 0 }
+    { key: "all", calls: 0, failures: 0, tokensTotal: 0, costMicroUsd: 0 },
   );
 
   const byUser = userRows

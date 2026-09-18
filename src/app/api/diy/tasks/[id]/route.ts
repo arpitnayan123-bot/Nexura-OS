@@ -15,32 +15,42 @@ function today(): string {
   return ist.toISOString().slice(0, 10);
 }
 
-export const POST = withRoute<{ id: string }>("diy.task.complete", async (req: NextRequest, ctx) => {
-  const g = await guard(req, {
-    body: zodBody(taskActionSchema),
-    consent: "TASKS",
-    rate: { max: 120, windowMs: 60_000 },
-  });
-  if (g instanceof NextResponse) return g;
+export const POST = withRoute<{ id: string }>(
+  "diy.task.complete",
+  async (req: NextRequest, ctx) => {
+    const g = await guard(req, {
+      body: zodBody(taskActionSchema),
+      consent: "TASKS",
+      rate: { max: 120, windowMs: 60_000 },
+    });
+    if (g instanceof NextResponse) return g;
 
-  const { id } = await ctx.params;
-  const { action, note } = g.body as { action: string; note?: string };
+    const { id } = await ctx.params;
+    const { action, note } = g.body as { action: string; note?: string };
 
-  const task = await db.diyTask.findFirst({
-    where: { id, active: true, plan: { userId: g.userId } },
-  });
-  if (!task) return guardFail("NOT_FOUND", "Task not found.", 404);
+    const task = await db.diyTask.findFirst({
+      where: { id, active: true, plan: { userId: g.userId } },
+    });
+    if (!task) return guardFail("NOT_FOUND", "Task not found.", 404);
 
-  const status = action === "done" ? "DONE" : action === "skipped" ? "SKIPPED" : action === "not_feasible" ? "NOT_FEASIBLE" : "PENDING";
+    const status =
+      action === "done"
+        ? "DONE"
+        : action === "skipped"
+          ? "SKIPPED"
+          : action === "not_feasible"
+            ? "NOT_FEASIBLE"
+            : "PENDING";
 
-  const completion = await db.diyTaskCompletion.upsert({
-    where: { taskId_userId_date: { taskId: task.id, userId: g.userId, date: today() } },
-    create: { taskId: task.id, userId: g.userId, date: today(), status, note },
-    update: { status, note: note ?? undefined },
-  });
+    const completion = await db.diyTaskCompletion.upsert({
+      where: { taskId_userId_date: { taskId: task.id, userId: g.userId, date: today() } },
+      create: { taskId: task.id, userId: g.userId, date: today(), status, note },
+      update: { status, note: note ?? undefined },
+    });
 
-  return NextResponse.json({ ok: true, completion });
-});
+    return NextResponse.json({ ok: true, completion });
+  },
+);
 
 /* DELETE — undo: removes today's completion row so the task returns
    to PENDING (the Today UI's reset affordance). Ownership-checked. */

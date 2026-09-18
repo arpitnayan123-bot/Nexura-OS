@@ -120,15 +120,35 @@ export const EMPTY_FORM: FsForm = {
   profile: { ageYears: 0, sexAtBirth: "undisclosed" },
   symptoms: [],
   diet: {
-    type: "vegetarian", cuisine: "mixed", sweetsPerWeek: "rare",
-    friedPerWeek: "rare", sugaryDrinksPerWeek: "rare", riceRotiBalance: "balanced",
-    salt: "moderate", breakfastSkipped: false, outsideFoodPerWeek: 0,
+    type: "vegetarian",
+    cuisine: "mixed",
+    sweetsPerWeek: "rare",
+    friedPerWeek: "rare",
+    sugaryDrinksPerWeek: "rare",
+    riceRotiBalance: "balanced",
+    salt: "moderate",
+    breakfastSkipped: false,
+    outsideFoodPerWeek: 0,
   },
   activity: { minutesPerWeek: 0, kinds: [], occupation: "desk", shiftWork: false },
-  sleep: { hoursPerNight: 7, quality: "fair", snoring: "none", daytimeSleepiness: "none", schedule: "regular", screensBeforeBed: false },
+  sleep: {
+    hoursPerNight: 7,
+    quality: "fair",
+    snoring: "none",
+    daytimeSleepiness: "none",
+    schedule: "regular",
+    screensBeforeBed: false,
+  },
   vitals: {},
   labs: {},
-  history: { conditions: [], familyHistory: [], tobacco: "never", alcohol: "never", stress: "moderate", moodLowDays: 0 },
+  history: {
+    conditions: [],
+    familyHistory: [],
+    tobacco: "never",
+    alcohol: "never",
+    stress: "moderate",
+    moodLowDays: 0,
+  },
   environment: { aqiBand: "unknown" },
   freeText: "",
 };
@@ -147,25 +167,49 @@ export function StepProfile({ form, set }: { form: FsForm; set: (p: Partial<FsFo
       ? Math.round((form.profile.weightKg / Math.pow(form.profile.heightCm / 100, 2)) * 10) / 10
       : null;
   const band =
-    bmi == null ? null
-    : bmi < 18.5 ? "below healthy range (South-Asian bands)"
-    : bmi < 23 ? "healthy for South Asians"
-    : bmi < 25 ? "overweight (South-Asian cutoff is 23)"
-    : bmi < 27.5 ? "high-risk band for South Asians"
-    : "obese band for South Asians";
+    bmi == null
+      ? null
+      : bmi < 18.5
+        ? "below healthy range (South-Asian bands)"
+        : bmi < 23
+          ? "healthy for South Asians"
+          : bmi < 25
+            ? "overweight (South-Asian cutoff is 23)"
+            : bmi < 27.5
+              ? "high-risk band for South Asians"
+              : "obese band for South Asians";
 
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4">
         <Field label="Age (years)">
-          <input className="nxf-input" type="number" inputMode="numeric" min={18} max={100}
+          <input
+            className="nxf-input"
+            type="number"
+            inputMode="numeric"
+            min={18}
+            max={100}
             value={form.profile.ageYears || ""}
-            onChange={(e) => set({ profile: { ...form.profile, ageYears: Number(e.target.value) || 0 } })}
-            placeholder="e.g. 34" required />
+            onChange={(e) =>
+              set({ profile: { ...form.profile, ageYears: Number(e.target.value) || 0 } })
+            }
+            placeholder="e.g. 34"
+            required
+          />
         </Field>
         <Field label="Sex at birth">
-          <select className="nxf-input" value={form.profile.sexAtBirth}
-            onChange={(e) => set({ profile: { ...form.profile, sexAtBirth: e.target.value as FsForm["profile"]["sexAtBirth"] } })}>
+          <select
+            className="nxf-input"
+            value={form.profile.sexAtBirth}
+            onChange={(e) =>
+              set({
+                profile: {
+                  ...form.profile,
+                  sexAtBirth: e.target.value as FsForm["profile"]["sexAtBirth"],
+                },
+              })
+            }
+          >
             <option value="undisclosed">Prefer not to say</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
@@ -175,44 +219,79 @@ export function StepProfile({ form, set }: { form: FsForm; set: (p: Partial<FsFo
       </div>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <Field label="Height (cm)">
-          <input className="nxf-input" type="number" inputMode="decimal" min={90} max={230}
+          <input
+            className="nxf-input"
+            type="number"
+            inputMode="decimal"
+            min={90}
+            max={230}
             value={form.profile.heightCm ?? ""}
-            onChange={(e) => set({ profile: { ...form.profile, heightCm: numOrUndef(e.target.value) } })}
-            placeholder="e.g. 170" />
+            onChange={(e) =>
+              set({ profile: { ...form.profile, heightCm: numOrUndef(e.target.value) } })
+            }
+            placeholder="e.g. 170"
+          />
         </Field>
         <Field label="Weight (kg)">
-          <input className="nxf-input" type="number" inputMode="decimal" min={25} max={350}
+          <input
+            className="nxf-input"
+            type="number"
+            inputMode="decimal"
+            min={25}
+            max={350}
             value={form.profile.weightKg ?? ""}
-            onChange={(e) => set({ profile: { ...form.profile, weightKg: numOrUndef(e.target.value) } })}
-            placeholder="e.g. 72" />
+            onChange={(e) =>
+              set({ profile: { ...form.profile, weightKg: numOrUndef(e.target.value) } })
+            }
+            placeholder="e.g. 72"
+          />
         </Field>
         <Field label="Waist (cm)" why="strongest single signal">
-          <input className="nxf-input" type="number" inputMode="decimal" min={50} max={200}
+          <input
+            className="nxf-input"
+            type="number"
+            inputMode="decimal"
+            min={50}
+            max={200}
             value={form.profile.waistCm ?? ""}
-            onChange={(e) => set({ profile: { ...form.profile, waistCm: numOrUndef(e.target.value) } })}
-            placeholder="at the navel" />
+            onChange={(e) =>
+              set({ profile: { ...form.profile, waistCm: numOrUndef(e.target.value) } })
+            }
+            placeholder="at the navel"
+          />
         </Field>
       </div>
       {bmi != null && (
         <div className="nxf-glass px-4 py-3 text-sm">
           <span className="nxf-mute">BMI </span>
           <span className="nxf-mono font-semibold nxf-gold">{bmi}</span>
-          <span className="nxf-dim"> — {band}. India's risk bands start at 23, lower than Western charts.</span>
+          <span className="nxf-dim">
+            {" "}
+            — {band}. India's risk bands start at 23, lower than Western charts.
+          </span>
         </div>
       )}
       {form.profile.sexAtBirth === "female" && (
         <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
-          <input type="checkbox" className="mt-0.5 h-4 w-4 accent-teal-400"
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 accent-teal-400"
             checked={form.profile.pregnancyPossibility === true}
-            onChange={(e) => set({ profile: { ...form.profile, pregnancyPossibility: e.target.checked } })} />
+            onChange={(e) =>
+              set({ profile: { ...form.profile, pregnancyPossibility: e.target.checked } })
+            }
+          />
           <span className="text-[13px] nxf-body">
             There is a possibility I am pregnant
-            <span className="block text-[11px] nxf-mute">Adds antenatal safety checks (iron, thyroid, BP)</span>
+            <span className="block text-[11px] nxf-mute">
+              Adds antenatal safety checks (iron, thyroid, BP)
+            </span>
           </span>
         </label>
       )}
       <p className="text-[11.5px] leading-relaxed nxf-mute">
-        Adults only (18+). For children and teenagers, a paediatrician should lead — growth charts change every rule this tool knows.
+        Adults only (18+). For children and teenagers, a paediatrician should lead — growth charts
+        change every rule this tool knows.
       </p>
     </div>
   );
@@ -220,12 +299,7 @@ export function StepProfile({ form, set }: { form: FsForm; set: (p: Partial<FsFo
 
 /* ================= STEP 2 · SYMPTOMS ================= */
 
-export function StepSymptoms({
-  form, set,
-}: {
-  form: FsForm;
-  set: (p: Partial<FsForm>) => void;
-}) {
+export function StepSymptoms({ form, set }: { form: FsForm; set: (p: Partial<FsForm>) => void }) {
   const toggle = (id: string) => {
     const has = form.symptoms.some((s) => s.id === id);
     const next = has
@@ -239,16 +313,23 @@ export function StepSymptoms({
     <div className="space-y-5">
       {SYMPTOM_GROUPS.map((g) => (
         <div key={g.group}>
-          <p className={cn("mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]",
-            g.items[0]?.urgent ? "nxf-rose" : "nxf-mute")}>
+          <p
+            className={cn(
+              "mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]",
+              g.items[0]?.urgent ? "nxf-rose" : "nxf-mute",
+            )}
+          >
             {g.group}
           </p>
           <div className="flex flex-wrap gap-2">
             {g.items.map((s) => (
-              <button key={s.id} type="button"
+              <button
+                key={s.id}
+                type="button"
                 className={cn("nxf-pill", s.urgent && "nxf-pill-rose")}
                 aria-pressed={selected.has(s.id)}
-                onClick={() => toggle(s.id)}>
+                onClick={() => toggle(s.id)}
+              >
                 {s.label}
               </button>
             ))}
@@ -258,7 +339,9 @@ export function StepSymptoms({
 
       {form.symptoms.length > 0 && (
         <div className="nxf-glass space-y-4 p-4">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] nxf-gold">Details for what you selected</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] nxf-gold">
+            Details for what you selected
+          </p>
           {form.symptoms.map((s) => {
             const def = ALL_SYMPTOMS.find((a) => a.id === s.id);
             return (
@@ -267,17 +350,51 @@ export function StepSymptoms({
                 <div className="grid gap-3 sm:grid-cols-3">
                   <label className="block text-[11px] nxf-mute">
                     Severity: <span className="nxf-mono nxf-gold">{s.severity}/10</span>
-                    <input type="range" min={1} max={10} value={s.severity} className="nxf-range mt-1"
-                      onChange={(e) => set({ symptoms: form.symptoms.map((x) => x.id === s.id ? { ...x, severity: Number(e.target.value) } : x) })} />
+                    <input
+                      type="range"
+                      min={1}
+                      max={10}
+                      value={s.severity}
+                      className="nxf-range mt-1"
+                      onChange={(e) =>
+                        set({
+                          symptoms: form.symptoms.map((x) =>
+                            x.id === s.id ? { ...x, severity: Number(e.target.value) } : x,
+                          ),
+                        })
+                      }
+                    />
                   </label>
                   <label className="block text-[11px] nxf-mute">
                     Going on for (days)
-                    <input type="number" min={0} max={3650} value={s.onsetDays} className="nxf-input mt-1"
-                      onChange={(e) => set({ symptoms: form.symptoms.map((x) => x.id === s.id ? { ...x, onsetDays: Number(e.target.value) || 0 } : x) })} />
+                    <input
+                      type="number"
+                      min={0}
+                      max={3650}
+                      value={s.onsetDays}
+                      className="nxf-input mt-1"
+                      onChange={(e) =>
+                        set({
+                          symptoms: form.symptoms.map((x) =>
+                            x.id === s.id ? { ...x, onsetDays: Number(e.target.value) || 0 } : x,
+                          ),
+                        })
+                      }
+                    />
                   </label>
                   <label className="flex items-end gap-2 pb-1 text-[12px] nxf-body">
-                    <input type="checkbox" className="h-4 w-4 accent-teal-400" checked={s.worsening}
-                      onChange={(e) => set({ symptoms: form.symptoms.map((x) => x.id === s.id ? { ...x, worsening: e.target.checked } : x) })} />
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 accent-teal-400"
+                      checked={s.worsening}
+                      onChange={(e) =>
+                        set({
+                          symptoms: form.symptoms.map((x) =>
+                            x.id === s.id ? { ...x, worsening: e.target.checked } : x,
+                          ),
+                        })
+                      }
+                    />
                     Getting worse
                   </label>
                 </div>
@@ -288,10 +405,13 @@ export function StepSymptoms({
       )}
 
       <Field label="In your words (optional)" why="scanned only for safety flags">
-        <textarea className="nxf-input min-h-[84px]" maxLength={2000}
+        <textarea
+          className="nxf-input min-h-[84px]"
+          maxLength={2000}
           value={form.freeText ?? ""}
           onChange={(e) => set({ freeText: e.target.value })}
-          placeholder="Describe it the way you'd tell a family member — any language." />
+          placeholder="Describe it the way you'd tell a family member — any language."
+        />
       </Field>
     </div>
   );
@@ -312,8 +432,13 @@ export function StepDiet({ form, set }: { form: FsForm; set: (p: Partial<FsForm>
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Diet pattern">
-          <select className="nxf-input" value={d.type}
-            onChange={(e) => set({ diet: { ...d, type: e.target.value as FsForm["diet"]["type"] } })}>
+          <select
+            className="nxf-input"
+            value={d.type}
+            onChange={(e) =>
+              set({ diet: { ...d, type: e.target.value as FsForm["diet"]["type"] } })
+            }
+          >
             <option value="vegetarian">Vegetarian</option>
             <option value="eggetarian">Eggetarian</option>
             <option value="non_veg">Non-vegetarian</option>
@@ -322,8 +447,13 @@ export function StepDiet({ form, set }: { form: FsForm; set: (p: Partial<FsForm>
           </select>
         </Field>
         <Field label="Cuisine you eat most">
-          <select className="nxf-input" value={d.cuisine}
-            onChange={(e) => set({ diet: { ...d, cuisine: e.target.value as FsForm["diet"]["cuisine"] } })}>
+          <select
+            className="nxf-input"
+            value={d.cuisine}
+            onChange={(e) =>
+              set({ diet: { ...d, cuisine: e.target.value as FsForm["diet"]["cuisine"] } })
+            }
+          >
             <option value="north">North Indian</option>
             <option value="south">South Indian</option>
             <option value="east">East Indian</option>
@@ -335,29 +465,59 @@ export function StepDiet({ form, set }: { form: FsForm; set: (p: Partial<FsForm>
       </div>
 
       <Field label="Sweets / mithai">
-        <PillGroup options={BAND_OPTS} value={d.sweetsPerWeek}
-          onChange={(v) => set({ diet: { ...d, sweetsPerWeek: v as FsForm["diet"]["sweetsPerWeek"] } })} />
+        <PillGroup
+          options={BAND_OPTS}
+          value={d.sweetsPerWeek}
+          onChange={(v) =>
+            set({ diet: { ...d, sweetsPerWeek: v as FsForm["diet"]["sweetsPerWeek"] } })
+          }
+        />
       </Field>
       <Field label="Deep-fried food (pakora, puri, bhujia…)">
-        <PillGroup options={BAND_OPTS} value={d.friedPerWeek}
-          onChange={(v) => set({ diet: { ...d, friedPerWeek: v as FsForm["diet"]["friedPerWeek"] } })} />
+        <PillGroup
+          options={BAND_OPTS}
+          value={d.friedPerWeek}
+          onChange={(v) =>
+            set({ diet: { ...d, friedPerWeek: v as FsForm["diet"]["friedPerWeek"] } })
+          }
+        />
       </Field>
       <Field label="Sugary drinks (cold drinks, packaged juice)">
-        <PillGroup options={BAND_OPTS} value={d.sugaryDrinksPerWeek}
-          onChange={(v) => set({ diet: { ...d, sugaryDrinksPerWeek: v as FsForm["diet"]["sugaryDrinksPerWeek"] } })} />
+        <PillGroup
+          options={BAND_OPTS}
+          value={d.sugaryDrinksPerWeek}
+          onChange={(v) =>
+            set({ diet: { ...d, sugaryDrinksPerWeek: v as FsForm["diet"]["sugaryDrinksPerWeek"] } })
+          }
+        />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Rice vs roti balance">
-          <select className="nxf-input" value={d.riceRotiBalance}
-            onChange={(e) => set({ diet: { ...d, riceRotiBalance: e.target.value as FsForm["diet"]["riceRotiBalance"] } })}>
+          <select
+            className="nxf-input"
+            value={d.riceRotiBalance}
+            onChange={(e) =>
+              set({
+                diet: {
+                  ...d,
+                  riceRotiBalance: e.target.value as FsForm["diet"]["riceRotiBalance"],
+                },
+              })
+            }
+          >
             <option value="balanced">Balanced</option>
             <option value="rice_heavy">Rice-dominant meals</option>
             <option value="roti_heavy">Roti-dominant meals</option>
           </select>
         </Field>
         <Field label="Salt intake" why="pickles, papad, namkeen count">
-          <select className="nxf-input" value={d.salt}
-            onChange={(e) => set({ diet: { ...d, salt: e.target.value as FsForm["diet"]["salt"] } })}>
+          <select
+            className="nxf-input"
+            value={d.salt}
+            onChange={(e) =>
+              set({ diet: { ...d, salt: e.target.value as FsForm["diet"]["salt"] } })
+            }
+          >
             <option value="low">Low</option>
             <option value="moderate">Moderate</option>
             <option value="high">High</option>
@@ -366,12 +526,25 @@ export function StepDiet({ form, set }: { form: FsForm; set: (p: Partial<FsForm>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Meals from outside / delivery per week">
-          <input type="number" min={0} max={21} className="nxf-input" value={d.outsideFoodPerWeek || ""}
-            onChange={(e) => set({ diet: { ...d, outsideFoodPerWeek: Number(e.target.value) || 0 } })} placeholder="e.g. 3" />
+          <input
+            type="number"
+            min={0}
+            max={21}
+            className="nxf-input"
+            value={d.outsideFoodPerWeek || ""}
+            onChange={(e) =>
+              set({ diet: { ...d, outsideFoodPerWeek: Number(e.target.value) || 0 } })
+            }
+            placeholder="e.g. 3"
+          />
         </Field>
         <label className="flex cursor-pointer items-start gap-3 self-end rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
-          <input type="checkbox" className="mt-0.5 h-4 w-4 accent-teal-400" checked={d.breakfastSkipped}
-            onChange={(e) => set({ diet: { ...d, breakfastSkipped: e.target.checked } })} />
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 accent-teal-400"
+            checked={d.breakfastSkipped}
+            onChange={(e) => set({ diet: { ...d, breakfastSkipped: e.target.checked } })}
+          />
           <span className="text-[13px] nxf-body">I usually skip breakfast</span>
         </label>
       </div>
@@ -381,7 +554,16 @@ export function StepDiet({ form, set }: { form: FsForm; set: (p: Partial<FsForm>
 
 /* ================= STEP 4 · ACTIVITY ================= */
 
-const KINDS = ["walking", "yoga", "gym / strength", "running", "cycling", "sports", "swimming", "household work"];
+const KINDS = [
+  "walking",
+  "yoga",
+  "gym / strength",
+  "running",
+  "cycling",
+  "sports",
+  "swimming",
+  "household work",
+];
 
 export function StepActivity({ form, set }: { form: FsForm; set: (p: Partial<FsForm>) => void }) {
   const a = form.activity;
@@ -389,26 +571,52 @@ export function StepActivity({ form, set }: { form: FsForm; set: (p: Partial<FsF
   return (
     <div className="space-y-5">
       <Field label="Brisk activity per week (minutes)" why="WHO target: 150">
-        <input type="range" min={0} max={600} step={10} value={a.minutesPerWeek} className="nxf-range"
-          onChange={(e) => set({ activity: { ...a, minutesPerWeek: Number(e.target.value) } })} />
+        <input
+          type="range"
+          min={0}
+          max={600}
+          step={10}
+          value={a.minutesPerWeek}
+          className="nxf-range"
+          onChange={(e) => set({ activity: { ...a, minutesPerWeek: Number(e.target.value) } })}
+        />
         <p className="mt-1.5 text-[12px] nxf-dim">
           <span className="nxf-mono nxf-gold">{a.minutesPerWeek} min</span>
-          {a.minutesPerWeek >= 150 ? " — target met. This is genuinely protective." : ` — ${150 - a.minutesPerWeek} min short of the 150-min target.`}
+          {a.minutesPerWeek >= 150
+            ? " — target met. This is genuinely protective."
+            : ` — ${150 - a.minutesPerWeek} min short of the 150-min target.`}
         </p>
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.07]">
-          <div className="nxf-bar-fill h-full rounded-full bg-gradient-to-r from-teal-400 to-emerald-400" style={{ width: `${Math.max(2, pct)}%` }} />
+          <div
+            className="nxf-bar-fill h-full rounded-full bg-gradient-to-r from-teal-400 to-emerald-400"
+            style={{ width: `${Math.max(2, pct)}%` }}
+          />
         </div>
       </Field>
       <Field label="What you actually do (select all)">
-        <PillGroup multi values={a.kinds} onChange={(v) => {
-          const has = a.kinds.includes(v);
-          set({ activity: { ...a, kinds: has ? a.kinds.filter((k) => k !== v) : [...a.kinds, v] } });
-        }} options={KINDS.map((k) => ({ value: k, label: k }))} />
+        <PillGroup
+          multi
+          values={a.kinds}
+          onChange={(v) => {
+            const has = a.kinds.includes(v);
+            set({
+              activity: { ...a, kinds: has ? a.kinds.filter((k) => k !== v) : [...a.kinds, v] },
+            });
+          }}
+          options={KINDS.map((k) => ({ value: k, label: k }))}
+        />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Typical day">
-          <select className="nxf-input" value={a.occupation}
-            onChange={(e) => set({ activity: { ...a, occupation: e.target.value as FsForm["activity"]["occupation"] } })}>
+          <select
+            className="nxf-input"
+            value={a.occupation}
+            onChange={(e) =>
+              set({
+                activity: { ...a, occupation: e.target.value as FsForm["activity"]["occupation"] },
+              })
+            }
+          >
             <option value="desk">Desk / sitting most of the day</option>
             <option value="field">Field / physically active work</option>
             <option value="household">Household work</option>
@@ -417,8 +625,12 @@ export function StepActivity({ form, set }: { form: FsForm; set: (p: Partial<FsF
           </select>
         </Field>
         <label className="flex cursor-pointer items-start gap-3 self-end rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
-          <input type="checkbox" className="mt-0.5 h-4 w-4 accent-teal-400" checked={a.shiftWork}
-            onChange={(e) => set({ activity: { ...a, shiftWork: e.target.checked } })} />
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 accent-teal-400"
+            checked={a.shiftWork}
+            onChange={(e) => set({ activity: { ...a, shiftWork: e.target.checked } })}
+          />
           <span className="text-[13px] nxf-body">Night or rotating shifts</span>
         </label>
       </div>
@@ -433,40 +645,76 @@ export function StepSleep({ form, set }: { form: FsForm; set: (p: Partial<FsForm
   return (
     <div className="space-y-5">
       <Field label="Hours of sleep, most nights" why="healthy band: 7-9">
-        <input type="range" min={3} max={12} step={0.5} value={s.hoursPerNight || 7} className="nxf-range"
-          onChange={(e) => set({ sleep: { ...s, hoursPerNight: Number(e.target.value) } })} />
+        <input
+          type="range"
+          min={3}
+          max={12}
+          step={0.5}
+          value={s.hoursPerNight || 7}
+          className="nxf-range"
+          onChange={(e) => set({ sleep: { ...s, hoursPerNight: Number(e.target.value) } })}
+        />
         <p className="mt-1.5 text-[12px] nxf-dim">
           <span className="nxf-mono nxf-gold">{s.hoursPerNight || 0} h</span>
-          {(s.hoursPerNight || 0) >= 7 && (s.hoursPerNight || 0) <= 9 ? " — inside the healthy band" : (s.hoursPerNight || 0) < 7 ? " — under-sleeping" : " — above the usual band"}
+          {(s.hoursPerNight || 0) >= 7 && (s.hoursPerNight || 0) <= 9
+            ? " — inside the healthy band"
+            : (s.hoursPerNight || 0) < 7
+              ? " — under-sleeping"
+              : " — above the usual band"}
         </p>
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Sleep quality">
-          <select className="nxf-input" value={s.quality}
-            onChange={(e) => set({ sleep: { ...s, quality: e.target.value as FsForm["sleep"]["quality"] } })}>
+          <select
+            className="nxf-input"
+            value={s.quality}
+            onChange={(e) =>
+              set({ sleep: { ...s, quality: e.target.value as FsForm["sleep"]["quality"] } })
+            }
+          >
             <option value="good">Good — wake refreshed</option>
             <option value="fair">Fair — sometimes broken</option>
             <option value="poor">Poor — rarely rested</option>
           </select>
         </Field>
         <Field label="Sleep-wake schedule">
-          <select className="nxf-input" value={s.schedule}
-            onChange={(e) => set({ sleep: { ...s, schedule: e.target.value as FsForm["sleep"]["schedule"] } })}>
+          <select
+            className="nxf-input"
+            value={s.schedule}
+            onChange={(e) =>
+              set({ sleep: { ...s, schedule: e.target.value as FsForm["sleep"]["schedule"] } })
+            }
+          >
             <option value="regular">Regular timings</option>
             <option value="irregular">Irregular / all over the place</option>
           </select>
         </Field>
         <Field label="Snoring">
-          <select className="nxf-input" value={s.snoring}
-            onChange={(e) => set({ sleep: { ...s, snoring: e.target.value as FsForm["sleep"]["snoring"] } })}>
+          <select
+            className="nxf-input"
+            value={s.snoring}
+            onChange={(e) =>
+              set({ sleep: { ...s, snoring: e.target.value as FsForm["sleep"]["snoring"] } })
+            }
+          >
             <option value="none">No / don't know</option>
             <option value="occasional">Occasional</option>
             <option value="loud_regular">Loud and regular</option>
           </select>
         </Field>
         <Field label="Daytime sleepiness">
-          <select className="nxf-input" value={s.daytimeSleepiness}
-            onChange={(e) => set({ sleep: { ...s, daytimeSleepiness: e.target.value as FsForm["sleep"]["daytimeSleepiness"] } })}>
+          <select
+            className="nxf-input"
+            value={s.daytimeSleepiness}
+            onChange={(e) =>
+              set({
+                sleep: {
+                  ...s,
+                  daytimeSleepiness: e.target.value as FsForm["sleep"]["daytimeSleepiness"],
+                },
+              })
+            }
+          >
             <option value="none">Rarely sleepy in the day</option>
             <option value="mild">Afternoon dips</option>
             <option value="severe">Fighting sleep at work/while reading</option>
@@ -474,8 +722,12 @@ export function StepSleep({ form, set }: { form: FsForm; set: (p: Partial<FsForm
         </Field>
       </div>
       <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
-        <input type="checkbox" className="mt-0.5 h-4 w-4 accent-teal-400" checked={s.screensBeforeBed}
-          onChange={(e) => set({ sleep: { ...s, screensBeforeBed: e.target.checked } })} />
+        <input
+          type="checkbox"
+          className="mt-0.5 h-4 w-4 accent-teal-400"
+          checked={s.screensBeforeBed}
+          onChange={(e) => set({ sleep: { ...s, screensBeforeBed: e.target.checked } })}
+        />
         <span className="text-[13px] nxf-body">Screens (phone/TV) until I fall asleep</span>
       </label>
     </div>
@@ -491,30 +743,71 @@ export function StepVitals({ form, set }: { form: FsForm; set: (p: Partial<FsFor
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <Field label="Blood pressure" why="e.g. 128/84">
-          <input className="nxf-input" placeholder="120/80"
+          <input
+            className="nxf-input"
+            placeholder="120/80"
             value={v.systolic && v.diastolic ? `${v.systolic}/${v.diastolic}` : ""}
             onChange={(e) => {
               const m = e.target.value.match(/^(\d{2,3})\s*\/\s*(\d{2,3})$/);
-              set({ vitals: { ...v, systolic: m ? Number(m[1]) : undefined, diastolic: m ? Number(m[2]) : undefined } });
-            }} inputMode="numeric" />
+              set({
+                vitals: {
+                  ...v,
+                  systolic: m ? Number(m[1]) : undefined,
+                  diastolic: m ? Number(m[2]) : undefined,
+                },
+              });
+            }}
+            inputMode="numeric"
+          />
         </Field>
         <Field label="Pulse (bpm)">
-          <input className="nxf-input" type="number" min={30} max={220} value={v.pulse ?? ""}
-            onChange={(e) => set({ vitals: { ...v, pulse: numOrUndef(e.target.value) } })} placeholder="e.g. 76" />
+          <input
+            className="nxf-input"
+            type="number"
+            min={30}
+            max={220}
+            value={v.pulse ?? ""}
+            onChange={(e) => set({ vitals: { ...v, pulse: numOrUndef(e.target.value) } })}
+            placeholder="e.g. 76"
+          />
         </Field>
         <Field label="SpO₂ (%)">
-          <input className="nxf-input" type="number" min={50} max={100} value={v.spo2 ?? ""}
-            onChange={(e) => set({ vitals: { ...v, spo2: numOrUndef(e.target.value) } })} placeholder="95+" />
+          <input
+            className="nxf-input"
+            type="number"
+            min={50}
+            max={100}
+            value={v.spo2 ?? ""}
+            onChange={(e) => set({ vitals: { ...v, spo2: numOrUndef(e.target.value) } })}
+            placeholder="95+"
+          />
         </Field>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Blood sugar (mg/dL, Indian units)">
-          <input className="nxf-input" type="number" min={20} max={700} value={v.glucoseMgDl ?? ""}
-            onChange={(e) => set({ vitals: { ...v, glucoseMgDl: numOrUndef(e.target.value) } })} placeholder="e.g. 112" />
+          <input
+            className="nxf-input"
+            type="number"
+            min={20}
+            max={700}
+            value={v.glucoseMgDl ?? ""}
+            onChange={(e) => set({ vitals: { ...v, glucoseMgDl: numOrUndef(e.target.value) } })}
+            placeholder="e.g. 112"
+          />
         </Field>
         <Field label="That reading was">
-          <select className="nxf-input" value={v.glucoseContext ?? "random"}
-            onChange={(e) => set({ vitals: { ...v, glucoseContext: e.target.value as FsForm["vitals"]["glucoseContext"] } })}>
+          <select
+            className="nxf-input"
+            value={v.glucoseContext ?? "random"}
+            onChange={(e) =>
+              set({
+                vitals: {
+                  ...v,
+                  glucoseContext: e.target.value as FsForm["vitals"]["glucoseContext"],
+                },
+              })
+            }
+          >
             <option value="fasting">Fasting (empty stomach)</option>
             <option value="random">Random (any time)</option>
             <option value="post_meal">2 hours after a meal</option>
@@ -522,10 +815,14 @@ export function StepVitals({ form, set }: { form: FsForm; set: (p: Partial<FsFor
         </Field>
       </div>
       {bpOk != null && (
-        <p className="text-[11.5px] nxf-mute">Seated and rested for 5 minutes before measuring gives the truest numbers.</p>
+        <p className="text-[11.5px] nxf-mute">
+          Seated and rested for 5 minutes before measuring gives the truest numbers.
+        </p>
       )}
       {!v.systolic && (
-        <p className="text-[11.5px] nxf-mute">No BP reading? Skip — we'll mark it as a missing signal rather than guessing.</p>
+        <p className="text-[11.5px] nxf-mute">
+          No BP reading? Skip — we'll mark it as a missing signal rather than guessing.
+        </p>
       )}
     </div>
   );
@@ -548,15 +845,20 @@ export function StepLabs({ form, set }: { form: FsForm; set: (p: Partial<FsForm>
   return (
     <div className="space-y-5">
       <p className="text-[12.5px] leading-relaxed nxf-dim">
-        If you have any recent lab report, even one value sharpens the whole map — labs act as anchors that override guesswork.
-        No reports? Skip freely.
+        If you have any recent lab report, even one value sharpens the whole map — labs act as
+        anchors that override guesswork. No reports? Skip freely.
       </p>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {items.map((it) => (
           <Field key={it.key} label={it.label} why={it.unit}>
-            <input className="nxf-input" type="number" inputMode="decimal" placeholder={it.ph}
+            <input
+              className="nxf-input"
+              type="number"
+              inputMode="decimal"
+              placeholder={it.ph}
               value={(l[it.key] as number | undefined) ?? ""}
-              onChange={(e) => set({ labs: { ...l, [it.key]: numOrUndef(e.target.value) } })} />
+              onChange={(e) => set({ labs: { ...l, [it.key]: numOrUndef(e.target.value) } })}
+            />
           </Field>
         ))}
       </div>
@@ -581,22 +883,51 @@ export function StepHistory({ form, set }: { form: FsForm; set: (p: Partial<FsFo
   return (
     <div className="space-y-5">
       <Field label="Conditions already diagnosed (type, comma separated)" why="optional">
-        <input className="nxf-input" placeholder="e.g. hypothyroid, prediabetes"
+        <input
+          className="nxf-input"
+          placeholder="e.g. hypothyroid, prediabetes"
           value={h.conditions.join(", ")}
-          onChange={(e) => set({ history: { ...h, conditions: e.target.value.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 15) } })} />
+          onChange={(e) =>
+            set({
+              history: {
+                ...h,
+                conditions: e.target.value
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+                  .slice(0, 15),
+              },
+            })
+          }
+        />
       </Field>
       <Field label="Family history (blood relations)">
-        <PillGroup multi values={h.familyHistory}
+        <PillGroup
+          multi
+          values={h.familyHistory}
           onChange={(v) => {
             const has = h.familyHistory.includes(v as FsForm["history"]["familyHistory"][number]);
-            set({ history: { ...h, familyHistory: has ? h.familyHistory.filter((k) => k !== v) : [...h.familyHistory, v as FsForm["history"]["familyHistory"][number]] } });
+            set({
+              history: {
+                ...h,
+                familyHistory: has
+                  ? h.familyHistory.filter((k) => k !== v)
+                  : [...h.familyHistory, v as FsForm["history"]["familyHistory"][number]],
+              },
+            });
           }}
-          options={FAM} />
+          options={FAM}
+        />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Tobacco" why="gutkha/paan included">
-          <select className="nxf-input" value={h.tobacco}
-            onChange={(e) => set({ history: { ...h, tobacco: e.target.value as FsForm["history"]["tobacco"] } })}>
+          <select
+            className="nxf-input"
+            value={h.tobacco}
+            onChange={(e) =>
+              set({ history: { ...h, tobacco: e.target.value as FsForm["history"]["tobacco"] } })
+            }
+          >
             <option value="never">Never</option>
             <option value="former">Quit earlier</option>
             <option value="current_smoke">Currently smoke</option>
@@ -604,8 +935,13 @@ export function StepHistory({ form, set }: { form: FsForm; set: (p: Partial<FsFo
           </select>
         </Field>
         <Field label="Alcohol">
-          <select className="nxf-input" value={h.alcohol}
-            onChange={(e) => set({ history: { ...h, alcohol: e.target.value as FsForm["history"]["alcohol"] } })}>
+          <select
+            className="nxf-input"
+            value={h.alcohol}
+            onChange={(e) =>
+              set({ history: { ...h, alcohol: e.target.value as FsForm["history"]["alcohol"] } })
+            }
+          >
             <option value="never">Never</option>
             <option value="occasional">Occasional</option>
             <option value="weekly">Weekly</option>
@@ -621,19 +957,43 @@ export function StepHistory({ form, set }: { form: FsForm; set: (p: Partial<FsFo
             { value: "low", label: "Manageable" },
             { value: "moderate", label: "Moderate" },
             { value: "high", label: "Heavy" },
-          ]} />
+          ]}
+        />
       </Field>
       <Field label={`Days feeling low or hopeless in the last 2 weeks: ${h.moodLowDays}`}>
-        <input type="range" min={0} max={14} value={h.moodLowDays} className="nxf-range"
-          onChange={(e) => set({ history: { ...h, moodLowDays: Number(e.target.value) } })} />
+        <input
+          type="range"
+          min={0}
+          max={14}
+          value={h.moodLowDays}
+          className="nxf-range"
+          onChange={(e) => set({ history: { ...h, moodLowDays: Number(e.target.value) } })}
+        />
         <p className="mt-1 text-[11.5px] nxf-mute">
           Honest answers route you to free support (Tele-MANAS 14416) — never to judgment.
         </p>
       </Field>
       {form.profile.sexAtBirth === "female" && (
         <Field label="Menstrual cycles are">
-          <select className="nxf-input" value={h.menstruationRegular === undefined ? "" : h.menstruationRegular ? "regular" : "irregular"}
-            onChange={(e) => set({ history: { ...h, menstruationRegular: e.target.value === "" ? undefined : e.target.value === "regular" } })}>
+          <select
+            className="nxf-input"
+            value={
+              h.menstruationRegular === undefined
+                ? ""
+                : h.menstruationRegular
+                  ? "regular"
+                  : "irregular"
+            }
+            onChange={(e) =>
+              set({
+                history: {
+                  ...h,
+                  menstruationRegular:
+                    e.target.value === "" ? undefined : e.target.value === "regular",
+                },
+              })
+            }
+          >
             <option value="">Prefer not to say</option>
             <option value="regular">Mostly regular</option>
             <option value="irregular">Irregular / unpredictable</option>
@@ -646,14 +1006,22 @@ export function StepHistory({ form, set }: { form: FsForm; set: (p: Partial<FsFo
 
 /* ================= STEP 9 · ENVIRONMENT ================= */
 
-export function StepEnvironment({ form, set }: { form: FsForm; set: (p: Partial<FsForm>) => void }) {
+export function StepEnvironment({
+  form,
+  set,
+}: {
+  form: FsForm;
+  set: (p: Partial<FsForm>) => void;
+}) {
   const env = form.environment;
   return (
     <div className="space-y-5">
       <Field label="Air quality where you live (AQI)">
         <PillGroup
           value={env.aqiBand}
-          onChange={(v) => set({ environment: { ...env, aqiBand: v as FsForm["environment"]["aqiBand"] } })}
+          onChange={(v) =>
+            set({ environment: { ...env, aqiBand: v as FsForm["environment"]["aqiBand"] } })
+          }
           options={[
             { value: "unknown", label: "Don't know" },
             { value: "good", label: "Good", hint: "0-50" },
@@ -661,21 +1029,36 @@ export function StepEnvironment({ form, set }: { form: FsForm; set: (p: Partial<
             { value: "poor", label: "Poor", hint: "101-200" },
             { value: "very_poor", label: "Very poor", hint: "201-300" },
             { value: "severe", label: "Severe", hint: "300+" },
-          ]} />
+          ]}
+        />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="City (optional)" why="context only — never a label">
-          <input className="nxf-input" value={env.city ?? ""} maxLength={60}
+          <input
+            className="nxf-input"
+            value={env.city ?? ""}
+            maxLength={60}
             onChange={(e) => set({ environment: { ...env, city: e.target.value } })}
-            placeholder="e.g. Lucknow" />
+            placeholder="e.g. Lucknow"
+          />
         </Field>
         <Field label="Daily sunlight on skin (minutes)">
-          <input className="nxf-input" type="number" min={0} max={600} value={env.sunlightMinutesPerDay ?? ""}
-            onChange={(e) => set({ environment: { ...env, sunlightMinutesPerDay: numOrUndef(e.target.value) } })}
-            placeholder="e.g. 20" />
+          <input
+            className="nxf-input"
+            type="number"
+            min={0}
+            max={600}
+            value={env.sunlightMinutesPerDay ?? ""}
+            onChange={(e) =>
+              set({ environment: { ...env, sunlightMinutesPerDay: numOrUndef(e.target.value) } })
+            }
+            placeholder="e.g. 20"
+          />
         </Field>
       </div>
-      <p className="text-[11.5px] nxf-mute">Your city is stored only with your runs — it is never used to assume anything about you.</p>
+      <p className="text-[11.5px] nxf-mute">
+        Your city is stored only with your runs — it is never used to assume anything about you.
+      </p>
     </div>
   );
 }
@@ -684,29 +1067,60 @@ export function StepEnvironment({ form, set }: { form: FsForm; set: (p: Partial<
 
 export function StepReview({ form }: { form: FsForm }) {
   const sCount = form.symptoms.length;
-  const bmi = form.profile.heightCm && form.profile.weightKg
-    ? Math.round((form.profile.weightKg / Math.pow(form.profile.heightCm / 100, 2)) * 10) / 10 : null;
+  const bmi =
+    form.profile.heightCm && form.profile.weightKg
+      ? Math.round((form.profile.weightKg / Math.pow(form.profile.heightCm / 100, 2)) * 10) / 10
+      : null;
   const rows: [string, string][] = [
-    ["Profile", `${form.profile.ageYears || "—"}y · ${form.profile.sexAtBirth}${bmi ? ` · BMI ${bmi}` : ""}${form.profile.waistCm ? ` · waist ${form.profile.waistCm}cm` : ""}`],
+    [
+      "Profile",
+      `${form.profile.ageYears || "—"}y · ${form.profile.sexAtBirth}${bmi ? ` · BMI ${bmi}` : ""}${form.profile.waistCm ? ` · waist ${form.profile.waistCm}cm` : ""}`,
+    ],
     ["Symptoms", sCount === 0 ? "None selected" : `${sCount} shared`],
-    ["Diet", `${form.diet.type} · ${form.diet.cuisine} · sweets ${form.diet.sweetsPerWeek} · fried ${form.diet.friedPerWeek}`],
-    ["Activity", `${form.activity.minutesPerWeek} min/wk · ${form.activity.occupation}${form.activity.shiftWork ? " · shifts" : ""}`],
-    ["Sleep", `${form.sleep.hoursPerNight}h · ${form.sleep.quality}${form.sleep.snoring !== "none" ? " · snores" : ""}`],
-    ["Vitals", form.vitals.systolic ? `${form.vitals.systolic}/${form.vitals.diastolic} BP${form.vitals.glucoseMgDl ? ` · sugar ${form.vitals.glucoseMgDl}` : ""}` : "Not shared"],
+    [
+      "Diet",
+      `${form.diet.type} · ${form.diet.cuisine} · sweets ${form.diet.sweetsPerWeek} · fried ${form.diet.friedPerWeek}`,
+    ],
+    [
+      "Activity",
+      `${form.activity.minutesPerWeek} min/wk · ${form.activity.occupation}${form.activity.shiftWork ? " · shifts" : ""}`,
+    ],
+    [
+      "Sleep",
+      `${form.sleep.hoursPerNight}h · ${form.sleep.quality}${form.sleep.snoring !== "none" ? " · snores" : ""}`,
+    ],
+    [
+      "Vitals",
+      form.vitals.systolic
+        ? `${form.vitals.systolic}/${form.vitals.diastolic} BP${form.vitals.glucoseMgDl ? ` · sugar ${form.vitals.glucoseMgDl}` : ""}`
+        : "Not shared",
+    ],
     ["Labs", Object.keys(form.labs).length ? "Shared" : "None"],
-    ["History", `${form.history.tobacco === "never" ? "No tobacco" : "Tobacco: " + form.history.tobacco} · stress ${form.history.stress} · low-mood days ${form.history.moodLowDays}/14`],
-    ["Environment", `AQI ${form.environment.aqiBand}${form.environment.city ? ` · ${form.environment.city}` : ""}`],
+    [
+      "History",
+      `${form.history.tobacco === "never" ? "No tobacco" : "Tobacco: " + form.history.tobacco} · stress ${form.history.stress} · low-mood days ${form.history.moodLowDays}/14`,
+    ],
+    [
+      "Environment",
+      `AQI ${form.environment.aqiBand}${form.environment.city ? ` · ${form.environment.city}` : ""}`,
+    ],
   ];
   return (
     <div className="space-y-3">
       {rows.map(([k, v]) => (
-        <div key={k} className="flex items-start justify-between gap-4 rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-3">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] nxf-mute">{k}</span>
+        <div
+          key={k}
+          className="flex items-start justify-between gap-4 rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-3"
+        >
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] nxf-mute">
+            {k}
+          </span>
           <span className="max-w-[65%] text-right text-[12.5px] nxf-body">{v}</span>
         </div>
       ))}
       <p className="pt-1 text-[11.5px] leading-relaxed nxf-mute">
-        Everything runs through the foresight engine (deterministic, versioned) and saves only to your anonymous session. Delete anytime from Settings.
+        Everything runs through the foresight engine (deterministic, versioned) and saves only to
+        your anonymous session. Delete anytime from Settings.
       </p>
     </div>
   );

@@ -62,8 +62,8 @@ export default function PredictivePage() {
           }}
         >
           <p style={{ maxWidth: "28rem", lineHeight: 1.6 }}>
-            Nexura Predictive needs JavaScript to run its safety screening and
-            foresight engine privately for you. Please enable JavaScript and reload.
+            Nexura Predictive needs JavaScript to run its safety screening and foresight engine
+            privately for you. Please enable JavaScript and reload.
           </p>
         </div>
       </noscript>

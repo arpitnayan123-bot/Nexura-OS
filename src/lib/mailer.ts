@@ -38,7 +38,13 @@ export interface SendResult {
 }
 
 /** SMTP env, read per call (never cached across boots/tests). */
-function smtpConfig(): { host: string; port: number; user?: string; pass?: string; from: string } | null {
+function smtpConfig(): {
+  host: string;
+  port: number;
+  user?: string;
+  pass?: string;
+  from: string;
+} | null {
   const v = env().values;
   if (v.EMAIL_TRANSPORT !== "smtp" || !v.SMTP_CONFIGURED) return null;
   const port = Number(process.env.SMTP_PORT);

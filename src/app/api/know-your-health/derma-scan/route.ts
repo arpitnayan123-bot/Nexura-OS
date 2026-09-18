@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB original file
-const MAX_BASE64_LEN = Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 1024;
+const MAX_BASE64_LEN = Math.ceil((MAX_IMAGE_BYTES * 4) / 3) + 1024;
 
 // POST /api/know-your-health/derma-scan
 // body: { image:{base64,mimeType}, concern?:string }
@@ -20,13 +20,22 @@ export async function POST(req: NextRequest) {
     const image = body?.image;
     const base64 = typeof image?.base64 === "string" ? image.base64.trim() : "";
     const mimeType = typeof image?.mimeType === "string" ? image.mimeType.trim() : "";
-    if (!base64 || !mimeType) return NextResponse.json({ error: "no_image", detail: "Upload a photo first (JPG, PNG or WebP, max 8MB)." }, { status: 400 });
-    if (!isValidImageBase64(base64)) return NextResponse.json({ error: "invalid_image" }, { status: 400 });
-    if (base64.length > MAX_BASE64_LEN) return NextResponse.json({ error: "image_too_large" }, { status: 413 });
-    if (!/^image\/(jpeg|png|webp)$/i.test(mimeType)) return NextResponse.json({ error: "unsupported_mime" }, { status: 415 });
+    if (!base64 || !mimeType)
+      return NextResponse.json(
+        { error: "no_image", detail: "Upload a photo first (JPG, PNG or WebP, max 8MB)." },
+        { status: 400 },
+      );
+    if (!isValidImageBase64(base64))
+      return NextResponse.json({ error: "invalid_image" }, { status: 400 });
+    if (base64.length > MAX_BASE64_LEN)
+      return NextResponse.json({ error: "image_too_large" }, { status: 413 });
+    if (!/^image\/(jpeg|png|webp)$/i.test(mimeType))
+      return NextResponse.json({ error: "unsupported_mime" }, { status: 415 });
 
     const concern = typeof body?.concern === "string" ? body.concern.trim().slice(0, 500) : "";
-    const concernLine = concern ? `\nThe user mentions this concern: "${concern}".\nTake it into account, but the image is the primary source.` : "";
+    const concernLine = concern
+      ? `\nThe user mentions this concern: "${concern}".\nTake it into account, but the image is the primary source.`
+      : "";
 
     const prompt = `${INDIA_PREAMBLE}
 
@@ -65,7 +74,15 @@ Rules:
     }
     return NextResponse.json(result);
   } catch (err) {
-    log.error("kyh", "derma_scan_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "derma_scan_failed", detail: "The skin scan could not be analyzed. Please retry with a clearer photo." }, { status: 500 });
+    log.error("kyh", "derma_scan_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "derma_scan_failed",
+        detail: "The skin scan could not be analyzed. Please retry with a clearer photo.",
+      },
+      { status: 500 },
+    );
   }
 }

@@ -16,7 +16,10 @@ export interface TimeframeResult {
   note?: string;
 }
 
-export function applyPacingFloor(category: DiyCategory, requestedDays: number | null): TimeframeResult {
+export function applyPacingFloor(
+  category: DiyCategory,
+  requestedDays: number | null,
+): TimeframeResult {
   const floor = PACING_FLOORS[category] ?? null;
   const days = requestedDays ?? floor ?? DEFAULT_DAYS[category] ?? 56;
   if (floor && requestedDays && requestedDays < floor) {

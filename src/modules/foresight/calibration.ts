@@ -16,11 +16,7 @@
  * Weights are ordinal (0-10 scale per factor), NOT probabilities.
  * ============================================================ */
 
-import type {
-  AqiBand,
-  Band,
-  SexAtBirth,
-} from "./types";
+import type { AqiBand, Band, SexAtBirth } from "./types";
 
 /* ---------- Anthropometrics (South-Asian specific) ---------- */
 
@@ -35,7 +31,14 @@ export const BMI_BANDS_SOUTH_ASIAN = {
 export const WAIST_CUTOFF = { male: 90, female: 80 } as const;
 
 export function computeBmi(heightCm?: number, weightKg?: number): number | null {
-  if (!heightCm || !weightKg || heightCm < 90 || heightCm > 230 || weightKg < 25 || weightKg > 350) {
+  if (
+    !heightCm ||
+    !weightKg ||
+    heightCm < 90 ||
+    heightCm > 230 ||
+    weightKg < 25 ||
+    weightKg > 350
+  ) {
     return null;
   }
   const m = heightCm / 100;
@@ -51,7 +54,10 @@ export function bmiBand(bmi: number | null): "unknown" | keyof typeof BMI_BANDS_
   return "obese";
 }
 
-export function waistRisk(waistCm: number | undefined, sex: SexAtBirth): "unknown" | "normal" | "elevated" | "high" {
+export function waistRisk(
+  waistCm: number | undefined,
+  sex: SexAtBirth,
+): "unknown" | "normal" | "elevated" | "high" {
   if (!waistCm || waistCm < 50 || waistCm > 200) return "unknown";
   if (sex === "male") {
     if (waistCm >= 100) return "high";
@@ -71,24 +77,24 @@ export function waistRisk(waistCm: number | undefined, sex: SexAtBirth): "unknow
 /* ---------------- Labs (reference bands, adult) ---------------- */
 
 export const LAB_BANDS = {
-  hba1c: { normal: 5.6, prediabetes: 6.4, diabetesRange: 6.5 },        // %
-  fastingGlucose: { normal: 99, prediabetes: 125, diabetesRange: 126 },// mg/dL
-  randomGlucoseHigh: 200,                                              // mg/dL
-  postMealGlucose: { normal: 139, high: 199, diabetesRange: 200 },     // mg/dL
-  hemoglobin: { male: { low: 13 }, female: { low: 12 } },              // g/dL
-  tsh: { low: 0.4, high: 5.5 },                                        // mIU/L (broad screening band)
-  vitaminD: { deficient: 12, insufficient: 20, sufficient: 30 },       // ng/mL
-  b12: { low: 200, veryLow: 150 },                                     // pg/mL
-  ldl: { optimal: 100, high: 130, veryHigh: 160 },                     // mg/dL
-  hdl: { maleLow: 40, femaleLow: 50 },                                 // mg/dL
-  triglycerides: { normal: 150, high: 200, veryHigh: 300 },            // mg/dL (South Asians show risk at lower TG)
+  hba1c: { normal: 5.6, prediabetes: 6.4, diabetesRange: 6.5 }, // %
+  fastingGlucose: { normal: 99, prediabetes: 125, diabetesRange: 126 }, // mg/dL
+  randomGlucoseHigh: 200, // mg/dL
+  postMealGlucose: { normal: 139, high: 199, diabetesRange: 200 }, // mg/dL
+  hemoglobin: { male: { low: 13 }, female: { low: 12 } }, // g/dL
+  tsh: { low: 0.4, high: 5.5 }, // mIU/L (broad screening band)
+  vitaminD: { deficient: 12, insufficient: 20, sufficient: 30 }, // ng/mL
+  b12: { low: 200, veryLow: 150 }, // pg/mL
+  ldl: { optimal: 100, high: 130, veryHigh: 160 }, // mg/dL
+  hdl: { maleLow: 40, femaleLow: 50 }, // mg/dL
+  triglycerides: { normal: 150, high: 200, veryHigh: 300 }, // mg/dL (South Asians show risk at lower TG)
 } as const;
 
 export const BP_BANDS = {
   normal: { sys: 120, dia: 80 },
-  elevated: { sys: 130, dia: 85 },     // watch zone (Indian consensus uses 130/85 as "prehypertension")
-  high: { sys: 140, dia: 90 },         // hypertension-range signal
-  crisis: { sys: 180, dia: 110 },      // severe — same-day/emergency territory
+  elevated: { sys: 130, dia: 85 }, // watch zone (Indian consensus uses 130/85 as "prehypertension")
+  high: { sys: 140, dia: 90 }, // hypertension-range signal
+  crisis: { sys: 180, dia: 110 }, // severe — same-day/emergency territory
 } as const;
 
 /* ---------------- Frequency band helpers ---------------- */
@@ -170,7 +176,7 @@ export function bandFor(score: number): "THRIVING" | "RESILIENT" | "BUILDING" | 
 /* ---------------- Protective credit ---------------- */
 
 export const PROTECTIVE = {
-  activityMinWeek: 150,          // WHO adults
+  activityMinWeek: 150, // WHO adults
   sleepMinHours: 7,
   sleepMaxHours: 9,
 } as const;

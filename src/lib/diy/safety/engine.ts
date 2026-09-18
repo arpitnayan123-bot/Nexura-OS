@@ -20,12 +20,23 @@ export function evaluateSafety(rawText: string): SafetyVerdict {
   const text = rawText.slice(0, 4000);
   const matched: SafetyVerdict["matched"] = [];
   let worst: SafetyAction = "ALLOW";
-  const rank: Record<SafetyAction, number> = { ALLOW: 0, CLARIFY: 1, SOFT_LIMIT: 2, STOP_AND_REFER: 3, EMERGENCY: 4 };
+  const rank: Record<SafetyAction, number> = {
+    ALLOW: 0,
+    CLARIFY: 1,
+    SOFT_LIMIT: 2,
+    STOP_AND_REFER: 3,
+    EMERGENCY: 4,
+  };
 
   // 1. Hinglish emergencies first (most specific, blocker-level)
   for (const h of HINGLISH_EMERGENCIES) {
     if (h.pattern.test(text)) {
-      matched.push({ id: h.id, kind: "emergency_hinglish", severity: "blocker", message: h.message });
+      matched.push({
+        id: h.id,
+        kind: "emergency_hinglish",
+        severity: "blocker",
+        message: h.message,
+      });
       worst = "EMERGENCY";
     }
   }
@@ -78,22 +89,54 @@ export function classifyCategory(normalizedText: string): { category: string; co
   const t = normalizedText.toLowerCase();
   const rules: [string, RegExp, number][] = [
     // both word orders: "weight loss / vajan kam" AND "lose weight / reduce my weight"
-    ["WEIGHT_LOSS", /weight\s*(?:loss|kam|reduce|lose|down)|slim|vajan\s*kam|motapa|obese|fat\s*(?:loss|jana)|patla\s*hon|(?:lose|reduce|drop|cut|shed|burn|lower)\s+(?:a\s+few\s+|some\s+|my\s+|the\s+)?(?:extra\s+)?(?:fat|weight|vajan|wajan)/i, 0.9],
-    ["WEIGHT_GAIN", /weight\s*(?:gain|badha|increase|up)|vajan\s*badha|wajan\s+badh|healthy\s*weight\s*on|(?:gain|put\s+on|increase|add)\s+(?:some\s+|healthy\s+|my\s+)?(?:weight|vajan|wajan)/i, 0.9],
+    [
+      "WEIGHT_LOSS",
+      /weight\s*(?:loss|kam|reduce|lose|down)|slim|vajan\s*kam|motapa|obese|fat\s*(?:loss|jana)|patla\s*hon|(?:lose|reduce|drop|cut|shed|burn|lower)\s+(?:a\s+few\s+|some\s+|my\s+|the\s+)?(?:extra\s+)?(?:fat|weight|vajan|wajan)/i,
+      0.9,
+    ],
+    [
+      "WEIGHT_GAIN",
+      /weight\s*(?:gain|badha|increase|up)|vajan\s*badha|wajan\s+badh|healthy\s*weight\s*on|(?:gain|put\s+on|increase|add)\s+(?:some\s+|healthy\s+|my\s+)?(?:weight|vajan|wajan)/i,
+      0.9,
+    ],
     ["SLEEP", /sleep|insomnia|neend|so\s*nahi|raat\s*bhar|stay\s*up|jaldi\s*so/i, 0.92],
     ["STRESS", /stress|tension|pareshan|burnout|pressure|kaam\s*ka\s*bojhi?| overwhelmed/i, 0.88],
     ["ANXIETY_MOOD", /anxi|anxious|panic|ghabrahat|chinta|mood|sad|udaas|depress(?!ion)/i, 0.85],
     ["SKIN_ACNE", /acne|pimple|breakout|chhaya|daane?\s*(?:pad|hai)|chehre\s*pe\s*daane/i, 0.93],
     ["SKIN_GENERAL", /skin|glow| complexion|dull\s*skin|dry\s*skin|tan\b/i, 0.85],
     ["HAIR_HEALTH", /hair|baal|jh?ad|bald|hairfall|hair\s*fall|dandruff|rusi/i, 0.9],
-    ["FITNESS_STRENGTH", /strength|muscle|gym\s*jana|body\s*build|push\s*up|weight\s*training|strong\s*hon/i, 0.88],
-    ["FITNESS_ENDURANCE", /stamina|endurance|running|jogging|marathon|cycling|cardio|dur\s*bhaag|\bwalk(?:ing|ed|s)?\b/i, 0.88],
-    ["DIET_QUALITY", /diet|khana|food|eating\s*habits|nutrition|protein\s*khaa|sugar\s*kam\s*khan/i, 0.82],
+    [
+      "FITNESS_STRENGTH",
+      /strength|muscle|gym\s*jana|body\s*build|push\s*up|weight\s*training|strong\s*hon/i,
+      0.88,
+    ],
+    [
+      "FITNESS_ENDURANCE",
+      /stamina|endurance|running|jogging|marathon|cycling|cardio|dur\s*bhaag|\bwalk(?:ing|ed|s)?\b/i,
+      0.88,
+    ],
+    [
+      "DIET_QUALITY",
+      /diet|khana|food|eating\s*habits|nutrition|protein\s*khaa|sugar\s*kam\s*khan/i,
+      0.82,
+    ],
     ["ENERGY", /energy|thakan|fatigue|tired|kamzori|listless|sust/i, 0.86],
     ["DIGESTION", /digest|kabz|constipat|acidity|gas\s*ban|bloat|pet\s*saaf|motion/i, 0.88],
-    ["POSTURE_PAIN", /posture|back\s*pain|kamar|neck\s*pain|gardan|slouch|sitting\s*pain|kaandha/i, 0.87],
-    ["HABITS_SCREEN", /screen|phone\s*kam|social\s*media|scroll|reels|mobile\s*addict|digital\s*detox/i, 0.9],
-    ["SUBSTANCE_REDUCTION", /smok|cigarette|vape|tambak?ku|alcohol|sharab|drink\s*kam|nashe?/i, 0.92],
+    [
+      "POSTURE_PAIN",
+      /posture|back\s*pain|kamar|neck\s*pain|gardan|slouch|sitting\s*pain|kaandha/i,
+      0.87,
+    ],
+    [
+      "HABITS_SCREEN",
+      /screen|phone\s*kam|social\s*media|scroll|reels|mobile\s*addict|digital\s*detox/i,
+      0.9,
+    ],
+    [
+      "SUBSTANCE_REDUCTION",
+      /smok|cigarette|vape|tambak?ku|alcohol|sharab|drink\s*kam|nashe?/i,
+      0.92,
+    ],
   ];
   let best: { category: string; confidence: number } = { category: "", confidence: 0 };
   for (const [category, re, conf] of rules) {

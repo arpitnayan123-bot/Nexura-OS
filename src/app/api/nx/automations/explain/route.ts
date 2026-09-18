@@ -26,8 +26,12 @@ export const GET = withRoute("automations.explain", async (req: NextRequest, { r
     });
     explanations.push({
       rule: {
-        id: rule.id, name: rule.name, trigger: rule.triggerType,
-        enabled: rule.enabled, lastRunAt: rule.lastRunAt, runCount: rule.runCount,
+        id: rule.id,
+        name: rule.name,
+        trigger: rule.triggerType,
+        enabled: rule.enabled,
+        lastRunAt: rule.lastRunAt,
+        runCount: rule.runCount,
         actions: rule.actions ? JSON.parse(rule.actions) : null,
         conditions: rule.conditions ? JSON.parse(rule.conditions) : null,
       },
@@ -39,11 +43,15 @@ export const GET = withRoute("automations.explain", async (req: NextRequest, { r
       alternatives: describeAlternatives(rule.triggerType),
       checkpoints: {
         mode: rule.enabled ? "self_driving_with_audit" : "disabled",
-        humanOverride: "Every created task/incident/message can be cancelled or re-assigned by a human; all runs are audited.",
+        humanOverride:
+          "Every created task/incident/message can be cancelled or re-assigned by a human; all runs are audited.",
       },
       recentRuns: runs.map((r) => ({
-        id: r.id, status: r.status, startedAt: r.startedAt,
-        patient: r.patientUhid, steps: r.steps ? JSON.parse(r.steps) : [],
+        id: r.id,
+        status: r.status,
+        startedAt: r.startedAt,
+        patient: r.patientUhid,
+        steps: r.steps ? JSON.parse(r.steps) : [],
       })),
     });
   }
@@ -52,22 +60,39 @@ export const GET = withRoute("automations.explain", async (req: NextRequest, { r
 
 function describeTrigger(t: string): string {
   const map: Record<string, string> = {
-    "result.critical": "A lab result was validated with flag=critical — immediate clinical attention SLA applies.",
-    "discharge.confirmed": "An encounter was confirmed discharged — downstream bed/transport/billing coordination starts.",
+    "result.critical":
+      "A lab result was validated with flag=critical — immediate clinical attention SLA applies.",
+    "discharge.confirmed":
+      "An encounter was confirmed discharged — downstream bed/transport/billing coordination starts.",
     "bed.ready": "Housekeeping marked a bed ready — admission waitlist can advance.",
-    "order.created": "A new order entered the system — logistics/prep tasks are generated per order type.",
-    "appointment.created": "A new appointment was booked — reminder + pre-registration tasks are queued.",
+    "order.created":
+      "A new order entered the system — logistics/prep tasks are generated per order type.",
+    "appointment.created":
+      "A new appointment was booked — reminder + pre-registration tasks are queued.",
   };
   return map[t] ?? `Trigger "${t}" fired.`;
 }
 
 function describeAlternatives(t: string): string[] {
   const map: Record<string, string[]> = {
-    "result.critical": ["Notify only the ordering doctor (less coverage)", "Page the on-call consultant directly (needs paging integration)", "Queue for morning review (NOT allowed for criticals — policy)"],
-    "discharge.confirmed": ["Hold bed allocation until housekeeping confirms", "Auto-generate the discharge bill immediately (finance preference)"],
-    "bed.ready": ["Wait for manual allocation by charge nurse", "Auto-assign next waitlisted patient with matching requirements"],
+    "result.critical": [
+      "Notify only the ordering doctor (less coverage)",
+      "Page the on-call consultant directly (needs paging integration)",
+      "Queue for morning review (NOT allowed for criticals — policy)",
+    ],
+    "discharge.confirmed": [
+      "Hold bed allocation until housekeeping confirms",
+      "Auto-generate the discharge bill immediately (finance preference)",
+    ],
+    "bed.ready": [
+      "Wait for manual allocation by charge nurse",
+      "Auto-assign next waitlisted patient with matching requirements",
+    ],
     "order.created": ["Batch transport tasks hourly", "Skip prep tasks for point-of-care orders"],
-    "appointment.created": ["Send reminders 24h vs 1h before", "Skip pre-registration for follow-up visits"],
+    "appointment.created": [
+      "Send reminders 24h vs 1h before",
+      "Skip pre-registration for follow-up visits",
+    ],
   };
   return map[t] ?? ["Adjust rule conditions in the Automation Builder"];
 }

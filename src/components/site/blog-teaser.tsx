@@ -1,15 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  BookOpen,
-  ArrowUpRight,
-  Clock,
-  Mail,
-  HeartPulse,
-  Brain,
-  Moon,
-} from "lucide-react";
+import { BookOpen, ArrowUpRight, Clock, Mail, HeartPulse, Brain, Moon } from "lucide-react";
 import { Reveal, AuroraBackground, FloatingParticles } from "./ambient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,14 +69,13 @@ export function BlogTeaser() {
             </Reveal>
             <Reveal delay={0.06}>
               <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.9rem]">
-                Slow reading for a{" "}
-                <span className="text-gradient-warm">calmer mind.</span>
+                Slow reading for a <span className="text-gradient-warm">calmer mind.</span>
               </h2>
             </Reveal>
             <Reveal delay={0.12}>
               <p className="mt-4 max-w-md text-muted-foreground sm:text-lg">
-                Field guides, research notes, and quiet ideas from our clinicians
-                and engineers — written to be read at the pace of a long exhale.
+                Field guides, research notes, and quiet ideas from our clinicians and engineers —
+                written to be read at the pace of a long exhale.
               </p>
             </Reveal>
 
@@ -113,14 +104,11 @@ export function BlogTeaser() {
                   A warm letter, every other Sunday.
                 </h3>
                 <p className="mt-3 max-w-sm text-sm text-primary-foreground/85 sm:text-base">
-                  One story, one practice, one small experiment — sent at the
-                  pace of rest, not the speed of news.
+                  One story, one practice, one small experiment — sent at the pace of rest, not the
+                  speed of news.
                 </p>
 
-                <form
-                  onSubmit={subscribe}
-                  className="mt-6 flex flex-col gap-2 sm:flex-row"
-                >
+                <form onSubmit={subscribe} className="mt-6 flex flex-col gap-2 sm:flex-row">
                   <Input
                     name="email"
                     type="email"
@@ -136,8 +124,7 @@ export function BlogTeaser() {
                   </Button>
                 </form>
                 <p className="mt-3 text-[0.65rem] text-primary-foreground/70">
-                  Join 42,000+ calm readers. No noise, ever. Unsubscribe in one
-                  click.
+                  Join 42,000+ calm readers. No noise, ever. Unsubscribe in one click.
                 </p>
 
                 <div className="mt-7 grid grid-cols-3 gap-3 text-center">
@@ -146,10 +133,7 @@ export function BlogTeaser() {
                     { n: "187", l: "letters" },
                     { n: "0", l: "spam" },
                   ].map((s) => (
-                    <div
-                      key={s.l}
-                      className="rounded-2xl bg-white/10 px-2 py-3 backdrop-blur"
-                    >
+                    <div key={s.l} className="rounded-2xl bg-white/10 px-2 py-3 backdrop-blur">
                       <p className="font-display text-xl font-semibold">{s.n}</p>
                       <p className="text-[0.6rem] uppercase tracking-wider text-primary-foreground/75">
                         {s.l}
@@ -166,14 +150,7 @@ export function BlogTeaser() {
   );
 }
 
-function PostCard({
-  title,
-  excerpt,
-  read,
-  tag,
-  accent,
-  icon: Icon,
-}: (typeof POSTS)[number]) {
+function PostCard({ title, excerpt, read, tag, accent, icon: Icon }: (typeof POSTS)[number]) {
   return (
     <motion.article
       whileHover={{ y: -3, x: 4 }}
@@ -205,12 +182,8 @@ function PostCard({
             {read}
           </span>
         </div>
-        <h3 className="mt-1.5 font-display text-lg font-semibold leading-snug">
-          {title}
-        </h3>
-        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-          {excerpt}
-        </p>
+        <h3 className="mt-1.5 font-display text-lg font-semibold leading-snug">{title}</h3>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{excerpt}</p>
         <div className="mt-2.5 flex items-center gap-1 text-sm font-medium text-foreground/70">
           Read the letter
           <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

@@ -41,7 +41,11 @@ export function Skincare() {
     try {
       const res = await diyFetch<{ routine: Routine }>("/api/diy/skincare", {
         method: "POST",
-        body: JSON.stringify({ level, sensitiveSkin: sensitive, pregnantOrBreastfeeding: pregnant }),
+        body: JSON.stringify({
+          level,
+          sensitiveSkin: sensitive,
+          pregnantOrBreastfeeding: pregnant,
+        }),
       });
       setRoutine(res.routine);
       setEventMsg(null);
@@ -55,7 +59,11 @@ export function Skincare() {
     try {
       const res = await diyFetch<{ paused: boolean; message: string }>("/api/diy/skincare", {
         method: "PUT",
-        body: JSON.stringify({ eventType, severity: eventSeverity, detail: "reported from skincare center" }),
+        body: JSON.stringify({
+          eventType,
+          severity: eventSeverity,
+          detail: "reported from skincare center",
+        }),
       });
       setEventMsg(res.message);
       if (res.paused) setRoutine((r) => (r ? { ...r, name: `${r.name} — PAUSED` } : r));
@@ -71,7 +79,9 @@ export function Skincare() {
         <div className="absolute inset-x-0 bottom-4 z-10 mx-auto w-[min(94%,680px)]">
           <div className="nx-glass-deep rounded-2xl px-5 py-3.5">
             <p className="text-sm font-semibold text-[#2E2A26]">Skincare center</p>
-            <p className="text-xs text-[#6B5D4E]">Barrier first, patch tests always, actives never stacked.</p>
+            <p className="text-xs text-[#6B5D4E]">
+              Barrier first, patch tests always, actives never stacked.
+            </p>
           </div>
         </div>
       </section>
@@ -87,7 +97,9 @@ export function Skincare() {
                 aria-pressed={level === l.key}
                 className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition ${level === l.key ? "border-[#B8860B] bg-[#FDF3E7]" : "border-[#EADDC7] bg-[#FFFDF8] hover:border-[#D9C8AC]"}`}
               >
-                <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${level === l.key ? "border-[#B8860B] bg-[#A16207] text-[#FFFDF6]" : "border-[#D9C8AC]"}`}>
+                <span
+                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${level === l.key ? "border-[#B8860B] bg-[#A16207] text-[#FFFDF6]" : "border-[#D9C8AC]"}`}
+                >
                   {level === l.key && <Check size={12} aria-hidden />}
                 </span>
                 <span>
@@ -99,11 +111,21 @@ export function Skincare() {
           </div>
           <div className="mt-4 space-y-2 text-xs text-[#6B5D4E]">
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={sensitive} onChange={(e) => setSensitive(e.target.checked)} className="accent-[#A16207]" />
+              <input
+                type="checkbox"
+                checked={sensitive}
+                onChange={(e) => setSensitive(e.target.checked)}
+                className="accent-[#A16207]"
+              />
               Sensitive skin (reacts easily)
             </label>
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={pregnant} onChange={(e) => setPregnant(e.target.checked)} className="accent-[#A16207]" />
+              <input
+                type="checkbox"
+                checked={pregnant}
+                onChange={(e) => setPregnant(e.target.checked)}
+                className="accent-[#A16207]"
+              />
               Pregnant or breastfeeding (actives are removed — obstetrician-guided only)
             </label>
           </div>
@@ -116,12 +138,16 @@ export function Skincare() {
           <section className="rounded-3xl border border-[#EADDC7] bg-[#FFFDF8] p-5">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold text-[#2E2A26]">{routine.name}</p>
-              <span className="rounded-full bg-[#F1E6D4] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#8A7454]">{routine.level}</span>
+              <span className="rounded-full bg-[#F1E6D4] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#8A7454]">
+                {routine.level}
+              </span>
             </div>
             <ol className="mt-4 space-y-2.5">
               {routine.steps.map((s, i) => (
                 <li key={i} className="flex gap-3 rounded-2xl bg-[#FBF5EA] p-3.5">
-                  <span className="mt-0.5 h-fit rounded-full bg-[#7A9A7B]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#4E6845]">{s.slot}</span>
+                  <span className="mt-0.5 h-fit rounded-full bg-[#7A9A7B]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#4E6845]">
+                    {s.slot}
+                  </span>
                   <div>
                     <p className="text-sm font-medium text-[#2E2A26]">{s.title}</p>
                     <p className="mt-0.5 text-xs leading-relaxed text-[#6B5D4E]">{s.detail}</p>
@@ -130,9 +156,15 @@ export function Skincare() {
               ))}
             </ol>
             <div className="mt-4 space-y-1.5 border-t border-[#F0E4CE] pt-3 text-[11px] leading-relaxed text-[#8A7454]">
-              <p><strong>Patch test:</strong> {routine.patchTestRule}</p>
-              <p><strong>Stop rule:</strong> {routine.stopRule}</p>
-              <p><strong>Sources:</strong> {routine.sources.join(", ")}</p>
+              <p>
+                <strong>Patch test:</strong> {routine.patchTestRule}
+              </p>
+              <p>
+                <strong>Stop rule:</strong> {routine.stopRule}
+              </p>
+              <p>
+                <strong>Sources:</strong> {routine.sources.join(", ")}
+              </p>
             </div>
           </section>
         )}
@@ -142,22 +174,41 @@ export function Skincare() {
             <ShieldAlert size={16} aria-hidden />
             <p className="text-sm font-semibold">Something feel wrong?</p>
           </div>
-          <p className="mt-1.5 text-xs leading-relaxed text-[#7B3A30]">Burning, peeling, spreading redness or a patch-test reaction — report it. Moderate or severe reactions pause your skincare tasks for your protection.</p>
+          <p className="mt-1.5 text-xs leading-relaxed text-[#7B3A30]">
+            Burning, peeling, spreading redness or a patch-test reaction — report it. Moderate or
+            severe reactions pause your skincare tasks for your protection.
+          </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <select value={eventType} onChange={(e) => setEventType(e.target.value)} aria-label="Event type" className="h-10 rounded-full border border-[#E0C4B8] bg-white px-3 text-xs">
+            <select
+              value={eventType}
+              onChange={(e) => setEventType(e.target.value)}
+              aria-label="Event type"
+              className="h-10 rounded-full border border-[#E0C4B8] bg-white px-3 text-xs"
+            >
               <option value="irritation">Irritation</option>
               <option value="patch_reaction">Patch reaction</option>
               <option value="breakout_spike">Breakout spike</option>
               <option value="other">Other</option>
             </select>
-            <select value={eventSeverity} onChange={(e) => setEventSeverity(e.target.value)} aria-label="Severity" className="h-10 rounded-full border border-[#E0C4B8] bg-white px-3 text-xs">
+            <select
+              value={eventSeverity}
+              onChange={(e) => setEventSeverity(e.target.value)}
+              aria-label="Severity"
+              className="h-10 rounded-full border border-[#E0C4B8] bg-white px-3 text-xs"
+            >
               <option value="mild">Mild</option>
               <option value="moderate">Moderate</option>
               <option value="severe">Severe</option>
             </select>
-            <button onClick={report} disabled={busy} className="diy-btn-primary px-5 text-xs">Report</button>
+            <button onClick={report} disabled={busy} className="diy-btn-primary px-5 text-xs">
+              Report
+            </button>
           </div>
-          {eventMsg && <p className="mt-3 rounded-xl bg-white/80 p-3 text-xs leading-relaxed text-[#7B3A30]">{eventMsg}</p>}
+          {eventMsg && (
+            <p className="mt-3 rounded-xl bg-white/80 p-3 text-xs leading-relaxed text-[#7B3A30]">
+              {eventMsg}
+            </p>
+          )}
         </section>
       </div>
     </div>

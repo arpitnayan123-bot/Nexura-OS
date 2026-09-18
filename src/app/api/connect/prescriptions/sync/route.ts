@@ -50,7 +50,9 @@ export async function POST(req: NextRequest) {
       const found = await db.customer.findFirst({ where: { name: call.connection.patientName } });
       if (found) customer = found;
       else if (call.connection.patientPhone) {
-        const byPhone = await db.customer.findFirst({ where: { phone: call.connection.patientPhone } });
+        const byPhone = await db.customer.findFirst({
+          where: { phone: call.connection.patientPhone },
+        });
         if (byPhone) customer = byPhone;
       }
     }
@@ -87,7 +89,10 @@ export async function POST(req: NextRequest) {
         },
         include: {
           batches: {
-            where: { branchId: ctx.branch.id, OR: [{ stockStrips: { gt: 0 } }, { stockLoose: { gt: 0 } }] },
+            where: {
+              branchId: ctx.branch.id,
+              OR: [{ stockStrips: { gt: 0 } }, { stockLoose: { gt: 0 } }],
+            },
             orderBy: { expDate: "asc" },
           },
         },
@@ -98,10 +103,18 @@ export async function POST(req: NextRequest) {
         product ||
         (item.salt
           ? await db.product.findFirst({
-              where: { OR: [{ salts: { contains: item.salt, mode: "insensitive" as const } }, { genericName: { contains: item.salt, mode: "insensitive" as const } }] },
+              where: {
+                OR: [
+                  { salts: { contains: item.salt, mode: "insensitive" as const } },
+                  { genericName: { contains: item.salt, mode: "insensitive" as const } },
+                ],
+              },
               include: {
                 batches: {
-                  where: { branchId: ctx.branch.id, OR: [{ stockStrips: { gt: 0 } }, { stockLoose: { gt: 0 } }] },
+                  where: {
+                    branchId: ctx.branch.id,
+                    OR: [{ stockStrips: { gt: 0 } }, { stockLoose: { gt: 0 } }],
+                  },
                   orderBy: { expDate: "asc" },
                 },
               },
@@ -116,7 +129,8 @@ export async function POST(req: NextRequest) {
       const qtyStrips = qty;
       const qtyLoose = 0;
       /* integer-paise math (docs/ARCHITECTURE.md §5) */
-      const grossPaise = qtyStrips * batch.mrp + qtyLoose * Math.round(batch.mrp / finalProduct.tabletsPerStrip);
+      const grossPaise =
+        qtyStrips * batch.mrp + qtyLoose * Math.round(batch.mrp / finalProduct.tabletsPerStrip);
       const lineCgstPaise = gstOnPaise(grossPaise, finalProduct.cgstRate);
       const lineSgstPaise = gstOnPaise(grossPaise, finalProduct.sgstRate);
       const lineTotalPaise = grossPaise + lineCgstPaise + lineSgstPaise;
@@ -147,7 +161,12 @@ export async function POST(req: NextRequest) {
           prescriptionJson: JSON.stringify({ items, matched, note: "no_matching_products" }),
         },
       });
-      return NextResponse.json({ synced: true, saleId: null, matched, note: "no_matching_products" });
+      return NextResponse.json({
+        synced: true,
+        saleId: null,
+        matched,
+        note: "no_matching_products",
+      });
     }
 
     const grandPaise = subtotalPaise + cgstPaise + sgstPaise;
@@ -205,7 +224,12 @@ export async function POST(req: NextRequest) {
       data: {
         prescriptionSynced: true,
         pharmacySyncId: sale.id,
-        prescriptionJson: JSON.stringify({ items, matched, saleInvoiceNo: sale.invoiceNo, total: paiseToRupee(sale.total) }),
+        prescriptionJson: JSON.stringify({
+          items,
+          matched,
+          saleInvoiceNo: sale.invoiceNo,
+          total: paiseToRupee(sale.total),
+        }),
       },
     });
 
@@ -217,7 +241,15 @@ export async function POST(req: NextRequest) {
       matched,
     });
   } catch (err) {
-    log.error("connect", "prescription_sync_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "prescription_sync_failed", detail: "The prescription could not be synced. Please retry." }, { status: 500 });
+    log.error("connect", "prescription_sync_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "prescription_sync_failed",
+        detail: "The prescription could not be synced. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }

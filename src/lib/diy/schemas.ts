@@ -20,10 +20,15 @@ export const DIY_ERROR_CODES = {
 } as const;
 
 const trim1 = z.string().trim();
-export const goalTextSchema = trim1.min(3, "Tell me a little more").max(600, "Keep each goal under 600 characters");
+export const goalTextSchema = trim1
+  .min(3, "Tell me a little more")
+  .max(600, "Keep each goal under 600 characters");
 
 export const parseRequestSchema = z.object({
-  text: trim1.min(3, "Say a bit more").max(4000, "That is a lot — split it into a second message").pipe(z.string()),
+  text: trim1
+    .min(3, "Say a bit more")
+    .max(4000, "That is a lot — split it into a second message")
+    .pipe(z.string()),
   source: z.enum(["chat", "voice"]).default("chat"),
 });
 
@@ -36,14 +41,23 @@ export const goalsBatchSchema = z.object({
         rawGoalText: goalTextSchema,
         category: z.enum(DIY_CATEGORIES),
         requestedTimeframeDays: z.number().int().min(7).max(730).nullable().optional(),
-      })
+      }),
     )
     .min(1, "Add at least one goal")
     .max(8, "Let us start with at most 8 goals"),
 });
 
 export const goalActionSchema = z.object({
-  action: z.enum(["confirm", "clarify", "pause", "resume", "complete", "archive", "not_feasible", "reparse"]),
+  action: z.enum([
+    "confirm",
+    "clarify",
+    "pause",
+    "resume",
+    "complete",
+    "archive",
+    "not_feasible",
+    "reparse",
+  ]),
   rawGoalText: goalTextSchema.optional(),
   category: z.enum(DIY_CATEGORIES).optional(),
 });

@@ -33,27 +33,41 @@ export function env(): EnvReport {
   const jwtSecretSet = Boolean(process.env.JWT_SECRET && process.env.JWT_SECRET.length >= 16);
   if (!jwtSecretSet) {
     if (isProd) errors.push("JWT_SECRET must be set (>=16 chars) in production.");
-    else warnings.push("JWT_SECRET not set — using development fallback. Set it before production.");
+    else
+      warnings.push("JWT_SECRET not set — using development fallback. Set it before production.");
   }
   if (isProd && process.env.DEMO_MODE === "true") {
-    warnings.push("DEMO_MODE=true in production — demo indicators will show and demo reset stays enabled. Disable unless intentional.");
+    warnings.push(
+      "DEMO_MODE=true in production — demo indicators will show and demo reset stays enabled. Disable unless intentional.",
+    );
   }
   if (!isProd && process.env.DEMO_MODE !== "true") {
-    warnings.push("DEMO_MODE not enabled — demo product surfaces (pharmacy/clinic/portal quick-login) require DEMO_MODE=true in this environment.");
+    warnings.push(
+      "DEMO_MODE not enabled — demo product surfaces (pharmacy/clinic/portal quick-login) require DEMO_MODE=true in this environment.",
+    );
   }
   const nexuraMode = process.env.NEXURA_MODE === "remote" ? "remote" : "local";
   if (nexuraMode === "remote" && !process.env.NEXURA_API_URL) {
-    warnings.push("NEXURA_MODE=remote but NEXURA_API_URL missing — falling back to local adapters per-service.");
+    warnings.push(
+      "NEXURA_MODE=remote but NEXURA_API_URL missing — falling back to local adapters per-service.",
+    );
   }
   const emailTransport = process.env.EMAIL_TRANSPORT === "smtp" ? "smtp" : "console";
   if (emailTransport === "console") {
-    warnings.push("EMAIL_TRANSPORT=console — emails (password reset, verification) print to the server log instead of sending. Set EMAIL_TRANSPORT=smtp + SMTP_* vars to send real mail.");
+    warnings.push(
+      "EMAIL_TRANSPORT=console — emails (password reset, verification) print to the server log instead of sending. Set EMAIL_TRANSPORT=smtp + SMTP_* vars to send real mail.",
+    );
   }
   const smtpConfigured = Boolean(
-    emailTransport === "smtp" && process.env.SMTP_HOST && process.env.SMTP_PORT && process.env.SMTP_FROM
+    emailTransport === "smtp" &&
+    process.env.SMTP_HOST &&
+    process.env.SMTP_PORT &&
+    process.env.SMTP_FROM,
   );
   if (emailTransport === "smtp" && !smtpConfigured) {
-    warnings.push("EMAIL_TRANSPORT=smtp but SMTP_HOST/SMTP_PORT/SMTP_FROM are incomplete — mail senders fall back to console transport per call.");
+    warnings.push(
+      "EMAIL_TRANSPORT=smtp but SMTP_HOST/SMTP_PORT/SMTP_FROM are incomplete — mail senders fall back to console transport per call.",
+    );
   }
   if (!process.env.DATABASE_URL) {
     errors.push("DATABASE_URL is required.");
@@ -106,20 +120,22 @@ export function assertProductionEnv(): void {
     missing.push(
       process.env.DATABASE_URL
         ? "DATABASE_URL must be a postgres:// URL (SQLite is no longer a supported provider)"
-        : "DATABASE_URL is required (postgresql://user:pass@host:5432/db)"
+        : "DATABASE_URL is required (postgresql://user:pass@host:5432/db)",
     );
   }
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
     missing.push("JWT_SECRET must be set (>=16 chars)");
   }
   if (!process.env.REDIS_URL || !process.env.REDIS_URL.startsWith("redis")) {
-    missing.push("REDIS_URL is required (redis://host:6379) — rate limiting, the event bus, and sync leases are Redis-backed");
+    missing.push(
+      "REDIS_URL is required (redis://host:6379) — rate limiting, the event bus, and sync leases are Redis-backed",
+    );
   }
 
   if (missing.length) {
     throw new Error(
       `Refusing to boot: missing required production environment variables:\n  - ${missing.join("\n  - ")}\n` +
-        "Copy .env.example, fill in real values, and redeploy."
+        "Copy .env.example, fill in real values, and redeploy.",
     );
   }
 

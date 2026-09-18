@@ -14,8 +14,7 @@ export type HiwStep = {
 };
 
 export type HiwCta =
-  | { kind: "link"; label: string; href: string }
-  | { kind: "booking"; label: string };
+  { kind: "link"; label: string; href: string } | { kind: "booking"; label: string };
 
 export type HiwSection = {
   id: string;

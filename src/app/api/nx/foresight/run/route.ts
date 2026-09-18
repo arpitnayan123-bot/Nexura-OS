@@ -24,8 +24,12 @@ export const POST = withRoute("nx.foresight.run", async (req: Request) => {
     const normalized = normalizeForesightInput(raw);
     if (!normalized.ok) {
       return NextResponse.json(
-        { ok: false, error: "Nexura Predictive is built for adults (18+). For children and teens, please consult a paediatrician." },
-        { status: 422 }
+        {
+          ok: false,
+          error:
+            "Nexura Predictive is built for adults (18+). For children and teens, please consult a paediatrician.",
+        },
+        { status: 422 },
       );
     }
     const input = normalized.input;
@@ -56,8 +60,12 @@ export const POST = withRoute("nx.foresight.run", async (req: Request) => {
   } catch (err) {
     console.error("[foresight/run]", err);
     return NextResponse.json(
-      { ok: false, error: "The foresight engine could not complete. Nothing was saved incorrectly — please retry." },
-      { status: 500 }
+      {
+        ok: false,
+        error:
+          "The foresight engine could not complete. Nothing was saved incorrectly — please retry.",
+      },
+      { status: 500 },
     );
   }
 });

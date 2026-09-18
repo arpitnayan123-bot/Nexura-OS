@@ -29,9 +29,8 @@ export function CleanFooter() {
                 In an emergency, every second counts.
               </p>
               <p className="mt-1 text-sm text-[#FFF4EC]/85">
-                <strong className="font-semibold">108</strong> — free, 24×7,
-                across India · Mental health: Tele-MANAS{" "}
-                <strong className="font-semibold">14416</strong>
+                <strong className="font-semibold">108</strong> — free, 24×7, across India · Mental
+                health: Tele-MANAS <strong className="font-semibold">14416</strong>
               </p>
             </div>
           </div>
@@ -68,14 +67,28 @@ export function CleanFooter() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-            <Link href="/founder" className="hover:text-foreground">The Founder</Link>
-            <Link href="/global" className="hover:text-foreground">Nexura Global</Link>
-            <Link href="/know-your-health" className="hover:text-foreground">Know Your Health</Link>
-            <Link href="/connect" className="hover:text-foreground">Connect</Link>
-            <Link href="/hospital" className="hover:text-foreground">Nexura Hospital OS</Link>
+            <Link href="/founder" className="hover:text-foreground">
+              The Founder
+            </Link>
+            <Link href="/global" className="hover:text-foreground">
+              Nexura Global
+            </Link>
+            <Link href="/know-your-health" className="hover:text-foreground">
+              Know Your Health
+            </Link>
+            <Link href="/connect" className="hover:text-foreground">
+              Connect
+            </Link>
+            <Link href="/hospital" className="hover:text-foreground">
+              Nexura Hospital OS
+            </Link>
             <span className="text-muted-foreground/40">·</span>
-            <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
-            <Link href="/terms" className="hover:text-foreground">Terms</Link>
+            <Link href="/privacy" className="hover:text-foreground">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground">
+              Terms
+            </Link>
             <span className="text-muted-foreground/40">·</span>
             <span className="text-[#6E6A66]">© {new Date().getFullYear()} Nexura</span>
           </div>
@@ -93,9 +106,8 @@ export function CleanFooter() {
           className="flex flex-col items-center gap-2"
         >
           <p className="max-w-md text-center text-[0.65rem] leading-relaxed text-[#6E6A66]">
-            Built for ABDM (Ayushman Bharat Digital Mission) alignment, Drugs &amp;
-            Cosmetics Rules 1945, ICD-10, IRDAI TPA guidelines &amp; Indian GST
-            e-invoice structure.
+            Built for ABDM (Ayushman Bharat Digital Mission) alignment, Drugs &amp; Cosmetics Rules
+            1945, ICD-10, IRDAI TPA guidelines &amp; Indian GST e-invoice structure.
           </p>
           <p className="text-center text-[0.65rem] leading-relaxed text-[#6E6A66]">
             Emergencies: call 108 · Mental health: Tele-MANAS 14416 (free, 24×7)

@@ -49,7 +49,13 @@ interface InspectPoint {
   sim: number | null;
 }
 
-export function ForecastChart({ model, generatedAt }: { model: ForecastModel; generatedAt: string }) {
+export function ForecastChart({
+  model,
+  generatedAt,
+}: {
+  model: ForecastModel;
+  generatedAt: string;
+}) {
   const reduceMotion = useReducedMotion();
   const [focusIdx, setFocusIdx] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
@@ -87,7 +93,9 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
             return (idx === -1 ? simulation[simulation.length - 1] : simulation[idx]).v;
           })()
         : null;
-      const obs = observed.filter((o) => Math.abs(o.t - t) < 0.035).sort((a, b) => Math.abs(a.t - t) - Math.abs(b.t - t))[0];
+      const obs = observed
+        .filter((o) => Math.abs(o.t - t) < 0.035)
+        .sort((a, b) => Math.abs(a.t - t) - Math.abs(b.t - t))[0];
       return {
         t,
         observed: obs ? obs.v : null,
@@ -126,7 +134,10 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
         label: t === 0 ? "today" : t === 1 ? "+1y" : `+${Math.round(t * 12)}mo`,
       }));
     }
-    return Array.from({ length: horizon + 1 }, (_, t) => ({ t, label: t === 0 ? "today" : `+${t}y` }));
+    return Array.from({ length: horizon + 1 }, (_, t) => ({
+      t,
+      label: t === 0 ? "today" : `+${t}y`,
+    }));
   }, [horizon]);
 
   const onPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
@@ -137,7 +148,10 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
     let bestD = Infinity;
     inspect.forEach((p, i) => {
       const d = Math.abs(p.t - t);
-      if (d < bestD) { bestD = d; best = i; }
+      if (d < bestD) {
+        bestD = d;
+        best = i;
+      }
     });
     setFocusIdx(best);
   };
@@ -177,7 +191,9 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
       await navigator.clipboard.writeText(chartAsText());
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2400);
-    } catch { /* blocked — no-op */ }
+    } catch {
+      /* blocked — no-op */
+    }
   };
 
   const downloadSvg = () => {
@@ -185,7 +201,9 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
     if (!svg) return;
     const clone = svg.cloneNode(true) as SVGSVGElement;
     clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml" });
+    const blob = new Blob([new XMLSerializer().serializeToString(clone)], {
+      type: "image/svg+xml",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -194,7 +212,8 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
     URL.revokeObjectURL(url);
   };
 
-  const ariaSummary = `Forecast chart. Measured foresight score ${observed[observed.length - 1]?.v ?? "?"} of 100 today. ` +
+  const ariaSummary =
+    `Forecast chart. Measured foresight score ${observed[observed.length - 1]?.v ?? "?"} of 100 today. ` +
     `On the current course the illustrative curve reaches ${unchanged[unchanged.length - 1].v} at +${horizon} years; ` +
     `following the plan reaches ${withActions[withActions.length - 1].v}. ` +
     `Use left and right arrow keys after focusing to inspect exact values.`;
@@ -210,15 +229,26 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
   const tip = (() => {
     if (!focus) return null;
     const lines: { text: string; ink: string; bold?: boolean }[] = [];
-    lines.push({ text: `${dateAt(focus.t)} · ${focus.t === 0 ? "today" : focus.t < 0 ? `${Math.round(-focus.t * 12)} mo ago` : `+${(Math.round(focus.t * 10) / 10).toString()}y`}`, ink: INK.textBright, bold: true });
-    if (focus.observed != null) lines.push({ text: `measured  ${focus.observed}`, ink: INK.observed });
-    lines.push({ text: `current course  ${focus.course}  (${focus.lo}–${focus.hi})`, ink: INK.course });
+    lines.push({
+      text: `${dateAt(focus.t)} · ${focus.t === 0 ? "today" : focus.t < 0 ? `${Math.round(-focus.t * 12)} mo ago` : `+${(Math.round(focus.t * 10) / 10).toString()}y`}`,
+      ink: INK.textBright,
+      bold: true,
+    });
+    if (focus.observed != null)
+      lines.push({ text: `measured  ${focus.observed}`, ink: INK.observed });
+    lines.push({
+      text: `current course  ${focus.course}  (${focus.lo}–${focus.hi})`,
+      ink: INK.course,
+    });
     lines.push({ text: `plan followed  ${focus.plan}`, ink: INK.plan });
     if (focus.sim != null) lines.push({ text: `your simulation  ${focus.sim}`, ink: INK.sim });
     const tw = Math.max(...lines.map((l) => l.text.length)) * 7.4 + 28;
     const th = lines.length * 17 + 16;
     const fx = Math.min(Math.max(x(focus.t) - tw / 2, 6), W - tw - 6);
-    const fy = focus.t <= 0 ? PAD_T + 6 : Math.max(PAD_T + 6, Math.min(y(focus.course), y(focus.plan)) - th - 12);
+    const fy =
+      focus.t <= 0
+        ? PAD_T + 6
+        : Math.max(PAD_T + 6, Math.min(y(focus.course), y(focus.plan)) - th - 12);
     return { lines, tw, th, fx, fy };
   })();
 
@@ -259,8 +289,17 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
           {/* y grid + axis labels */}
           {[0, 25, 50, 75, 100].map((v) => (
             <g key={v}>
-              <line x1={PAD_L} y1={y(v)} x2={W - PAD_R + 8} y2={y(v)} stroke={INK.grid} strokeWidth="1" />
-              <text x={PAD_L - 10} y={y(v) + 4} textAnchor="end" fontSize="11.5" fill={INK.text}>{v}</text>
+              <line
+                x1={PAD_L}
+                y1={y(v)}
+                x2={W - PAD_R + 8}
+                y2={y(v)}
+                stroke={INK.grid}
+                strokeWidth="1"
+              />
+              <text x={PAD_L - 10} y={y(v) + 4} textAnchor="end" fontSize="11.5" fill={INK.text}>
+                {v}
+              </text>
             </g>
           ))}
           <text
@@ -279,15 +318,31 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
           {ticks.map((tk) => (
             <g key={tk.t}>
               <line x1={x(tk.t)} y1={y(0)} x2={x(tk.t)} y2={y(0) + 6} stroke={INK.grid} />
-              <text x={x(tk.t)} y={H - 16} textAnchor="middle" fontSize="11.5" fill={INK.text}>{tk.label}</text>
+              <text x={x(tk.t)} y={H - 16} textAnchor="middle" fontSize="11.5" fill={INK.text}>
+                {tk.label}
+              </text>
             </g>
           ))}
 
           {/* band-edge thresholds (engine's own calibration) */}
           {bandEdges.map((b) => (
             <g key={b.score}>
-              <line x1={PAD_L} y1={y(b.score)} x2={W - PAD_R + 8} y2={y(b.score)} stroke="rgba(252,211,77,0.28)" strokeWidth="1" strokeDasharray="5 6" />
-              <text x={W - PAD_R + 14} y={y(b.score) + 4} fontSize="10" fill="#FDE68A" style={{ letterSpacing: "0.1em" }}>
+              <line
+                x1={PAD_L}
+                y1={y(b.score)}
+                x2={W - PAD_R + 8}
+                y2={y(b.score)}
+                stroke="rgba(252,211,77,0.28)"
+                strokeWidth="1"
+                strokeDasharray="5 6"
+              />
+              <text
+                x={W - PAD_R + 14}
+                y={y(b.score) + 4}
+                fontSize="10"
+                fill="#FDE68A"
+                style={{ letterSpacing: "0.1em" }}
+              >
                 {b.label.toUpperCase()}
               </text>
             </g>
@@ -300,9 +355,24 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
                 d={`${linePath(observed)} L${x(0)},${y(0)} L${x(observed[0].t)},${y(0)} Z`}
                 fill="url(#fcObsArea)"
               />
-              <path d={linePath(observed)} fill="none" stroke={INK.observed} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d={linePath(observed)}
+                fill="none"
+                stroke={INK.observed}
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
               {observed.map((o, i) => (
-                <circle key={i} cx={x(o.t)} cy={y(o.v)} r="4" fill={INK.observed} stroke="rgba(13,25,54,0.9)" strokeWidth="1.6" />
+                <circle
+                  key={i}
+                  cx={x(o.t)}
+                  cy={y(o.v)}
+                  r="4"
+                  fill={INK.observed}
+                  stroke="rgba(13,25,54,0.9)"
+                  strokeWidth="1.6"
+                />
               ))}
             </>
           )}
@@ -311,7 +381,10 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
           <path d={bandArea()} fill="url(#fcBand)" />
           <motion.path
             d={linePath(unchanged)}
-            fill="none" stroke={INK.course} strokeWidth="2.4" strokeLinecap="round"
+            fill="none"
+            stroke={INK.course}
+            strokeWidth="2.4"
+            strokeLinecap="round"
             strokeDasharray="1 0"
             initial={initial}
             animate={{ pathLength: 1 }}
@@ -319,7 +392,10 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
           />
           <motion.path
             d={linePath(withActions)}
-            fill="none" stroke={INK.plan} strokeWidth="2.4" strokeLinecap="round"
+            fill="none"
+            stroke={INK.plan}
+            strokeWidth="2.4"
+            strokeLinecap="round"
             initial={initial}
             animate={{ pathLength: 1 }}
             transition={{ duration: 1.4, ease: "easeOut", delay: 0.45 }}
@@ -327,7 +403,11 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
           {simulation && (
             <motion.path
               d={linePath(simulation)}
-              fill="none" stroke={INK.sim} strokeWidth="2.2" strokeLinecap="round" strokeDasharray="7 6"
+              fill="none"
+              stroke={INK.sim}
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeDasharray="7 6"
               initial={false}
               animate={{ opacity: [0, 1] }}
               transition={{ duration: 0.5 }}
@@ -335,36 +415,149 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
           )}
 
           {/* TODAY divider */}
-          <line x1={x(0)} y1={PAD_T - 6} x2={x(0)} y2={y(0)} stroke="rgba(244,249,255,0.4)" strokeWidth="1.4" strokeDasharray="4 5" />
-          <text x={x(0)} y={PAD_T - 14} textAnchor="middle" fontSize="10.5" fontWeight="700" fill={INK.textBright} style={{ letterSpacing: "0.14em" }}>
+          <line
+            x1={x(0)}
+            y1={PAD_T - 6}
+            x2={x(0)}
+            y2={y(0)}
+            stroke="rgba(244,249,255,0.4)"
+            strokeWidth="1.4"
+            strokeDasharray="4 5"
+          />
+          <text
+            x={x(0)}
+            y={PAD_T - 14}
+            textAnchor="middle"
+            fontSize="10.5"
+            fontWeight="700"
+            fill={INK.textBright}
+            style={{ letterSpacing: "0.14em" }}
+          >
             TODAY
           </text>
 
           {/* endpoint markers + values */}
-          <circle cx={x(0)} cy={y(unchanged[0].v)} r="4.6" fill={INK.observed} stroke="rgba(13,25,54,0.95)" strokeWidth="2" />
-          <circle cx={x(unchanged[unchanged.length - 1].t)} cy={y(unchanged[unchanged.length - 1].v)} r="4.4" fill={INK.course} stroke="rgba(13,25,54,0.9)" strokeWidth="1.6" />
-          <circle cx={x(withActions[withActions.length - 1].t)} cy={y(withActions[withActions.length - 1].v)} r="4.4" fill={INK.plan} stroke="rgba(13,25,54,0.9)" strokeWidth="1.6" />
+          <circle
+            cx={x(0)}
+            cy={y(unchanged[0].v)}
+            r="4.6"
+            fill={INK.observed}
+            stroke="rgba(13,25,54,0.95)"
+            strokeWidth="2"
+          />
+          <circle
+            cx={x(unchanged[unchanged.length - 1].t)}
+            cy={y(unchanged[unchanged.length - 1].v)}
+            r="4.4"
+            fill={INK.course}
+            stroke="rgba(13,25,54,0.9)"
+            strokeWidth="1.6"
+          />
+          <circle
+            cx={x(withActions[withActions.length - 1].t)}
+            cy={y(withActions[withActions.length - 1].v)}
+            r="4.4"
+            fill={INK.plan}
+            stroke="rgba(13,25,54,0.9)"
+            strokeWidth="1.6"
+          />
           {simulation && (
-            <circle cx={x(simulation[simulation.length - 1].t)} cy={y(simulation[simulation.length - 1].v)} r="4.4" fill={INK.sim} stroke="rgba(13,25,54,0.9)" strokeWidth="1.6" />
+            <circle
+              cx={x(simulation[simulation.length - 1].t)}
+              cy={y(simulation[simulation.length - 1].v)}
+              r="4.4"
+              fill={INK.sim}
+              stroke="rgba(13,25,54,0.9)"
+              strokeWidth="1.6"
+            />
           )}
-          <text x={W - PAD_R + 4} y={y(unchanged[unchanged.length - 1].v) + 4} fontSize="12" fontWeight="700" fill={INK.course}>{unchanged[unchanged.length - 1].v}</text>
-          <text x={W - PAD_R + 4} y={y(withActions[withActions.length - 1].v) - 8} fontSize="12" fontWeight="700" fill={INK.plan}>{withActions[withActions.length - 1].v}</text>
+          <text
+            x={W - PAD_R + 4}
+            y={y(unchanged[unchanged.length - 1].v) + 4}
+            fontSize="12"
+            fontWeight="700"
+            fill={INK.course}
+          >
+            {unchanged[unchanged.length - 1].v}
+          </text>
+          <text
+            x={W - PAD_R + 4}
+            y={y(withActions[withActions.length - 1].v) - 8}
+            fontSize="12"
+            fontWeight="700"
+            fill={INK.plan}
+          >
+            {withActions[withActions.length - 1].v}
+          </text>
 
           {/* crosshair */}
           {focus && (
             <g pointerEvents="none">
-              <line x1={x(focus.t)} y1={PAD_T} x2={x(focus.t)} y2={y(0)} stroke="rgba(252,211,77,0.55)" strokeWidth="1.2" />
-              {focus.observed != null && <circle cx={x(focus.t)} cy={y(focus.observed)} r="5.4" fill="none" stroke={INK.observed} strokeWidth="2" />}
-              <circle cx={x(focus.t)} cy={y(focus.course)} r="4.6" fill={INK.course} stroke="rgba(13,25,54,0.9)" strokeWidth="1.4" />
-              <circle cx={x(focus.t)} cy={y(focus.plan)} r="4.6" fill={INK.plan} stroke="rgba(13,25,54,0.9)" strokeWidth="1.4" />
-              {focus.sim != null && <circle cx={x(focus.t)} cy={y(focus.sim)} r="4.6" fill={INK.sim} stroke="rgba(13,25,54,0.9)" strokeWidth="1.4" />}
+              <line
+                x1={x(focus.t)}
+                y1={PAD_T}
+                x2={x(focus.t)}
+                y2={y(0)}
+                stroke="rgba(252,211,77,0.55)"
+                strokeWidth="1.2"
+              />
+              {focus.observed != null && (
+                <circle
+                  cx={x(focus.t)}
+                  cy={y(focus.observed)}
+                  r="5.4"
+                  fill="none"
+                  stroke={INK.observed}
+                  strokeWidth="2"
+                />
+              )}
+              <circle
+                cx={x(focus.t)}
+                cy={y(focus.course)}
+                r="4.6"
+                fill={INK.course}
+                stroke="rgba(13,25,54,0.9)"
+                strokeWidth="1.4"
+              />
+              <circle
+                cx={x(focus.t)}
+                cy={y(focus.plan)}
+                r="4.6"
+                fill={INK.plan}
+                stroke="rgba(13,25,54,0.9)"
+                strokeWidth="1.4"
+              />
+              {focus.sim != null && (
+                <circle
+                  cx={x(focus.t)}
+                  cy={y(focus.sim)}
+                  r="4.6"
+                  fill={INK.sim}
+                  stroke="rgba(13,25,54,0.9)"
+                  strokeWidth="1.4"
+                />
+              )}
               {tip && (
                 <>
-                  <rect x={tip.fx} y={tip.fy} rx="10" width={tip.tw} height={tip.th}
-                    fill="rgba(9,17,38,0.95)" stroke="rgba(252,211,77,0.45)" strokeWidth="1" />
+                  <rect
+                    x={tip.fx}
+                    y={tip.fy}
+                    rx="10"
+                    width={tip.tw}
+                    height={tip.th}
+                    fill="rgba(9,17,38,0.95)"
+                    stroke="rgba(252,211,77,0.45)"
+                    strokeWidth="1"
+                  />
                   {tip.lines.map((l, i) => (
-                    <text key={i} x={tip.fx + 13} y={tip.fy + 22 + i * 17}
-                      fontSize={l.bold ? "11.5" : "11"} fontWeight={l.bold ? 700 : 500} fill={l.ink}>
+                    <text
+                      key={i}
+                      x={tip.fx + 13}
+                      y={tip.fy + 22 + i * 17}
+                      fontSize={l.bold ? "11.5" : "11"}
+                      fontWeight={l.bold ? 700 : 500}
+                      fill={l.ink}
+                    >
                       {l.text}
                     </text>
                   ))}
@@ -376,18 +569,37 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
       </div>
 
       {/* screen-reader live region for keyboard inspection */}
-      <p aria-live="polite" role="status" className="sr-only">{focusAnnouncement}</p>
+      <p aria-live="polite" role="status" className="sr-only">
+        {focusAnnouncement}
+      </p>
 
       {/* legend + honest caption + export */}
       <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px]">
-        <span className="flex items-center gap-1.5 nxf-dim"><span className="h-0.5 w-5 rounded" style={{ background: INK.observed }} /> your measured runs</span>
-        <span className="flex items-center gap-1.5 nxf-dim"><span className="h-0.5 w-5 rounded" style={{ background: INK.course }} /> current course — {unchanged[unchanged.length - 1].v}</span>
-        <span className="flex items-center gap-1.5 nxf-dim"><span className="h-0.5 w-5 rounded" style={{ background: INK.plan }} /> plan followed — {withActions[withActions.length - 1].v}</span>
+        <span className="flex items-center gap-1.5 nxf-dim">
+          <span className="h-0.5 w-5 rounded" style={{ background: INK.observed }} /> your measured
+          runs
+        </span>
+        <span className="flex items-center gap-1.5 nxf-dim">
+          <span className="h-0.5 w-5 rounded" style={{ background: INK.course }} /> current course —{" "}
+          {unchanged[unchanged.length - 1].v}
+        </span>
+        <span className="flex items-center gap-1.5 nxf-dim">
+          <span className="h-0.5 w-5 rounded" style={{ background: INK.plan }} /> plan followed —{" "}
+          {withActions[withActions.length - 1].v}
+        </span>
         {simulation && (
-          <span className="flex items-center gap-1.5 nxf-gold"><span className="h-0.5 w-5 rounded" style={{ background: INK.sim }} /> your simulation — {simulation[simulation.length - 1].v}</span>
+          <span className="flex items-center gap-1.5 nxf-gold">
+            <span className="h-0.5 w-5 rounded" style={{ background: INK.sim }} /> your simulation —{" "}
+            {simulation[simulation.length - 1].v}
+          </span>
         )}
         <span className="flex items-center gap-1.5 nxf-mute">
-          <span aria-hidden="true" className="inline-block h-2.5 w-5 rounded-sm" style={{ background: "rgba(251,113,133,0.16)" }} /> uncertainty band (illustrative)
+          <span
+            aria-hidden="true"
+            className="inline-block h-2.5 w-5 rounded-sm"
+            style={{ background: "rgba(251,113,133,0.16)" }}
+          />{" "}
+          uncertainty band (illustrative)
         </span>
       </div>
 
@@ -395,12 +607,16 @@ export function ForecastChart({ model, generatedAt }: { model: ForecastModel; ge
         <p className="max-w-2xl text-[11.5px] leading-relaxed nxf-mute">
           {observed.length < 2
             ? "First run recorded — every future check-in extends the measured line on the left of TODAY."
-            : `${observed.length} measured runs feed the observed line. Everything right of TODAY is the engine's illustrative direction, not a promise.`}
-          {" "}Focus the chart and use ← → keys (Home / End / Esc) to inspect exact values.
+            : `${observed.length} measured runs feed the observed line. Everything right of TODAY is the engine's illustrative direction, not a promise.`}{" "}
+          Focus the chart and use ← → keys (Home / End / Esc) to inspect exact values.
         </p>
         <div className="flex items-center gap-2">
           <button type="button" className="nxf-pill !py-2" onClick={() => void copyChart()}>
-            {copied ? <Check className="h-3.5 w-3.5 nxf-teal" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5 nxf-mute" aria-hidden="true" />}
+            {copied ? (
+              <Check className="h-3.5 w-3.5 nxf-teal" aria-hidden="true" />
+            ) : (
+              <Copy className="h-3.5 w-3.5 nxf-mute" aria-hidden="true" />
+            )}
             <span>{copied ? "Copied" : "Copy values"}</span>
           </button>
           <button type="button" className="nxf-pill !py-2" onClick={downloadSvg}>

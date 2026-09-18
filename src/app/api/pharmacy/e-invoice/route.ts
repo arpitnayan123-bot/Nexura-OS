@@ -66,27 +66,29 @@ async function POST_impl(req: NextRequest) {
       },
       ItemList: sale.items.map((it, i) => {
         /* storage is integer paise; the GSTN e-invoice schema wants rupee decimals */
-        const grossPaise = it.qtyStrips * it.mrpPerStrip + it.qtyLoose * Math.round(it.mrpPerStrip / (it.product.tabletsPerStrip || 10));
+        const grossPaise =
+          it.qtyStrips * it.mrpPerStrip +
+          it.qtyLoose * Math.round(it.mrpPerStrip / (it.product.tabletsPerStrip || 10));
         const taxablePaise = it.qtyStrips * it.mrpPerStrip - it.discount;
         return {
-        SlNo: String(i + 1),
-        PrdDesc: it.product.name,
-        HsnCd: it.product.hsn || "30049099",
-        Qty: it.qtyStrips + it.qtyLoose / (it.product.tabletsPerStrip || 10),
-        Unit: "BOX",
-        UnitPrice: paiseToRupee(it.mrpPerStrip),
-        TotAmt: paiseToRupee(grossPaise),
-        Discount: paiseToRupee(it.discount),
-        AssAmt: paiseToRupee(taxablePaise),
-        GstRt: it.cgstRate + it.sgstRate,
-        IgstAmt: 0,
-        CgstAmt: paiseToRupee(gstOnPaise(taxablePaise, it.cgstRate)),
-        SgstAmt: paiseToRupee(gstOnPaise(taxablePaise, it.sgstRate)),
-        TotItemVal: paiseToRupee(it.lineTotal),
-        BchDtls: {
-         Nm: it.batch.batchNo,
-         Exp: it.batch.expDate.replace("-", "") + "00",
-        },
+          SlNo: String(i + 1),
+          PrdDesc: it.product.name,
+          HsnCd: it.product.hsn || "30049099",
+          Qty: it.qtyStrips + it.qtyLoose / (it.product.tabletsPerStrip || 10),
+          Unit: "BOX",
+          UnitPrice: paiseToRupee(it.mrpPerStrip),
+          TotAmt: paiseToRupee(grossPaise),
+          Discount: paiseToRupee(it.discount),
+          AssAmt: paiseToRupee(taxablePaise),
+          GstRt: it.cgstRate + it.sgstRate,
+          IgstAmt: 0,
+          CgstAmt: paiseToRupee(gstOnPaise(taxablePaise, it.cgstRate)),
+          SgstAmt: paiseToRupee(gstOnPaise(taxablePaise, it.sgstRate)),
+          TotItemVal: paiseToRupee(it.lineTotal),
+          BchDtls: {
+            Nm: it.batch.batchNo,
+            Exp: it.batch.expDate.replace("-", "") + "00",
+          },
         };
       }),
       ValDtls: {
@@ -96,7 +98,7 @@ async function POST_impl(req: NextRequest) {
         IgstVal: 0,
         Discount: paiseToRupee(sale.discount),
         OthChrg: 0,
-       RndOff: paiseToRupee(sale.roundOff),
+        RndOff: paiseToRupee(sale.roundOff),
         TotInvVal: paiseToRupee(sale.total),
       },
       // IRN placeholder (would be returned by IRP after submission)
@@ -157,8 +159,13 @@ async function POST_impl(req: NextRequest) {
       eligibleEwayBill: !!ewayBill,
     });
   } catch (err) {
-    log.error("pharmacy", "einvoice_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "einvoice_failed", detail: "The e-invoice could not be generated. Please retry." }, { status: 500 });
+    log.error("pharmacy", "einvoice_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "einvoice_failed", detail: "The e-invoice could not be generated. Please retry." },
+      { status: 500 },
+    );
   }
 }
 

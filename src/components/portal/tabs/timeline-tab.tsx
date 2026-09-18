@@ -3,20 +3,60 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
-  Stethoscope, IndianRupee, ShieldCheck, Activity, Beaker, Droplet,
-  CalendarClock, Sparkles, AlertCircle,
+  Stethoscope,
+  IndianRupee,
+  ShieldCheck,
+  Activity,
+  Beaker,
+  Droplet,
+  CalendarClock,
+  Sparkles,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DashboardData, TimelineEvent } from "../portal-types";
 
-const TYPE_META: Record<string, { color: string; bg: string; ring: string; icon: typeof CalendarClock }> = {
-  appointment: { color: "text-[#A16207]", bg: "bg-[#A16207]/10", ring: "ring-[#A16207]/20", icon: Stethoscope },
-  admission: { color: "text-[#B85A3F]", bg: "bg-[#B85A3F]/10", ring: "ring-[#B85A3F]/20", icon: Activity },
-  vital: { color: "text-[#5E8A60]", bg: "bg-[#9DB89E]/15", ring: "ring-[#9DB89E]/30", icon: Activity },
-  bill: { color: "text-[#A87C45]", bg: "bg-[#C9962E]/15", ring: "ring-[#C9962E]/30", icon: IndianRupee },
-  insurance: { color: "text-[#0284C7]", bg: "bg-[#0EA5E9]/10", ring: "ring-[#0EA5E9]/20", icon: ShieldCheck },
+const TYPE_META: Record<
+  string,
+  { color: string; bg: string; ring: string; icon: typeof CalendarClock }
+> = {
+  appointment: {
+    color: "text-[#A16207]",
+    bg: "bg-[#A16207]/10",
+    ring: "ring-[#A16207]/20",
+    icon: Stethoscope,
+  },
+  admission: {
+    color: "text-[#B85A3F]",
+    bg: "bg-[#B85A3F]/10",
+    ring: "ring-[#B85A3F]/20",
+    icon: Activity,
+  },
+  vital: {
+    color: "text-[#5E8A60]",
+    bg: "bg-[#9DB89E]/15",
+    ring: "ring-[#9DB89E]/30",
+    icon: Activity,
+  },
+  bill: {
+    color: "text-[#A87C45]",
+    bg: "bg-[#C9962E]/15",
+    ring: "ring-[#C9962E]/30",
+    icon: IndianRupee,
+  },
+  insurance: {
+    color: "text-[#0284C7]",
+    bg: "bg-[#0EA5E9]/10",
+    ring: "ring-[#0EA5E9]/20",
+    icon: ShieldCheck,
+  },
   lab: { color: "text-[#A87C45]", bg: "bg-[#C9962E]/15", ring: "ring-[#C9962E]/30", icon: Beaker },
-  blood_booking: { color: "text-[#A16207]", bg: "bg-[#A16207]/10", ring: "ring-[#A16207]/20", icon: Droplet },
+  blood_booking: {
+    color: "text-[#A16207]",
+    bg: "bg-[#A16207]/10",
+    ring: "ring-[#A16207]/20",
+    icon: Droplet,
+  },
 };
 
 export function TimelineTab({ data }: { data: DashboardData }) {
@@ -77,8 +117,12 @@ export function TimelineTab({ data }: { data: DashboardData }) {
           <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#9DB89E]/15 text-[#9DB89E]">
             <CalendarClock className="h-7 w-7" />
           </div>
-          <p className="mt-3 font-display text-lg font-semibold text-stone-800">No care events yet</p>
-          <p className="mt-1 text-sm text-stone-500">Your appointments, lab reports, and visits will appear here.</p>
+          <p className="mt-3 font-display text-lg font-semibold text-stone-800">
+            No care events yet
+          </p>
+          <p className="mt-1 text-sm text-stone-500">
+            Your appointments, lab reports, and visits will appear here.
+          </p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -115,7 +159,12 @@ function TimelineItem({ event, delay }: { event: TimelineEvent; delay: number })
       transition={{ delay }}
       className="relative flex gap-3"
     >
-      <span className={cn("relative z-10 mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full ring-4 ring-white", meta.bg)}>
+      <span
+        className={cn(
+          "relative z-10 mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full ring-4 ring-white",
+          meta.bg,
+        )}
+      >
         <Icon className={cn("h-5 w-5", meta.color)} />
       </span>
       <div className="flex-1 rounded-2xl border border-[#E7E5E4] bg-white p-3 shadow-sm">
@@ -129,11 +178,16 @@ function TimelineItem({ event, delay }: { event: TimelineEvent; delay: number })
         <p className="mt-0.5 text-xs text-stone-500">{event.subtitle}</p>
         {event.meta && (
           <div className="mt-2 flex flex-wrap gap-1">
-            {Object.entries(event.meta).slice(0, 4).map(([k, v]) => (
-              <span key={k} className="rounded-full bg-[#FAF7F2] px-2 py-0.5 text-[0.65rem] text-stone-500">
-                <span className="font-medium">{k}:</span> {String(v ?? "—")}
-              </span>
-            ))}
+            {Object.entries(event.meta)
+              .slice(0, 4)
+              .map(([k, v]) => (
+                <span
+                  key={k}
+                  className="rounded-full bg-[#FAF7F2] px-2 py-0.5 text-[0.65rem] text-stone-500"
+                >
+                  <span className="font-medium">{k}:</span> {String(v ?? "—")}
+                </span>
+              ))}
           </div>
         )}
       </div>
@@ -142,28 +196,41 @@ function TimelineItem({ event, delay }: { event: TimelineEvent; delay: number })
 }
 
 function buildAISummary(events: TimelineEvent[]): string {
-  if (events.length === 0) return "No care events recorded yet. Once your visits and tests accumulate, this AI summary will provide a calm overview of your journey.";
+  if (events.length === 0)
+    return "No care events recorded yet. Once your visits and tests accumulate, this AI summary will provide a calm overview of your journey.";
 
   const total = events.length;
   const byType: Record<string, number> = {};
   for (const e of events) byType[e.type] = (byType[e.type] ?? 0) + 1;
 
   const parts: string[] = [];
-  parts.push(`Over your recorded health journey, we see ${total} care event${total > 1 ? "s" : ""}:`);
+  parts.push(
+    `Over your recorded health journey, we see ${total} care event${total > 1 ? "s" : ""}:`,
+  );
 
-  if (byType.appointment) parts.push(` ${byType.appointment} appointment${byType.appointment > 1 ? "s" : ""}`);
+  if (byType.appointment)
+    parts.push(` ${byType.appointment} appointment${byType.appointment > 1 ? "s" : ""}`);
   if (byType.lab) parts.push(`, ${byType.lab} lab test${byType.lab > 1 ? "s" : ""}`);
   if (byType.bill) parts.push(`, ${byType.bill} bill${byType.bill > 1 ? "s" : ""}`);
-  if (byType.insurance) parts.push(`, ${byType.insurance} insurance claim${byType.insurance > 1 ? "s" : ""}`);
-  if (byType.blood_booking) parts.push(`, ${byType.blood_booking} at-home blood test${byType.blood_booking > 1 ? "s" : ""}`);
-  if (byType.admission) parts.push(`, ${byType.admission} hospital admission${byType.admission > 1 ? "s" : ""}`);
+  if (byType.insurance)
+    parts.push(`, ${byType.insurance} insurance claim${byType.insurance > 1 ? "s" : ""}`);
+  if (byType.blood_booking)
+    parts.push(
+      `, ${byType.blood_booking} at-home blood test${byType.blood_booking > 1 ? "s" : ""}`,
+    );
+  if (byType.admission)
+    parts.push(`, ${byType.admission} hospital admission${byType.admission > 1 ? "s" : ""}`);
 
   const latest = events[0];
-  parts.push(`. Your most recent event was "${latest.title}" on ${new Date(latest.date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}.`);
+  parts.push(
+    `. Your most recent event was "${latest.title}" on ${new Date(latest.date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}.`,
+  );
 
   // recommendation
   if (byType.blood_booking && byType.blood_booking > 0) {
-    parts.push(" Consider scheduling a follow-up review of your blood test reports with your physician.");
+    parts.push(
+      " Consider scheduling a follow-up review of your blood test reports with your physician.",
+    );
   } else if (total < 3) {
     parts.push(" Schedule your first at-home blood test to establish a baseline.");
   } else {

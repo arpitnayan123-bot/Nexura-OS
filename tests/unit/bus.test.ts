@@ -7,7 +7,11 @@ describe("event bus", () => {
   it("delivers hospital-wide events to same-hospital subscribers only", () => {
     const received: NxEvent[] = [];
     const before = connectionCount();
-    const unsub = subscribe("t1", { userId: "u1", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"] }, (e) => received.push(e));
+    const unsub = subscribe(
+      "t1",
+      { userId: "u1", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"] },
+      (e) => received.push(e),
+    );
     publish({ event: "test.wide", hospitalId: "h1", data: { a: 1 } });
     publish({ event: "test.wide", hospitalId: "h2", data: { a: 2 } });
     expect(received.length).toBe(1);
@@ -20,8 +24,16 @@ describe("event bus", () => {
   it("delivers role-targeted events only to matching roles", () => {
     const nurseEvents: NxEvent[] = [];
     const doctorEvents: NxEvent[] = [];
-    const u1 = subscribe("t2", { userId: "u2", role: "nurse", hospitalId: "h1", roleKeys: ["nurse"] }, (e) => nurseEvents.push(e));
-    const u2 = subscribe("t3", { userId: "u3", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"] }, (e) => doctorEvents.push(e));
+    const u1 = subscribe(
+      "t2",
+      { userId: "u2", role: "nurse", hospitalId: "h1", roleKeys: ["nurse"] },
+      (e) => nurseEvents.push(e),
+    );
+    const u2 = subscribe(
+      "t3",
+      { userId: "u3", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"] },
+      (e) => doctorEvents.push(e),
+    );
     publish({ event: "nurse.only", hospitalId: "h1", toRoles: ["nurse"], data: {} });
     expect(nurseEvents.length).toBe(1);
     expect(doctorEvents.length).toBe(0);
@@ -37,22 +49,49 @@ describe("event bus", () => {
     const clinician: NxEvent[] = [];
     const u1 = subscribe(
       "ch-1",
-      { userId: "u-no-access", role: "receptionist", hospitalId: "h1", roleKeys: ["receptionist"], channels: ["general"], clinicalAll: false },
-      (e) => noAccess.push(e)
+      {
+        userId: "u-no-access",
+        role: "receptionist",
+        hospitalId: "h1",
+        roleKeys: ["receptionist"],
+        channels: ["general"],
+        clinicalAll: false,
+      },
+      (e) => noAccess.push(e),
     );
     const u2 = subscribe(
       "ch-2",
-      { userId: "u-member", role: "nurse", hospitalId: "h1", roleKeys: ["nurse"], channels: ["general", "care-team:p1"], clinicalAll: false },
-      (e) => member.push(e)
+      {
+        userId: "u-member",
+        role: "nurse",
+        hospitalId: "h1",
+        roleKeys: ["nurse"],
+        channels: ["general", "care-team:p1"],
+        clinicalAll: false,
+      },
+      (e) => member.push(e),
     );
     const u3 = subscribe(
       "ch-3",
-      { userId: "u-clinician", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"], channels: [], clinicalAll: true },
-      (e) => clinician.push(e)
+      {
+        userId: "u-clinician",
+        role: "doctor",
+        hospitalId: "h1",
+        roleKeys: ["doctor"],
+        channels: [],
+        clinicalAll: true,
+      },
+      (e) => clinician.push(e),
     );
-    publish({ event: "message.new", hospitalId: "h1", channelKey: "care-team:p1", toRoles: ["nurse", "doctor", "receptionist"], data: { preview: "secret" } });
+    publish({
+      event: "message.new",
+      hospitalId: "h1",
+      channelKey: "care-team:p1",
+      toRoles: ["nurse", "doctor", "receptionist"],
+      data: { preview: "secret" },
+    });
     expect(noAccess.length).toBe(0); // no membership, no clinical view
-    expect(member.length).toBe(1);   // explicit channel member
+    expect(member.length).toBe(1); // explicit channel member
     expect(clinician.length).toBe(1); // patient.clinical.view
     u1();
     u2();
@@ -63,8 +102,15 @@ describe("event bus", () => {
     const events: NxEvent[] = [];
     const u1 = subscribe(
       "ch-4",
-      { userId: "u-x", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"], channels: ["care-team:p9"], clinicalAll: true },
-      (e) => events.push(e)
+      {
+        userId: "u-x",
+        role: "doctor",
+        hospitalId: "h1",
+        roleKeys: ["doctor"],
+        channels: ["care-team:p9"],
+        clinicalAll: true,
+      },
+      (e) => events.push(e),
     );
     publish({ event: "message.new", hospitalId: "h2", channelKey: "care-team:p9", data: {} });
     expect(events.length).toBe(0);
@@ -75,7 +121,13 @@ describe("event bus", () => {
     const { MAX_CONNS_PER_USER } = await import("@/lib/nx/bus");
     const unsubs: Array<() => void> = [];
     for (let i = 0; i < MAX_CONNS_PER_USER + 2; i++) {
-      unsubs.push(subscribe(`cap-${i}`, { userId: "cap-user", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"] }, () => {}));
+      unsubs.push(
+        subscribe(
+          `cap-${i}`,
+          { userId: "cap-user", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"] },
+          () => {},
+        ),
+      );
     }
     // count all connections belonging to cap-user
     let mine = 0;
@@ -90,7 +142,11 @@ describe("event bus", () => {
 
   it("keeps seq monotonic with an epoch prefix (restart-safe dedupe)", () => {
     const got: NxEvent[] = [];
-    const u1 = subscribe("seq-1", { userId: "seq-u", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"] }, (e) => got.push(e));
+    const u1 = subscribe(
+      "seq-1",
+      { userId: "seq-u", role: "doctor", hospitalId: "h1", roleKeys: ["doctor"] },
+      (e) => got.push(e),
+    );
     publish({ event: "a", hospitalId: "h1", data: {} });
     publish({ event: "b", hospitalId: "h1", data: {} });
     expect(got.length).toBe(2);

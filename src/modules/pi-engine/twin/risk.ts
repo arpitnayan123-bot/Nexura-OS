@@ -30,32 +30,54 @@ export function bandOfScore(score: number): RiskBand {
 export function sepsisRisk(s: TwinStateVector): { score: number; drivers: RiskDriver[] } {
   const drivers: RiskDriver[] = [];
   const push = (feature: string, contribution: number, detail: string) =>
-    drivers.push({ feature, contribution: Number(contribution.toFixed(2)), direction: contribution >= 0 ? "up" : "down", detail });
+    drivers.push({
+      feature,
+      contribution: Number(contribution.toFixed(2)),
+      direction: contribution >= 0 ? "up" : "down",
+      detail,
+    });
 
   let z = 6; // base
   if (s.hr !== null) {
-    const c = Math.max(0, (s.hr - 82)) * 0.38 + Math.max(0, s.hrTrend) * 2.1;
-    if (c > 0.3) push("Heart rate rising", c, `HR ${Math.round(s.hr)} bpm, slope ${s.hrTrend > 0 ? "+" : ""}${s.hrTrend.toFixed(1)}/day`);
+    const c = Math.max(0, s.hr - 82) * 0.38 + Math.max(0, s.hrTrend) * 2.1;
+    if (c > 0.3)
+      push(
+        "Heart rate rising",
+        c,
+        `HR ${Math.round(s.hr)} bpm, slope ${s.hrTrend > 0 ? "+" : ""}${s.hrTrend.toFixed(1)}/day`,
+      );
     z += c;
   }
   if (s.tempC !== null) {
     const abnormal = s.tempC < 36.2 || s.tempC > 37.8;
-    const c = abnormal ? Math.abs(s.tempC - 36.8) * 9 : Math.max(0, Math.abs(s.tempTrend) - 0.1) * 8;
-    if (c > 0.3) push("Temperature instability", c, `Temp ${s.tempC.toFixed(1)}°C, slope ${s.tempTrend.toFixed(2)}°C/day`);
+    const c = abnormal
+      ? Math.abs(s.tempC - 36.8) * 9
+      : Math.max(0, Math.abs(s.tempTrend) - 0.1) * 8;
+    if (c > 0.3)
+      push(
+        "Temperature instability",
+        c,
+        `Temp ${s.tempC.toFixed(1)}°C, slope ${s.tempTrend.toFixed(2)}°C/day`,
+      );
     z += c;
   }
   if (s.wbc !== null) {
-    const c = Math.max(0, (s.wbc - 10.5)) * 1.4 + Math.max(0, s.wbcTrend) * 3.2;
-    if (c > 0.3) push("WBC trending up", c, `WBC ${s.wbc.toFixed(1)}×10⁹/L, slope +${s.wbcTrend.toFixed(2)}/day`);
+    const c = Math.max(0, s.wbc - 10.5) * 1.4 + Math.max(0, s.wbcTrend) * 3.2;
+    if (c > 0.3)
+      push(
+        "WBC trending up",
+        c,
+        `WBC ${s.wbc.toFixed(1)}×10⁹/L, slope +${s.wbcTrend.toFixed(2)}/day`,
+      );
     z += c;
   }
   if (s.rr !== null) {
-    const c = Math.max(0, (s.rr - 18)) * 1.1;
+    const c = Math.max(0, s.rr - 18) * 1.1;
     if (c > 0.3) push("Respiratory rate up", c, `RR ${Math.round(s.rr)}/min`);
     z += c;
   }
   if (s.spo2 !== null) {
-    const c = Math.max(0, (96 - s.spo2)) * 1.6;
+    const c = Math.max(0, 96 - s.spo2) * 1.6;
     if (c > 0.3) push("Oxygen saturation falling", c, `SpO2 ${Math.round(s.spo2)}%`);
     z += c;
   }
@@ -75,14 +97,22 @@ export function sepsisRisk(s: TwinStateVector): { score: number; drivers: RiskDr
   }
 
   const score = clamp01(z / 42) * 100;
-  return { score: Number(score.toFixed(1)), drivers: drivers.sort((a, b) => b.contribution - a.contribution) };
+  return {
+    score: Number(score.toFixed(1)),
+    drivers: drivers.sort((a, b) => b.contribution - a.contribution),
+  };
 }
 
 /** Post-discharge readmission risk — 7-day degradation trajectory. */
 export function readmissionRisk(s: TwinStateVector): { score: number; drivers: RiskDriver[] } {
   const drivers: RiskDriver[] = [];
   const push = (feature: string, contribution: number, detail: string) =>
-    drivers.push({ feature, contribution: Number(contribution.toFixed(2)), direction: contribution >= 0 ? "up" : "down", detail });
+    drivers.push({
+      feature,
+      contribution: Number(contribution.toFixed(2)),
+      direction: contribution >= 0 ? "up" : "down",
+      detail,
+    });
 
   let z = 8;
   if (s.chronicConditions.length > 2) {
@@ -115,29 +145,41 @@ export function readmissionRisk(s: TwinStateVector): { score: number; drivers: R
   }
 
   const score = clamp01(z / 45) * 100;
-  return { score: Number(score.toFixed(1)), drivers: drivers.sort((a, b) => b.contribution - a.contribution) };
+  return {
+    score: Number(score.toFixed(1)),
+    drivers: drivers.sort((a, b) => b.contribution - a.contribution),
+  };
 }
 
 /** Long-horizon organ-damage probability for chronic patients. */
-export function chronicDeteriorationRisk(s: TwinStateVector): { score: number; drivers: RiskDriver[] } {
+export function chronicDeteriorationRisk(s: TwinStateVector): {
+  score: number;
+  drivers: RiskDriver[];
+} {
   const drivers: RiskDriver[] = [];
   const push = (feature: string, contribution: number, detail: string) =>
-    drivers.push({ feature, contribution: Number(contribution.toFixed(2)), direction: contribution >= 0 ? "up" : "down", detail });
+    drivers.push({
+      feature,
+      contribution: Number(contribution.toFixed(2)),
+      direction: contribution >= 0 ? "up" : "down",
+      detail,
+    });
 
   let z = 5;
   if (s.hba1c !== null) {
-    const c = Math.max(0, (s.hba1c - 6.5)) * 4.4;
+    const c = Math.max(0, s.hba1c - 6.5) * 4.4;
     if (c > 0.5) push("Cumulative glycemic exposure", c, `HbA1c ${s.hba1c.toFixed(1)}%`);
     z += c;
   }
   if (s.sbp !== null) {
-    const c = Math.max(0, (s.sbp - 130)) * 0.30;
+    const c = Math.max(0, s.sbp - 130) * 0.3;
     if (c > 0.5) push("Sustained hypertension", c, `SBP ${Math.round(s.sbp)} mmHg`);
     z += c;
   }
   if (s.creatinine !== null) {
-    const c = Math.max(0, (s.creatinine - 1.1)) * 5.5;
-    if (c > 0.5) push("Renal marker above normal", c, `creatinine ${s.creatinine.toFixed(2)} mg/dL`);
+    const c = Math.max(0, s.creatinine - 1.1) * 5.5;
+    if (c > 0.5)
+      push("Renal marker above normal", c, `creatinine ${s.creatinine.toFixed(2)} mg/dL`);
     z += c;
   }
   if (s.ntProBnp !== null && s.ntProBnp > 300) {
@@ -157,7 +199,10 @@ export function chronicDeteriorationRisk(s: TwinStateVector): { score: number; d
   }
 
   const score = clamp01(z / 50) * 100;
-  return { score: Number(score.toFixed(1)), drivers: drivers.sort((a, b) => b.contribution - a.contribution) };
+  return {
+    score: Number(score.toFixed(1)),
+    drivers: drivers.sort((a, b) => b.contribution - a.contribution),
+  };
 }
 
 function clamp01(x: number): number {
@@ -170,7 +215,9 @@ export function dataCompleteness(s: TwinStateVector): number {
   const present = fields.filter((v) => v !== null).length;
   const trendFields = [s.hrTrend, s.tempTrend, s.wbcTrend, s.creatinineTrend];
   const trendPresent = trendFields.filter((v) => v !== 0).length; // 0 == no series
-  return Number((0.7 * (present / fields.length) + 0.3 * (trendPresent / trendFields.length)).toFixed(3));
+  return Number(
+    (0.7 * (present / fields.length) + 0.3 * (trendPresent / trendFields.length)).toFixed(3),
+  );
 }
 
 export interface StratifyOptions {
@@ -184,13 +231,19 @@ export interface StratifyOptions {
  */
 export function stratify(
   s: TwinStateVector,
-  opts?: StratifyOptions
+  opts?: StratifyOptions,
 ): { composite: RiskAssessment; byDomain: Record<RiskDomain, RiskAssessment> } {
   const sepsis = sepsisRisk(s);
   const readmission = readmissionRisk(s);
   const chronic = chronicDeteriorationRisk(s);
 
-  const mk = (domain: RiskDomain, score: number, drivers: RiskDriver[], horizon: number, rationale: string): RiskAssessment => {
+  const mk = (
+    domain: RiskDomain,
+    score: number,
+    drivers: RiskDriver[],
+    horizon: number,
+    rationale: string,
+  ): RiskAssessment => {
     const completeness = dataCompleteness(s);
     // model agreement: how close the fused weights land to per-model scores
     const confidence = Number(Math.min(0.99, 0.55 + 0.45 * completeness).toFixed(3));
@@ -209,27 +262,48 @@ export function stratify(
   };
 
   const byDomain: Record<RiskDomain, RiskAssessment> = {
-    sepsis: mk("sepsis", sepsis.score, sepsis.drivers, 24, "Sepsis early-warning: trend-weighted physiological deviation."),
-    readmission: mk("readmission", readmission.score, readmission.drivers, 168, "Post-discharge 7-day degradation trajectory."),
-    chronic_deterioration: mk("chronic_deterioration", chronic.score, chronic.drivers, 2160, "Cumulative exposure model for chronic organ damage."),
-    cardiac: mk("cardiac", Math.round(0.6 * chronic.score + 0.4 * readmission.score), [...chronic.drivers.slice(0, 2), ...readmission.drivers.slice(0, 2)], 72, "Cardiac composite: chronic strain + decompensation signals."),
+    sepsis: mk(
+      "sepsis",
+      sepsis.score,
+      sepsis.drivers,
+      24,
+      "Sepsis early-warning: trend-weighted physiological deviation.",
+    ),
+    readmission: mk(
+      "readmission",
+      readmission.score,
+      readmission.drivers,
+      168,
+      "Post-discharge 7-day degradation trajectory.",
+    ),
+    chronic_deterioration: mk(
+      "chronic_deterioration",
+      chronic.score,
+      chronic.drivers,
+      2160,
+      "Cumulative exposure model for chronic organ damage.",
+    ),
+    cardiac: mk(
+      "cardiac",
+      Math.round(0.6 * chronic.score + 0.4 * readmission.score),
+      [...chronic.drivers.slice(0, 2), ...readmission.drivers.slice(0, 2)],
+      72,
+      "Cardiac composite: chronic strain + decompensation signals.",
+    ),
     composite: mk("composite", 0, [], 24, ""),
   };
 
   // fuse: worst current risk dominates, others add weighted context
-  const fused = Math.max(
-    sepsis.score,
-    readmission.score * 0.55,
-    chronic.score * 0.5
+  const fused = Math.max(sepsis.score, readmission.score * 0.55, chronic.score * 0.5);
+  const allDrivers = [...sepsis.drivers, ...readmission.drivers, ...chronic.drivers].sort(
+    (a, b) => b.contribution - a.contribution,
   );
-  const allDrivers = [...sepsis.drivers, ...readmission.drivers, ...chronic.drivers]
-    .sort((a, b) => b.contribution - a.contribution);
   byDomain.composite = mk(
     "composite",
     Number(fused.toFixed(1)),
     allDrivers,
     24,
-    `Composite Time-to-Decay dominated by ${fused === sepsis.score ? "acute (sepsis)" : fused === readmission.score * 0.55 ? "post-discharge" : "chronic"} trajectory.`
+    `Composite Time-to-Decay dominated by ${fused === sepsis.score ? "acute (sepsis)" : fused === readmission.score * 0.55 ? "post-discharge" : "chronic"} trajectory.`,
   );
   return { composite: byDomain.composite, byDomain };
 }

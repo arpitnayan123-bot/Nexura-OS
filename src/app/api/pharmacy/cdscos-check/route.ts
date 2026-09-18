@@ -13,26 +13,126 @@ export const dynamic = "force-dynamic";
 // CDSCO banned Fixed Dose Combinations (FDCs)
 // These are combinations prohibited from manufacture and sale in India
 const BANNED_FDCS: { combination: string; reason: string; banDate: string; category: string }[] = [
-  { combination: "Nimesulide+Paracetamol", reason: "Hepatotoxicity risk — synergistic liver damage", banDate: "2011", category: "NSAID+Analgesic" },
-  { combination: "Nimesulide+Cetirizine", reason: "Irrational FDC — no therapeutic justification", banDate: "2011", category: "NSAID+Antihistamine" },
-  { combination: "Nimesulide+Ofloxacin", reason: "Irrational FDC — antibiotic+NSAID without indication", banDate: "2011", category: "NSAID+Antibiotic" },
-  { combination: "Paracetamol+Phenylephrine+Caffeine", reason: "Irrational combination — safety concerns", banDate: "2011", category: "Analgesic+Decongestant+CNS" },
-  { combination: "Paracetamol+Levocetirizine", reason: "Irrational FDC — unnecessary combination", banDate: "2011", category: "Analgesic+Antihistamine" },
-  { combination: "Amoxicillin+Diclofenac", reason: "Irrational FDC — antibiotic+NSAID", banDate: "2011", category: "Antibiotic+NSAID" },
-  { combination: "Levocetirizine+Ambroxol", reason: "Irrational FDC — antihistamine+mucolytic", banDate: "2011", category: "Antihistamine+Mucolytic" },
-  { combination: "Ofloxacin+Ornidazole+Aceclofenac", reason: "Triple irrational FDC", banDate: "2011", category: "Antibiotic+Antiprotozoal+NSAID" },
-  { combination: "Amoxicillin+Cloxacillin", reason: "Irrational dual antibiotic FDC", banDate: "2011", category: "Dual Antibiotic" },
-  { combination: "Cetirizine+Paracetamol", reason: "Irrational FDC — no added benefit", banDate: "2011", category: "Antihistamine+Analgesic" },
-  { combination: "Diclofenac+Paracetamol+Chlorzoxazone", reason: "Irrational triple FDC", banDate: "2011", category: "NSAID+Analgesic+Muscle Relaxant" },
-  { combination: "Ibuprofen+Dextropropoxyphene", reason: "Dextropropoxyphene banned globally", banDate: "2011", category: "NSAID+Opioid" },
-  { combination: "Ranitidine+Domperidone", reason: "Irrational FDC", banDate: "2011", category: "Antacid+Prokinetic" },
-  { combination: "Pantoprazole+Domperidone", reason: "Irrational FDC — separate dosing preferred", banDate: "2011", category: "PPI+Prokinetic" },
-  { combination: "Azithromycin+Ambroxol", reason: "Irrational FDC — antibiotic+mucolytic", banDate: "2011", category: "Antibiotic+Mucolytic" },
-  { combination: "Cefixime+Ofloxacin", reason: "Dual fluoroquinolone-cephalosporin — promotes resistance", banDate: "2011", category: "Dual Antibiotic" },
-  { combination: "Metformin+Glimepiride+Pioglitazone", reason: "Triple anti-diabetic FDC — safety concerns", banDate: "2011", category: "Triple Antidiabetic" },
-  { combination: "Diclofenac+Tramadol", reason: "Safety concerns — CNS depression risk", banDate: "2011", category: "NSAID+Opioid" },
-  { combination: "Chloramphenicol+Steroids", reason: "High risk of blindness if used topically", banDate: "2011", category: "Antibiotic+Steroid" },
-  { combination: "Sibutramine+Any", reason: "Sibutramine banned — cardiovascular risk", banDate: "2011", category: "Anti-obesity" },
+  {
+    combination: "Nimesulide+Paracetamol",
+    reason: "Hepatotoxicity risk — synergistic liver damage",
+    banDate: "2011",
+    category: "NSAID+Analgesic",
+  },
+  {
+    combination: "Nimesulide+Cetirizine",
+    reason: "Irrational FDC — no therapeutic justification",
+    banDate: "2011",
+    category: "NSAID+Antihistamine",
+  },
+  {
+    combination: "Nimesulide+Ofloxacin",
+    reason: "Irrational FDC — antibiotic+NSAID without indication",
+    banDate: "2011",
+    category: "NSAID+Antibiotic",
+  },
+  {
+    combination: "Paracetamol+Phenylephrine+Caffeine",
+    reason: "Irrational combination — safety concerns",
+    banDate: "2011",
+    category: "Analgesic+Decongestant+CNS",
+  },
+  {
+    combination: "Paracetamol+Levocetirizine",
+    reason: "Irrational FDC — unnecessary combination",
+    banDate: "2011",
+    category: "Analgesic+Antihistamine",
+  },
+  {
+    combination: "Amoxicillin+Diclofenac",
+    reason: "Irrational FDC — antibiotic+NSAID",
+    banDate: "2011",
+    category: "Antibiotic+NSAID",
+  },
+  {
+    combination: "Levocetirizine+Ambroxol",
+    reason: "Irrational FDC — antihistamine+mucolytic",
+    banDate: "2011",
+    category: "Antihistamine+Mucolytic",
+  },
+  {
+    combination: "Ofloxacin+Ornidazole+Aceclofenac",
+    reason: "Triple irrational FDC",
+    banDate: "2011",
+    category: "Antibiotic+Antiprotozoal+NSAID",
+  },
+  {
+    combination: "Amoxicillin+Cloxacillin",
+    reason: "Irrational dual antibiotic FDC",
+    banDate: "2011",
+    category: "Dual Antibiotic",
+  },
+  {
+    combination: "Cetirizine+Paracetamol",
+    reason: "Irrational FDC — no added benefit",
+    banDate: "2011",
+    category: "Antihistamine+Analgesic",
+  },
+  {
+    combination: "Diclofenac+Paracetamol+Chlorzoxazone",
+    reason: "Irrational triple FDC",
+    banDate: "2011",
+    category: "NSAID+Analgesic+Muscle Relaxant",
+  },
+  {
+    combination: "Ibuprofen+Dextropropoxyphene",
+    reason: "Dextropropoxyphene banned globally",
+    banDate: "2011",
+    category: "NSAID+Opioid",
+  },
+  {
+    combination: "Ranitidine+Domperidone",
+    reason: "Irrational FDC",
+    banDate: "2011",
+    category: "Antacid+Prokinetic",
+  },
+  {
+    combination: "Pantoprazole+Domperidone",
+    reason: "Irrational FDC — separate dosing preferred",
+    banDate: "2011",
+    category: "PPI+Prokinetic",
+  },
+  {
+    combination: "Azithromycin+Ambroxol",
+    reason: "Irrational FDC — antibiotic+mucolytic",
+    banDate: "2011",
+    category: "Antibiotic+Mucolytic",
+  },
+  {
+    combination: "Cefixime+Ofloxacin",
+    reason: "Dual fluoroquinolone-cephalosporin — promotes resistance",
+    banDate: "2011",
+    category: "Dual Antibiotic",
+  },
+  {
+    combination: "Metformin+Glimepiride+Pioglitazone",
+    reason: "Triple anti-diabetic FDC — safety concerns",
+    banDate: "2011",
+    category: "Triple Antidiabetic",
+  },
+  {
+    combination: "Diclofenac+Tramadol",
+    reason: "Safety concerns — CNS depression risk",
+    banDate: "2011",
+    category: "NSAID+Opioid",
+  },
+  {
+    combination: "Chloramphenicol+Steroids",
+    reason: "High risk of blindness if used topically",
+    banDate: "2011",
+    category: "Antibiotic+Steroid",
+  },
+  {
+    combination: "Sibutramine+Any",
+    reason: "Sibutramine banned — cardiovascular risk",
+    banDate: "2011",
+    category: "Anti-obesity",
+  },
 ];
 
 // CDSCO banned single drugs
@@ -45,7 +145,10 @@ const BANNED_DRUGS: { drug: string; reason: string }[] = [
   { drug: "Gatifloxacin (oral)", reason: "Banned (oral) — dysglycemia risk. Topical OK" },
   { drug: "Tegaserod", reason: "Banned — cardiovascular ischemic events" },
   { drug: "Rosiglitazone", reason: "Banned — cardiovascular risk" },
-  { drug: "Halogenated fluoroalkanes (CFC inhalers)", reason: "Banned — environmental (Montreal Protocol)" },
+  {
+    drug: "Halogenated fluoroalkanes (CFC inhalers)",
+    reason: "Banned — environmental (Montreal Protocol)",
+  },
 ];
 
 // GET /api/pharmacy/cdscos-check?q=medicine+salt — check if drug is banned
@@ -65,33 +168,56 @@ async function GET_impl(req: NextRequest) {
 
     // Check FDC bans
     // FDC ban: only flag if BOTH parts of a combination are present in the query
-    const fdcMatch = BANNED_FDCS.find(f => {
-      const parts = f.combination.toLowerCase().split("+").map(p => p.trim());
+    const fdcMatch = BANNED_FDCS.find((f) => {
+      const parts = f.combination
+        .toLowerCase()
+        .split("+")
+        .map((p) => p.trim());
       // require ALL parts present AND query contains "+" or "and" (indicating a combination)
       const isCombinationQuery = q.includes("+") || q.includes(" and ") || q.includes(" with ");
-      return isCombinationQuery && parts.every(part => q.includes(part));
+      return isCombinationQuery && parts.every((part) => q.includes(part));
     });
 
     // Check single drug bans
     // Single drug ban: match if the drug name appears as a standalone word
-    const drugMatch = BANNED_DRUGS.find(d => {
+    const drugMatch = BANNED_DRUGS.find((d) => {
       const drugLower = d.drug.toLowerCase();
       // for "Nimesulide (in children <12)" — extract base name
       const baseDrug = drugLower.split(" ")[0];
-      return q === baseDrug || q.startsWith(baseDrug + " ") || q.includes(" " + baseDrug + " ") || q.endsWith(" " + baseDrug);
+      return (
+        q === baseDrug ||
+        q.startsWith(baseDrug + " ") ||
+        q.includes(" " + baseDrug + " ") ||
+        q.endsWith(" " + baseDrug)
+      );
     });
 
     return NextResponse.json({
       query: q,
       isBanned: !!(fdcMatch || drugMatch),
-      fdcBan: fdcMatch ? { combination: fdcMatch.combination, reason: fdcMatch.reason, banDate: fdcMatch.banDate, category: fdcMatch.category } : null,
+      fdcBan: fdcMatch
+        ? {
+            combination: fdcMatch.combination,
+            reason: fdcMatch.reason,
+            banDate: fdcMatch.banDate,
+            category: fdcMatch.category,
+          }
+        : null,
       drugBan: drugMatch ? { drug: drugMatch.drug, reason: drugMatch.reason } : null,
       source: "CDSCO — cdsco.gov.in",
       lawReference: "Section 26A, Drugs & Cosmetics Act, 1940",
     });
   } catch (err) {
-    log.error("pharmacy", "cdsco_check_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "cdsco_check_failed", detail: "The CDSCO check could not be completed. Please retry." }, { status: 500 });
+    log.error("pharmacy", "cdsco_check_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "cdsco_check_failed",
+        detail: "The CDSCO check could not be completed. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }
 

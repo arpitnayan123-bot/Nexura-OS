@@ -60,9 +60,17 @@ function readMfaToken(token: string): string | null {
 }
 
 async function issueSession(
-  user: { id: string; name: string; role: string; department: string | null; hospitalId: string; staffCode: string; linkedPatientId: string | null },
+  user: {
+    id: string;
+    name: string;
+    role: string;
+    department: string | null;
+    hospitalId: string;
+    staffCode: string;
+    linkedPatientId: string | null;
+  },
   req: NextRequest,
-  opts: { rememberDevice?: boolean; breakGlass?: boolean }
+  opts: { rememberDevice?: boolean; breakGlass?: boolean },
 ): Promise<NextResponse> {
   const jti = crypto.randomUUID();
   const maxAgeSec = opts.rememberDevice ? REMEMBER_DAYS * 24 * 3600 : SESSION_HOURS * 3600;
@@ -91,7 +99,7 @@ async function issueSession(
     // Aligned with the 12h cookie/session-record promise. Real controls are
     // server-side: revocable NxSessionRecord, idle timeout, lockout. The old
     // 15m exp silently logged staff out while cookies/records said 12h.
-    "12h"
+    "12h",
   );
   const roleKey = user.role as NxRole;
   // Backward-compatible envelope: OS shell + login UI read top-level user/modules
@@ -106,7 +114,11 @@ async function issueSession(
     },
     roleKeys: roleKeysForUser(user.role),
     modules: modulesForRole(roleKey),
-    session: { jti, expiresAt: expiresAt.toISOString(), rememberDevice: Boolean(opts.rememberDevice) },
+    session: {
+      jti,
+      expiresAt: expiresAt.toISOString(),
+      rememberDevice: Boolean(opts.rememberDevice),
+    },
   });
   res.cookies.set("nx_access", token, {
     httpOnly: true,
@@ -132,9 +144,15 @@ export const POST = withRoute("auth.login", async (req) => {
   const FAIL_MAX = 20;
   const ipFail = peekRateLimit(`login-ip-fail:${ip}`, FAIL_MAX, FAIL_WINDOW);
   if (!ipFail.allowed) {
-    return fail("rate_limited", 429, "Too many failed sign-in attempts from this network. Try again later.", undefined, {
-      "Retry-After": String(Math.ceil((ipFail.resetAt - Date.now()) / 1000)),
-    });
+    return fail(
+      "rate_limited",
+      429,
+      "Too many failed sign-in attempts from this network. Try again later.",
+      undefined,
+      {
+        "Retry-After": String(Math.ceil((ipFail.resetAt - Date.now()) / 1000)),
+      },
+    );
   }
   // Consume one failure slot whenever an attempt is rejected (called next to the audit entry).
   const noteFailure = () => rateLimit(`login-ip-fail:${ip}`, FAIL_MAX, FAIL_WINDOW);
@@ -144,10 +162,12 @@ export const POST = withRoute("auth.login", async (req) => {
   const creds = body.data;
 
   const isPassword = "email" in creds;
-  const identifier = isPassword ? creds.email.toLowerCase().trim() : creds.staffCode.toUpperCase().trim();
+  const identifier = isPassword
+    ? creds.email.toLowerCase().trim()
+    : creds.staffCode.toUpperCase().trim();
 
   const user = await db.nxStaffUser.findFirst({
-    where: isPassword ? { email: { equals: identifier, } } : { staffCode: identifier },
+    where: isPassword ? { email: { equals: identifier } } : { staffCode: identifier },
   });
 
   const auditAttempt = async (success: boolean, reason: string, userId?: string) => {
@@ -177,7 +197,11 @@ export const POST = withRoute("auth.login", async (req) => {
   // Account state gates
   if (user.status === "suspended") {
     await auditAttempt(false, "suspended");
-    return fail("account_suspended", 403, "This account is suspended. Contact your hospital administrator.");
+    return fail(
+      "account_suspended",
+      403,
+      "This account is suspended. Contact your hospital administrator.",
+    );
   }
   if (user.status === "deactivated") {
     await auditAttempt(false, "deactivated");
@@ -188,22 +212,39 @@ export const POST = withRoute("auth.login", async (req) => {
   if (user.lockedUntil && user.lockedUntil > new Date()) {
     await auditAttempt(false, "locked");
     const mins = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
-    return fail("account_locked", 423, `Account temporarily locked after repeated failures. Try again in ${mins} minute${mins === 1 ? "" : "s"}.`);
+    return fail(
+      "account_locked",
+      423,
+      `Account temporarily locked after repeated failures. Try again in ${mins} minute${mins === 1 ? "" : "s"}.`,
+    );
   }
 
   // --- MFA step 2 ---
   if (creds.mfaToken) {
     const mfaUserId = readMfaToken(creds.mfaToken);
-    if (!mfaUserId || mfaUserId !== user.id) return fail("invalid_mfa_token", 401, "MFA session expired. Sign in again.");
-    if (!user.mfaSecret || !creds.mfaCode) return fail("mfa_required", 401, "Enter your authenticator code.", undefined);
+    if (!mfaUserId || mfaUserId !== user.id)
+      return fail("invalid_mfa_token", 401, "MFA session expired. Sign in again.");
+    if (!user.mfaSecret || !creds.mfaCode)
+      return fail("mfa_required", 401, "Enter your authenticator code.", undefined);
     const { verifyTotp } = await import("@/lib/nx/totp");
     if (!verifyTotp(user.mfaSecret, creds.mfaCode)) {
       await auditAttempt(false, "mfa_failed");
-      return fail("invalid_mfa_code", 401, "That authenticator code didn't match. Try the next code.");
+      return fail(
+        "invalid_mfa_code",
+        401,
+        "That authenticator code didn't match. Try the next code.",
+      );
     }
     await auditAttempt(true, "ok_mfa");
     if (user.hospitalId) {
-      await audit({ hospitalId: user.hospitalId, actorName: user.staffCode, actorRole: user.role, action: "auth.login", entityType: "nx_session", detail: { method: isPassword ? "password+mfa" : "pin+mfa" } });
+      await audit({
+        hospitalId: user.hospitalId,
+        actorName: user.staffCode,
+        actorRole: user.role,
+        action: "auth.login",
+        entityType: "nx_session",
+        detail: { method: isPassword ? "password+mfa" : "pin+mfa" },
+      });
     }
     return issueSession(user, req, { rememberDevice: creds.rememberDevice });
   }
@@ -222,17 +263,31 @@ export const POST = withRoute("auth.login", async (req) => {
 
   if (!credOk) {
     const attempts = user.failedAttempts + 1;
-    const lockMins = attempts >= MAX_ATTEMPTS ? Math.min(30, 2 ** (attempts - MAX_ATTEMPTS + 1)) : 0;
+    const lockMins =
+      attempts >= MAX_ATTEMPTS ? Math.min(30, 2 ** (attempts - MAX_ATTEMPTS + 1)) : 0;
     await db.nxStaffUser.update({
       where: { id: user.id },
-      data: { failedAttempts: attempts, lockedUntil: lockMins ? new Date(Date.now() + lockMins * 60000) : null },
+      data: {
+        failedAttempts: attempts,
+        lockedUntil: lockMins ? new Date(Date.now() + lockMins * 60000) : null,
+      },
     });
     await auditAttempt(false, lockMins ? "locked_now" : "invalid_credentials");
     if (lockMins) {
-      return fail("account_locked", 423, `Too many failed attempts. Account locked for ${lockMins} minute${lockMins === 1 ? "" : "s"}.`);
+      return fail(
+        "account_locked",
+        423,
+        `Too many failed attempts. Account locked for ${lockMins} minute${lockMins === 1 ? "" : "s"}.`,
+      );
     }
     const left = MAX_ATTEMPTS - attempts;
-    return fail("invalid_credentials", 401, left <= 2 ? `Incorrect credentials. ${left} attempt${left === 1 ? "" : "s"} before temporary lock.` : "Incorrect credentials.");
+    return fail(
+      "invalid_credentials",
+      401,
+      left <= 2
+        ? `Incorrect credentials. ${left} attempt${left === 1 ? "" : "s"} before temporary lock.`
+        : "Incorrect credentials.",
+    );
   }
 
   // --- MFA step 1: user has MFA on, issue step-up token ---
@@ -242,12 +297,19 @@ export const POST = withRoute("auth.login", async (req) => {
 
   await auditAttempt(true, "ok");
   if (user.hospitalId) {
-    await audit({ hospitalId: user.hospitalId, actorName: user.staffCode, actorRole: user.role, action: "auth.login", entityType: "nx_session", detail: { method: isPassword ? "password" : "pin" } });
+    await audit({
+      hospitalId: user.hospitalId,
+      actorName: user.staffCode,
+      actorRole: user.role,
+      action: "auth.login",
+      entityType: "nx_session",
+      detail: { method: isPassword ? "password" : "pin" },
+    });
   }
   const res = await issueSession(user, req, { rememberDevice: creds.rememberDevice });
   if (env().values.DEMO_MODE) {
     // annotate demo flag in body without touching cookie logic
-    const data = (res as unknown as { _payload?: unknown });
+    const data = res as unknown as { _payload?: unknown };
     void data;
   }
   return res;
@@ -262,9 +324,12 @@ export const GET = withRoute("auth.me", async (req) => {
   const user = await db.nxStaffUser.findUnique({ where: { id: decoded.userId } });
   if (!user || user.status !== "active") return fail("unauthenticated", 401);
   const sessionRec = (decoded as { jti?: string }).jti
-    ? await db.nxSessionRecord.findUnique({ where: { jti: (decoded as unknown as { jti: string }).jti } })
+    ? await db.nxSessionRecord.findUnique({
+        where: { jti: (decoded as unknown as { jti: string }).jti },
+      })
     : null;
-  if (sessionRec && (sessionRec.revokedAt || sessionRec.expiresAt < new Date())) return fail("session_revoked", 401, "Your session was signed out.");
+  if (sessionRec && (sessionRec.revokedAt || sessionRec.expiresAt < new Date()))
+    return fail("session_revoked", 401, "Your session was signed out.");
   return NextResponse.json({
     user: {
       id: user.id,
@@ -282,7 +347,9 @@ export const GET = withRoute("auth.me", async (req) => {
     roleKeys: roleKeysForUser(user.role),
     modules: modulesForRole(user.role as NxRole),
     demo: env().values.DEMO_MODE,
-    session: sessionRec ? { expiresAt: sessionRec.expiresAt, breakGlass: sessionRec.breakGlass } : null,
+    session: sessionRec
+      ? { expiresAt: sessionRec.expiresAt, breakGlass: sessionRec.breakGlass }
+      : null,
   });
 });
 
@@ -295,7 +362,10 @@ export const DELETE = withRoute("auth.logout.delete", async (req: NextRequest) =
     const decoded = verifyToken(token);
     const jti = decoded ? (decoded as unknown as { jti?: string }).jti : null;
     if (decoded && jti) {
-      await db.nxSessionRecord.updateMany({ where: { jti, revokedAt: null }, data: { revokedAt: new Date(), revokedReason: "logout" } });
+      await db.nxSessionRecord.updateMany({
+        where: { jti, revokedAt: null },
+        data: { revokedAt: new Date(), revokedReason: "logout" },
+      });
     }
   }
   return res;

@@ -34,7 +34,21 @@ export const GET = withRoute("nx.beds.board", async (req: NextRequest) => {
 
   const wards = await db.hospitalWard.findMany({
     where: { hospitalId },
-    include: { beds: { include: { admissions: { where: { dischargeStatus: "active" }, include: { patient: { select: { id: true, fullName: true, uhid: true, gender: true, age: true } } }, take: 1 } } } },
+    include: {
+      beds: {
+        include: {
+          admissions: {
+            where: { dischargeStatus: "active" },
+            include: {
+              patient: {
+                select: { id: true, fullName: true, uhid: true, gender: true, age: true },
+              },
+            },
+            take: 1,
+          },
+        },
+      },
+    },
     orderBy: { name: "asc" },
   });
 
@@ -46,18 +60,37 @@ export const GET = withRoute("nx.beds.board", async (req: NextRequest) => {
 
   return NextResponse.json({
     wards: wards.map((w) => ({
-      id: w.id, name: w.name, type: w.wardType,
+      id: w.id,
+      name: w.name,
+      type: w.wardType,
       beds: w.beds.map((b) => ({
-        id: b.id, number: b.bedNumber, status: b.status === "cleaning" ? "cleaning_required" : b.status,
+        id: b.id,
+        number: b.bedNumber,
+        status: b.status === "cleaning" ? "cleaning_required" : b.status,
         patient: b.admissions[0]
-          ? { id: b.admissions[0].patient.id, name: b.admissions[0].patient.fullName, uhid: b.admissions[0].patient.uhid, age: b.admissions[0].patient.age, gender: b.admissions[0].patient.gender, diagnosis: b.admissions[0].admissionDiagnosis, since: b.admissions[0].admissionDate }
+          ? {
+              id: b.admissions[0].patient.id,
+              name: b.admissions[0].patient.fullName,
+              uhid: b.admissions[0].patient.uhid,
+              age: b.admissions[0].patient.age,
+              gender: b.admissions[0].patient.gender,
+              diagnosis: b.admissions[0].admissionDiagnosis,
+              since: b.admissions[0].admissionDate,
+            }
           : null,
-        reservedFor: b.reservedForName, lastCleanedAt: b.lastCleanedAt,
+        reservedFor: b.reservedForName,
+        lastCleanedAt: b.lastCleanedAt,
       })),
     })),
     counts,
     total: beds.length,
-    occupancyPct: beds.length ? Math.round((beds.filter((b) => ["occupied", "discharge_pending"].includes(b.status)).length / beds.length) * 100) : 0,
+    occupancyPct: beds.length
+      ? Math.round(
+          (beds.filter((b) => ["occupied", "discharge_pending"].includes(b.status)).length /
+            beds.length) *
+            100,
+        )
+      : 0,
   });
 });
 
@@ -67,15 +100,22 @@ export const PATCH = withRoute("nx.beds.lifecycle", async (req: NextRequest) => 
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
-  if (!body.bedId || !body.to) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+  if (!body.bedId || !body.to)
+    return NextResponse.json({ error: "missing_fields" }, { status: 400 });
 
   // Tenant-scoped: beds outside this hospital are invisible.
-  const bed = await db.hospitalBed.findFirst({ where: { id: body.bedId, hospitalId: gate.session.hospitalId }, include: { ward: true } });
+  const bed = await db.hospitalBed.findFirst({
+    where: { id: body.bedId, hospitalId: gate.session.hospitalId },
+    include: { ward: true },
+  });
   if (!bed) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const allowed = LIFECYCLE[bed.status] || [];
   if (!allowed.includes(body.to)) {
-    return NextResponse.json({ error: "invalid_transition", from: bed.status, allowed }, { status: 400 });
+    return NextResponse.json(
+      { error: "invalid_transition", from: bed.status, allowed },
+      { status: 400 },
+    );
   }
 
   const data: Record<string, unknown> = { status: body.to };
@@ -89,20 +129,37 @@ export const PATCH = withRoute("nx.beds.lifecycle", async (req: NextRequest) => 
      can no longer silently overwrite each other. */
   const cas = await db.hospitalBed.updateMany({ where: { id: bed.id, status: bed.status }, data });
   if (cas.count === 0) {
-    return NextResponse.json({ error: "bed_state_changed", detail: `Bed is no longer ${bed.status} — refresh and retry.`, from: bed.status }, { status: 409 });
+    return NextResponse.json(
+      {
+        error: "bed_state_changed",
+        detail: `Bed is no longer ${bed.status} — refresh and retry.`,
+        from: bed.status,
+      },
+      { status: 409 },
+    );
   }
-  const updated = await db.hospitalBed.findFirst({ where: { id: bed.id }, include: { ward: true } });
+  const updated = await db.hospitalBed.findFirst({
+    where: { id: bed.id },
+    include: { ward: true },
+  });
 
   await audit({
-    hospitalId: bed.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-    action: "bed.lifecycle", entityType: "HospitalBed", entityId: bed.id,
+    hospitalId: bed.hospitalId,
+    actorName: gate.session.name,
+    actorRole: gate.session.role,
+    action: "bed.lifecycle",
+    entityType: "HospitalBed",
+    entityId: bed.id,
     detail: { bed: bed.bedNumber, ward: bed.ward?.name, from: bed.status, to: body.to },
   });
 
   // Bed ready → nudge assignment
   if (body.to === "ready") {
     await fire("bed.ready", {
-      hospitalId: bed.hospitalId, actorName: gate.session.name, actorRole: gate.session.role, relatedId: bed.id,
+      hospitalId: bed.hospitalId,
+      actorName: gate.session.name,
+      actorRole: gate.session.role,
+      relatedId: bed.id,
       detail: { bedNumber: bed.bedNumber, ward: bed.ward?.name },
     });
   }
@@ -116,16 +173,21 @@ export const POST = withRoute("nx.beds.reserve", async (req: NextRequest) => {
   if ("error" in gate) return NextResponse.json({ error: gate.error }, { status: gate.status });
   if (!gate.session.hospitalId) return NextResponse.json({ error: "no_hospital" }, { status: 400 });
   const body = await req.json().catch(() => ({}));
-  if (!body.bedId || !body.patientId) return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+  if (!body.bedId || !body.patientId)
+    return NextResponse.json({ error: "missing_fields" }, { status: 400 });
 
-  const bed = await db.hospitalBed.findFirst({ where: { id: body.bedId, hospitalId: gate.session.hospitalId } });
+  const bed = await db.hospitalBed.findFirst({
+    where: { id: body.bedId, hospitalId: gate.session.hospitalId },
+  });
   if (!bed) return NextResponse.json({ error: "not_found" }, { status: 404 });
   if (!["ready", "available"].includes(bed.status)) {
     return NextResponse.json({ error: "bed_not_assignable", status: bed.status }, { status: 400 });
   }
 
   // Patient must belong to the same hospital as the bed (no cross-tenant reservation).
-  const patient = await db.hospitalPatient.findFirst({ where: { id: body.patientId, hospitalId: gate.session.hospitalId } });
+  const patient = await db.hospitalPatient.findFirst({
+    where: { id: body.patientId, hospitalId: gate.session.hospitalId },
+  });
   if (!patient) return NextResponse.json({ error: "patient_not_found" }, { status: 404 });
 
   /* Reservation race: the assignable-status guard lives IN the update — two
@@ -135,12 +197,23 @@ export const POST = withRoute("nx.beds.reserve", async (req: NextRequest) => {
     data: { status: "reserved", reservedForName: patient.fullName },
   });
   if (cas.count === 0) {
-    return NextResponse.json({ error: "bed_not_assignable", status: (await db.hospitalBed.findFirst({ where: { id: bed.id } }))?.status ?? bed.status }, { status: 409 });
+    return NextResponse.json(
+      {
+        error: "bed_not_assignable",
+        status: (await db.hospitalBed.findFirst({ where: { id: bed.id } }))?.status ?? bed.status,
+      },
+      { status: 409 },
+    );
   }
   const updated = await db.hospitalBed.findFirst({ where: { id: bed.id } });
   await audit({
-    hospitalId: bed.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-    action: "bed.reserve", entityType: "HospitalBed", entityId: bed.id, patientId: patient.id,
+    hospitalId: bed.hospitalId,
+    actorName: gate.session.name,
+    actorRole: gate.session.role,
+    action: "bed.reserve",
+    entityType: "HospitalBed",
+    entityId: bed.id,
+    patientId: patient.id,
     detail: { bed: bed.bedNumber, patient: patient.fullName },
   });
   return NextResponse.json({ bed: updated });

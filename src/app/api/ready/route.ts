@@ -34,9 +34,13 @@ export async function GET(_req: NextRequest) {
       status: okAll ? "ready" : "degraded",
       checks,
       realtime: { connections: connectionCount() },
-      mode: { demo: e.values.DEMO_MODE, nexura: e.values.NEXURA_MODE, email: e.values.EMAIL_TRANSPORT },
+      mode: {
+        demo: e.values.DEMO_MODE,
+        nexura: e.values.NEXURA_MODE,
+        email: e.values.EMAIL_TRANSPORT,
+      },
       at: new Date().toISOString(),
     },
-    { status: okAll ? 200 : 503 }
+    { status: okAll ? 200 : 503 },
   );
 }

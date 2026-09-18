@@ -129,7 +129,7 @@ export const GET = withOk(async () => {
 /* ---------- helpers ---------- */
 
 function withOk(
-  handler: (req: NextRequest) => Promise<NextResponse>
+  handler: (req: NextRequest) => Promise<NextResponse>,
 ): (req: NextRequest) => Promise<NextResponse> {
   return async (req: NextRequest) => {
     try {

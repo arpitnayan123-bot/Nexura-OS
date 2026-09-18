@@ -17,8 +17,23 @@ async function GET_impl() {
     const suppliers = await db.supplier.findMany({
       where: { purchases: { some: { branchId: ctx.branch.id } } },
       include: {
-        purchases: { where: { branchId: ctx.branch.id }, select: { id: true, poNo: true, total: true, paidAmount: true, createdAt: true, status: true }, orderBy: { createdAt: "desc" } },
-        payments: { include: { purchase: { select: { poNo: true } } }, orderBy: { createdAt: "desc" }, take: 20 },
+        purchases: {
+          where: { branchId: ctx.branch.id },
+          select: {
+            id: true,
+            poNo: true,
+            total: true,
+            paidAmount: true,
+            createdAt: true,
+            status: true,
+          },
+          orderBy: { createdAt: "desc" },
+        },
+        payments: {
+          include: { purchase: { select: { poNo: true } } },
+          orderBy: { createdAt: "desc" },
+          take: 20,
+        },
       },
     });
     /* Purchase.total/paidAmount and SupplierPayment.amount are integer paise —
@@ -33,8 +48,13 @@ async function GET_impl() {
     });
     return NextResponse.json({ suppliers: withLedger });
   } catch (err) {
-    log.error("pharmacy", "suppliers_list_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "suppliers_failed", detail: "Suppliers could not be loaded. Please retry." }, { status: 500 });
+    log.error("pharmacy", "suppliers_list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "suppliers_failed", detail: "Suppliers could not be loaded. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -53,24 +73,46 @@ async function POST_impl(req: NextRequest) {
     const ctx = await getDemoContext();
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
     const parsed = SupplierPaymentSchema.safeParse(await req.json().catch(() => null));
-    if (!parsed.success) return NextResponse.json({ error: "invalid_request", detail: "Invalid supplier payment payload." }, { status: 400 });
+    if (!parsed.success)
+      return NextResponse.json(
+        { error: "invalid_request", detail: "Invalid supplier payment payload." },
+        { status: 400 },
+      );
     const { supplierId, purchaseId, amount, payMode, refNo, notes } = parsed.data;
     const amountPaise = rupeeToPaise(amount);
     /* Payment row + purchase paidAmount increment commit together — they are
        one business operation; splitting them risks a paid-ledger mismatch. */
     const payment = await db.$transaction(async (tx) => {
       const created = await tx.supplierPayment.create({
-        data: { supplierId, purchaseId: purchaseId || null, amount: amountPaise, payMode, refNo: refNo || null, notes: notes || null },
+        data: {
+          supplierId,
+          purchaseId: purchaseId || null,
+          amount: amountPaise,
+          payMode,
+          refNo: refNo || null,
+          notes: notes || null,
+        },
       });
       if (purchaseId) {
-        await tx.purchase.update({ where: { id: purchaseId }, data: { paidAmount: { increment: amountPaise } } });
+        await tx.purchase.update({
+          where: { id: purchaseId },
+          data: { paidAmount: { increment: amountPaise } },
+        });
       }
       return created;
     });
     return NextResponse.json({ ok: true, payment: toRupees(payment, AMOUNT_PAISE) });
   } catch (err) {
-    log.error("pharmacy", "supplier_payment_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "supplier_payment_failed", detail: "The payment could not be recorded. Please retry." }, { status: 500 });
+    log.error("pharmacy", "supplier_payment_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "supplier_payment_failed",
+        detail: "The payment could not be recorded. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }
 

@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { generateTotpSecret, totpAt, verifyTotp, base32Decode, base32Encode, otpauthUrl } from "@/lib/nx/totp";
+import {
+  generateTotpSecret,
+  totpAt,
+  verifyTotp,
+  base32Decode,
+  base32Encode,
+  otpauthUrl,
+} from "@/lib/nx/totp";
 
 /* RFC-6238 TOTP — MFA architecture core. */
 

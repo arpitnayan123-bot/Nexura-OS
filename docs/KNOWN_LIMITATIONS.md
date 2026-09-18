@@ -11,18 +11,18 @@ point-in-time readiness statement.
 
 ## Integration placeholders (implemented locally, wire remote in prod)
 
-| Area | Status | Where to wire |
-|---|---|---|
-| Email sending | **`src/lib/mailer.ts` is the boundary.** `EMAIL_TRANSPORT=console` (demo) prints the token to stdout; `EMAIL_TRANSPORT=smtp` sends real mail via nodemailer (`SMTP_HOST/PORT/USER/PASS/FROM`). Remaining: none for email — SMS/WhatsApp still needs a provider. | SMTP env vars; SMS/WhatsApp provider of choice |
-| ABDM / ABHA lookup | Demo mode fabricates a labelled demo identity; production returns **501 `abdm_not_integrated`** (never silently fakes) | `/api/clinic/abha` once an ABDM gateway is contracted |
-| IRP e-invoice IRN | GST payload is generated from real sale data; `irn`/`ackNo` are `null` until the IRP portal registration happens | `/api/pharmacy/e-invoice` |
-| Live drug-price feeds | NPPA price table and CDSCO banned-FDC lists are curated in-repo reference data; swap or schedule updates | `/api/pharmacy/nppa-prices`, `/api/pharmacy/cdscos-check` |
-| Nexura remote adapters | Local adapters active; remote warns + falls back | `src/lib/nexura/local.ts` per contract |
-| Malware scanning for uploads | `scanStatus: "skipped"` | `NxFileObject` lifecycle |
-| Webhook delivery | Model + retry fields exist; no dispatcher cron | `NxWebhookDelivery` worker |
-| Reminders queue | `reminderSentAt` field + scheduling events; sender can ride the job runner | `src/lib/nx/jobs/runner.ts` handler |
-| SSO/SAML/OIDC | Button placeholder + architecture ready | add an `IdentityProvider` adapter |
-| Device ingestion at scale | Wearable ingest + bio-signal endpoints are live; a dedicated time-series store is the next step for volume | `/api/nx/wearables/*`, `/api/nx/bio/*` |
+| Area                         | Status                                                                                                                                                                                                                                                          | Where to wire                                             |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Email sending                | **`src/lib/mailer.ts` is the boundary.** `EMAIL_TRANSPORT=console` (demo) prints the token to stdout; `EMAIL_TRANSPORT=smtp` sends real mail via nodemailer (`SMTP_HOST/PORT/USER/PASS/FROM`). Remaining: none for email — SMS/WhatsApp still needs a provider. | SMTP env vars; SMS/WhatsApp provider of choice            |
+| ABDM / ABHA lookup           | Demo mode fabricates a labelled demo identity; production returns **501 `abdm_not_integrated`** (never silently fakes)                                                                                                                                          | `/api/clinic/abha` once an ABDM gateway is contracted     |
+| IRP e-invoice IRN            | GST payload is generated from real sale data; `irn`/`ackNo` are `null` until the IRP portal registration happens                                                                                                                                                | `/api/pharmacy/e-invoice`                                 |
+| Live drug-price feeds        | NPPA price table and CDSCO banned-FDC lists are curated in-repo reference data; swap or schedule updates                                                                                                                                                        | `/api/pharmacy/nppa-prices`, `/api/pharmacy/cdscos-check` |
+| Nexura remote adapters       | Local adapters active; remote warns + falls back                                                                                                                                                                                                                | `src/lib/nexura/local.ts` per contract                    |
+| Malware scanning for uploads | `scanStatus: "skipped"`                                                                                                                                                                                                                                         | `NxFileObject` lifecycle                                  |
+| Webhook delivery             | Model + retry fields exist; no dispatcher cron                                                                                                                                                                                                                  | `NxWebhookDelivery` worker                                |
+| Reminders queue              | `reminderSentAt` field + scheduling events; sender can ride the job runner                                                                                                                                                                                      | `src/lib/nx/jobs/runner.ts` handler                       |
+| SSO/SAML/OIDC                | Button placeholder + architecture ready                                                                                                                                                                                                                         | add an `IdentityProvider` adapter                         |
+| Device ingestion at scale    | Wearable ingest + bio-signal endpoints are live; a dedicated time-series store is the next step for volume                                                                                                                                                      | `/api/nx/wearables/*`, `/api/nx/bio/*`                    |
 
 ## Recently closed gaps (was placeholders, now implemented)
 

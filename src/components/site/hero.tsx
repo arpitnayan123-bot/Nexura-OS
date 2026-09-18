@@ -14,12 +14,7 @@ import {
 } from "lucide-react";
 import { useBooking } from "./booking-context";
 import { Magnetic } from "./magnetic";
-import {
-  BreathingOrb,
-  EcgLine,
-  Reveal,
-  GrainOverlay,
-} from "./ambient";
+import { BreathingOrb, EcgLine, Reveal, GrainOverlay } from "./ambient";
 import { AnimatedNumber } from "./animated-number";
 
 export function Hero() {
@@ -94,9 +89,8 @@ export function Hero() {
 
             <Reveal delay={0.16}>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Nexura OS quietly listens, learns, and breathes with you —
-                unifying AI diagnostics, continuous monitoring, and real human
-                care into one warm, intelligent platform.
+                Nexura OS quietly listens, learns, and breathes with you — unifying AI diagnostics,
+                continuous monitoring, and real human care into one warm, intelligent platform.
               </p>
             </Reveal>
 
@@ -107,7 +101,12 @@ export function Hero() {
                     type="button"
                     onClick={() => openBooking()}
                     className="mat-btn mat-btn--lg mat-btn--textured group h-11 px-7 text-[0.95rem]"
-                    style={{ "--mat-accent": "#A16207", "--mat-accent-2": "#C88A1F" } as React.CSSProperties}
+                    style={
+                      {
+                        "--mat-accent": "#A16207",
+                        "--mat-accent-2": "#C88A1F",
+                      } as React.CSSProperties
+                    }
                   >
                     Start your health scan
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -131,14 +130,17 @@ export function Hero() {
                   className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border px-3.5 py-2 text-xs font-medium text-foreground transition-all hover:scale-105"
                   style={{
                     borderColor: "color-mix(in srgb, #C2410C 32%, transparent)",
-                    background: "linear-gradient(120deg, color-mix(in srgb, #C2410C 8%, white 82%), color-mix(in srgb, #EA580C 6%, white 88%))",
+                    background:
+                      "linear-gradient(120deg, color-mix(in srgb, #C2410C 8%, white 82%), color-mix(in srgb, #EA580C 6%, white 88%))",
                     backgroundSize: "220% 220%",
                     animation: "mat-aurora-shift 6s ease-in-out infinite",
                   }}
                 >
                   <Sparkles className="h-3.5 w-3.5 text-[#C2410C]" />
                   Know Your Health
-                  <span className="rounded-full bg-[#C2410C]/12 px-1.5 py-0.5 text-[0.5rem] font-bold text-[#9A3412]">15 AI tools</span>
+                  <span className="rounded-full bg-[#C2410C]/12 px-1.5 py-0.5 text-[0.5rem] font-bold text-[#9A3412]">
+                    15 AI tools
+                  </span>
                 </Link>
                 <Link
                   href="/connect"
@@ -146,7 +148,9 @@ export function Hero() {
                 >
                   <MessageCircle className="h-3.5 w-3.5 text-[#B45309]" />
                   Nexura Connect
-                  <span className="rounded-full bg-[#B45309] px-1.5 py-0.5 text-[0.5rem] font-bold text-white">NEW</span>
+                  <span className="rounded-full bg-[#B45309] px-1.5 py-0.5 text-[0.5rem] font-bold text-white">
+                    NEW
+                  </span>
                 </Link>
               </div>
             </Reveal>
@@ -202,7 +206,7 @@ function HeroVisual() {
   const doctorFallback =
     "data:image/svg+xml," +
     encodeURIComponent(
-      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 600' preserveAspectRatio='xMidYMid slice'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#F6EBE0'/><stop offset='0.55' stop-color='#EAD8C6'/><stop offset='1' stop-color='#DCC3AB'/></linearGradient><radialGradient id='o' cx='0.5' cy='0.42' r='0.5'><stop offset='0' stop-color='#AC5335' stop-opacity='0.35'/><stop offset='1' stop-color='#AC5335' stop-opacity='0'/></radialGradient><radialGradient id='s' cx='0.25' cy='0.85' r='0.45'><stop offset='0' stop-color='#9DB89E' stop-opacity='0.4'/><stop offset='1' stop-color='#9DB89E' stop-opacity='0'/></radialGradient></defs><rect width='500' height='600' fill='url(#g)'/><rect width='500' height='600' fill='url(#o)'/><rect width='500' height='600' fill='url(#s)'/><circle cx='250' cy='235' r='74' fill='none' stroke='#AC5335' stroke-opacity='0.45' stroke-width='2.5'/><path d='M175 420 Q 250 330 325 420' fill='none' stroke='#AC5335' stroke-opacity='0.45' stroke-width='2.5' stroke-linecap='round'/><circle cx='205' cy='215' r='5' fill='#AC5335' fill-opacity='0.5'/><circle cx='295' cy='215' r='5' fill='#AC5335' fill-opacity='0.5'/><path d='M225 265 Q 250 285 275 265' fill='none' stroke='#AC5335' stroke-opacity='0.5' stroke-width='2.5' stroke-linecap='round'/></svg>`
+      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 600' preserveAspectRatio='xMidYMid slice'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#F6EBE0'/><stop offset='0.55' stop-color='#EAD8C6'/><stop offset='1' stop-color='#DCC3AB'/></linearGradient><radialGradient id='o' cx='0.5' cy='0.42' r='0.5'><stop offset='0' stop-color='#AC5335' stop-opacity='0.35'/><stop offset='1' stop-color='#AC5335' stop-opacity='0'/></radialGradient><radialGradient id='s' cx='0.25' cy='0.85' r='0.45'><stop offset='0' stop-color='#9DB89E' stop-opacity='0.4'/><stop offset='1' stop-color='#9DB89E' stop-opacity='0'/></radialGradient></defs><rect width='500' height='600' fill='url(#g)'/><rect width='500' height='600' fill='url(#o)'/><rect width='500' height='600' fill='url(#s)'/><circle cx='250' cy='235' r='74' fill='none' stroke='#AC5335' stroke-opacity='0.45' stroke-width='2.5'/><path d='M175 420 Q 250 330 325 420' fill='none' stroke='#AC5335' stroke-opacity='0.45' stroke-width='2.5' stroke-linecap='round'/><circle cx='205' cy='215' r='5' fill='#AC5335' fill-opacity='0.5'/><circle cx='295' cy='215' r='5' fill='#AC5335' fill-opacity='0.5'/><path d='M225 265 Q 250 285 275 265' fill='none' stroke='#AC5335' stroke-opacity='0.5' stroke-width='2.5' stroke-linecap='round'/></svg>`,
     );
 
   return (
@@ -227,10 +231,26 @@ function HeroVisual() {
 
       {/* twinkling sparks — tiny gold stars scattered around the frame */}
       <span aria-hidden className="hero-spark left-[10%] top-[4%]" />
-      <span aria-hidden className="hero-spark right-[6%] top-[15%]" style={{ animationDelay: "-1.2s" }} />
-      <span aria-hidden className="hero-spark bottom-[14%] left-[4%]" style={{ animationDelay: "-2.1s" }} />
-      <span aria-hidden className="hero-spark bottom-[4%] right-[15%]" style={{ animationDelay: "-3s" }} />
-      <span aria-hidden className="hero-spark left-[24%] top-[47%] h-1 w-1" style={{ animationDelay: "-0.6s" }} />
+      <span
+        aria-hidden
+        className="hero-spark right-[6%] top-[15%]"
+        style={{ animationDelay: "-1.2s" }}
+      />
+      <span
+        aria-hidden
+        className="hero-spark bottom-[14%] left-[4%]"
+        style={{ animationDelay: "-2.1s" }}
+      />
+      <span
+        aria-hidden
+        className="hero-spark bottom-[4%] right-[15%]"
+        style={{ animationDelay: "-3s" }}
+      />
+      <span
+        aria-hidden
+        className="hero-spark left-[24%] top-[47%] h-1 w-1"
+        style={{ animationDelay: "-0.6s" }}
+      />
 
       {/* main doctor card — gold-ringed, sheen-swept */}
       <motion.div
@@ -258,8 +278,14 @@ function HeroVisual() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.31_0.02_55_0.55)] via-transparent to-transparent" />
         {/* gold inset hairline + soft top light */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-[#C88A1F]/30" />
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/30 to-transparent" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-[#C88A1F]/30"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/30 to-transparent"
+        />
         {/* endless specular sheen sweep */}
         <div aria-hidden className="hero-sheen" />
 
@@ -313,9 +339,7 @@ function HeroVisual() {
             <Sparkles className="h-4 w-4" />
           </span>
           <div className="leading-tight">
-            <p className="text-[0.7rem] font-medium text-muted-foreground">
-              AI risk signals
-            </p>
+            <p className="text-[0.7rem] font-medium text-muted-foreground">AI risk signals</p>
             <p className="text-sm font-semibold">12 domains mapped</p>
           </div>
         </div>
@@ -342,18 +366,14 @@ function HeroVisual() {
         transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
       >
         <div className="flex items-center justify-between">
-          <span className="text-[0.7rem] font-medium text-muted-foreground">
-            Heart rate
-          </span>
+          <span className="text-[0.7rem] font-medium text-muted-foreground">Heart rate</span>
           <span className="flex items-center gap-1 text-[0.65rem] font-medium text-[#BE123C]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#BE123C] anim-breathe" />
             streaming
           </span>
         </div>
         <div className="mt-1 flex items-baseline gap-1">
-          <span className="font-display text-2xl font-semibold text-foreground">
-            72
-          </span>
+          <span className="font-display text-2xl font-semibold text-foreground">72</span>
           <span className="text-[0.7rem] text-muted-foreground">bpm</span>
         </div>
         <EcgLine className="mt-1" width={180} height={36} />
@@ -366,13 +386,9 @@ function HeroVisual() {
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
       >
-        <p className="text-[0.7rem] font-medium text-muted-foreground">
-          Care score
-        </p>
+        <p className="text-[0.7rem] font-medium text-muted-foreground">Care score</p>
         <div className="mt-1 flex items-end justify-between">
-          <span className="font-display text-2xl font-semibold text-gradient-warm">
-            A+
-          </span>
+          <span className="font-display text-2xl font-semibold text-gradient-warm">A+</span>
           <div className="flex gap-0.5">
             {[6, 9, 5, 11, 7].map((h, i) => (
               <motion.span

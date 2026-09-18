@@ -20,11 +20,31 @@ export const GET = withRoute("ai.report", async (req: NextRequest, { requestId }
     orderBy: { createdAt: "desc" },
     take: 500,
   });
-  const byFeature = new Map<string, { total: number; confSum: number; confN: number; fallbacks: number; blocked: number; failed: number }>();
+  const byFeature = new Map<
+    string,
+    {
+      total: number;
+      confSum: number;
+      confN: number;
+      fallbacks: number;
+      blocked: number;
+      failed: number;
+    }
+  >();
   for (const i of interactions) {
-    const f = byFeature.get(i.feature) ?? { total: 0, confSum: 0, confN: 0, fallbacks: 0, blocked: 0, failed: 0 };
+    const f = byFeature.get(i.feature) ?? {
+      total: 0,
+      confSum: 0,
+      confN: 0,
+      fallbacks: 0,
+      blocked: 0,
+      failed: 0,
+    };
     f.total += 1;
-    if (typeof i.confidence === "number") { f.confSum += i.confidence; f.confN += 1; }
+    if (typeof i.confidence === "number") {
+      f.confSum += i.confidence;
+      f.confN += 1;
+    }
     if (i.thresholdAction === "human_fallback") f.fallbacks += 1;
     if (i.thresholdAction === "blocked") f.blocked += 1;
     if (i.status === "failed") f.failed += 1;
@@ -46,21 +66,26 @@ export const GET = withRoute("ai.report", async (req: NextRequest, { requestId }
     humanFallbacks: f.fallbacks,
     blocked: f.blocked,
     failures: f.failed,
-    overrideRatePct: reviewed ? Math.round(((verdicts.corrected + verdicts.rejected) / reviewed) * 100) : 0,
+    overrideRatePct: reviewed
+      ? Math.round(((verdicts.corrected + verdicts.rejected) / reviewed) * 100)
+      : 0,
   }));
-  return ok({
-    windowHours: 24,
-    totalCalls: interactions.length,
-    reviewed,
-    verdicts,
-    reviewRatePct: interactions.length ? Math.round((reviewed / interactions.length) * 100) : 0,
-    perFeature: report,
-    governance: {
-      confidenceHeuristic: "structured-output completeness (deterministic)",
-      failSafe: "blocked below 0.7×threshold; human fallback below threshold",
-      versionsTracked: true,
-      consentGated: "patient-facing features check NxConsent (ai_assist/data_share)",
+  return ok(
+    {
+      windowHours: 24,
+      totalCalls: interactions.length,
+      reviewed,
+      verdicts,
+      reviewRatePct: interactions.length ? Math.round((reviewed / interactions.length) * 100) : 0,
+      perFeature: report,
+      governance: {
+        confidenceHeuristic: "structured-output completeness (deterministic)",
+        failSafe: "blocked below 0.7×threshold; human fallback below threshold",
+        versionsTracked: true,
+        consentGated: "patient-facing features check NxConsent (ai_assist/data_share)",
+      },
+      generatedAt: new Date().toISOString(),
     },
-    generatedAt: new Date().toISOString(),
-  }, { requestId });
+    { requestId },
+  );
 });

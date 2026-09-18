@@ -7,12 +7,31 @@ import { audit } from "@/lib/nx/audit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function acuityFromVitals(v: { pulseRate?: number | null; spo2?: number | null; bpSystolic?: number | null; temperatureC?: number | null } | null): { level: number; label: string; reason: string } {
+function acuityFromVitals(
+  v: {
+    pulseRate?: number | null;
+    spo2?: number | null;
+    bpSystolic?: number | null;
+    temperatureC?: number | null;
+  } | null,
+): { level: number; label: string; reason: string } {
   if (!v) return { level: 3, label: "Urgent", reason: "No vitals recorded yet" };
-  if ((v.spo2 != null && v.spo2 < 90) || (v.bpSystolic != null && v.bpSystolic < 90) || (v.pulseRate != null && v.pulseRate > 130)) {
-    return { level: 1, label: "Resuscitation", reason: "Derailing vitals — SpO2/BP/pulse thresholds breached" };
+  if (
+    (v.spo2 != null && v.spo2 < 90) ||
+    (v.bpSystolic != null && v.bpSystolic < 90) ||
+    (v.pulseRate != null && v.pulseRate > 130)
+  ) {
+    return {
+      level: 1,
+      label: "Resuscitation",
+      reason: "Derailing vitals — SpO2/BP/pulse thresholds breached",
+    };
   }
-  if ((v.spo2 != null && v.spo2 < 94) || (v.pulseRate != null && (v.pulseRate > 110 || v.pulseRate < 50)) || (v.temperatureC != null && v.temperatureC >= 39)) {
+  if (
+    (v.spo2 != null && v.spo2 < 94) ||
+    (v.pulseRate != null && (v.pulseRate > 110 || v.pulseRate < 50)) ||
+    (v.temperatureC != null && v.temperatureC >= 39)
+  ) {
     return { level: 2, label: "Emergent", reason: "Abnormal vitals — needs rapid assessment" };
   }
   return { level: 3, label: "Urgent", reason: "Stable vitals within alert bounds" };
@@ -30,10 +49,16 @@ export const GET = withRoute("nx.ed.board", async (req: NextRequest) => {
   startOfDay.setHours(0, 0, 0, 0);
 
   const edAdmissions = await db.hospitalAdmission.findMany({
-    where: { hospitalId, admissionType: "emergency", admissionDate: { gte: new Date(Date.now() - 24 * 3600000) } },
+    where: {
+      hospitalId,
+      admissionType: "emergency",
+      admissionDate: { gte: new Date(Date.now() - 24 * 3600000) },
+    },
     orderBy: { admissionDate: "desc" },
     include: {
-      patient: { select: { id: true, fullName: true, uhid: true, age: true, gender: true, allergy: true } },
+      patient: {
+        select: { id: true, fullName: true, uhid: true, age: true, gender: true, allergy: true },
+      },
       bed: { include: { ward: true } },
       admittingDoctor: { select: { name: true } },
     },
@@ -59,7 +84,15 @@ export const GET = withRoute("nx.ed.board", async (req: NextRequest) => {
       acuity,
       location: a.bed ? `${a.bed.ward?.name} · ${a.bed.bedNumber}` : "ED — awaiting space",
       disposition: a.dischargeStatus,
-      latestVitals: v ? { bp: `${v.bpSystolic}/${v.bpDiastolic}`, pulse: v.pulseRate, spo2: v.spo2, temp: v.temperatureC, at: v.recordedAt } : null,
+      latestVitals: v
+        ? {
+            bp: `${v.bpSystolic}/${v.bpDiastolic}`,
+            pulse: v.pulseRate,
+            spo2: v.spo2,
+            temp: v.temperatureC,
+            at: v.recordedAt,
+          }
+        : null,
     };
   });
 
@@ -69,7 +102,9 @@ export const GET = withRoute("nx.ed.board", async (req: NextRequest) => {
       active: cases.filter((c) => c.disposition === "active").length,
       level1: cases.filter((c) => c.acuity.level === 1).length,
       waitingSpace: cases.filter((c) => c.location === "ED — awaiting space").length,
-      avgWaitMins: cases.length ? Math.round(cases.reduce((s, c) => s + c.waitMins, 0) / cases.length) : 0,
+      avgWaitMins: cases.length
+        ? Math.round(cases.reduce((s, c) => s + c.waitMins, 0) / cases.length)
+        : 0,
       longWaits: cases.filter((c) => c.waitMins > 60 && c.disposition === "active").length,
     },
   });
@@ -84,7 +119,10 @@ export const PATCH = withRoute("nx.ed.triage", async (req: NextRequest) => {
   if (!body.id) return NextResponse.json({ error: "missing_id" }, { status: 400 });
 
   // Tenant-scoped triage target.
-  const admission = await db.hospitalAdmission.findFirst({ where: { id: body.id, hospitalId: gate.session.hospitalId }, include: { patient: true } });
+  const admission = await db.hospitalAdmission.findFirst({
+    where: { id: body.id, hospitalId: gate.session.hospitalId },
+    include: { patient: true },
+  });
   if (!admission) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   if (body.note) {
@@ -100,8 +138,13 @@ export const PATCH = withRoute("nx.ed.triage", async (req: NextRequest) => {
     });
   }
   await audit({
-    hospitalId: admission.hospitalId, actorName: gate.session.name, actorRole: gate.session.role,
-    action: "ed.triage", entityType: "HospitalAdmission", entityId: admission.id, patientId: admission.patientId,
+    hospitalId: admission.hospitalId,
+    actorName: gate.session.name,
+    actorRole: gate.session.role,
+    action: "ed.triage",
+    entityType: "HospitalAdmission",
+    entityId: admission.id,
+    patientId: admission.patientId,
     detail: { note: body.note || "triage update" },
   });
   return NextResponse.json({ ok: true });

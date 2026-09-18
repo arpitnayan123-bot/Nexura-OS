@@ -33,12 +33,23 @@ const STAGE_ORDER = [
   "followup",
 ];
 
-export async function buildPatientJourney(hospitalId: string, patientId: string): Promise<JourneyStage[]> {
+export async function buildPatientJourney(
+  hospitalId: string,
+  patientId: string,
+): Promise<JourneyStage[]> {
   const [patient, appointments, admissions, orders, prescriptions, bills] = await Promise.all([
     db.hospitalPatient.findUnique({ where: { id: patientId } }),
-    db.hospitalAppointment.findMany({ where: { patientId }, orderBy: { date: "asc" }, include: { doctor: { select: { name: true } } } }),
+    db.hospitalAppointment.findMany({
+      where: { patientId },
+      orderBy: { date: "asc" },
+      include: { doctor: { select: { name: true } } },
+    }),
     db.hospitalAdmission.findMany({ where: { patientId }, orderBy: { admissionDate: "asc" } }),
-    db.hospitalOrder.findMany({ where: { patientId }, orderBy: { createdAt: "asc" }, include: { labResults: true } }),
+    db.hospitalOrder.findMany({
+      where: { patientId },
+      orderBy: { createdAt: "asc" },
+      include: { labResults: true },
+    }),
     db.hospitalPrescription.findMany({ where: { patientId }, orderBy: { createdAt: "asc" } }),
     db.hospitalBill.findMany({ where: { patientId }, orderBy: { createdAt: "asc" } }),
   ]);
@@ -51,7 +62,14 @@ export async function buildPatientJourney(hospitalId: string, patientId: string)
       key: `appt-${appt.id}`,
       stage: "appointment",
       title: appt.chiefComplaint ? `OPD appointment — ${appt.chiefComplaint}` : "OPD appointment",
-      status: appt.status === "completed" ? "completed" : appt.status === "cancelled" || appt.status === "no_show" ? "upcoming" : new Date(appt.date) >= new Date() ? "upcoming" : "completed",
+      status:
+        appt.status === "completed"
+          ? "completed"
+          : appt.status === "cancelled" || appt.status === "no_show"
+            ? "upcoming"
+            : new Date(appt.date) >= new Date()
+              ? "upcoming"
+              : "completed",
       at: appt.date.toISOString(),
       owner: appt.doctor?.name || "OPD",
       detail: `${appt.appointmentType || "opd"} · token #${appt.tokenNumber} · ${appt.status}`,
@@ -71,7 +89,13 @@ export async function buildPatientJourney(hospitalId: string, patientId: string)
       status: allFinal ? "completed" : "active",
       at: latest.createdAt.toISOString(),
       owner: "Laboratory & Imaging",
-      detail: labOrders.map((o) => (JSON.parse(o.orderDetails || "{}") as { testName?: string }).testName || o.orderType).slice(0, 4).join(", "),
+      detail: labOrders
+        .map(
+          (o) =>
+            (JSON.parse(o.orderDetails || "{}") as { testName?: string }).testName || o.orderType,
+        )
+        .slice(0, 4)
+        .join(", "),
       kind: "diagnostics",
     });
   }
@@ -85,18 +109,28 @@ export async function buildPatientJourney(hospitalId: string, patientId: string)
       status: discharged ? "completed" : "active",
       at: adm.admissionDate.toISOString(),
       owner: "Attending team",
-      detail: discharged ? `Discharged ${adm.actualDischargeDate?.toISOString().slice(0, 10)} · ${adm.dischargeStatus}` : "Currently admitted",
+      detail: discharged
+        ? `Discharged ${adm.actualDischargeDate?.toISOString().slice(0, 10)} · ${adm.dischargeStatus}`
+        : "Currently admitted",
       relatedId: adm.id,
       kind: "admission",
     });
 
-    const surg = await db.oTSurgery.findFirst({ where: { patientId: patient.id, admissionId: adm.id }, orderBy: { plannedStartTime: "asc" } });
+    const surg = await db.oTSurgery.findFirst({
+      where: { patientId: patient.id, admissionId: adm.id },
+      orderBy: { plannedStartTime: "asc" },
+    });
     if (surg) {
       stages.push({
         key: `surg-${surg.id}`,
         stage: "surgery",
         title: `Surgery — ${surg.procedureName}`,
-        status: surg.status === "completed" ? "completed" : surg.status === "in_progress" ? "active" : "upcoming",
+        status:
+          surg.status === "completed"
+            ? "completed"
+            : surg.status === "in_progress"
+              ? "active"
+              : "upcoming",
         at: (surg.actualStartTime || surg.plannedStartTime)?.toISOString() || null,
         owner: "OT team",
         detail: `OT ${surg.otRoomNumber} · ${surg.status}`,
@@ -120,7 +154,10 @@ export async function buildPatientJourney(hospitalId: string, patientId: string)
     }
   }
 
-  const fuTask = await db.nxTask.findFirst({ where: { patientId: patient.id, type: "followup", status: { not: "cancelled" } }, orderBy: { createdAt: "desc" } });
+  const fuTask = await db.nxTask.findFirst({
+    where: { patientId: patient.id, type: "followup", status: { not: "cancelled" } },
+    orderBy: { createdAt: "desc" },
+  });
   if (fuTask) {
     stages.push({
       key: `fu-${fuTask.id}`,

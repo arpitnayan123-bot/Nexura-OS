@@ -1,6 +1,7 @@
 # Nexura OS — ChatGPT Codebase Review / Astra Handoff
 
 ## Snapshot reviewed
+
 - 113 API route files under `src/app/api`
 - 62 Prisma models
 - 332 TypeScript/TSX source files under `src`
@@ -61,6 +62,7 @@
     - A GitHub handoff archive does not need the existing `.git` metadata. The production handoff ZIP generated alongside this review intentionally excludes `.git`.
 
 ## Architecture strengths
+
 - Clear Next.js App Router monolith: UI + API routes in one deployable application.
 - Centralized AI gateway abstraction exists.
 - Shared auth, DB, and domain context libraries exist.
@@ -69,6 +71,7 @@
 - `.gitignore` already excludes `.env*`, `node_modules`, `.next`, logs, tool results, and generated media/intermediates.
 
 ## Production target
+
 The desired state is a single coherent, deployable Nexura OS application in which:
 
 - every visible route renders without hydration/runtime errors;
@@ -85,7 +88,9 @@ The desired state is a single coherent, deployable Nexura OS application in whic
 - the final deployment is suitable for Vercel with the backend represented by Next.js API/server functions.
 
 ## Verification model
+
 The final handoff should be considered production-ready only after dependency-backed checks cover at least:
+
 - install
 - Prisma client generation
 - schema validation / migration

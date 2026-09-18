@@ -59,8 +59,15 @@ async function main() {
     body: JSON.stringify({ fullName: "Smoke Member", phone: P2, relation: "spouse" }),
   });
   const invBody = await inv.json();
-  check("invite created (not silent attach)", invBody?.invite?.token != null, JSON.stringify(invBody).slice(0, 200));
-  check("member NOT attached by invite alone", (await db.portalUser.findUnique({ where: { phone: P2 } })).familyHeadId !== head.id);
+  check(
+    "invite created (not silent attach)",
+    invBody?.invite?.token != null,
+    JSON.stringify(invBody).slice(0, 200),
+  );
+  check(
+    "member NOT attached by invite alone",
+    (await db.portalUser.findUnique({ where: { phone: P2 } })).familyHeadId !== head.id,
+  );
 
   console.log("== accept from the member's own session ==");
   const acc = await fetch(`${BASE}/api/portal/family/invite/accept`, {
@@ -83,7 +90,10 @@ async function main() {
   console.log("== family listing shows member ==");
   const fam = await fetch(`${BASE}/api/portal/family`, { headers: { cookie: A.cookie } });
   const famBody = await fam.json();
-  check("member visible to head", Array.isArray(famBody?.members) && famBody.members.some((m) => m.phone === P2));
+  check(
+    "member visible to head",
+    Array.isArray(famBody?.members) && famBody.members.some((m) => m.phone === P2),
+  );
 
   console.log("== wrong phone cannot accept someone else's invite ==");
   // Fresh invite to a NEW onboarded user (D); a third party (C) tries to steal it.

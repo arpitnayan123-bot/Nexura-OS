@@ -18,7 +18,10 @@ export const GET = withRoute<{ assessmentId: string }>(
     if (!(await patientInScope(a.patientId, g.session))) {
       return ok({ error: "not_found" }, { requestId: g.requestId, status: 404 });
     }
-    const patient = await db.hospitalPatient.findUnique({ where: { id: a.patientId }, select: { fullName: true } });
+    const patient = await db.hospitalPatient.findUnique({
+      where: { id: a.patientId },
+      select: { fullName: true },
+    });
     const drivers = JSON.parse(a.driversJson || "[]") as Parameters<typeof explain>[0]["drivers"];
     const assessment = {
       patientId: a.patientId,
@@ -33,8 +36,11 @@ export const GET = withRoute<{ assessmentId: string }>(
       rationale: "",
     };
     return ok(
-      { explanation: explain(assessment, patient?.fullName ?? "patient"), attribution: attributionBars(drivers) },
-      { requestId: g.requestId }
+      {
+        explanation: explain(assessment, patient?.fullName ?? "patient"),
+        attribution: attributionBars(drivers),
+      },
+      { requestId: g.requestId },
     );
-  }
+  },
 );

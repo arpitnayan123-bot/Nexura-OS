@@ -1,17 +1,67 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, Pill, HeartPulse, Building2, Stethoscope, CheckCircle2, ScanLine, FileText, Video } from "lucide-react";
+import {
+  ShieldCheck,
+  Pill,
+  HeartPulse,
+  Building2,
+  Stethoscope,
+  CheckCircle2,
+  ScanLine,
+  FileText,
+  Video,
+} from "lucide-react";
 
 const COMPLIANCE = [
-  { icon: ScanLine, title: "Schedule H2 QR Authentication", desc: "Barcode/QR verification on vaccines, antimicrobials, anticancer & NDPS drugs per Drugs (Seventh Amendment) Rules 2026", products: ["Pharmacy"] },
-  { icon: ShieldCheck, title: "Schedule H/H1/NDPS Drug Register", desc: "Mandatory prescription drug register with patient + doctor details per Drugs & Cosmetics Rules 1945, Rule 65", products: ["Pharmacy"] },
-  { icon: HeartPulse, title: "ABDM-Ready Health Records (alignment in progress)", desc: "ABHA IDs captured on file, FHIR-based records — Health Information Exchange sync via ABDM is in progress", products: ["Clinic", "Hospital"] },
-  { icon: Video, title: "NMC Telemedicine Guidelines", desc: "Video/audio/text consults with mandatory doctor MCI/NMC registration + patient consent per NMC 2020", products: ["Clinic"] },
-  { icon: FileText, title: "ICD-10 Diagnosis Coding", desc: "WHO-standard ICD-10 codes on all diagnoses for insurance + government reporting", products: ["Clinic", "Hospital"] },
-  { icon: ShieldCheck, title: "IRDAI TPA Cashless Workflow", desc: "Pre-authorization → approval → cashless discharge per IRDAI insurance guidelines", products: ["Hospital"] },
-  { icon: Pill, title: "GST e-Invoice (CGST + SGST)", desc: "Indian GST slabs (0/5/12/18%) with CGST + SGST breakdown, GSTR-1 export", products: ["Pharmacy", "Clinic"] },
-  { icon: Building2, title: "E-Pharmacy Compliance", desc: "Schedule X/H/H1 drug tracking, prescription upload, RMP verification per draft e-pharmacy rules", products: ["Pharmacy"] },
+  {
+    icon: ScanLine,
+    title: "Schedule H2 QR Authentication",
+    desc: "Barcode/QR verification on vaccines, antimicrobials, anticancer & NDPS drugs per Drugs (Seventh Amendment) Rules 2026",
+    products: ["Pharmacy"],
+  },
+  {
+    icon: ShieldCheck,
+    title: "Schedule H/H1/NDPS Drug Register",
+    desc: "Mandatory prescription drug register with patient + doctor details per Drugs & Cosmetics Rules 1945, Rule 65",
+    products: ["Pharmacy"],
+  },
+  {
+    icon: HeartPulse,
+    title: "ABDM-Ready Health Records (alignment in progress)",
+    desc: "ABHA IDs captured on file, FHIR-based records — Health Information Exchange sync via ABDM is in progress",
+    products: ["Clinic", "Hospital"],
+  },
+  {
+    icon: Video,
+    title: "NMC Telemedicine Guidelines",
+    desc: "Video/audio/text consults with mandatory doctor MCI/NMC registration + patient consent per NMC 2020",
+    products: ["Clinic"],
+  },
+  {
+    icon: FileText,
+    title: "ICD-10 Diagnosis Coding",
+    desc: "WHO-standard ICD-10 codes on all diagnoses for insurance + government reporting",
+    products: ["Clinic", "Hospital"],
+  },
+  {
+    icon: ShieldCheck,
+    title: "IRDAI TPA Cashless Workflow",
+    desc: "Pre-authorization → approval → cashless discharge per IRDAI insurance guidelines",
+    products: ["Hospital"],
+  },
+  {
+    icon: Pill,
+    title: "GST e-Invoice (CGST + SGST)",
+    desc: "Indian GST slabs (0/5/12/18%) with CGST + SGST breakdown, GSTR-1 export",
+    products: ["Pharmacy", "Clinic"],
+  },
+  {
+    icon: Building2,
+    title: "E-Pharmacy Compliance",
+    desc: "Schedule X/H/H1 drug tracking, prescription upload, RMP verification per draft e-pharmacy rules",
+    products: ["Pharmacy"],
+  },
 ];
 
 export function IndiaCompliance() {
@@ -28,8 +78,8 @@ export function IndiaCompliance() {
             <span className="text-gradient-warm">Indian health law.</span>
           </h2>
           <p className="mt-3 max-w-xl mx-auto text-sm text-muted-foreground">
-            Researched across US (PioneerRx), China (AI hospital automation), Japan (lean hospital design) —
-            and adapted to India's unique regulatory landscape.
+            Researched across US (PioneerRx), China (AI hospital automation), Japan (lean hospital
+            design) — and adapted to India's unique regulatory landscape.
           </p>
         </div>
 
@@ -54,7 +104,12 @@ export function IndiaCompliance() {
                 <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{c.desc}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {c.products.map((p) => (
-                    <span key={p} className="rounded-full bg-accent/40 px-1.5 py-0.5 text-[0.55rem] font-medium text-muted-foreground">{p}</span>
+                    <span
+                      key={p}
+                      className="rounded-full bg-accent/40 px-1.5 py-0.5 text-[0.55rem] font-medium text-muted-foreground"
+                    >
+                      {p}
+                    </span>
                   ))}
                 </div>
               </div>

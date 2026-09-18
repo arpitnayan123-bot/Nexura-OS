@@ -18,7 +18,9 @@ const OUT = "/home/z/my-project/docs/screenshots";
       viewport: { width: vw, height: vh },
       deviceScaleFactor: 2,
     });
-    await page.goto(variant === "social" ? `${HTML}?variant=social` : HTML, { waitUntil: "networkidle" });
+    await page.goto(variant === "social" ? `${HTML}?variant=social` : HTML, {
+      waitUntil: "networkidle",
+    });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${OUT}/${outFile}`, fullPage: false });

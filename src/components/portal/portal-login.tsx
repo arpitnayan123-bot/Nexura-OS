@@ -3,7 +3,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { HeartPulse, Phone, ShieldCheck, Sparkles, ArrowRight, Loader2, KeyRound, Building2, FlaskConical, Brain } from "lucide-react";
+import {
+  HeartPulse,
+  Phone,
+  ShieldCheck,
+  Sparkles,
+  ArrowRight,
+  Loader2,
+  KeyRound,
+  Building2,
+  FlaskConical,
+  Brain,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -17,9 +28,21 @@ const TRUST_BADGES = [
 ];
 
 const FEATURES = [
-  { icon: Building2, title: "Unified Records", desc: "Hospital, clinic, lab & pharmacy in one calm place." },
-  { icon: FlaskConical, title: "Blood at Home", desc: "Pick a home-visit slot from tomorrow — reports in 6–24 hours by panel." },
-  { icon: Brain, title: "AI Report Reading", desc: "Optional AI-assisted reading of your blood-test reports, in plain English." },
+  {
+    icon: Building2,
+    title: "Unified Records",
+    desc: "Hospital, clinic, lab & pharmacy in one calm place.",
+  },
+  {
+    icon: FlaskConical,
+    title: "Blood at Home",
+    desc: "Pick a home-visit slot from tomorrow — reports in 6–24 hours by panel.",
+  },
+  {
+    icon: Brain,
+    title: "AI Report Reading",
+    desc: "Optional AI-assisted reading of your blood-test reports, in plain English.",
+  },
 ];
 
 type Stage = "phone" | "otp";
@@ -115,19 +138,25 @@ export function PortalLogin() {
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute -top-32 -left-32 h-[32rem] w-[32rem] rounded-full"
-          style={{ background: "radial-gradient(circle, oklch(0.85 0.10 80 / 0.55), transparent 70%)" }}
+          style={{
+            background: "radial-gradient(circle, oklch(0.85 0.10 80 / 0.55), transparent 70%)",
+          }}
           animate={{ x: [0, 30, -10, 0], y: [0, -10, 20, 0], scale: [1, 1.1, 0.95, 1] }}
           transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
           className="absolute top-1/3 -right-40 h-[28rem] w-[28rem] rounded-full"
-          style={{ background: "radial-gradient(circle, oklch(0.86 0.08 155 / 0.45), transparent 70%)" }}
+          style={{
+            background: "radial-gradient(circle, oklch(0.86 0.08 155 / 0.45), transparent 70%)",
+          }}
           animate={{ x: [0, -20, 10, 0], y: [0, 20, -10, 0], scale: [1, 1.08, 0.96, 1] }}
           transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
           className="absolute -bottom-40 left-1/3 h-[26rem] w-[26rem] rounded-full"
-          style={{ background: "radial-gradient(circle, oklch(0.85 0.10 75 / 0.4), transparent 70%)" }}
+          style={{
+            background: "radial-gradient(circle, oklch(0.85 0.10 75 / 0.4), transparent 70%)",
+          }}
           animate={{ x: [0, 15, -15, 0], y: [0, -15, 15, 0] }}
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -142,7 +171,12 @@ export function PortalLogin() {
               top: `${(i * 37) % 100}%`,
               width: 4 + (i % 3) * 2,
               height: 4 + (i % 3) * 2,
-              background: i % 3 === 0 ? "oklch(0.72 0.12 80 / 0.4)" : i % 3 === 1 ? "oklch(0.74 0.06 155 / 0.4)" : "oklch(0.80 0.10 75 / 0.4)",
+              background:
+                i % 3 === 0
+                  ? "oklch(0.72 0.12 80 / 0.4)"
+                  : i % 3 === 1
+                    ? "oklch(0.74 0.06 155 / 0.4)"
+                    : "oklch(0.80 0.10 75 / 0.4)",
             }}
             animate={{ y: [0, -30, 0], opacity: [0.3, 0.7, 0.3] }}
             transition={{ duration: 6 + (i % 4), repeat: Infinity, delay: -i * 0.5 }}
@@ -167,23 +201,32 @@ export function PortalLogin() {
                 style={{ animation: "nexura-breathe 6s ease-in-out infinite" }}
               />
               {/* champagne aurora heart */}
-              <div aria-hidden className="aurora-gold -left-10 bottom-[-60%] h-48 w-64 opacity-45" style={{ filter: "blur(60px)" }} />
+              <div
+                aria-hidden
+                className="aurora-gold -left-10 bottom-[-60%] h-48 w-64 opacity-45"
+                style={{ filter: "blur(60px)" }}
+              />
               {/* champagne top-light */}
-              <div aria-hidden className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+              <div
+                aria-hidden
+                className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent"
+              />
               <div className="relative flex items-center gap-3">
                 <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/20 backdrop-blur">
                   <HeartPulse className="h-6 w-6" />
                 </span>
                 <div>
-                  <h1 className="font-display text-2xl font-semibold leading-none">Nexura Portal</h1>
+                  <h1 className="font-display text-2xl font-semibold leading-none">
+                    Nexura Portal
+                  </h1>
                   <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-white/85">
                     Your calm health companion
                   </p>
                 </div>
               </div>
               <p className="relative mt-4 text-sm leading-relaxed text-white/90">
-                One account for your hospital records, blood tests at home, and AI-guided
-                health insights — built for India.
+                One account for your hospital records, blood tests at home, and AI-guided health
+                insights — built for India.
               </p>
 
               {/* Trust badges */}
@@ -321,7 +364,7 @@ export function PortalLogin() {
                 transition={{ delay: 0.2 + i * 0.08, duration: 0.5 }}
                 className={cn(
                   "flex items-center gap-3 rounded-2xl border border-[#E7E5E4] bg-white/60 p-3 backdrop-blur",
-                  "transition-all hover:bg-white/80 hover:shadow-[0_4px_12px_-4px_oklch(0.4_0.05_45/0.1)]"
+                  "transition-all hover:bg-white/80 hover:shadow-[0_4px_12px_-4px_oklch(0.4_0.05_45/0.1)]",
                 )}
               >
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#A16207]/10 text-[#A16207]">
@@ -336,8 +379,8 @@ export function PortalLogin() {
           </div>
 
           <p className="mt-6 text-center text-[0.7rem] leading-relaxed text-stone-400">
-            By continuing, you agree to Nexura&apos;s Terms &amp; Privacy Policy
-            compliant with DPDP Act 2023.
+            By continuing, you agree to Nexura&apos;s Terms &amp; Privacy Policy compliant with DPDP
+            Act 2023.
           </p>
         </motion.div>
       </div>

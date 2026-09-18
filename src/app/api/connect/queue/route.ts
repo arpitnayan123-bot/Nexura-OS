@@ -70,8 +70,13 @@ export async function GET(req: NextRequest) {
       totalWaiting: entries.length,
     });
   } catch (err) {
-    log.error("connect", "queue_list_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "queue_list_failed", detail: "The queue could not be loaded. Please retry." }, { status: 500 });
+    log.error("connect", "queue_list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "queue_list_failed", detail: "The queue could not be loaded. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -103,8 +108,16 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ queue: entry });
   } catch (err) {
-    log.error("connect", "queue_create_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "queue_create_failed", detail: "The queue token could not be created. Please retry." }, { status: 500 });
+    log.error("connect", "queue_create_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "queue_create_failed",
+        detail: "The queue token could not be created. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -117,12 +130,16 @@ export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const { queueId, doctorId } = body as any;
-    if (!queueId || !doctorId) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+    if (!queueId || !doctorId)
+      return NextResponse.json({ error: "invalid_input" }, { status: 400 });
 
     const existing = await db.connectQueue.findUnique({ where: { id: queueId } });
     if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
     if (existing.status !== "waiting") {
-      return NextResponse.json({ error: "already_picked", status: existing.status }, { status: 409 });
+      return NextResponse.json(
+        { error: "already_picked", status: existing.status },
+        { status: 409 },
+      );
     }
 
     const queue = await db.connectQueue.update({
@@ -132,7 +149,15 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ queue });
   } catch (err) {
-    log.error("connect", "queue_update_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "queue_update_failed", detail: "The queue entry could not be updated. Please retry." }, { status: 500 });
+    log.error("connect", "queue_update_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "queue_update_failed",
+        detail: "The queue entry could not be updated. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }

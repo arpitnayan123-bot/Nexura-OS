@@ -37,29 +37,26 @@ export function AuroraBackground({
   return (
     <div
       aria-hidden
-      className={cn(
-        "pointer-events-none absolute inset-0 overflow-hidden",
-        className
-      )}
+      className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
     >
       <div
         className={cn(
           "absolute -top-24 -left-24 h-[42rem] w-[42rem] rounded-full bg-gradient-to-br blur-3xl anim-aurora opacity-90",
-          palettes[0]
+          palettes[0],
         )}
         style={{ animationDelay: "0s" }}
       />
       <div
         className={cn(
           "absolute top-1/3 -right-32 h-[36rem] w-[36rem] rounded-full bg-gradient-to-br blur-3xl anim-aurora opacity-80",
-          palettes[1]
+          palettes[1],
         )}
         style={{ animationDelay: "-6s", animationDuration: "22s" }}
       />
       <div
         className={cn(
           "absolute -bottom-40 left-1/4 h-[38rem] w-[38rem] rounded-full bg-gradient-to-br blur-3xl anim-aurora opacity-70",
-          palettes[2]
+          palettes[2],
         )}
         style={{ animationDelay: "-12s", animationDuration: "26s" }}
       />
@@ -92,7 +89,7 @@ export function FloatingParticles({
         opacity: 0.25 + Math.random() * 0.45,
       })),
     // regenerate when count changes; only after mount to avoid SSR mismatch
-    [count, mounted]
+    [count, mounted],
   );
 
   return (
@@ -143,10 +140,7 @@ export function BreathingOrb({
       aria-hidden
     >
       {ring && (
-        <span
-          className="absolute inset-0 rounded-full pulse-ring"
-          style={{ borderColor: color }}
-        />
+        <span className="absolute inset-0 rounded-full pulse-ring" style={{ borderColor: color }} />
       )}
       <div
         className="absolute inset-0 rounded-full anim-breathe"

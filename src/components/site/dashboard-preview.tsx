@@ -2,14 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import {
   Activity,
   Footprints,
@@ -106,14 +99,13 @@ export function DashboardPreview() {
           </Reveal>
           <Reveal delay={0.06}>
             <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-              Your body,{" "}
-              <span className="text-gradient-warm">in one calm view.</span>
+              Your body, <span className="text-gradient-warm">in one calm view.</span>
             </h2>
           </Reveal>
           <Reveal delay={0.12}>
             <p className="mt-4 text-muted-foreground sm:text-lg">
-              A live preview of the Nexura OS patient console — every number is
-              streaming, every insight is yours.
+              A live preview of the Nexura OS patient console — every number is streaming, every
+              insight is yours.
             </p>
           </Reveal>
         </div>
@@ -145,18 +137,21 @@ function Dashboard({
             <span className="h-2.5 w-2.5 rounded-full bg-honey" />
             <span className="h-2.5 w-2.5 rounded-full bg-sage" />
           </span>
-          <span className="ml-2 font-display text-sm font-semibold">
-            nexura · patient console
-          </span>
+          <span className="ml-2 font-display text-sm font-semibold">nexura · patient console</span>
         </div>
         <button
           onClick={onToggle}
           className={cn(
             "flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium transition-colors",
-            live ? "bg-sage/30 text-foreground" : "bg-muted text-muted-foreground"
+            live ? "bg-sage/30 text-foreground" : "bg-muted text-muted-foreground",
           )}
         >
-          <span className={cn("h-1.5 w-1.5 rounded-full", live ? "bg-sage anim-breathe" : "bg-muted-foreground")} />
+          <span
+            className={cn(
+              "h-1.5 w-1.5 rounded-full",
+              live ? "bg-sage anim-breathe" : "bg-muted-foreground",
+            )}
+          />
           {live ? "Live" : "Paused"}
         </button>
       </div>
@@ -196,7 +191,12 @@ function Dashboard({
               <EcgLine width={420} height={50} color="white" className="w-full" />
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <MiniStat label="SpO₂" value={stats.spo2 ?? "—"} suffix={stats.spo2 != null ? "%" : undefined} tone="light" />
+              <MiniStat
+                label="SpO₂"
+                value={stats.spo2 ?? "—"}
+                suffix={stats.spo2 != null ? "%" : undefined}
+                tone="light"
+              />
               <MiniStat
                 label="Stress"
                 value={stats.stress ?? "—"}
@@ -215,9 +215,7 @@ function Dashboard({
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                 Heart rate · 24h
               </p>
-              <p className="mt-1 font-display text-lg font-semibold">
-                Daily rhythm
-              </p>
+              <p className="mt-1 font-display text-lg font-semibold">Daily rhythm</p>
             </div>
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
@@ -317,9 +315,7 @@ function Dashboard({
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                 Mood &amp; recovery
               </p>
-              <p className="mt-1 font-display text-lg font-semibold">
-                Wellbeing index
-              </p>
+              <p className="mt-1 font-display text-lg font-semibold">Wellbeing index</p>
             </div>
             <Smile className="h-5 w-5 text-honey" />
           </div>
@@ -344,9 +340,7 @@ function Dashboard({
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                 Today
               </p>
-              <p className="mt-1 font-display text-lg font-semibold">
-                Medication adherence
-              </p>
+              <p className="mt-1 font-display text-lg font-semibold">Medication adherence</p>
             </div>
             <span className="rounded-full bg-sage/25 px-2.5 py-1 text-xs font-medium text-foreground">
               3 of 4
@@ -367,9 +361,7 @@ function Dashboard({
                   <span
                     className={cn(
                       "grid h-6 w-6 place-items-center rounded-full text-[0.65rem] font-semibold",
-                      m.done
-                        ? "bg-sage/30 text-foreground"
-                        : "bg-muted text-muted-foreground"
+                      m.done ? "bg-sage/30 text-foreground" : "bg-muted text-muted-foreground",
                     )}
                   >
                     {m.done ? "✓" : "•"}
@@ -390,16 +382,15 @@ function Dashboard({
                 Last night · sleep
               </p>
               <p className="mt-1 font-display text-lg font-semibold">
-                {stats.sleep != null ? `${stats.sleep}h across ${SleepStages.stages.length} cycles` : "Sleep data streams from your paired devices"}
+                {stats.sleep != null
+                  ? `${stats.sleep}h across ${SleepStages.stages.length} cycles`
+                  : "Sleep data streams from your paired devices"}
               </p>
             </div>
             <div className="flex items-center gap-3 text-[0.65rem] text-muted-foreground">
               {SleepStages.legend.map((l) => (
                 <span key={l.label} className="flex items-center gap-1.5">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ background: l.color }}
-                  />
+                  <span className="h-2 w-2 rounded-full" style={{ background: l.color }} />
                   {l.label}
                 </span>
               ))}
@@ -418,9 +409,7 @@ function Dashboard({
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                 Nexa · daily insight
               </p>
-              <p className="mt-1 font-display text-lg font-semibold">
-                Calmer than yesterday
-              </p>
+              <p className="mt-1 font-display text-lg font-semibold">Calmer than yesterday</p>
             </div>
             <span className="flex items-center gap-1.5 rounded-full bg-sage/25 px-2.5 py-1 text-[0.65rem] font-medium text-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-sage anim-breathe" />
@@ -428,9 +417,8 @@ function Dashboard({
             </span>
           </div>
           <p className="relative mt-3 text-sm leading-relaxed text-foreground/85">
-            Your resting heart rate dropped 4 bpm overnight and your recovery
-            index climbed. A short walk after lunch would lock in today&apos;s
-            momentum.
+            Your resting heart rate dropped 4 bpm overnight and your recovery index climbed. A short
+            walk after lunch would lock in today&apos;s momentum.
           </p>
           <div className="relative mt-4 flex items-center gap-2">
             <span className="rounded-full bg-accent/50 px-2.5 py-1 text-[0.65rem] font-medium text-foreground">
@@ -479,10 +467,7 @@ function SleepStagesChart() {
         {data.map((d, i) => {
           const total = d.deep + d.light + d.rem + d.awake;
           return (
-            <div
-              key={i}
-              className="group relative flex flex-1 flex-col items-center gap-1.5"
-            >
+            <div key={i} className="group relative flex flex-1 flex-col items-center gap-1.5">
               <div className="relative flex h-full w-full flex-col-reverse justify-start overflow-hidden rounded-lg bg-muted/30">
                 <motion.div
                   className="w-full"
@@ -551,13 +536,9 @@ function MiniStat({
       </p>
       <p className="mt-1 font-display text-xl font-semibold">
         {value}
-        <span className="ml-0.5 text-xs font-normal text-primary-foreground/70">
-          {suffix}
-        </span>
+        <span className="ml-0.5 text-xs font-normal text-primary-foreground/70">{suffix}</span>
       </p>
-      {low && (
-        <p className="mt-0.5 text-[0.65rem] text-primary-foreground/70">low · calm</p>
-      )}
+      {low && <p className="mt-0.5 text-[0.65rem] text-primary-foreground/70">low · calm</p>}
     </div>
   );
 }
@@ -588,7 +569,12 @@ function MetricTile({
     default: "var(--coral)",
   } as const;
   return (
-    <div className={cn("group relative overflow-hidden rounded-2xl border border-border bg-background/60 p-4", className)}>
+    <div
+      className={cn(
+        "group relative overflow-hidden rounded-2xl border border-border bg-background/60 p-4",
+        className,
+      )}
+    >
       <div
         className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full opacity-25 blur-2xl transition-opacity group-hover:opacity-60"
         style={{ background: colors[tone] }}
@@ -596,21 +582,20 @@ function MetricTile({
       <div className="relative flex items-center justify-between">
         <span
           className="grid h-9 w-9 place-items-center rounded-lg"
-          style={{ background: `color-mix(in oklch, ${colors[tone]} 16%, transparent)`, color: colors[tone] }}
+          style={{
+            background: `color-mix(in oklch, ${colors[tone]} 16%, transparent)`,
+            color: colors[tone],
+          }}
         >
           <Icon className="h-4.5 w-4.5" />
         </span>
         <span
           className={cn(
             "flex items-center gap-0.5 text-[0.7rem] font-medium",
-            negative ? "text-destructive" : "text-foreground/70"
+            negative ? "text-destructive" : "text-foreground/70",
           )}
         >
-          {negative ? (
-            <ArrowDownRight className="h-3 w-3" />
-          ) : (
-            <ArrowUpRight className="h-3 w-3" />
-          )}
+          {negative ? <ArrowDownRight className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
           {delta}
         </span>
       </div>
@@ -648,28 +633,14 @@ function MoodRing({ value }: { value: number }) {
         />
       </svg>
       <div className="text-center">
-        <p className="font-display text-2xl font-semibold text-gradient-warm">
-          {value}
-        </p>
-        <p className="text-[0.6rem] uppercase tracking-wider text-muted-foreground">
-          index
-        </p>
+        <p className="font-display text-2xl font-semibold text-gradient-warm">{value}</p>
+        <p className="text-[0.6rem] uppercase tracking-wider text-muted-foreground">index</p>
       </div>
     </div>
   );
 }
 
-function Bar({
-  label,
-  v,
-  c,
-  delay,
-}: {
-  label: string;
-  v: number;
-  c: string;
-  delay: number;
-}) {
+function Bar({ label, v, c, delay }: { label: string; v: number; c: string; delay: number }) {
   return (
     <div>
       <div className="flex items-center justify-between text-xs">

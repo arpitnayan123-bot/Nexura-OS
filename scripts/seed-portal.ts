@@ -16,7 +16,7 @@ import { randomUUID } from "crypto";
    database by accident. Override requires an explicit, intentional flag. */
 if (process.env.NODE_ENV === "production" && process.env.SEED_DEMO_OVERRIDE !== "true") {
   console.error(
-    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true."
+    "[seed] Refusing to seed demo data: NODE_ENV=production. If this is genuinely intentional, re-run with SEED_DEMO_OVERRIDE=true.",
   );
   process.exit(1);
 }
@@ -80,44 +80,226 @@ function fullBodyReport(): LabReport {
     labName: "Nexura Diagnostics · Andheri East, Mumbai",
     tests: [
       // ---- CBC (6) ----
-      { name: "Hemoglobin", value: "14.2", unit: "g/dL", refRange: "13.0–17.0", flag: "normal", category: "Complete Blood Count" },
-      { name: "RBC Count", value: "5.1", unit: "mill/uL", refRange: "4.5–5.5", flag: "normal", category: "Complete Blood Count" },
-      { name: "WBC Count", value: "6800", unit: "/uL", refRange: "4000–11000", flag: "normal", category: "Complete Blood Count" },
-      { name: "Platelet Count", value: "2.4", unit: "lakh/uL", refRange: "1.5–4.5", flag: "normal", category: "Complete Blood Count" },
-      { name: "Hematocrit (PCV)", value: "44.5", unit: "%", refRange: "40–50", flag: "normal", category: "Complete Blood Count" },
-      { name: "MCV", value: "87.3", unit: "fL", refRange: "80–100", flag: "normal", category: "Complete Blood Count" },
+      {
+        name: "Hemoglobin",
+        value: "14.2",
+        unit: "g/dL",
+        refRange: "13.0–17.0",
+        flag: "normal",
+        category: "Complete Blood Count",
+      },
+      {
+        name: "RBC Count",
+        value: "5.1",
+        unit: "mill/uL",
+        refRange: "4.5–5.5",
+        flag: "normal",
+        category: "Complete Blood Count",
+      },
+      {
+        name: "WBC Count",
+        value: "6800",
+        unit: "/uL",
+        refRange: "4000–11000",
+        flag: "normal",
+        category: "Complete Blood Count",
+      },
+      {
+        name: "Platelet Count",
+        value: "2.4",
+        unit: "lakh/uL",
+        refRange: "1.5–4.5",
+        flag: "normal",
+        category: "Complete Blood Count",
+      },
+      {
+        name: "Hematocrit (PCV)",
+        value: "44.5",
+        unit: "%",
+        refRange: "40–50",
+        flag: "normal",
+        category: "Complete Blood Count",
+      },
+      {
+        name: "MCV",
+        value: "87.3",
+        unit: "fL",
+        refRange: "80–100",
+        flag: "normal",
+        category: "Complete Blood Count",
+      },
 
       // ---- LFT (4) ----
-      { name: "Total Bilirubin", value: "0.9", unit: "mg/dL", refRange: "0.2–1.2", flag: "normal", category: "Liver Function" },
-      { name: "ALT (SGPT)", value: "48", unit: "U/L", refRange: "10–40", flag: "high", category: "Liver Function" },
-      { name: "AST (SGOT)", value: "36", unit: "U/L", refRange: "10–40", flag: "borderline", category: "Liver Function" },
-      { name: "Alkaline Phosphatase", value: "112", unit: "U/L", refRange: "80–240", flag: "normal", category: "Liver Function" },
+      {
+        name: "Total Bilirubin",
+        value: "0.9",
+        unit: "mg/dL",
+        refRange: "0.2–1.2",
+        flag: "normal",
+        category: "Liver Function",
+      },
+      {
+        name: "ALT (SGPT)",
+        value: "48",
+        unit: "U/L",
+        refRange: "10–40",
+        flag: "high",
+        category: "Liver Function",
+      },
+      {
+        name: "AST (SGOT)",
+        value: "36",
+        unit: "U/L",
+        refRange: "10–40",
+        flag: "borderline",
+        category: "Liver Function",
+      },
+      {
+        name: "Alkaline Phosphatase",
+        value: "112",
+        unit: "U/L",
+        refRange: "80–240",
+        flag: "normal",
+        category: "Liver Function",
+      },
 
       // ---- KFT (4) ----
-      { name: "Urea", value: "28", unit: "mg/dL", refRange: "15–40", flag: "normal", category: "Kidney Function" },
-      { name: "Creatinine", value: "0.9", unit: "mg/dL", refRange: "0.6–1.2", flag: "normal", category: "Kidney Function" },
-      { name: "Uric Acid", value: "5.4", unit: "mg/dL", refRange: "3.5–7.2", flag: "normal", category: "Kidney Function" },
-      { name: "eGFR", value: "98", unit: "mL/min", refRange: "> 90", flag: "normal", category: "Kidney Function" },
+      {
+        name: "Urea",
+        value: "28",
+        unit: "mg/dL",
+        refRange: "15–40",
+        flag: "normal",
+        category: "Kidney Function",
+      },
+      {
+        name: "Creatinine",
+        value: "0.9",
+        unit: "mg/dL",
+        refRange: "0.6–1.2",
+        flag: "normal",
+        category: "Kidney Function",
+      },
+      {
+        name: "Uric Acid",
+        value: "5.4",
+        unit: "mg/dL",
+        refRange: "3.5–7.2",
+        flag: "normal",
+        category: "Kidney Function",
+      },
+      {
+        name: "eGFR",
+        value: "98",
+        unit: "mL/min",
+        refRange: "> 90",
+        flag: "normal",
+        category: "Kidney Function",
+      },
 
       // ---- Lipid Profile (5) ----
-      { name: "Total Cholesterol", value: "212", unit: "mg/dL", refRange: "< 200", flag: "high", category: "Lipid Profile" },
-      { name: "Triglycerides", value: "184", unit: "mg/dL", refRange: "< 150", flag: "high", category: "Lipid Profile" },
-      { name: "HDL Cholesterol", value: "38", unit: "mg/dL", refRange: "> 40", flag: "low", category: "Lipid Profile" },
-      { name: "LDL Cholesterol", value: "138", unit: "mg/dL", refRange: "< 100", flag: "high", category: "Lipid Profile" },
-      { name: "VLDL", value: "36", unit: "mg/dL", refRange: "10–40", flag: "borderline", category: "Lipid Profile" },
+      {
+        name: "Total Cholesterol",
+        value: "212",
+        unit: "mg/dL",
+        refRange: "< 200",
+        flag: "high",
+        category: "Lipid Profile",
+      },
+      {
+        name: "Triglycerides",
+        value: "184",
+        unit: "mg/dL",
+        refRange: "< 150",
+        flag: "high",
+        category: "Lipid Profile",
+      },
+      {
+        name: "HDL Cholesterol",
+        value: "38",
+        unit: "mg/dL",
+        refRange: "> 40",
+        flag: "low",
+        category: "Lipid Profile",
+      },
+      {
+        name: "LDL Cholesterol",
+        value: "138",
+        unit: "mg/dL",
+        refRange: "< 100",
+        flag: "high",
+        category: "Lipid Profile",
+      },
+      {
+        name: "VLDL",
+        value: "36",
+        unit: "mg/dL",
+        refRange: "10–40",
+        flag: "borderline",
+        category: "Lipid Profile",
+      },
 
       // ---- Thyroid (3) ----
-      { name: "TSH", value: "2.8", unit: "uIU/mL", refRange: "0.4–4.0", flag: "normal", category: "Thyroid Profile" },
-      { name: "Free T3", value: "3.2", unit: "pg/mL", refRange: "2.3–4.2", flag: "normal", category: "Thyroid Profile" },
-      { name: "Free T4", value: "1.3", unit: "ng/dL", refRange: "0.8–1.8", flag: "normal", category: "Thyroid Profile" },
+      {
+        name: "TSH",
+        value: "2.8",
+        unit: "uIU/mL",
+        refRange: "0.4–4.0",
+        flag: "normal",
+        category: "Thyroid Profile",
+      },
+      {
+        name: "Free T3",
+        value: "3.2",
+        unit: "pg/mL",
+        refRange: "2.3–4.2",
+        flag: "normal",
+        category: "Thyroid Profile",
+      },
+      {
+        name: "Free T4",
+        value: "1.3",
+        unit: "ng/dL",
+        refRange: "0.8–1.8",
+        flag: "normal",
+        category: "Thyroid Profile",
+      },
 
       // ---- HbA1c ----
-      { name: "HbA1c (Glycated Hemoglobin)", value: "5.7", unit: "%", refRange: "< 5.7", flag: "borderline", category: "Diabetes Marker" },
-      { name: "Fasting Blood Sugar", value: "104", unit: "mg/dL", refRange: "70–100", flag: "borderline", category: "Diabetes Marker" },
+      {
+        name: "HbA1c (Glycated Hemoglobin)",
+        value: "5.7",
+        unit: "%",
+        refRange: "< 5.7",
+        flag: "borderline",
+        category: "Diabetes Marker",
+      },
+      {
+        name: "Fasting Blood Sugar",
+        value: "104",
+        unit: "mg/dL",
+        refRange: "70–100",
+        flag: "borderline",
+        category: "Diabetes Marker",
+      },
 
       // ---- Vitamins (2) ----
-      { name: "Vitamin D (25-OH)", value: "18.5", unit: "ng/mL", refRange: "30–100", flag: "low", category: "Vitamins" },
-      { name: "Vitamin B12", value: "312", unit: "pg/mL", refRange: "200–900", flag: "normal", category: "Vitamins" },
+      {
+        name: "Vitamin D (25-OH)",
+        value: "18.5",
+        unit: "ng/mL",
+        refRange: "30–100",
+        flag: "low",
+        category: "Vitamins",
+      },
+      {
+        name: "Vitamin B12",
+        value: "312",
+        unit: "pg/mL",
+        refRange: "200–900",
+        flag: "normal",
+        category: "Vitamins",
+      },
     ],
   };
 }
@@ -131,11 +313,46 @@ function diabetesReport(): LabReport {
     reportedAt: daysAgo(2).toISOString(),
     labName: "Nexura Diagnostics · Andheri East, Mumbai",
     tests: [
-      { name: "Fasting Blood Sugar", value: "118", unit: "mg/dL", refRange: "70–100", flag: "high", category: "Glucose" },
-      { name: "Post Prandial Sugar (2hr)", value: "172", unit: "mg/dL", refRange: "< 140", flag: "high", category: "Glucose" },
-      { name: "HbA1c", value: "6.1", unit: "%", refRange: "< 5.7", flag: "high", category: "Glycemic Marker" },
-      { name: "Estimated Average Glucose (eAG)", value: "128", unit: "mg/dL", refRange: "< 117", flag: "high", category: "Glycemic Marker" },
-      { name: "Random Blood Sugar", value: "156", unit: "mg/dL", refRange: "< 140", flag: "high", category: "Glucose" },
+      {
+        name: "Fasting Blood Sugar",
+        value: "118",
+        unit: "mg/dL",
+        refRange: "70–100",
+        flag: "high",
+        category: "Glucose",
+      },
+      {
+        name: "Post Prandial Sugar (2hr)",
+        value: "172",
+        unit: "mg/dL",
+        refRange: "< 140",
+        flag: "high",
+        category: "Glucose",
+      },
+      {
+        name: "HbA1c",
+        value: "6.1",
+        unit: "%",
+        refRange: "< 5.7",
+        flag: "high",
+        category: "Glycemic Marker",
+      },
+      {
+        name: "Estimated Average Glucose (eAG)",
+        value: "128",
+        unit: "mg/dL",
+        refRange: "< 117",
+        flag: "high",
+        category: "Glycemic Marker",
+      },
+      {
+        name: "Random Blood Sugar",
+        value: "156",
+        unit: "mg/dL",
+        refRange: "< 140",
+        flag: "high",
+        category: "Glucose",
+      },
     ],
   };
 }
@@ -224,14 +441,62 @@ function diabetesInterpretation(): string {
 // TEST PANEL CATALOG (8 panels)
 // ============================================================================
 const TEST_PANELS = [
-  { code: "FULL_BODY", name: "Full Body Checkup", price: 2999, tests: "CBC, LFT, KFT, Lipid, Thyroid, HbA1c, Vitamins", icon: "🩺" },
-  { code: "DIABETES", name: "Diabetes Panel", price: 499, tests: "FBS, PPBS, HbA1c, eAG, RBS", icon: "🩸" },
-  { code: "THYROID", name: "Thyroid Profile", price: 399, tests: "TSH, Free T3, Free T4", icon: "🦋" },
-  { code: "CBC", name: "Complete Blood Count", price: 199, tests: "Hemogram, RBC, WBC, Platelets", icon: "🧫" },
-  { code: "LIPID", name: "Lipid Profile", price: 349, tests: "Total Chol, HDL, LDL, Triglycerides, VLDL", icon: "❤️" },
-  { code: "LIVER", name: "Liver Function Test", price: 449, tests: "Bilirubin, ALT, AST, ALP, Protein", icon: "🫀" },
-  { code: "KIDNEY", name: "Kidney Function Test", price: 449, tests: "Urea, Creatinine, Uric Acid, eGFR", icon: "🫘" },
-  { code: "VITAMIN", name: "Vitamin Profile", price: 899, tests: "Vitamin D, B12, Folate, Iron Studies", icon: "💊" },
+  {
+    code: "FULL_BODY",
+    name: "Full Body Checkup",
+    price: 2999,
+    tests: "CBC, LFT, KFT, Lipid, Thyroid, HbA1c, Vitamins",
+    icon: "🩺",
+  },
+  {
+    code: "DIABETES",
+    name: "Diabetes Panel",
+    price: 499,
+    tests: "FBS, PPBS, HbA1c, eAG, RBS",
+    icon: "🩸",
+  },
+  {
+    code: "THYROID",
+    name: "Thyroid Profile",
+    price: 399,
+    tests: "TSH, Free T3, Free T4",
+    icon: "🦋",
+  },
+  {
+    code: "CBC",
+    name: "Complete Blood Count",
+    price: 199,
+    tests: "Hemogram, RBC, WBC, Platelets",
+    icon: "🧫",
+  },
+  {
+    code: "LIPID",
+    name: "Lipid Profile",
+    price: 349,
+    tests: "Total Chol, HDL, LDL, Triglycerides, VLDL",
+    icon: "❤️",
+  },
+  {
+    code: "LIVER",
+    name: "Liver Function Test",
+    price: 449,
+    tests: "Bilirubin, ALT, AST, ALP, Protein",
+    icon: "🫀",
+  },
+  {
+    code: "KIDNEY",
+    name: "Kidney Function Test",
+    price: 449,
+    tests: "Urea, Creatinine, Uric Acid, eGFR",
+    icon: "🫘",
+  },
+  {
+    code: "VITAMIN",
+    name: "Vitamin Profile",
+    price: 899,
+    tests: "Vitamin D, B12, Folate, Iron Studies",
+    icon: "💊",
+  },
 ];
 
 // ============================================================================
@@ -243,29 +508,84 @@ async function main() {
   // ---- 1. Find linked HospitalPatient ----
   const suresh = await db.hospitalPatient.findFirst({
     where: { fullName: { contains: "Suresh" } },
-    include: { appointments: true, admissions: true, vitals: true, bills: true, insuranceClaims: true, orders: true },
+    include: {
+      appointments: true,
+      admissions: true,
+      vitals: true,
+      bills: true,
+      insuranceClaims: true,
+      orders: true,
+    },
   });
 
   if (!suresh) {
-    console.warn("⚠️  HospitalPatient 'Suresh' not found — linking will be skipped. Run seed-hospital.ts first.");
+    console.warn(
+      "⚠️  HospitalPatient 'Suresh' not found — linking will be skipped. Run seed-hospital.ts first.",
+    );
   } else {
-    console.log(`✓ Found HospitalPatient: ${suresh.fullName} (UHID: ${suresh.uhid}, blood: ${suresh.bloodGroup})`);
+    console.log(
+      `✓ Found HospitalPatient: ${suresh.fullName} (UHID: ${suresh.uhid}, blood: ${suresh.bloodGroup})`,
+    );
   }
 
   // ---- 2. Seed Phlebotomists (4) ----
   console.log("\n→ Seeding Phlebotomists…");
   const phlebData = [
-    { name: "Rajesh Kumar", phone: "+91 98330 11101", city: "Mumbai", zones: "Andheri, JVLR, Goregaon", rating: 4.9, totalCollections: 412, vehicleNo: "MH-02-PT-9081" },
-    { name: "Sunil Sharma", phone: "+91 98330 11102", city: "Mumbai", zones: "Bandra, Kurla, BKC", rating: 4.7, totalCollections: 318, vehicleNo: "MH-02-PT-9082" },
-    { name: "Anjali Verma", phone: "+91 98330 11103", city: "Mumbai", zones: "Powai, Vikhroli, Kanjurmarg", rating: 4.8, totalCollections: 356, vehicleNo: "MH-02-PT-9083" },
-    { name: "Deepak Patil", phone: "+91 98330 11104", city: "Mumbai", zones: "Dadar, Worli, Prabhadevi", rating: 4.6, totalCollections: 289, vehicleNo: "MH-02-PT-9084" },
+    {
+      name: "Rajesh Kumar",
+      phone: "+91 98330 11101",
+      city: "Mumbai",
+      zones: "Andheri, JVLR, Goregaon",
+      rating: 4.9,
+      totalCollections: 412,
+      vehicleNo: "MH-02-PT-9081",
+    },
+    {
+      name: "Sunil Sharma",
+      phone: "+91 98330 11102",
+      city: "Mumbai",
+      zones: "Bandra, Kurla, BKC",
+      rating: 4.7,
+      totalCollections: 318,
+      vehicleNo: "MH-02-PT-9082",
+    },
+    {
+      name: "Anjali Verma",
+      phone: "+91 98330 11103",
+      city: "Mumbai",
+      zones: "Powai, Vikhroli, Kanjurmarg",
+      rating: 4.8,
+      totalCollections: 356,
+      vehicleNo: "MH-02-PT-9083",
+    },
+    {
+      name: "Deepak Patil",
+      phone: "+91 98330 11104",
+      city: "Mumbai",
+      zones: "Dadar, Worli, Prabhadevi",
+      rating: 4.6,
+      totalCollections: 289,
+      vehicleNo: "MH-02-PT-9084",
+    },
   ];
 
   const phlebotomists: Record<string, { id: string; name: string; phone: string }> = {};
   for (const p of phlebData) {
     const existing = await db.phlebotomist.findFirst({ where: { phone: p.phone } });
     if (existing) {
-      await db.phlebotomist.update({ where: { id: existing.id }, data: { name: p.name, city: p.city, zones: p.zones, rating: p.rating, totalCollections: p.totalCollections, vehicleNo: p.vehicleNo, isAvailable: true, currentBookingId: null } });
+      await db.phlebotomist.update({
+        where: { id: existing.id },
+        data: {
+          name: p.name,
+          city: p.city,
+          zones: p.zones,
+          rating: p.rating,
+          totalCollections: p.totalCollections,
+          vehicleNo: p.vehicleNo,
+          isAvailable: true,
+          currentBookingId: null,
+        },
+      });
       phlebotomists[p.name] = { id: existing.id, name: existing.name, phone: existing.phone };
       console.log(`  ↻ updated ${p.name} (${p.rating}★)`);
     } else {
@@ -301,7 +621,9 @@ async function main() {
         lastLoginAt: new Date(),
       },
     });
-    console.log(`  ↻ updated ${user.fullName} (${user.phone}) → UHID ${user.hospitalPatientUhid ?? "—"}`);
+    console.log(
+      `  ↻ updated ${user.fullName} (${user.phone}) → UHID ${user.hospitalPatientUhid ?? "—"}`,
+    );
   } else {
     user = await db.portalUser.create({
       data: {
@@ -320,7 +642,9 @@ async function main() {
         lastLoginAt: new Date(),
       },
     });
-    console.log(`  + created ${user.fullName} (${user.phone}) → UHID ${user.hospitalPatientUhid ?? "—"}`);
+    console.log(
+      `  + created ${user.fullName} (${user.phone}) → UHID ${user.hospitalPatientUhid ?? "—"}`,
+    );
   }
 
   // ---- 4. Seed BloodBookings (4) ----
@@ -476,7 +800,7 @@ async function upsertBooking(
     paymentMode?: string;
     paymentStatus?: string;
     cancellationReason?: string;
-  }
+  },
 ) {
   const existing = await db.bloodBooking.findFirst({ where: { bookingRef: data.bookingRef } });
   if (existing) {
@@ -498,7 +822,7 @@ async function upsertFamilyMember(
     dob: string;
     gender: string;
     bloodGroup: string;
-  }
+  },
 ) {
   const { relation, ...rest } = data;
   const payload = { ...rest, relationToHead: relation, familyHeadId: headId, isOnboarded: true };

@@ -79,9 +79,8 @@ export function TrustRail() {
                 Alignment you can audit.
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-[#5E5A52]">
-                We don&apos;t self-certify compliance. We track alignment in
-                the open and show our work — the same trail your team can
-                verify on the Compliance page.
+                We don&apos;t self-certify compliance. We track alignment in the open and show our
+                work — the same trail your team can verify on the Compliance page.
               </p>
             </div>
             <Link

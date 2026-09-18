@@ -70,7 +70,9 @@ export async function readDb(): Promise<unknown> {
   const profile = dbProfile();
   if (!profile.readUrlConfigured) return db;
   if (!replicaSingleton) {
-    log.info("db", "read replica configured — analytics reads route to replica", { provider: "postgres" });
+    log.info("db", "read replica configured — analytics reads route to replica", {
+      provider: "postgres",
+    });
     replicaSingleton = db; // same engine instance until replica env plumbing lands
   }
   return replicaSingleton;

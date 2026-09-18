@@ -70,8 +70,7 @@ export function Testimonials() {
           </Reveal>
           <Reveal delay={0.06}>
             <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-              Held by a system that{" "}
-              <span className="text-gradient-warm">listens back.</span>
+              Held by a system that <span className="text-gradient-warm">listens back.</span>
             </h2>
           </Reveal>
         </div>
@@ -108,7 +107,10 @@ export function Testimonials() {
                       className="grid h-11 w-11 place-items-center rounded-full font-display text-base font-semibold text-white"
                       style={{ background: t.accent }}
                     >
-                      {t.name.split(" ").map((w) => w[0]).join("")}
+                      {t.name
+                        .split(" ")
+                        .map((w) => w[0])
+                        .join("")}
                     </span>
                     <div>
                       <p className="font-medium">{t.name}</p>
@@ -132,7 +134,7 @@ export function Testimonials() {
                     }}
                     className={cn(
                       "h-1.5 rounded-full transition-all",
-                      i === idx ? "w-8 bg-primary" : "w-3 bg-border hover:bg-muted-foreground/40"
+                      i === idx ? "w-8 bg-primary" : "w-3 bg-border hover:bg-muted-foreground/40",
                     )}
                   />
                 ))}

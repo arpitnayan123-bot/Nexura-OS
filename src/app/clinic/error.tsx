@@ -14,12 +14,5 @@ export default function ClinicError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SegmentErrorBoundary
-      error={error}
-      reset={reset}
-      variant="warm"
-      tag="clinic"
-    />
-  );
+  return <SegmentErrorBoundary error={error} reset={reset} variant="warm" tag="clinic" />;
 }

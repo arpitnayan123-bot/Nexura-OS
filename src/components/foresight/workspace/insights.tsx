@@ -49,10 +49,7 @@ export function WhatThisMeans({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.5, delay: i * 0.05 }}
-                className={cn(
-                  "nxf-glass rounded-2xl border-l-2 p-4 sm:p-5",
-                  meta.ring
-                )}
+                className={cn("nxf-glass rounded-2xl border-l-2 p-4 sm:p-5", meta.ring)}
               >
                 <p className="flex flex-wrap items-center gap-2">
                   <Icon aria-hidden="true" className="h-4 w-4 nxf-gold" />
@@ -75,17 +72,23 @@ export function WhatThisMeans({
             {watchList.length > 0 ? (
               watchList.map((w, i) => (
                 <li key={i} className="flex items-start gap-2 text-[13px] leading-relaxed nxf-body">
-                  <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-teal-300" />
+                  <span
+                    aria-hidden="true"
+                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-teal-300"
+                  />
                   {w}
                 </li>
               ))
             ) : (
               <li className="text-[13px] nxf-dim">
-                Nothing elevated to watch — keep the protective patterns running and re-check in after any big life change.
+                Nothing elevated to watch — keep the protective patterns running and re-check in
+                after any big life change.
               </li>
             )}
           </ul>
-          <p className="mt-4 border-t border-white/[0.08] pt-3 text-[11.5px] leading-relaxed nxf-mute">{coverageNote}</p>
+          <p className="mt-4 border-t border-white/[0.08] pt-3 text-[11.5px] leading-relaxed nxf-mute">
+            {coverageNote}
+          </p>
         </GlassCard>
       </div>
     </motion.section>

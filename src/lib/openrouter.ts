@@ -20,7 +20,8 @@ function getKey(): string | null {
   if (_key) return _key;
   const k = process.env.OPENROUTER_API_KEY;
   if (!k || !k.startsWith("sk-or-")) return null;
-  _key = k; return k;
+  _key = k;
+  return k;
 }
 
 let _zai: any = null;
@@ -36,7 +37,7 @@ async function getZAI(): Promise<any> {
 async function callZAI(messages: ORMsg[]): Promise<{ text: string; usage: unknown }> {
   const zai = await getZAI();
   const hasImage = messages.some(
-    (m) => Array.isArray(m.content) && m.content.some((p: any) => p?.type === "image_url")
+    (m) => Array.isArray(m.content) && m.content.some((p: any) => p?.type === "image_url"),
   );
   const converted = messages.map((m) => ({
     role: m.role === "system" ? "assistant" : m.role,
@@ -50,7 +51,12 @@ async function callZAI(messages: ORMsg[]): Promise<{ text: string; usage: unknow
   return { text, usage: completion?.usage ?? null };
 }
 
-interface ORMsg { role: "user"|"system"|"assistant"; content: string | Array<{type:"text";text:string}|{type:"image_url";image_url:{url:string}}>; }
+interface ORMsg {
+  role: "user" | "system" | "assistant";
+  content:
+    | string
+    | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }>;
+}
 
 const OPENROUTER_TIMEOUT_MS = 45_000; // bound every AI call — a hung provider must never hold the route open
 
@@ -73,7 +79,7 @@ function recordCall(
   promptChars: number,
   provider: "openrouter" | "z-ai",
   fallbackUsed: boolean,
-  out: { ok: boolean; text?: string; usage?: unknown; costUsd?: number | null; error?: unknown }
+  out: { ok: boolean; text?: string; usage?: unknown; costUsd?: number | null; error?: unknown },
 ): void {
   const latencyMs = Date.now() - started;
   const u = out.ok ? normalizeProviderUsage(out.usage) : null;
@@ -117,18 +123,30 @@ function recordCall(
     latencyMs,
     success: out.ok,
     fallbackUsed,
-    errorCode: out.ok ? null : out.error instanceof Error ? out.error.message : String(out.error ?? "unknown"),
+    errorCode: out.ok
+      ? null
+      : out.error instanceof Error
+        ? out.error.message
+        : String(out.error ?? "unknown"),
   });
 }
 
-async function callOR(messages: ORMsg[], maxTokens = 8192, capability = "unattributed"): Promise<string> {
+async function callOR(
+  messages: ORMsg[],
+  maxTokens = 8192,
+  capability = "unattributed",
+): Promise<string> {
   const started = Date.now();
   const promptChars = promptCharCount(messages);
   // No OpenRouter key → use the built-in z-ai SDK path directly.
   if (!getKey()) {
     try {
       const r = await callZAI(messages);
-      recordCall(capability, started, promptChars, "z-ai", false, { ok: true, text: r.text, usage: r.usage });
+      recordCall(capability, started, promptChars, "z-ai", false, {
+        ok: true,
+        text: r.text,
+        usage: r.usage,
+      });
       return r.text;
     } catch (e) {
       recordCall(capability, started, promptChars, "z-ai", false, { ok: false, error: e });
@@ -158,7 +176,12 @@ async function callOR(messages: ORMsg[], maxTokens = 8192, capability = "unattri
     if (!res.ok) {
       const t = await res.text().catch(() => "");
       let m = `OpenRouter ${res.status}`;
-      try { const e = JSON.parse(t); m = e?.error?.message || m; } catch { if (t) m += `: ${t.slice(0, 200)}`; }
+      try {
+        const e = JSON.parse(t);
+        m = e?.error?.message || m;
+      } catch {
+        if (t) m += `: ${t.slice(0, 200)}`;
+      }
       throw new Error(m);
     }
     const d = await res.json();
@@ -176,7 +199,11 @@ async function callOR(messages: ORMsg[], maxTokens = 8192, capability = "unattri
     // the previous loop's second iteration was unreachable dead code.
     try {
       const r = await callZAI(messages);
-      recordCall(capability, started, promptChars, "z-ai", true, { ok: true, text: r.text, usage: r.usage });
+      recordCall(capability, started, promptChars, "z-ai", true, {
+        ok: true,
+        text: r.text,
+        usage: r.usage,
+      });
       return r.text;
     } catch {
       recordCall(capability, started, promptChars, "z-ai", true, { ok: false, error: e });
@@ -187,24 +214,45 @@ async function callOR(messages: ORMsg[], maxTokens = 8192, capability = "unattri
 
 function parseJson<T>(text: string): T {
   const t = text.trim();
-  try { return JSON.parse(t) as T; } catch {
-    const c = t.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-    const s = c.indexOf("{"), e = c.lastIndexOf("}");
+  try {
+    return JSON.parse(t) as T;
+  } catch {
+    const c = t
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+    const s = c.indexOf("{"),
+      e = c.lastIndexOf("}");
     if (s >= 0 && e > s) {
-      try { return JSON.parse(c.slice(s, e + 1)) as T; } catch {
-        let cleaned = c.slice(s, e + 1)
+      try {
+        return JSON.parse(c.slice(s, e + 1)) as T;
+      } catch {
+        let cleaned = c
+          .slice(s, e + 1)
           .replace(/,\s*}/g, "}")
           .replace(/,\s*]/g, "]")
           .replace(/[\u201C\u201D]/g, '"')
           .replace(/[\u2018\u2019]/g, "'");
-        try { return JSON.parse(cleaned) as T; } catch {}
-        let depth = 0, endIdx = -1;
+        try {
+          return JSON.parse(cleaned) as T;
+        } catch {}
+        let depth = 0,
+          endIdx = -1;
         for (let i = 0; i < c.length; i++) {
-          if (c[i] === '{') depth++;
-          else if (c[i] === '}') { depth--; if (depth === 0) { endIdx = i; break; } }
+          if (c[i] === "{") depth++;
+          else if (c[i] === "}") {
+            depth--;
+            if (depth === 0) {
+              endIdx = i;
+              break;
+            }
+          }
         }
         if (endIdx > 0) {
-          const slice = c.slice(s, endIdx + 1).replace(/,\s*}/g, "}").replace(/,\s*]/g, "]");
+          const slice = c
+            .slice(s, endIdx + 1)
+            .replace(/,\s*}/g, "}")
+            .replace(/,\s*]/g, "]");
           return JSON.parse(slice) as T;
         }
         return JSON.parse(cleaned) as T;
@@ -216,16 +264,39 @@ function parseJson<T>(text: string): T {
 
 /** capability: feature label recorded in the AiUsageLog ledger (e.g. "kyh.food-scan") —
  *  optional for backward compatibility; unlabeled calls land under "unattributed". */
-export async function runText<T = any>(prompt: string, systemInstruction?: string, capability?: string): Promise<T> {
+export async function runText<T = any>(
+  prompt: string,
+  systemInstruction?: string,
+  capability?: string,
+): Promise<T> {
   const msgs: ORMsg[] = [];
   if (systemInstruction) msgs.push({ role: "system", content: systemInstruction });
   msgs.push({ role: "user", content: prompt });
   return parseJson<T>(await callOR(msgs, 8192, capability));
 }
 
-export async function runVision<T = any>(imageBase64: string, mimeType: string, prompt: string, capability?: string): Promise<T> {
+export async function runVision<T = any>(
+  imageBase64: string,
+  mimeType: string,
+  prompt: string,
+  capability?: string,
+): Promise<T> {
   const dataUrl = `data:${mimeType};base64,${imageBase64}`;
-  return parseJson<T>(await callOR([{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: dataUrl } }] }], 8192, capability));
+  return parseJson<T>(
+    await callOR(
+      [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: dataUrl } },
+          ],
+        },
+      ],
+      8192,
+      capability,
+    ),
+  );
 }
 
 /** Multi-turn chat — raw text out (no JSON parsing). Same provider order,
@@ -233,14 +304,18 @@ export async function runVision<T = any>(imageBase64: string, mimeType: string, 
  *  "system" roles are mapped exactly as callZAI does. */
 export async function runChatText(
   messages: { role: "user" | "assistant" | "system"; content: string }[],
-  capability?: string
+  capability?: string,
 ): Promise<string> {
   return callOR(messages, 8192, capability);
 }
 
 /** Single-prompt raw-text call — like runText but returns the model output
  *  verbatim (no parseJson) for routes whose output is prose/markdown. */
-export async function runTextRaw(prompt: string, systemInstruction?: string, capability?: string): Promise<string> {
+export async function runTextRaw(
+  prompt: string,
+  systemInstruction?: string,
+  capability?: string,
+): Promise<string> {
   const msgs: ORMsg[] = [];
   if (systemInstruction) msgs.push({ role: "system", content: systemInstruction });
   msgs.push({ role: "user", content: prompt });

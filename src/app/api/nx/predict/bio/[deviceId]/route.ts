@@ -18,7 +18,19 @@ import { DEVICE_SIGNATURE_HEADER, verifyDeviceSignature } from "@/lib/nx/device-
    and rejected in production until re-paired. */
 
 const SampleSchema = z.object({
-  metric: z.enum(["heart_rate", "hrv", "spo2", "resp_rate", "temp", "glucose", "systolic", "diastolic", "sleep_stage", "steps", "weight"]),
+  metric: z.enum([
+    "heart_rate",
+    "hrv",
+    "spo2",
+    "resp_rate",
+    "temp",
+    "glucose",
+    "systolic",
+    "diastolic",
+    "sleep_stage",
+    "steps",
+    "weight",
+  ]),
   value: z.number().finite(),
   unit: z.string().max(16).optional(),
   quality: z.number().min(0).max(1).optional(),
@@ -37,17 +49,29 @@ export const POST = withRoute<{ deviceId: string }>(
     // NOTE: signature covers the RAW body bytes — read text first,
     // then parse/validate. (parseBody would consume the stream.)
     const raw = await req.text();
-    const device = await db.nxWearableDevice.findUnique({ where: { id: deviceId } }).catch(() => null);
+    const device = await db.nxWearableDevice
+      .findUnique({ where: { id: deviceId } })
+      .catch(() => null);
     if (!device || !device.active) return fail("unknown_device", 404, undefined, ctx.requestId);
 
     if (device.secretHash) {
       const sig = req.headers.get(DEVICE_SIGNATURE_HEADER);
       if (!verifyDeviceSignature(device.secretHash, deviceId, raw, sig)) {
-        return fail("invalid_device_signature", 401, "Missing or invalid x-nx-signature.", ctx.requestId);
+        return fail(
+          "invalid_device_signature",
+          401,
+          "Missing or invalid x-nx-signature.",
+          ctx.requestId,
+        );
       }
     } else if (!isDemoMode()) {
       // Legacy unpaired device: tolerated in demo, never in production.
-      return fail("device_not_paired", 401, "Device has no paired secret — re-pair to ingest.", ctx.requestId);
+      return fail(
+        "device_not_paired",
+        401,
+        "Device has no paired secret — re-pair to ingest.",
+        ctx.requestId,
+      );
     }
 
     let parsedJson: unknown;
@@ -64,10 +88,13 @@ export const POST = withRoute<{ deviceId: string }>(
     const report = await storeBioBatch({
       deviceId,
       patientId: body.data.patientId ?? device.patientId,
-      samples: body.data.samples.map((s) => ({ ...s, capturedAt: s.capturedAt ?? new Date().toISOString() })),
+      samples: body.data.samples.map((s) => ({
+        ...s,
+        capturedAt: s.capturedAt ?? new Date().toISOString(),
+      })),
     });
     return ok({ accepted: true, report }, { requestId: ctx.requestId });
-  }
+  },
 );
 
 export const GET = withRoute<{ deviceId: string }>(
@@ -77,12 +104,25 @@ export const GET = withRoute<{ deviceId: string }>(
     return ok(
       {
         deviceId,
-        protocol: "POST JSON { patientId?, samples: [{ metric, value, unit?, quality?, capturedAt? }] }",
+        protocol:
+          "POST JSON { patientId?, samples: [{ metric, value, unit?, quality?, capturedAt? }] }",
         auth: `x-nx-signature: hex(HMAC-SHA256(key=sha256(deviceSecret), data=deviceId + "." + rawBody))`,
-        metrics: ["heart_rate", "hrv", "spo2", "resp_rate", "temp", "glucose", "systolic", "diastolic", "sleep_stage", "steps", "weight"],
+        metrics: [
+          "heart_rate",
+          "hrv",
+          "spo2",
+          "resp_rate",
+          "temp",
+          "glucose",
+          "systolic",
+          "diastolic",
+          "sleep_stage",
+          "steps",
+          "weight",
+        ],
         maxBatch: 500,
       },
-      { requestId: ctx.requestId }
+      { requestId: ctx.requestId },
     );
-  }
+  },
 );

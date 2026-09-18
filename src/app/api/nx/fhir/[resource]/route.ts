@@ -2,8 +2,12 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guard, ok, fail, withRoute } from "@/lib/nx/api";
 import {
-  patientToFHIR, encounterToFHIR, observationToFHIR, medicationRequestToFHIR,
-  capabilityStatement, bundleOf,
+  patientToFHIR,
+  encounterToFHIR,
+  observationToFHIR,
+  medicationRequestToFHIR,
+  capabilityStatement,
+  bundleOf,
 } from "@/lib/nx/fhir";
 
 /* FHIR R4 read API (session-authenticated staff access).
@@ -20,7 +24,8 @@ export const GET = withRoute("fhir.get", async (req: NextRequest, { requestId })
   const g = await guard(req, "patient.clinical.view");
   if ("response" in g) return g.response;
   const hospitalId = g.session.hospitalId;
-  if (!hospitalId) return fail("no_hospital_context", 403, "Session has no hospital scope.", requestId);
+  if (!hospitalId)
+    return fail("no_hospital_context", 403, "Session has no hospital scope.", requestId);
   const resource = req.nextUrl.pathname.split("/").pop() || "";
   const sp = req.nextUrl.searchParams;
 
@@ -28,7 +33,12 @@ export const GET = withRoute("fhir.get", async (req: NextRequest, { requestId })
     return ok(capabilityStatement(req.nextUrl.origin), { requestId });
   }
   if (!FHIR_RESOURCES.has(resource)) {
-    return fail("unsupported_resource", 404, `Supported: ${[...FHIR_RESOURCES].join(", ")}, metadata.`, requestId);
+    return fail(
+      "unsupported_resource",
+      404,
+      `Supported: ${[...FHIR_RESOURCES].join(", ")}, metadata.`,
+      requestId,
+    );
   }
 
   if (resource === "Patient") {
@@ -65,12 +75,30 @@ export const GET = withRoute("fhir.get", async (req: NextRequest, { requestId })
       take: 50,
       orderBy: { admissionDate: "desc" },
     });
-    return ok(bundleOf("searchset", rows.map((a) => encounterToFHIR({ id: a.id, patientId: a.patientId, admissionDate: a.admissionDate, actualDischargeDate: a.actualDischargeDate, admissionType: a.admissionType, admissionDiagnosis: a.admissionDiagnosis, status: a.dischargeStatus }))), { requestId });
+    return ok(
+      bundleOf(
+        "searchset",
+        rows.map((a) =>
+          encounterToFHIR({
+            id: a.id,
+            patientId: a.patientId,
+            admissionDate: a.admissionDate,
+            actualDischargeDate: a.actualDischargeDate,
+            admissionType: a.admissionType,
+            admissionDiagnosis: a.admissionDiagnosis,
+            status: a.dischargeStatus,
+          }),
+        ),
+      ),
+      { requestId },
+    );
   }
 
   if (resource === "Observation") {
     const orders = await db.hospitalOrder.findMany({
-      where: patientScope.patientId ? { patientId: patientScope.patientId, hospitalId, orderType: "lab" } : { hospitalId, orderType: "lab" },
+      where: patientScope.patientId
+        ? { patientId: patientScope.patientId, hospitalId, orderType: "lab" }
+        : { hospitalId, orderType: "lab" },
       select: { id: true, patientId: true },
       take: 100,
       orderBy: { createdAt: "desc" },
@@ -86,19 +114,27 @@ export const GET = withRoute("fhir.get", async (req: NextRequest, { requestId })
         "searchset",
         results.map((r) =>
           observationToFHIR({
-            id: r.id, patientId: byPatient.get(r.orderId) ?? "unknown", testName: r.testName,
-            resultValue: r.resultValue, unit: r.unit, abnormalFlag: r.abnormalFlag,
-            reportedAt: r.reportedAt, refRangeMin: r.refRangeMin, refRangeMax: r.refRangeMax,
-          })
-        )
+            id: r.id,
+            patientId: byPatient.get(r.orderId) ?? "unknown",
+            testName: r.testName,
+            resultValue: r.resultValue,
+            unit: r.unit,
+            abnormalFlag: r.abnormalFlag,
+            reportedAt: r.reportedAt,
+            refRangeMin: r.refRangeMin,
+            refRangeMax: r.refRangeMax,
+          }),
+        ),
       ),
-      { requestId }
+      { requestId },
     );
   }
 
   // MedicationRequest
   const medOrders = await db.hospitalOrder.findMany({
-    where: patientScope.patientId ? { patientId: patientScope.patientId, hospitalId, orderType: "medication" } : { hospitalId, orderType: "medication" },
+    where: patientScope.patientId
+      ? { patientId: patientScope.patientId, hospitalId, orderType: "medication" }
+      : { hospitalId, orderType: "medication" },
     take: 50,
     orderBy: { createdAt: "desc" },
   });

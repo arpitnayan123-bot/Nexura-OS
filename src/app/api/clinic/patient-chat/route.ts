@@ -29,7 +29,8 @@ interface ChatReply {
 }
 
 /** Deterministic escalation screen — model-independent safety net. */
-const RED_FLAG = /chest pain|can'?t breathe|breathless|unconscious|seizure|fits|stroke|slurred speech|heavy bleeding|suicide|self harm|anaphyla/i;
+const RED_FLAG =
+  /chest pain|can'?t breathe|breathless|unconscious|seizure|fits|stroke|slurred speech|heavy bleeding|suicide|self harm|anaphyla/i;
 
 const SYSTEM_PROMPT = `You are the patient-support assistant inside Nexura Clinic. You answer PATIENTS' general questions about their medicines, diet and routines in simple English (Hindi words welcome).
 ABSOLUTE RULES:
@@ -40,11 +41,15 @@ Return STRICT JSON only: {"answer":"text","escalate":boolean,"reason":"why escal
 
 /** Keyword table retained as the AI-failure fallback (labelled). */
 const FALLBACK_ANSWERS: Record<string, string> = {
-  "side effects": "Common side effects include nausea, dizziness, or drowsiness. If severe, stop medication and consult your doctor immediately.",
-  dosage: "Take the medicine as prescribed by your doctor. Do not skip or double doses. If you miss a dose, take it as soon as you remember unless it's close to the next dose.",
+  "side effects":
+    "Common side effects include nausea, dizziness, or drowsiness. If severe, stop medication and consult your doctor immediately.",
+  dosage:
+    "Take the medicine as prescribed by your doctor. Do not skip or double doses. If you miss a dose, take it as soon as you remember unless it's close to the next dose.",
   diet: "Maintain a healthy diet with plenty of fruits, vegetables, and water. Avoid spicy or oily food if you have gastric issues. Low salt diet if hypertensive.",
-  timing: "Take morning medicines on an empty stomach (30 min before food) unless your doctor advised otherwise.",
-  duration: "Complete the full course of antibiotics even if you feel better. For other medicines, follow the duration prescribed.",
+  timing:
+    "Take morning medicines on an empty stomach (30 min before food) unless your doctor advised otherwise.",
+  duration:
+    "Complete the full course of antibiotics even if you feel better. For other medicines, follow the duration prescribed.",
 };
 
 async function POST_impl(req: NextRequest) {
@@ -58,7 +63,8 @@ async function POST_impl(req: NextRequest) {
     // deterministic red-flag screen first — escalation never depends on the model
     if (RED_FLAG.test(q)) {
       return NextResponse.json({
-        answer: "That sounds urgent — I'm flagging this to your doctor right away. If symptoms are severe, go to the nearest emergency room now.",
+        answer:
+          "That sounds urgent — I'm flagging this to your doctor right away. If symptoms are severe, go to the nearest emergency room now.",
         source: "red-flag-safety-screen",
         escalated: true,
       } satisfies ChatReply);
@@ -68,7 +74,7 @@ async function POST_impl(req: NextRequest) {
       const parsed = await runText<{ answer?: string; escalate?: boolean; reason?: string }>(
         `Patient question: "${q}"`,
         SYSTEM_PROMPT,
-        "clinic.patient-chat"
+        "clinic.patient-chat",
       );
       const answer = typeof parsed.answer === "string" ? parsed.answer.trim().slice(0, 800) : "";
       if (answer) {
@@ -76,22 +82,31 @@ async function POST_impl(req: NextRequest) {
           answer,
           source: "ai-auto-answer",
           escalated: Boolean(parsed.escalate),
-          ...(parsed.escalate && typeof parsed.reason === "string" ? { reason: parsed.reason.slice(0, 200) } : {}),
+          ...(parsed.escalate && typeof parsed.reason === "string"
+            ? { reason: parsed.reason.slice(0, 200) }
+            : {}),
         } satisfies ChatReply & { reason?: string });
       }
     } catch (e) {
-      log.warn("clinic", "patient_chat_ai_fallback", { err: e instanceof Error ? e.message : String(e) });
+      log.warn("clinic", "patient_chat_ai_fallback", {
+        err: e instanceof Error ? e.message : String(e),
+      });
     }
 
     // keyword fallback (AI unavailable)
     const lower = q.toLowerCase();
     for (const [key, answer] of Object.entries(FALLBACK_ANSWERS)) {
       if (lower.includes(key)) {
-        return NextResponse.json({ answer, source: "keyword-fallback (AI unavailable)", escalated: false } satisfies ChatReply);
+        return NextResponse.json({
+          answer,
+          source: "keyword-fallback (AI unavailable)",
+          escalated: false,
+        } satisfies ChatReply);
       }
     }
     return NextResponse.json({
-      answer: "I'm not sure about that. I'll forward your question to the doctor who will respond shortly.",
+      answer:
+        "I'm not sure about that. I'll forward your question to the doctor who will respond shortly.",
       source: "keyword-fallback (AI unavailable)",
       escalated: true,
     } satisfies ChatReply);

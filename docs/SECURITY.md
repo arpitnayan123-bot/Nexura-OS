@@ -3,6 +3,7 @@
 ## Implemented controls
 
 **Authentication & sessions**
+
 - bcrypt (cost 12) password hashing; PINs hashed too
 - HttpOnly, SameSite=Lax, Secure-in-prod session cookies; JWT with jti
 - Server-side session records → instant revocation (per-device or all)
@@ -10,6 +11,7 @@
 - TOTP MFA (RFC-6238, self-implemented, ±1 step tolerance)
 
 **Authorization**
+
 - RBAC-as-data: 20 roles → 36 permissions; deny-overrides via explicit grants
 - Enforcement on every protected route (`requirePermission` / `guard`) — no
   frontend-only checks for anything that matters
@@ -18,6 +20,7 @@
 - Break-glass with mandatory reason + TTL + full audit trail
 
 **Data protection**
+
 - Prisma parameterized queries (no string SQL from user input)
 - zod validation on request bodies; typed route handlers
 - No patient data in URLs (records referenced by opaque cuid); no PHI in logs —
@@ -32,6 +35,7 @@
   change to this trade-off here.
 
 **Network**
+
 - Encryption in transit is a hosting responsibility: terminate TLS at your
   edge/load balancer (Caddy/Nginx/ALB) and keep HSTS on.
 

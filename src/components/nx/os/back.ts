@@ -63,7 +63,11 @@ export const useBack = create<BackState>()((set, get) => ({
     /* detach first, then close — close() may mutate other stores */
     set({ stack: s.stack.slice(0, depth) });
     for (const l of closing) {
-      try { l.close(); } catch { /* a layer may already be gone */ }
+      try {
+        l.close();
+      } catch {
+        /* a layer may already be gone */
+      }
     }
   },
 
@@ -72,7 +76,11 @@ export const useBack = create<BackState>()((set, get) => ({
     if (s.stack.length > 0) {
       const top = s.stack[s.stack.length - 1];
       s.remove(top.id);
-      try { top.close(); } catch { /* already closed */ }
+      try {
+        top.close();
+      } catch {
+        /* already closed */
+      }
       return true;
     }
     /* nothing left in-app — double-press guard before leaving */
@@ -104,12 +112,7 @@ function armExitGuard() {
  * a destination label and a close callback. The callback identity
  * may change every render — the latest one is always used.
  */
-export function useBackLayer(
-  active: boolean,
-  scope: string,
-  label: string,
-  close: () => void
-) {
+export function useBackLayer(active: boolean, scope: string, label: string, close: () => void) {
   const closeRef = useRef(close);
   useEffect(() => {
     closeRef.current = close;
@@ -146,7 +149,10 @@ const EXIT_TOAST_MS = 2600;
  * back look like a foreign navigation and hard-reloads the page.
  */
 function nxState(nx: number): Record<string, unknown> {
-  const base = (typeof history !== "undefined" ? history.state : null) as Record<string, unknown> | null;
+  const base = (typeof history !== "undefined" ? history.state : null) as Record<
+    string,
+    unknown
+  > | null;
   return { ...(base ?? {}), nx };
 }
 
@@ -172,23 +178,37 @@ export function useNxHistoryBridge(active: boolean, gate?: () => boolean) {
     try {
       history.replaceState(nxState(0), "");
       history.pushState(nxState(0), "");
-    } catch { /* history unavailable (rare embeds) */ }
+    } catch {
+      /* history unavailable (rare embeds) */
+    }
 
     const unsub = useBack.subscribe((s, prev) => {
       const depth = s.stack.length;
       const prevDepth = prev.stack.length;
       if (depth > prevDepth) {
-        try { history.pushState(nxState(depth), ""); } catch { /* noop */ }
+        try {
+          history.pushState(nxState(depth), "");
+        } catch {
+          /* noop */
+        }
       } else if (depth < prevDepth) {
         /* UI-driven close — retag the current entry in place */
-        try { history.replaceState(nxState(depth), ""); } catch { /* noop */ }
+        try {
+          history.replaceState(nxState(depth), "");
+        } catch {
+          /* noop */
+        }
       }
     });
 
     const onPop = (e: PopStateEvent) => {
       /* while locked, swallow back presses — nothing may pop underneath */
       if (gate && !gate()) {
-        try { history.pushState(nxState(useBack.getState().stack.length), ""); } catch { /* noop */ }
+        try {
+          history.pushState(nxState(useBack.getState().stack.length), "");
+        } catch {
+          /* noop */
+        }
         return;
       }
       const st = (e.state ?? null) as { nx?: number } | null;
@@ -203,7 +223,11 @@ export function useNxHistoryBridge(active: boolean, gate?: () => boolean) {
           window.location.href = "/";
         } else {
           armExitGuard();
-          try { history.pushState(nxState(0), ""); } catch { /* noop */ }
+          try {
+            history.pushState(nxState(0), "");
+          } catch {
+            /* noop */
+          }
         }
         return;
       }
@@ -222,7 +246,11 @@ export function useNxHistoryBridge(active: boolean, gate?: () => boolean) {
       }
 
       /* nothing in-app to close; stay parked on the page */
-      try { history.pushState(nxState(0), ""); } catch { /* noop */ }
+      try {
+        history.pushState(nxState(0), "");
+      } catch {
+        /* noop */
+      }
     };
 
     window.addEventListener("popstate", onPop);

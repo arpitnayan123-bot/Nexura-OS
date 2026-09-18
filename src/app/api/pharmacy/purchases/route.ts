@@ -4,7 +4,13 @@ import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { withProductAuth } from "@/lib/nx/product-auth";
-import { PURCHASE_ITEM_PAISE, PURCHASE_PAISE, rupeeToPaise, toRupees, toRupeesAll } from "@/lib/money";
+import {
+  PURCHASE_ITEM_PAISE,
+  PURCHASE_PAISE,
+  rupeeToPaise,
+  toRupees,
+  toRupeesAll,
+} from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,10 +56,12 @@ async function GET_impl() {
       }),
     });
   } catch (err) {
-    log.error("pharmacy", "purchases.list_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("pharmacy", "purchases.list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "purchases_failed", detail: "Purchase history could not be loaded. Please retry." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -65,7 +73,10 @@ async function POST_impl(req: NextRequest) {
     if (!ctx) return NextResponse.json({ error: "no_branch" }, { status: 404 });
     const parsed = PurchaseSchema.safeParse(await req.json().catch(() => null));
     if (!parsed.success) {
-      const detail = parsed.error.issues.slice(0, 5).map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
+      const detail = parsed.error.issues
+        .slice(0, 5)
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join("; ");
       return NextResponse.json({ error: "invalid_request", detail }, { status: 400 });
     }
     const { supplierId, supplierInvoiceNo, items } = parsed.data;
@@ -97,28 +108,70 @@ async function POST_impl(req: NextRequest) {
           status: "received",
           total: totalPaise,
           paidAmount: 0,
-          items: { create: lineItems.map((it) => ({ productId: it.productId, batchNo: it.batchNo, mfgDate: it.mfgDate, expDate: it.expDate, mrp: it.mrpPaise, purchaseRate: it.purchaseRatePaise, qtyStrips: it.qtyStrips, lineTotal: it.lineTotalPaise })) },
+          items: {
+            create: lineItems.map((it) => ({
+              productId: it.productId,
+              batchNo: it.batchNo,
+              mfgDate: it.mfgDate,
+              expDate: it.expDate,
+              mrp: it.mrpPaise,
+              purchaseRate: it.purchaseRatePaise,
+              qtyStrips: it.qtyStrips,
+              lineTotal: it.lineTotalPaise,
+            })),
+          },
         },
         include: { items: true },
       });
 
       for (const it of lineItems) {
         await tx.productBatch.upsert({
-          where: { branchId_productId_batchNo: { branchId: ctx.branch.id, productId: it.productId, batchNo: it.batchNo } },
-          create: { productId: it.productId, branchId: ctx.branch.id, batchNo: it.batchNo, mfgDate: it.mfgDate, expDate: it.expDate, mrp: it.mrpPaise, purchaseRate: it.purchaseRatePaise, stockStrips: it.qtyStrips, stockLoose: 0 },
-          update: { stockStrips: { increment: it.qtyStrips }, mrp: it.mrpPaise, purchaseRate: it.purchaseRatePaise, mfgDate: it.mfgDate, expDate: it.expDate },
+          where: {
+            branchId_productId_batchNo: {
+              branchId: ctx.branch.id,
+              productId: it.productId,
+              batchNo: it.batchNo,
+            },
+          },
+          create: {
+            productId: it.productId,
+            branchId: ctx.branch.id,
+            batchNo: it.batchNo,
+            mfgDate: it.mfgDate,
+            expDate: it.expDate,
+            mrp: it.mrpPaise,
+            purchaseRate: it.purchaseRatePaise,
+            stockStrips: it.qtyStrips,
+            stockLoose: 0,
+          },
+          update: {
+            stockStrips: { increment: it.qtyStrips },
+            mrp: it.mrpPaise,
+            purchaseRate: it.purchaseRatePaise,
+            mfgDate: it.mfgDate,
+            expDate: it.expDate,
+          },
         });
       }
 
       return created;
     });
 
-    return NextResponse.json({ ok: true, purchase: (() => { const conv = toRupees(purchase, PURCHASE_PAISE); if (Array.isArray(conv.items)) conv.items = toRupeesAll(conv.items, PURCHASE_ITEM_PAISE); return conv; })() });
+    return NextResponse.json({
+      ok: true,
+      purchase: (() => {
+        const conv = toRupees(purchase, PURCHASE_PAISE);
+        if (Array.isArray(conv.items)) conv.items = toRupeesAll(conv.items, PURCHASE_ITEM_PAISE);
+        return conv;
+      })(),
+    });
   } catch (err) {
-    log.error("pharmacy", "purchases.create_failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("pharmacy", "purchases.create_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "purchase_failed", detail: "The purchase could not be recorded. Please retry." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

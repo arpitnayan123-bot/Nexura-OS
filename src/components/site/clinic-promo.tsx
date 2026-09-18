@@ -39,15 +39,13 @@ export function ClinicPromo() {
             </Reveal>
             <Reveal delay={0.06}>
               <h2 className="mt-5 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-[3.2rem]">
-                A clinic OS so simple,{" "}
-                <span className="text-gradient-warm">it feels calm.</span>
+                A clinic OS so simple, <span className="text-gradient-warm">it feels calm.</span>
               </h2>
             </Reveal>
             <Reveal delay={0.12}>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Built for solo practitioners &amp; small clinics. Book, consult,
-                prescribe &amp; bill — all on one warm screen. No training
-                needed, no clutter, no lag. Just care.
+                Built for solo practitioners &amp; small clinics. Book, consult, prescribe &amp;
+                bill — all on one warm screen. No training needed, no clutter, no lag. Just care.
               </p>
             </Reveal>
 
@@ -56,7 +54,12 @@ export function ClinicPromo() {
                 <Link
                   href="/clinic"
                   className="mat-btn mat-btn--lg mat-btn--glass group"
-                  style={{ "--mat-accent": "#0F766E", "--mat-accent-2": "#14B8A6" } as React.CSSProperties}
+                  style={
+                    {
+                      "--mat-accent": "#0F766E",
+                      "--mat-accent-2": "#14B8A6",
+                    } as React.CSSProperties
+                  }
                 >
                   Launch Clinic OS
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -79,7 +82,9 @@ export function ClinicPromo() {
                     transition={{ delay: i * 0.1 }}
                     className="relative rounded-2xl border border-border bg-card/60 p-4"
                   >
-                    <span className="absolute right-3 top-3 font-display text-2xl font-bold text-muted-foreground/15">{i + 1}</span>
+                    <span className="absolute right-3 top-3 font-display text-2xl font-bold text-muted-foreground/15">
+                      {i + 1}
+                    </span>
                     <span className="grid h-10 w-10 place-items-center rounded-xl bg-honey/15 text-honey">
                       <s.icon className="h-5 w-5" />
                     </span>
@@ -93,7 +98,10 @@ export function ClinicPromo() {
             <Reveal delay={0.3}>
               <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
                 {["Print-ready Rx", "Patient timeline", "Revenue trends", "No install"].map((f) => (
-                  <span key={f} className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-sage" />{f}</span>
+                  <span key={f} className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-sage" />
+                    {f}
+                  </span>
                 ))}
               </div>
             </Reveal>
@@ -112,7 +120,11 @@ export function ClinicPromo() {
 function ClinicVisual() {
   return (
     <div className="relative mx-auto aspect-[5/6] w-full max-w-md">
-      <BreathingOrb size={280} color="var(--honey)" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50" />
+      <BreathingOrb
+        size={280}
+        color="var(--honey)"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50"
+      />
       <motion.div
         className="absolute inset-0 m-auto h-[88%] w-[88%] overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-[0_30px_80px_-30px_oklch(0.4_0.05_45/0.4)]"
         animate={{ y: [0, -10, 0] }}
@@ -121,14 +133,22 @@ function ClinicVisual() {
         <div className="border-b border-border bg-muted/40 px-4 py-2.5">
           <div className="flex items-center justify-between">
             <span className="font-display text-xs font-semibold">Dr. Rao Family Clinic</span>
-            <span className="flex items-center gap-1 rounded-full bg-sage/25 px-2 py-0.5 text-[0.55rem]"><span className="h-1 w-1 rounded-full bg-sage anim-breathe" />Today</span>
+            <span className="flex items-center gap-1 rounded-full bg-sage/25 px-2 py-0.5 text-[0.55rem]">
+              <span className="h-1 w-1 rounded-full bg-sage anim-breathe" />
+              Today
+            </span>
           </div>
         </div>
         <div className="space-y-2 p-3">
           {/* 3 simple tabs */}
           <div className="flex gap-1 rounded-lg bg-muted p-0.5">
             {["Today", "Patients", "Billing"].map((t, i) => (
-              <span key={t} className={`flex-1 rounded-md px-2 py-1 text-center text-[0.6rem] font-medium ${i === 0 ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"}`}>{t}</span>
+              <span
+                key={t}
+                className={`flex-1 rounded-md px-2 py-1 text-center text-[0.6rem] font-medium ${i === 0 ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"}`}
+              >
+                {t}
+              </span>
             ))}
           </div>
           {/* KPIs */}
@@ -141,7 +161,9 @@ function ClinicVisual() {
             ].map((k) => (
               <div key={k.l} className="rounded-lg border border-border bg-background p-2">
                 <p className="text-[0.5rem] uppercase tracking-wide text-muted-foreground">{k.l}</p>
-                <p className="font-display text-sm font-bold" style={{ color: k.c }}>{k.v}</p>
+                <p className="font-display text-sm font-bold" style={{ color: k.c }}>
+                  {k.v}
+                </p>
               </div>
             ))}
           </div>
@@ -159,9 +181,18 @@ function ClinicVisual() {
               transition={{ delay: 0.3 + i * 0.12 }}
               className="flex items-center gap-2 rounded-lg border border-border bg-background p-1.5"
             >
-              <span className="grid h-6 w-6 place-items-center rounded bg-primary/10 text-[0.55rem] font-bold text-primary">#{i + 1}</span>
-              <div className="flex-1"><p className="text-[0.65rem] font-medium">{r.n}</p><p className="text-[0.5rem] text-muted-foreground">{r.t}</p></div>
-              <span className={`rounded-full px-1.5 py-0.5 text-[0.5rem] font-medium ${r.c === "sage" ? "bg-sage/15 text-sage" : r.c === "honey" ? "bg-honey/15 text-honey" : "bg-muted text-muted-foreground"}`}>{r.s}</span>
+              <span className="grid h-6 w-6 place-items-center rounded bg-primary/10 text-[0.55rem] font-bold text-primary">
+                #{i + 1}
+              </span>
+              <div className="flex-1">
+                <p className="text-[0.65rem] font-medium">{r.n}</p>
+                <p className="text-[0.5rem] text-muted-foreground">{r.t}</p>
+              </div>
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[0.5rem] font-medium ${r.c === "sage" ? "bg-sage/15 text-sage" : r.c === "honey" ? "bg-honey/15 text-honey" : "bg-muted text-muted-foreground"}`}
+              >
+                {r.s}
+              </span>
             </motion.div>
           ))}
         </div>

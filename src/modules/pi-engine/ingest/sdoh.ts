@@ -24,18 +24,102 @@ export interface SdohProvider {
 
 /** Bundled regional dataset — India metros + districts (demo footprint). */
 const REGIONAL: Record<string, Omit<SdohSnapshot, "regionKey" | "provider">> = {
-  "560001": { aqi: 95, tempC: 29, humidity: 62, foodDesertKm: 0.8, crimeIndex: 38, greenSpaceIndex: 0.41 }, // Bengaluru
-  "110001": { aqi: 165, tempC: 31, humidity: 48, foodDesertKm: 1.1, crimeIndex: 52, greenSpaceIndex: 0.28 }, // New Delhi
-  "400001": { aqi: 78, tempC: 30, humidity: 74, foodDesertKm: 0.6, crimeIndex: 44, greenSpaceIndex: 0.33 }, // Mumbai
-  "700001": { aqi: 105, tempC: 31, humidity: 70, foodDesertKm: 1.4, crimeIndex: 47, greenSpaceIndex: 0.30 }, // Kolkata
-  "600001": { aqi: 88, tempC: 32, humidity: 68, foodDesertKm: 0.9, crimeIndex: 40, greenSpaceIndex: 0.36 }, // Chennai
-  "500001": { aqi: 92, tempC: 31, humidity: 55, foodDesertKm: 1.2, crimeIndex: 42, greenSpaceIndex: 0.31 }, // Hyderabad
-  "411001": { aqi: 98, tempC: 28, humidity: 58, foodDesertKm: 1.0, crimeIndex: 43, greenSpaceIndex: 0.34 }, // Pune
-  "380001": { aqi: 112, tempC: 33, humidity: 52, foodDesertKm: 1.8, crimeIndex: 45, greenSpaceIndex: 0.26 }, // Ahmedabad
-  "302001": { aqi: 121, tempC: 32, humidity: 44, foodDesertKm: 2.1, crimeIndex: 49, greenSpaceIndex: 0.29 }, // Jaipur
-  "226001": { aqi: 132, tempC: 30, humidity: 60, foodDesertKm: 2.4, crimeIndex: 55, greenSpaceIndex: 0.24 }, // Lucknow
-  "682001": { aqi: 65, tempC: 30, humidity: 78, foodDesertKm: 0.7, crimeIndex: 35, greenSpaceIndex: 0.44 }, // Kochi
-  "781001": { aqi: 58, tempC: 28, humidity: 75, foodDesertKm: 1.6, crimeIndex: 33, greenSpaceIndex: 0.52 }, // Guwahati
+  "560001": {
+    aqi: 95,
+    tempC: 29,
+    humidity: 62,
+    foodDesertKm: 0.8,
+    crimeIndex: 38,
+    greenSpaceIndex: 0.41,
+  }, // Bengaluru
+  "110001": {
+    aqi: 165,
+    tempC: 31,
+    humidity: 48,
+    foodDesertKm: 1.1,
+    crimeIndex: 52,
+    greenSpaceIndex: 0.28,
+  }, // New Delhi
+  "400001": {
+    aqi: 78,
+    tempC: 30,
+    humidity: 74,
+    foodDesertKm: 0.6,
+    crimeIndex: 44,
+    greenSpaceIndex: 0.33,
+  }, // Mumbai
+  "700001": {
+    aqi: 105,
+    tempC: 31,
+    humidity: 70,
+    foodDesertKm: 1.4,
+    crimeIndex: 47,
+    greenSpaceIndex: 0.3,
+  }, // Kolkata
+  "600001": {
+    aqi: 88,
+    tempC: 32,
+    humidity: 68,
+    foodDesertKm: 0.9,
+    crimeIndex: 40,
+    greenSpaceIndex: 0.36,
+  }, // Chennai
+  "500001": {
+    aqi: 92,
+    tempC: 31,
+    humidity: 55,
+    foodDesertKm: 1.2,
+    crimeIndex: 42,
+    greenSpaceIndex: 0.31,
+  }, // Hyderabad
+  "411001": {
+    aqi: 98,
+    tempC: 28,
+    humidity: 58,
+    foodDesertKm: 1.0,
+    crimeIndex: 43,
+    greenSpaceIndex: 0.34,
+  }, // Pune
+  "380001": {
+    aqi: 112,
+    tempC: 33,
+    humidity: 52,
+    foodDesertKm: 1.8,
+    crimeIndex: 45,
+    greenSpaceIndex: 0.26,
+  }, // Ahmedabad
+  "302001": {
+    aqi: 121,
+    tempC: 32,
+    humidity: 44,
+    foodDesertKm: 2.1,
+    crimeIndex: 49,
+    greenSpaceIndex: 0.29,
+  }, // Jaipur
+  "226001": {
+    aqi: 132,
+    tempC: 30,
+    humidity: 60,
+    foodDesertKm: 2.4,
+    crimeIndex: 55,
+    greenSpaceIndex: 0.24,
+  }, // Lucknow
+  "682001": {
+    aqi: 65,
+    tempC: 30,
+    humidity: 78,
+    foodDesertKm: 0.7,
+    crimeIndex: 35,
+    greenSpaceIndex: 0.44,
+  }, // Kochi
+  "781001": {
+    aqi: 58,
+    tempC: 28,
+    humidity: 75,
+    foodDesertKm: 1.6,
+    crimeIndex: 33,
+    greenSpaceIndex: 0.52,
+  }, // Guwahati
 };
 
 export const bundledProvider: SdohProvider = {
@@ -66,11 +150,16 @@ export function getSdoh(regionKey: string | null | undefined): SdohSnapshot | nu
  * diabetic control; high crime suppresses outdoor activity.
  */
 export function sdohRiskModifiers(s: SdohSnapshot | null): {
-  cardiopulmonary: number; metabolic: number; activity: number; notes: string[];
+  cardiopulmonary: number;
+  metabolic: number;
+  activity: number;
+  notes: string[];
 } {
   if (!s) return { cardiopulmonary: 1, metabolic: 1, activity: 1, notes: [] };
   const notes: string[] = [];
-  let cardio = 1, meta = 1, act = 1;
+  let cardio = 1,
+    meta = 1,
+    act = 1;
   if (s.aqi !== null && s.aqi > 100) {
     cardio *= 1 + Math.min(0.25, (s.aqi - 100) / 400);
     notes.push(`AQI ${s.aqi} — sustained particulate exposure`);
@@ -87,5 +176,10 @@ export function sdohRiskModifiers(s: SdohSnapshot | null): {
     act *= 0.92;
     notes.push("low green-space access");
   }
-  return { cardiopulmonary: Number(cardio.toFixed(3)), metabolic: Number(meta.toFixed(3)), activity: Number(act.toFixed(3)), notes };
+  return {
+    cardiopulmonary: Number(cardio.toFixed(3)),
+    metabolic: Number(meta.toFixed(3)),
+    activity: Number(act.toFixed(3)),
+    notes,
+  };
 }

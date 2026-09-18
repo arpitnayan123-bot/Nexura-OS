@@ -19,10 +19,14 @@ export interface GenerationDecision {
 /** Map a risk assessment to its guideline protocol, if any.
  *  The composite domain sniffs drivers so the engine's fused
  *  assessment still lands on the right guideline pathway. */
-export function protocolFor(domain: RiskAssessment["domain"], drivers: string[]): PreEmptiveProtocolSpec | null {
+export function protocolFor(
+  domain: RiskAssessment["domain"],
+  drivers: string[],
+): PreEmptiveProtocolSpec | null {
   const joined = drivers.join(" ").toLowerCase();
   if (domain === "composite") {
-    if (/heart rate|wbc|infection|temperature|oxygen|respiratory/.test(joined)) return PROTOCOL_KB.sepsis_bundle;
+    if (/heart rate|wbc|infection|temperature|oxygen|respiratory/.test(joined))
+      return PROTOCOL_KB.sepsis_bundle;
     if (/cardiac|nt-probnp|fluid/.test(joined)) return PROTOCOL_KB.hf_exacerbation;
     if (/glycemic|glucose|hba1c/.test(joined)) return PROTOCOL_KB.dka_risk;
     if (/hypertension|sbp|blood pressure/.test(joined)) return PROTOCOL_KB.htn_urgency;
@@ -32,7 +36,8 @@ export function protocolFor(domain: RiskAssessment["domain"], drivers: string[])
   if (domain === "sepsis") return PROTOCOL_KB.sepsis_bundle;
   if (domain === "readmission") return null; // readmission is a care-coordination concern, not an acute protocol
   if (domain === "chronic_deterioration") {
-    if (joined.includes("glycemic") || joined.includes("glucose") || joined.includes("hba1c")) return PROTOCOL_KB.dka_risk;
+    if (joined.includes("glycemic") || joined.includes("glucose") || joined.includes("hba1c"))
+      return PROTOCOL_KB.dka_risk;
     if (joined.includes("hypertension") || joined.includes("sbp")) return PROTOCOL_KB.htn_urgency;
     if (joined.includes("renal") || joined.includes("creatinine")) return PROTOCOL_KB.aki_watch;
     if (joined.includes("cardiac")) return PROTOCOL_KB.hf_exacerbation;
@@ -49,13 +54,21 @@ export function protocolFor(domain: RiskAssessment["domain"], drivers: string[])
  */
 export function decideProtocol(
   assessment: RiskAssessment,
-  openProtocolExists: boolean
+  openProtocolExists: boolean,
 ): GenerationDecision {
   if (assessment.band !== "red") {
-    return { action: "below_threshold", protocol: null, reason: `Score ${assessment.score} is below the red threshold.` };
+    return {
+      action: "below_threshold",
+      protocol: null,
+      reason: `Score ${assessment.score} is below the red threshold.`,
+    };
   }
   if (openProtocolExists) {
-    return { action: "existing_protocol_active", protocol: null, reason: "An open protocol already covers this patient." };
+    return {
+      action: "existing_protocol_active",
+      protocol: null,
+      reason: "An open protocol already covers this patient.",
+    };
   }
   if (assessment.confidence < CONFIDENCE_FLOOR) {
     return {
@@ -64,9 +77,20 @@ export function decideProtocol(
       reason: `Confidence ${(assessment.confidence * 100).toFixed(0)}% < ${CONFIDENCE_FLOOR * 100}% — flagged "Uncertain — Manual Review Required".`,
     };
   }
-  const spec = protocolFor(assessment.domain, assessment.drivers.map((d) => d.feature + " " + d.detail));
+  const spec = protocolFor(
+    assessment.domain,
+    assessment.drivers.map((d) => d.feature + " " + d.detail),
+  );
   if (!spec) {
-    return { action: "uncertain_manual_review", protocol: null, reason: "Red zone reached but no guideline protocol maps this pattern — manual review." };
+    return {
+      action: "uncertain_manual_review",
+      protocol: null,
+      reason: "Red zone reached but no guideline protocol maps this pattern — manual review.",
+    };
   }
-  return { action: "generate", protocol: spec, reason: `Confidence ${(assessment.confidence * 100).toFixed(0)}% ≥ threshold; ${assessment.domain} red zone.` };
+  return {
+    action: "generate",
+    protocol: spec,
+    reason: `Confidence ${(assessment.confidence * 100).toFixed(0)}% ≥ threshold; ${assessment.domain} red zone.`,
+  };
 }

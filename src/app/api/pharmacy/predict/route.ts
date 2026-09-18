@@ -114,12 +114,23 @@ async function GET_impl() {
         dumpCount: dumpStock.length,
         highRisk: dumpStock.filter((d) => d.risk === "high").length,
         reorderCount: reorder.length,
-        totalStockUnits: products.reduce((s, p) => s + p.batches.reduce((b, x) => b + x.stockStrips, 0), 0),
+        totalStockUnits: products.reduce(
+          (s, p) => s + p.batches.reduce((b, x) => b + x.stockStrips, 0),
+          0,
+        ),
       },
     });
   } catch (err) {
-    log.error("pharmacy", "predict_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "predict_failed", detail: "Demand predictions could not be generated. Please retry." }, { status: 500 });
+    log.error("pharmacy", "predict_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "predict_failed",
+        detail: "Demand predictions could not be generated. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }
 

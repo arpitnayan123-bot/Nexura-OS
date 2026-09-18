@@ -62,7 +62,7 @@ export function deriveCalories(steps: number): number {
 export function buildHourlySeries(
   samples: { capturedAt: Date; value: number }[],
   hours = 14,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): HourlyPoint[] {
   const start = new Date(now.getTime() - hours * 3600_000);
   const buckets = new Map<string, number[]>();

@@ -12,9 +12,21 @@
 import type { SeriesModelWeights, TwinStateVector } from "../types";
 
 export const FEATURES = [
-  "age_over_65", "hr_dev", "temp_dev", "wbc_dev", "rr_dev", "spo2_dev",
-  "hr_trend", "temp_trend", "wbc_trend", "creat_trend", "weight_trend",
-  "adherence_gap", "infection_count", "med_burden", "comorbidity_count",
+  "age_over_65",
+  "hr_dev",
+  "temp_dev",
+  "wbc_dev",
+  "rr_dev",
+  "spo2_dev",
+  "hr_trend",
+  "temp_trend",
+  "wbc_trend",
+  "creat_trend",
+  "weight_trend",
+  "adherence_gap",
+  "infection_count",
+  "med_burden",
+  "comorbidity_count",
 ] as const;
 export type FeatureName = (typeof FEATURES)[number];
 
@@ -25,9 +37,20 @@ export function defaultWeights(): SeriesModelWeights {
   // see governance/registry.ts for the training-data declaration).
   const w: Record<string, number> = {
     age_over_65: 0.06,
-    hr_dev: 0.045, temp_dev: 0.05, wbc_dev: 0.055, rr_dev: 0.05, spo2_dev: -0.06,
-    hr_trend: 0.03, temp_trend: 0.04, wbc_trend: 0.035, creat_trend: 0.03, weight_trend: -0.02,
-    adherence_gap: 0.04, infection_count: 0.07, med_burden: 0.012, comorbidity_count: 0.05,
+    hr_dev: 0.045,
+    temp_dev: 0.05,
+    wbc_dev: 0.055,
+    rr_dev: 0.05,
+    spo2_dev: -0.06,
+    hr_trend: 0.03,
+    temp_trend: 0.04,
+    wbc_trend: 0.035,
+    creat_trend: 0.03,
+    weight_trend: -0.02,
+    adherence_gap: 0.04,
+    infection_count: 0.07,
+    med_burden: 0.012,
+    comorbidity_count: 0.05,
   };
   return { bias: 8.0, w, trainedSamples: 18420, loss: 0.212, version: MODEL_VERSION };
 }
@@ -68,7 +91,7 @@ export function trainStep(
   weights: SeriesModelWeights,
   examples: { state: TwinStateVector; target: number }[],
   lr = 0.01,
-  l2 = 0.001
+  l2 = 0.001,
 ): SeriesModelWeights {
   const w = { ...weights.w };
   let bias = weights.bias;

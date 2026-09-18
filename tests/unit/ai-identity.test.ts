@@ -18,7 +18,11 @@ const TEST_CAPS = ["test.identity-a", "test.identity-b"];
  * Poll until fire-and-forget ledger writes are visible — a fixed sleep races
  * under CI load (write lands after the sleep → assertion on absent data).
  */
-async function waitForLedger<T>(probe: () => Promise<T>, ok: (v: T) => boolean, timeoutMs = 8000): Promise<T> {
+async function waitForLedger<T>(
+  probe: () => Promise<T>,
+  ok: (v: T) => boolean,
+  timeoutMs = 8000,
+): Promise<T> {
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     const v = await probe();
@@ -99,12 +103,15 @@ describe("recordAiUsage identity attribution", () => {
     setAiActor({ userId: "ambient-user", role: "doctor" });
     recordAiUsage({ ...baseRow(TEST_CAPS[0]), userId: "explicit-user", userRole: "auditor" });
     const row = await waitForLedger(
-      () => db.aiUsageLog.findFirst({ where: { capability: TEST_CAPS[0], userId: "explicit-user" } }),
+      () =>
+        db.aiUsageLog.findFirst({ where: { capability: TEST_CAPS[0], userId: "explicit-user" } }),
       (r) => r !== null,
     );
     expect(row?.userRole).toBe("auditor");
     // the ambient actor must NOT have produced a row of its own
-    const ambient = await db.aiUsageLog.findFirst({ where: { capability: TEST_CAPS[0], userId: "ambient-user" } });
+    const ambient = await db.aiUsageLog.findFirst({
+      where: { capability: TEST_CAPS[0], userId: "ambient-user" },
+    });
     expect(ambient).toBeNull();
   });
 });

@@ -51,7 +51,10 @@ export function NxNotificationCenter() {
   const setNotif = useOs((s) => s.setNotif);
   const openApp = useOs((s) => s.openApp);
 
-  const { data, refresh } = useNx<{ notifications: ServerNotification[]; unread: number }>("/api/nx/notifications?perPage=25", { pollMs: 45000 });
+  const { data, refresh } = useNx<{ notifications: ServerNotification[]; unread: number }>(
+    "/api/nx/notifications?perPage=25",
+    { pollMs: 45000 },
+  );
   const [localRead, setLocalRead] = useState<Set<string>>(new Set());
   const serverNotifs = (data?.notifications ?? []).filter((n) => !localRead.has(n.id));
 
@@ -65,11 +68,15 @@ export function NxNotificationCenter() {
     return () => window.removeEventListener("nx-live-event", onLive);
   }, [refresh]);
 
-  const unread = serverNotifs.filter((n) => !n.readAt).length + notices.filter((n) => !n.read).length;
+  const unread =
+    serverNotifs.filter((n) => !n.readAt).length + notices.filter((n) => !n.read).length;
 
   const open = (moduleKey?: string, id?: string) => {
     if (id) readNotice(id);
-    if (moduleKey && appFor(moduleKey)) { setNotif(false); openApp(moduleKey); }
+    if (moduleKey && appFor(moduleKey)) {
+      setNotif(false);
+      openApp(moduleKey);
+    }
   };
 
   async function openServer(n: ServerNotification) {
@@ -122,10 +129,20 @@ export function NxNotificationCenter() {
           </p>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={markAllRead} className="nx-bar-item text-ink-3" title="Mark all read" aria-label="Mark all read">
+          <button
+            onClick={markAllRead}
+            className="nx-bar-item text-ink-3"
+            title="Mark all read"
+            aria-label="Mark all read"
+          >
             <CheckCheck className="h-3.5 w-3.5" />
           </button>
-          <button onClick={clearNotices} className="nx-bar-item text-ink-3" title="Clear session notices" aria-label="Clear session notices">
+          <button
+            onClick={clearNotices}
+            className="nx-bar-item text-ink-3"
+            title="Clear session notices"
+            aria-label="Clear session notices"
+          >
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -150,20 +167,34 @@ export function NxNotificationCenter() {
                   key={n.id}
                   className={cn(
                     "group relative flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-inset focus-visible:bg-inset focus-visible:outline-none",
-                    n.readAt ? "opacity-70 hover:opacity-100" : ""
+                    n.readAt ? "opacity-70 hover:opacity-100" : "",
                   )}
                   onClick={() => void openServer(n)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void openServer(n); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      void openServer(n);
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
                   aria-label={`${n.title}${n.readAt ? " (read)" : " — unread"}`}
                 >
                   <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", TONE_DOT[tone])} />
                   <div className="min-w-0 flex-1">
-                    <p className={cn("truncate text-[12.5px]", n.level === "critical" ? "font-semibold text-crit" : "font-medium text-ink")}>
+                    <p
+                      className={cn(
+                        "truncate text-[12.5px]",
+                        n.level === "critical" ? "font-semibold text-crit" : "font-medium text-ink",
+                      )}
+                    >
                       {n.title}
                     </p>
-                    {n.body && <p className="mt-0.5 line-clamp-2 text-[11.5px] leading-relaxed text-ink-3">{n.body}</p>}
+                    {n.body && (
+                      <p className="mt-0.5 line-clamp-2 text-[11.5px] leading-relaxed text-ink-3">
+                        {n.body}
+                      </p>
+                    )}
                     <p className="mt-1 flex items-center gap-1.5 text-[10.5px] text-ink-4">
                       <span className="capitalize">{n.category}</span>
                       <span>·</span>
@@ -181,21 +212,37 @@ export function NxNotificationCenter() {
                 key={n.id}
                 className={cn(
                   "group relative flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-inset focus-visible:bg-inset focus-visible:outline-none",
-                  n.read ? "opacity-70 hover:opacity-100" : ""
+                  n.read ? "opacity-70 hover:opacity-100" : "",
                 )}
                 onClick={() => open(n.moduleKey, n.id)}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(n.moduleKey, n.id); } }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    open(n.moduleKey, n.id);
+                  }
+                }}
                 role="button"
                 tabIndex={0}
               >
                 <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", TONE_DOT[n.tone])} />
                 <div className="min-w-0 flex-1">
-                  <p className={cn("truncate text-[12.5px]", n.tone === "crit" ? "font-semibold text-crit" : "font-medium text-ink")}>
+                  <p
+                    className={cn(
+                      "truncate text-[12.5px]",
+                      n.tone === "crit" ? "font-semibold text-crit" : "font-medium text-ink",
+                    )}
+                  >
                     {n.title}
                   </p>
-                  {n.body && <p className="mt-0.5 line-clamp-2 text-[11.5px] leading-relaxed text-ink-3">{n.body}</p>}
+                  {n.body && (
+                    <p className="mt-0.5 line-clamp-2 text-[11.5px] leading-relaxed text-ink-3">
+                      {n.body}
+                    </p>
+                  )}
                   <p className="mt-1 flex items-center gap-1.5 text-[10.5px] text-ink-4">
-                    {n.moduleKey && appFor(n.moduleKey) && <span>{appFor(n.moduleKey)!.label}</span>}
+                    {n.moduleKey && appFor(n.moduleKey) && (
+                      <span>{appFor(n.moduleKey)!.label}</span>
+                    )}
                     {n.moduleKey && appFor(n.moduleKey) && <span>·</span>}
                     {timeAgo(new Date(n.ts))}
                     {!n.read && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-accent" />}
@@ -203,7 +250,10 @@ export function NxNotificationCenter() {
                 </div>
                 <button
                   className="absolute right-2 top-2 rounded-md p-1 text-ink-4 opacity-0 transition hover:bg-line hover:text-ink group-hover:opacity-100"
-                  onClick={(e) => { e.stopPropagation(); dismissNotice(n.id); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    dismissNotice(n.id);
+                  }}
                   aria-label="Dismiss notification"
                 >
                   <X className="h-3 w-3" />
@@ -218,16 +268,27 @@ export function NxNotificationCenter() {
 }
 
 /** Incident/maintenance strip shown inside the notification popover header when active. */
-export function NxPlatformBanner({ status }: { status?: { enabled: boolean; message: string | null; severity: string } }) {
+export function NxPlatformBanner({
+  status,
+}: {
+  status?: { enabled: boolean; message: string | null; severity: string };
+}) {
   if (!status?.enabled) return null;
   const Icon = status.severity === "critical" ? ServerCrash : Wrench;
   return (
-    <div className={cn(
-      "flex items-start gap-2 border-b border-line px-4 py-2.5 text-[11.5px]",
-      status.severity === "critical" ? "bg-crit-soft text-crit" : "bg-warn-soft text-warn"
-    )}>
+    <div
+      className={cn(
+        "flex items-start gap-2 border-b border-line px-4 py-2.5 text-[11.5px]",
+        status.severity === "critical" ? "bg-crit-soft text-crit" : "bg-warn-soft text-warn",
+      )}
+    >
       <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-      <p className="leading-relaxed">{status.message || (status.severity === "critical" ? "Platform incident in progress." : "Maintenance in progress.")}</p>
+      <p className="leading-relaxed">
+        {status.message ||
+          (status.severity === "critical"
+            ? "Platform incident in progress."
+            : "Maintenance in progress.")}
+      </p>
     </div>
   );
 }

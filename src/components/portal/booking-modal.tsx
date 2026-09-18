@@ -3,11 +3,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  Calendar, MapPin, CreditCard, CheckCircle2, ChevronRight, ChevronLeft, Loader2,
-  Home, Wallet, Smartphone, Droplet, ShieldCheck,
+  Calendar,
+  MapPin,
+  CreditCard,
+  CheckCircle2,
+  ChevronRight,
+  ChevronLeft,
+  Loader2,
+  Home,
+  Wallet,
+  Smartphone,
+  Droplet,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,8 +61,14 @@ const DATES = Array.from({ length: 10 }).map((_, i) => {
 });
 
 const SLOTS = [
-  "06:30–07:00", "07:00–07:30", "07:30–08:00", "08:00–08:30",
-  "08:30–09:00", "16:00–16:30", "17:00–17:30", "18:00–18:30",
+  "06:30–07:00",
+  "07:00–07:30",
+  "07:30–08:00",
+  "08:00–08:30",
+  "08:30–09:00",
+  "16:00–16:30",
+  "17:00–17:30",
+  "18:00–18:30",
 ];
 
 export function BookingModal({
@@ -143,13 +163,15 @@ export function BookingModal({
                 {panel?.icon ?? "🩸"}
               </span>
               <DialogTitle className="font-display text-xl">
-                {done ? "Booking confirmed" : panel?.name ?? "Book a test"}
+                {done ? "Booking confirmed" : (panel?.name ?? "Book a test")}
               </DialogTitle>
             </div>
             <DialogDescription className="text-white/85">
               {done
                 ? "A phlebotomist will arrive at your address."
-                : panel ? `₹${panel.price} · ${panel.tests}` : "Select a panel to begin."}
+                : panel
+                  ? `₹${panel.price} · ${panel.tests}`
+                  : "Select a panel to begin."}
             </DialogDescription>
           </DialogHeader>
 
@@ -158,7 +180,12 @@ export function BookingModal({
               <div className="relative mt-5 flex items-center gap-1.5">
                 {STEPS.map((s, i) => (
                   <div key={s} className="flex flex-1 items-center gap-1.5">
-                    <div className={cn("h-1.5 flex-1 rounded-full transition-colors duration-300", i <= step ? "bg-white" : "bg-white/25")} />
+                    <div
+                      className={cn(
+                        "h-1.5 flex-1 rounded-full transition-colors duration-300",
+                        i <= step ? "bg-white" : "bg-white/25",
+                      )}
+                    />
                   </div>
                 ))}
               </div>
@@ -193,18 +220,25 @@ export function BookingModal({
                 <p className="mt-1 max-w-xs text-sm text-stone-600">
                   {panel?.name} on{" "}
                   <span className="font-semibold">
-                    {selectedDate.toLocaleDateString("en-IN", { weekday: "long", month: "short", day: "numeric" })}
+                    {selectedDate.toLocaleDateString("en-IN", {
+                      weekday: "long",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </span>{" "}
                   at <span className="font-semibold">{slot}</span>.
                 </p>
                 <div className="mt-3 rounded-2xl border border-[#E7E5E4] bg-[#FAF7F2] p-3 text-left text-xs text-stone-600">
                   <div className="flex items-start gap-2">
                     <MapPin className="mt-0.5 h-3.5 w-3.5 text-[#A16207]" />
-                    <span>{address}, {city} — {pincode}</span>
+                    <span>
+                      {address}, {city} — {pincode}
+                    </span>
                   </div>
                 </div>
                 <p className="mt-3 text-[0.7rem] text-stone-500">
-                  Your phlebotomist&apos;s name and contact number appear on the booking card in the Blood Checkup tab.
+                  Your phlebotomist&apos;s name and contact number appear on the booking card in the
+                  Blood Checkup tab.
                 </p>
               </motion.div>
             ) : (
@@ -231,7 +265,7 @@ export function BookingModal({
                               "flex flex-col items-center gap-0.5 rounded-2xl border py-2.5 transition-all",
                               sel
                                 ? "border-[#A16207] bg-[#A16207]/10 text-stone-800"
-                                : "border-[#E7E5E4] bg-white hover:bg-[#FAF7F2]"
+                                : "border-[#E7E5E4] bg-white hover:bg-[#FAF7F2]",
                             )}
                           >
                             <span className="text-[0.6rem] uppercase tracking-wider text-stone-400">
@@ -262,7 +296,7 @@ export function BookingModal({
                               "flex items-center justify-center gap-1 rounded-xl border py-2 text-xs font-medium transition-all",
                               sel
                                 ? "border-[#A16207] bg-[#A16207]/10 text-stone-800"
-                                : "border-[#E7E5E4] bg-white hover:bg-[#FAF7F2]"
+                                : "border-[#E7E5E4] bg-white hover:bg-[#FAF7F2]",
                             )}
                           >
                             <Calendar className="h-3 w-3 text-stone-400" />
@@ -275,7 +309,11 @@ export function BookingModal({
                       <Calendar className="h-3.5 w-3.5 text-[#A16207]" />
                       Selected:{" "}
                       <span className="font-semibold text-stone-700">
-                        {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                        {selectedDate.toLocaleDateString("en-US", {
+                          weekday: "long",
+                          month: "long",
+                          day: "numeric",
+                        })}
                       </span>
                       {slot && <span>· {slot}</span>}
                     </p>
@@ -285,7 +323,10 @@ export function BookingModal({
                 {step === 1 && (
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="bk-addr" className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+                      <Label
+                        htmlFor="bk-addr"
+                        className="text-xs font-semibold uppercase tracking-wider text-stone-500"
+                      >
                         Full address
                       </Label>
                       <Textarea
@@ -298,7 +339,10 @@ export function BookingModal({
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="bk-city" className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+                        <Label
+                          htmlFor="bk-city"
+                          className="text-xs font-semibold uppercase tracking-wider text-stone-500"
+                        >
                           City
                         </Label>
                         <Input
@@ -309,7 +353,10 @@ export function BookingModal({
                         />
                       </div>
                       <div>
-                        <Label htmlFor="bk-pin" className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+                        <Label
+                          htmlFor="bk-pin"
+                          className="text-xs font-semibold uppercase tracking-wider text-stone-500"
+                        >
                           Pincode
                         </Label>
                         <Input
@@ -321,7 +368,10 @@ export function BookingModal({
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="bk-notes" className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+                      <Label
+                        htmlFor="bk-notes"
+                        className="text-xs font-semibold uppercase tracking-wider text-stone-500"
+                      >
                         Notes for phlebotomist (optional)
                       </Label>
                       <Input
@@ -338,7 +388,8 @@ export function BookingModal({
                         Home collection included free
                       </div>
                       <p className="mt-1 leading-snug text-stone-500">
-                        A phlebotomist will arrive within the chosen slot. Same-day reports for CBC; 12-24 hrs for the larger panels.
+                        A phlebotomist will arrive within the chosen slot. Same-day reports for CBC;
+                        12-24 hrs for the larger panels.
                       </p>
                     </div>
                   </div>
@@ -350,10 +401,22 @@ export function BookingModal({
                       Payment method
                     </Label>
                     <div className="mt-2 grid grid-cols-2 gap-2">
-                      {([
-                        { key: "upi", label: "UPI / Wallet", icon: Smartphone, sub: "Marked paid with your booking" },
-                        { key: "cash", label: "Cash on Visit", icon: Wallet, sub: "Pay phlebotomist" },
-                      ] as const).map((p) => {
+                      {(
+                        [
+                          {
+                            key: "upi",
+                            label: "UPI / Wallet",
+                            icon: Smartphone,
+                            sub: "Marked paid with your booking",
+                          },
+                          {
+                            key: "cash",
+                            label: "Cash on Visit",
+                            icon: Wallet,
+                            sub: "Pay phlebotomist",
+                          },
+                        ] as const
+                      ).map((p) => {
                         const sel = paymentMode === p.key;
                         return (
                           <button
@@ -363,10 +426,12 @@ export function BookingModal({
                               "flex flex-col items-start gap-1 rounded-2xl border p-3 text-left transition-all",
                               sel
                                 ? "border-[#A16207] bg-[#A16207]/10"
-                                : "border-[#E7E5E4] bg-white hover:bg-[#FAF7F2]"
+                                : "border-[#E7E5E4] bg-white hover:bg-[#FAF7F2]",
                             )}
                           >
-                            <p.icon className={cn("h-5 w-5", sel ? "text-[#A16207]" : "text-stone-400")} />
+                            <p.icon
+                              className={cn("h-5 w-5", sel ? "text-[#A16207]" : "text-stone-400")}
+                            />
                             <span className="text-sm font-semibold text-stone-800">{p.label}</span>
                             <span className="text-[0.7rem] text-stone-500">{p.sub}</span>
                           </button>
@@ -387,7 +452,11 @@ export function BookingModal({
                       <div className="mt-1.5 flex items-center justify-between text-xs">
                         <span className="text-stone-500">Schedule</span>
                         <span className="font-medium text-stone-700">
-                          {selectedDate.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {slot}
+                          {selectedDate.toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                          })}{" "}
+                          · {slot}
                         </span>
                       </div>
                       <div className="my-3 h-px bg-stone-200" />
@@ -400,7 +469,8 @@ export function BookingModal({
                     </div>
                     <p className="mt-2 flex items-center gap-1.5 text-[0.7rem] text-stone-500">
                       <ShieldCheck className="h-3 w-3 text-[#9DB89E]" />
-                      Payment mode is recorded with your booking · Data handled per DPDP 2023 principles
+                      Payment mode is recorded with your booking · Data handled per DPDP 2023
+                      principles
                     </p>
                   </div>
                 )}
@@ -412,7 +482,13 @@ export function BookingModal({
         {/* footer */}
         {!done && (
           <div className="flex items-center justify-between gap-3 border-t border-[#E7E5E4] bg-[#FAF7F2] p-4">
-            <Button type="button" variant="ghost" onClick={back} disabled={step === 0} className="rounded-full">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={back}
+              disabled={step === 0}
+              className="rounded-full"
+            >
               <ChevronLeft className="h-4 w-4" />
               Back
             </Button>
@@ -427,7 +503,13 @@ export function BookingModal({
               className="group rounded-full bg-[#A16207] text-white hover:bg-[#8A5A04]"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {step === STEPS.length - 1 ? (loading ? "Booking…" : `Confirm · ₹${panel?.price ?? 0}`) : (
+              {step === STEPS.length - 1 ? (
+                loading ? (
+                  "Booking…"
+                ) : (
+                  `Confirm · ₹${panel?.price ?? 0}`
+                )
+              ) : (
                 <>
                   Continue
                   <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

@@ -40,7 +40,7 @@ export const POST = withRoute("nx.wearables.pair", async (req: NextRequest, ctx)
       "already_paired",
       409,
       "Device already has a secret — use action:'rotate' to replace it.",
-      ctx.requestId
+      ctx.requestId,
     );
   }
 
@@ -67,9 +67,10 @@ export const POST = withRoute("nx.wearables.pair", async (req: NextRequest, ctx)
       deviceId: device.id,
       secret,
       note: "Shown once — store it in the device now. Only its SHA-256 hash is kept server-side.",
-      protocol: "x-nx-signature: hex(HMAC-SHA256(key=sha256(secret), data=deviceId + '.' + rawBody))",
+      protocol:
+        "x-nx-signature: hex(HMAC-SHA256(key=sha256(secret), data=deviceId + '.' + rawBody))",
     },
-    { requestId: ctx.requestId }
+    { requestId: ctx.requestId },
   );
 });
 
@@ -80,6 +81,6 @@ export const GET = withRoute("nx.wearables.pair.describe", async (_req: NextRequ
       returns: "the device secret exactly once; only its hash is stored",
       ingest: "POST /api/nx/bio/[deviceId] with x-nx-signature per batch",
     },
-    { requestId: ctx.requestId }
+    { requestId: ctx.requestId },
   );
 });

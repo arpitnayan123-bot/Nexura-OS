@@ -28,13 +28,29 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Activity, AlertTriangle, ArrowRight, BadgeCheck, CheckCircle2,
-  Copy, HeartPulse, Leaf, PhoneCall, Sparkles, Stethoscope,
+  Activity,
+  AlertTriangle,
+  ArrowRight,
+  BadgeCheck,
+  CheckCircle2,
+  Copy,
+  HeartPulse,
+  Leaf,
+  PhoneCall,
+  Sparkles,
+  Stethoscope,
 } from "lucide-react";
 import type { DomainId, ForesightInput, ForesightReport } from "@/modules/foresight/types";
 import {
-  buildActions, buildDrivers, buildExecStrip, buildForecast, buildInsights,
-  buildMetricCards, buildRisks, buildTimeline, type ScoreSeriesEntry,
+  buildActions,
+  buildDrivers,
+  buildExecStrip,
+  buildForecast,
+  buildInsights,
+  buildMetricCards,
+  buildRisks,
+  buildTimeline,
+  type ScoreSeriesEntry,
 } from "@/modules/foresight/workspace";
 import { DOMAIN_META, HealthHalo } from "./viz";
 import { Eyebrow, GlassCard, LevelChip, Ornament, SectionHead, Bar, fadeUp } from "./ui";
@@ -53,18 +69,40 @@ import { TransparencyPanel } from "./workspace/transparency";
 import { cn } from "@/lib/utils";
 
 const BAND_COPY: Record<string, { headline: string; sub: string }> = {
-  THRIVING: { headline: "You're building something rare", sub: "Your patterns read resilient. Protect what's working." },
-  RESILIENT: { headline: "Solid ground, a few edges", sub: "Mostly resilient patterns with a couple of things worth watching." },
-  BUILDING: { headline: "Real signals — real headroom", sub: "Several patterns deserve attention. All of them respond to action." },
-  ATTENTION: { headline: "Your body is asking for help", sub: "Multiple domains are loaded. Start with the top card — and take the doctor list seriously." },
+  THRIVING: {
+    headline: "You're building something rare",
+    sub: "Your patterns read resilient. Protect what's working.",
+  },
+  RESILIENT: {
+    headline: "Solid ground, a few edges",
+    sub: "Mostly resilient patterns with a couple of things worth watching.",
+  },
+  BUILDING: {
+    headline: "Real signals — real headroom",
+    sub: "Several patterns deserve attention. All of them respond to action.",
+  },
+  ATTENTION: {
+    headline: "Your body is asking for help",
+    sub: "Multiple domains are loaded. Start with the top card — and take the doctor list seriously.",
+  },
 };
 
 /* ---------------- triage takeovers (unchanged, safety first) ---------------- */
 
-export function EmergencyTakeover({ report, onAcknowledge }: { report: ForesightReport; onAcknowledge: () => void }) {
+export function EmergencyTakeover({
+  report,
+  onAcknowledge,
+}: {
+  report: ForesightReport;
+  onAcknowledge: () => void;
+}) {
   const t = report.triage;
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="nxf-emergency relative overflow-hidden p-6 sm:p-8">
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-rose-500 via-rose-400 to-rose-500" />
         <div className="flex items-start gap-4">
@@ -73,7 +111,9 @@ export function EmergencyTakeover({ report, onAcknowledge }: { report: Foresight
           </div>
           <div className="min-w-0">
             <Eyebrow className="">Safety first — this comes before everything</Eyebrow>
-            <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight nxf-hi sm:text-3xl">{t.headline}</h1>
+            <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight nxf-hi sm:text-3xl">
+              {t.headline}
+            </h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed nxf-body">{t.body}</p>
           </div>
         </div>
@@ -83,13 +123,18 @@ export function EmergencyTakeover({ report, onAcknowledge }: { report: Foresight
             <div key={h.id} className="rounded-2xl border border-rose-400/25 bg-white/[0.07] p-4">
               <p className="text-[15px] font-semibold nxf-hi">{h.title}</p>
               <p className="mt-1 text-[13px] leading-relaxed nxf-body">{h.why}</p>
-              <p className="mt-2 text-[13px] font-semibold leading-relaxed text-rose-200">{h.action}</p>
+              <p className="mt-2 text-[13px] font-semibold leading-relaxed text-rose-200">
+                {h.action}
+              </p>
             </div>
           ))}
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <a href="tel:108" className="nxf-cta !bg-gradient-to-r !from-rose-600 !to-rose-500 !text-white">
+          <a
+            href="tel:108"
+            className="nxf-cta !bg-gradient-to-r !from-rose-600 !to-rose-500 !text-white"
+          >
             <PhoneCall className="h-4 w-4" aria-hidden="true" /> Call 108 now
           </a>
           <a href="tel:14416" className="nxf-cta nxf-cta-ghost">
@@ -100,7 +145,8 @@ export function EmergencyTakeover({ report, onAcknowledge }: { report: Foresight
           </button>
         </div>
         <p className="mt-4 text-[11.5px] leading-relaxed nxf-mute">
-          Nexura has paused all pattern analysis. Nothing here is a diagnosis — emergency services and doctors handle what matters now.
+          Nexura has paused all pattern analysis. Nothing here is a diagnosis — emergency services
+          and doctors handle what matters now.
         </p>
       </div>
     </motion.div>
@@ -116,10 +162,13 @@ function SameDayBanner({ report }: { report: ForesightReport }) {
           <p className="text-[15px] font-semibold nxf-hi">{report.triage.headline}</p>
           {report.triage.hits.map((h) => (
             <div key={h.id} className="mt-1.5 text-[13px] leading-relaxed nxf-body">
-              <span className="font-semibold nxf-amber">{h.title}. </span>{h.why} <span className="font-semibold">{h.action}</span>
+              <span className="font-semibold nxf-amber">{h.title}. </span>
+              {h.why} <span className="font-semibold">{h.action}</span>
             </div>
           ))}
-          <p className="mt-2 text-[11.5px] nxf-mute">Your full map is below — but this visit comes first.</p>
+          <p className="mt-2 text-[11.5px] nxf-mute">
+            Your full map is below — but this visit comes first.
+          </p>
         </div>
       </div>
     </div>
@@ -129,7 +178,11 @@ function SameDayBanner({ report }: { report: ForesightReport }) {
 /* ---------------- results view ---------------- */
 
 export function ResultsView({
-  report, input, onRerun, onEditInputs, onSummary,
+  report,
+  input,
+  onRerun,
+  onEditInputs,
+  onSummary,
 }: {
   report: ForesightReport;
   /** normalized input behind this run — powers the scenario lab */
@@ -162,8 +215,12 @@ export function ResultsView({
           if (alive && j?.ok) setSeries((j.data?.scoreSeries ?? []) as ScoreSeriesEntry[]);
         }, 0);
       })
-      .catch(() => { /* offline — workspace still renders from this run alone */ });
-    return () => { alive = false; };
+      .catch(() => {
+        /* offline — workspace still renders from this run alone */
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   /* persisted action tracking hydrates client-side only */
@@ -176,20 +233,20 @@ export function ResultsView({
      the halo, the chart overlay and the scenario cards together */
   const availableIds = useMemo(
     () => (input ? SCENARIOS.filter((s) => s.available(input)).map((s) => s.id) : []),
-    [input]
+    [input],
   );
   const simIds = mode === "plan" ? availableIds : mode === "custom" ? customIds : [];
   const simActive = simIds.length > 0 && !!input && !report.analysisWithheld;
   const simReport = useMemo(
     () => (simActive && input ? runForesight(applyScenarios(input, simIds)) : null),
-    [simActive, input, simIds]
+    [simActive, input, simIds],
   );
   const simDelta = simReport ? simReport.foresightScore - report.foresightScore : 0;
 
   /* workspace model — pure functions over the report */
   const forecast = useMemo(
     () => buildForecast(report, series ?? [], { horizon, simulation: simReport }),
-    [report, series, horizon, simReport]
+    [report, series, horizon, simReport],
   );
   const timeline = useMemo(() => buildTimeline(report), [report]);
   const drivers = useMemo(() => buildDrivers(report, 14), [report]);
@@ -203,13 +260,26 @@ export function ResultsView({
     return prior ?? null;
   }, [series, report.generatedAt]);
 
-  const insights = useMemo(() => buildInsights(report, prevRun, drivers), [report, prevRun, drivers]);
-  const exec = useMemo(() => buildExecStrip(report, forecast, timeline), [report, forecast, timeline]);
-  const metricCards = useMemo(() => buildMetricCards(report, forecast, timeline, prevRun), [report, forecast, timeline, prevRun]);
+  const insights = useMemo(
+    () => buildInsights(report, prevRun, drivers),
+    [report, prevRun, drivers],
+  );
+  const exec = useMemo(
+    () => buildExecStrip(report, forecast, timeline),
+    [report, forecast, timeline],
+  );
+  const metricCards = useMemo(
+    () => buildMetricCards(report, forecast, timeline, prevRun),
+    [report, forecast, timeline, prevRun],
+  );
 
   const watchList = useMemo(
-    () => drivers.filter((d) => d.direction === "risk").slice(0, 3).map((d) => `${d.label} — loads ${d.domains.map((x) => x.label).join(", ")}`),
-    [drivers]
+    () =>
+      drivers
+        .filter((d) => d.direction === "risk")
+        .slice(0, 3)
+        .map((d) => `${d.label} — loads ${d.domains.map((x) => x.label).join(", ")}`),
+    [drivers],
   );
 
   const briefText = useMemo(() => {
@@ -218,13 +288,21 @@ export function ResultsView({
       `Standing: ${report.foresightScore}/100 (${report.scoreBand}) · confidence: ${exec.confidenceText}`,
       `Direction: ${exec.direction.label}`,
       `Risk: ${exec.risk.count === 0 ? "no elevated domains" : `${exec.risk.count} elevated+ (led by ${exec.risk.topLabel})`}`,
-      exec.nextEvent ? `Next: ${exec.nextEvent.title} (${exec.nextEvent.horizon}, ${exec.nextEvent.when})` : "",
+      exec.nextEvent
+        ? `Next: ${exec.nextEvent.title} (${exec.nextEvent.horizon}, ${exec.nextEvent.when})`
+        : "",
       "",
       "TOP DRIVERS:",
-      ...drivers.filter((d) => d.direction === "risk").slice(0, 3).map((d) => `- ${d.label} → ${d.domains.map((x) => x.label).join(", ")}`),
+      ...drivers
+        .filter((d) => d.direction === "risk")
+        .slice(0, 3)
+        .map((d) => `- ${d.label} → ${d.domains.map((x) => x.label).join(", ")}`),
       "",
       "START HERE:",
-      ...actions.filter((a) => a.priority === 1).slice(0, 3).map((a) => `- ${a.title} (${a.domainLabel})`),
+      ...actions
+        .filter((a) => a.priority === 1)
+        .slice(0, 3)
+        .map((a) => `- ${a.title} (${a.domainLabel})`),
       "",
       report.disclaimer,
     ].filter((l) => l !== undefined);
@@ -233,7 +311,7 @@ export function ResultsView({
 
   const atlasSorted = useMemo(
     () => [...report.domains].sort((a, b) => b.burden - a.burden),
-    [report.domains]
+    [report.domains],
   );
 
   const copyDoctorSummary = async (text: string) => {
@@ -241,10 +319,15 @@ export function ResultsView({
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2400);
-    } catch { /* clipboard blocked — no-op */ }
+    } catch {
+      /* clipboard blocked — no-op */
+    }
   };
 
-  const resetScenario = () => { setMode("baseline"); setCustomIds([]); };
+  const resetScenario = () => {
+    setMode("baseline");
+    setCustomIds([]);
+  };
 
   if (report.triage.level === "EMERGENCY" && !emergencyAck) {
     return <EmergencyTakeover report={report} onAcknowledge={() => setEmergencyAck(true)} />;
@@ -253,10 +336,14 @@ export function ResultsView({
   return (
     <div className="space-y-11">
       {report.triage.level === "EMERGENCY" && (
-        <button type="button" onClick={() => setEmergencyAck(false)}
-          className="w-full rounded-2xl border border-rose-400/40 bg-rose-400/[0.08] p-4 text-left">
+        <button
+          type="button"
+          onClick={() => setEmergencyAck(false)}
+          className="w-full rounded-2xl border border-rose-400/40 bg-rose-400/[0.08] p-4 text-left"
+        >
           <p className="flex items-center gap-2 text-sm font-semibold nxf-rose">
-            <AlertTriangle className="h-4 w-4" /> Emergency guidance is pinned at the top — tap to reopen
+            <AlertTriangle className="h-4 w-4" /> Emergency guidance is pinned at the top — tap to
+            reopen
           </p>
         </button>
       )}
@@ -288,10 +375,15 @@ export function ResultsView({
               <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-300" />
             </span>
             <p className="text-[12.5px] font-semibold nxf-gold">
-              Viewing the {mode === "plan" ? "committed plan" : "custom mix"} scenario — {simDelta >= 0 ? `+${simDelta}` : simDelta} vs your saved run. Halo, chart and scenario cards move together; your saved run is untouched.
+              Viewing the {mode === "plan" ? "committed plan" : "custom mix"} scenario —{" "}
+              {simDelta >= 0 ? `+${simDelta}` : simDelta} vs your saved run. Halo, chart and
+              scenario cards move together; your saved run is untouched.
             </p>
-            <button type="button" onClick={resetScenario}
-              className="rounded-full border border-amber-300/40 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider nxf-gold transition hover:bg-amber-300/20">
+            <button
+              type="button"
+              onClick={resetScenario}
+              className="rounded-full border border-amber-300/40 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider nxf-gold transition hover:bg-amber-300/20"
+            >
               back to my run
             </button>
           </motion.div>
@@ -320,7 +412,8 @@ export function ResultsView({
                 activeId={openDomain}
               />
               <p className="mx-auto mt-3 max-w-sm text-[12px] leading-relaxed nxf-mute">
-                The halo expands toward more risk-burden — it reads patterns, never diagnoses. {band.sub}
+                The halo expands toward more risk-burden — it reads patterns, never diagnoses.{" "}
+                {band.sub}
               </p>
             </motion.div>
             <div className="lg:col-span-7">
@@ -371,7 +464,9 @@ export function ResultsView({
       )}
 
       {/* I — RECOMMENDED ACTIONS */}
-      {!report.analysisWithheld && <ActionsBoard actions={actions} state={actionState} onChange={setActionState} />}
+      {!report.analysisWithheld && (
+        <ActionsBoard actions={actions} state={actionState} onChange={setActionState} />
+      )}
 
       {/* J — TIMELINE */}
       {!report.analysisWithheld && <TimelinePanel milestones={timeline} />}
@@ -386,10 +481,17 @@ export function ResultsView({
           />
           <div className="grid gap-4 lg:grid-cols-3">
             {topDomains.map((d, i) => (
-              <GlassCard key={d.id} className="flex flex-col p-5" {...fadeUp} transition={{ duration: 0.6, delay: i * 0.08 }}>
+              <GlassCard
+                key={d.id}
+                className="flex flex-col p-5"
+                {...fadeUp}
+                transition={{ duration: 0.6, delay: i * 0.08 }}
+              >
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <p className="flex items-center gap-2 text-[15px] font-semibold nxf-hi">
-                    <span aria-hidden="true" className="nxf-gold nxf-glyph-glow">{DOMAIN_META[d.id]?.glyph}</span>
+                    <span aria-hidden="true" className="nxf-gold nxf-glyph-glow">
+                      {DOMAIN_META[d.id]?.glyph}
+                    </span>
                     {DOMAIN_META[d.id]?.label ?? d.id}
                   </p>
                   <LevelChip level={d.level} />
@@ -398,15 +500,36 @@ export function ResultsView({
 
                 <div className="mt-3.5">
                   <div className="mb-1.5 flex items-center justify-between text-[11px] nxf-mute">
-                    <span>signal burden</span><span className="nxf-mono">{d.burden}/100</span>
+                    <span>signal burden</span>
+                    <span className="nxf-mono">{d.burden}/100</span>
                   </div>
-                  <Bar pct={d.burden} tone={d.level === "HIGH" ? "rose" : d.level === "ELEVATED" ? "orange" : d.level === "WATCH" ? "amber" : "emerald"} />
+                  <Bar
+                    pct={d.burden}
+                    tone={
+                      d.level === "HIGH"
+                        ? "rose"
+                        : d.level === "ELEVATED"
+                          ? "orange"
+                          : d.level === "WATCH"
+                            ? "amber"
+                            : "emerald"
+                    }
+                  />
                 </div>
 
                 <div className="mt-4 space-y-1.5">
                   {d.factors.slice(0, 5).map((f) => (
                     <p key={f.id} className="flex items-start gap-2 text-[12px] leading-relaxed">
-                      <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", f.direction === "risk" ? (d.level === "HIGH" ? "bg-rose-300" : "bg-amber-300") : "bg-emerald-300")} />
+                      <span
+                        className={cn(
+                          "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full",
+                          f.direction === "risk"
+                            ? d.level === "HIGH"
+                              ? "bg-rose-300"
+                              : "bg-amber-300"
+                            : "bg-emerald-300",
+                        )}
+                      />
                       <span className="nxf-dim">{f.label}</span>
                     </p>
                   ))}
@@ -428,14 +551,19 @@ export function ResultsView({
                 {d.actions.length > 0 && (
                   <div className="mt-3 space-y-2">
                     {d.actions.slice(0, 2).map((a) => (
-                      <div key={a.title} className="rounded-xl border border-teal-400/15 bg-teal-400/[0.05] p-3">
+                      <div
+                        key={a.title}
+                        className="rounded-xl border border-teal-400/15 bg-teal-400/[0.05] p-3"
+                      >
                         <p className="text-[12.5px] font-semibold text-teal-200">{a.title}</p>
                         <p className="mt-0.5 text-[12px] leading-relaxed nxf-dim">{a.detail}</p>
                       </div>
                     ))}
                   </div>
                 )}
-                <p className="mt-auto pt-3 text-[10.5px] nxf-mute">confidence: {d.confidence.replaceAll("_", " ").toLowerCase()}</p>
+                <p className="mt-auto pt-3 text-[10.5px] nxf-mute">
+                  confidence: {d.confidence.replaceAll("_", " ").toLowerCase()}
+                </p>
               </GlassCard>
             ))}
           </div>
@@ -460,14 +588,18 @@ export function ResultsView({
                 className={cn(
                   "group flex flex-col items-start gap-2 rounded-2xl border p-3.5 text-left transition",
                   "border-white/[0.08] bg-white/[0.03] hover:-translate-y-0.5 hover:border-amber-300/40 hover:bg-white/[0.05]",
-                  openDomain === d.id && "border-amber-300/50 bg-amber-300/[0.06]"
+                  openDomain === d.id && "border-amber-300/50 bg-amber-300/[0.06]",
                 )}
               >
                 <div className="flex w-full items-center justify-between gap-2">
-                  <span aria-hidden="true" className="nxf-gold nxf-glyph-glow text-[15px]">{DOMAIN_META[d.id]?.glyph}</span>
+                  <span aria-hidden="true" className="nxf-gold nxf-glyph-glow text-[15px]">
+                    {DOMAIN_META[d.id]?.glyph}
+                  </span>
                   <span className="nxf-mono text-[10px] nxf-mute">#{i + 1}</span>
                 </div>
-                <p className="text-[13px] font-semibold leading-tight nxf-hi">{DOMAIN_META[d.id]?.label ?? d.id}</p>
+                <p className="text-[13px] font-semibold leading-tight nxf-hi">
+                  {DOMAIN_META[d.id]?.label ?? d.id}
+                </p>
                 <div className="flex w-full items-center justify-between gap-2">
                   <LevelChip level={d.level} />
                   <span className="nxf-mono text-[11px] nxf-dim">{d.burden}</span>
@@ -481,19 +613,36 @@ export function ResultsView({
       {/* K3 — SCREENING PLAN */}
       {!report.analysisWithheld && (
         <motion.section {...fadeUp}>
-          <SectionHead eyebrow="Screening plan" title="Worth testing, worth asking" sub="A short list to carry into your next check-up — doctors confirm or drop each item." />
+          <SectionHead
+            eyebrow="Screening plan"
+            title="Worth testing, worth asking"
+            sub="A short list to carry into your next check-up — doctors confirm or drop each item."
+          />
           <div className="grid gap-4 lg:grid-cols-2">
             <GlassCard className="p-5" hover={false}>
               <p className="mb-3 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] nxf-violet">
                 <Stethoscope className="h-4 w-4" /> Tests to discuss
               </p>
               <ul className="space-y-2.5">
-                {report.domains.filter((d) => d.level === "WATCH" || d.level === "ELEVATED" || d.level === "HIGH").flatMap((d) => d.screening).filter((s) => !s.test.startsWith("None")).slice(0, 6).map((s, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[13px] leading-relaxed">
-                    <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 nxf-violet" aria-hidden="true" />
-                    <span className="nxf-body"><span className="font-semibold nxf-hi">{s.test}</span> — {s.why}{s.cadence ? ` (${s.cadence})` : ""}</span>
-                  </li>
-                ))}
+                {report.domains
+                  .filter(
+                    (d) => d.level === "WATCH" || d.level === "ELEVATED" || d.level === "HIGH",
+                  )
+                  .flatMap((d) => d.screening)
+                  .filter((s) => !s.test.startsWith("None"))
+                  .slice(0, 6)
+                  .map((s, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-[13px] leading-relaxed">
+                      <BadgeCheck
+                        className="mt-0.5 h-4 w-4 shrink-0 nxf-violet"
+                        aria-hidden="true"
+                      />
+                      <span className="nxf-body">
+                        <span className="font-semibold nxf-hi">{s.test}</span> — {s.why}
+                        {s.cadence ? ` (${s.cadence})` : ""}
+                      </span>
+                    </li>
+                  ))}
               </ul>
             </GlassCard>
             <GlassCard className="p-5" hover={false}>
@@ -530,18 +679,28 @@ export function ResultsView({
               <div key={i} className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3.5">
                 <p className="text-[12px] nxf-mute line-through decoration-rose-300/50">{s.from}</p>
                 <p className="mt-1 flex items-start gap-2 text-[13px] font-medium nxf-hi">
-                  <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" aria-hidden="true" /> {s.to}
+                  <ArrowRight
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300"
+                    aria-hidden="true"
+                  />{" "}
+                  {s.to}
                 </p>
                 {s.note ? <p className="mt-1 pl-5 text-[11.5px] nxf-mute">{s.note}</p> : null}
               </div>
             ))}
           </div>
           <div className="mt-4 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4">
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] nxf-mute">The plate rule — every meal, every cuisine</p>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] nxf-mute">
+              The plate rule — every meal, every cuisine
+            </p>
             <div className="grid gap-1.5 sm:grid-cols-2">
               {report.diet.plateRule.map((p, i) => (
                 <p key={i} className="flex items-start gap-2 text-[12.5px] nxf-dim">
-                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" aria-hidden="true" /> {p}
+                  <CheckCircle2
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300"
+                    aria-hidden="true"
+                  />{" "}
+                  {p}
                 </p>
               ))}
             </div>
@@ -554,13 +713,21 @@ export function ResultsView({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <Eyebrow className="mb-2">Clinician handoff</Eyebrow>
-            <h2 className="font-display text-xl font-semibold tracking-tight nxf-hi sm:text-2xl">One tap — everything a doctor needs</h2>
+            <h2 className="font-display text-xl font-semibold tracking-tight nxf-hi sm:text-2xl">
+              One tap — everything a doctor needs
+            </h2>
             <p className="mt-1 max-w-xl text-[13px] nxf-dim">
-              A structured summary: signals, factors, suggested screening and your questions. Copy it into WhatsApp, email or print it for the visit.
+              A structured summary: signals, factors, suggested screening and your questions. Copy
+              it into WhatsApp, email or print it for the visit.
             </p>
           </div>
-          <button type="button" className="nxf-cta" onClick={() => onSummary(report.doctorSummary ?? "")}>
-            <Copy className="h-4 w-4" aria-hidden="true" /> {copied ? "Copied!" : "Copy doctor summary"}
+          <button
+            type="button"
+            className="nxf-cta"
+            onClick={() => onSummary(report.doctorSummary ?? "")}
+          >
+            <Copy className="h-4 w-4" aria-hidden="true" />{" "}
+            {copied ? "Copied!" : "Copy doctor summary"}
           </button>
         </div>
       </GlassCard>
@@ -571,14 +738,19 @@ export function ResultsView({
       ) : (
         <div className="flex flex-col gap-3 pb-4 text-center">
           <Ornament label="Honest data · versioned engine" className="mb-1" />
-          <p className="mx-auto max-w-2xl text-[11.5px] leading-relaxed nxf-mute">{report.disclaimer}</p>
+          <p className="mx-auto max-w-2xl text-[11.5px] leading-relaxed nxf-mute">
+            {report.disclaimer}
+          </p>
         </div>
       )}
 
       <div className="flex flex-col items-center gap-3 pb-4 text-center">
         <p className="nxf-mono text-[10px] tracking-wider text-[#C0BAA9]">
-          <span aria-hidden="true" className="nxf-glyph-glow nxf-gold">✦ </span>
-          engine {report.engineVersion} · rules {report.rulesetVersion} · calibration {report.calibrationVersion}
+          <span aria-hidden="true" className="nxf-glyph-glow nxf-gold">
+            ✦{" "}
+          </span>
+          engine {report.engineVersion} · rules {report.rulesetVersion} · calibration{" "}
+          {report.calibrationVersion}
         </p>
         <button type="button" onClick={onRerun} className="nxf-cta nxf-cta-ghost">
           <Activity className="h-4 w-4" aria-hidden="true" /> Run a fresh check-in
@@ -587,7 +759,11 @@ export function ResultsView({
 
       {/* domain drill-down — from halo axes + atlas cards */}
       <DomainModal
-        domain={(simReport ?? report).domains.find((d) => d.id === openDomain) ?? report.domains.find((d) => d.id === openDomain) ?? null}
+        domain={
+          (simReport ?? report).domains.find((d) => d.id === openDomain) ??
+          report.domains.find((d) => d.id === openDomain) ??
+          null
+        }
         onClose={() => setOpenDomain(null)}
       />
     </div>

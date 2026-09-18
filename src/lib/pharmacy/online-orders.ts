@@ -78,7 +78,10 @@ export interface CatalogMatch {
  * Returns null when nothing plausible matches (the item stays unmatched
  * and a pharmacist resolves it during review).
  */
-export function matchCatalogItem(rawName: string, catalog: CatalogCandidate[]): CatalogMatch | null {
+export function matchCatalogItem(
+  rawName: string,
+  catalog: CatalogCandidate[],
+): CatalogMatch | null {
   const q = normalizeDrugName(rawName);
   if (!q || catalog.length === 0) return null;
 
@@ -90,7 +93,8 @@ export function matchCatalogItem(rawName: string, catalog: CatalogCandidate[]): 
     if (n === q) score = 100;
     else if (g && g === q) score = 90;
     else if (n.includes(q) || q.includes(n)) score = 70 - Math.abs(n.length - q.length) * 0.1;
-    else if (g && (g.includes(q) || q.includes(g))) score = 60 - Math.abs(g.length - q.length) * 0.1;
+    else if (g && (g.includes(q) || q.includes(g)))
+      score = 60 - Math.abs(g.length - q.length) * 0.1;
     if (score > 0 && (!best || score > best.score)) best = { candidate: c, score };
   }
   if (!best || best.score <= 0) return null;

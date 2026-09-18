@@ -44,16 +44,15 @@ export function HospitalPromo() {
             </Reveal>
             <Reveal delay={0.06}>
               <h2 className="mt-5 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-[3.2rem]">
-                The complete{" "}
-                <span className="text-gradient-warm">hospital operating system.</span>
+                The complete <span className="text-gradient-warm">hospital operating system.</span>
               </h2>
             </Reveal>
             <Reveal delay={0.12}>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Automate every area of your hospital — admissions, EHR, beds,
-                OPD, labs, billing &amp; analytics — in one calm, fast, premium
-                web app. No installs. Runs on any computer or tablet. Built to
-                replace clunky legacy ERPs with something genuinely simple.
+                Automate every area of your hospital — admissions, EHR, beds, OPD, labs, billing
+                &amp; analytics — in one calm, fast, premium web app. No installs. Runs on any
+                computer or tablet. Built to replace clunky legacy ERPs with something genuinely
+                simple.
               </p>
             </Reveal>
 
@@ -62,7 +61,12 @@ export function HospitalPromo() {
                 <Link
                   href="/hospital"
                   className="mat-btn mat-btn--lg mat-btn--textured group"
-                  style={{ "--mat-accent": "#A16207", "--mat-accent-2": "#C88A1F" } as React.CSSProperties}
+                  style={
+                    {
+                      "--mat-accent": "#A16207",
+                      "--mat-accent-2": "#C88A1F",
+                    } as React.CSSProperties
+                  }
                 >
                   Launch Hospital OS
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -135,15 +139,21 @@ function HospitalVisual() {
               { l: "Admitted", v: "7", s: "active", c: "var(--clay)" },
             ].map((k) => (
               <div key={k.l} className="rounded-lg border border-border bg-background p-2">
-                <p className="text-[0.55rem] uppercase tracking-wide text-muted-foreground">{k.l}</p>
-                <p className="font-display text-base font-bold" style={{ color: k.c }}>{k.v}</p>
+                <p className="text-[0.55rem] uppercase tracking-wide text-muted-foreground">
+                  {k.l}
+                </p>
+                <p className="font-display text-base font-bold" style={{ color: k.c }}>
+                  {k.v}
+                </p>
                 <p className="text-[0.5rem] text-muted-foreground">{k.s}</p>
               </div>
             ))}
           </div>
           {/* ward bar */}
           <div className="rounded-lg border border-border bg-background p-2">
-            <p className="mb-1 text-[0.55rem] uppercase tracking-wide text-muted-foreground">Ward occupancy</p>
+            <p className="mb-1 text-[0.55rem] uppercase tracking-wide text-muted-foreground">
+              Ward occupancy
+            </p>
             {[
               { n: "ICU", v: 50, c: "var(--coral)" },
               { n: "CCU", v: 75, c: "var(--honey)" },
@@ -166,12 +176,16 @@ function HospitalVisual() {
           </div>
           {/* patient row */}
           <div className="flex items-center gap-2 rounded-lg border border-border bg-background p-2">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 font-display text-[0.6rem] font-bold text-primary">#3</span>
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 font-display text-[0.6rem] font-bold text-primary">
+              #3
+            </span>
             <div className="flex-1">
               <p className="text-[0.65rem] font-medium">Ramesh Patel</p>
               <p className="text-[0.5rem] text-muted-foreground">SUN-10001 · 09:30</p>
             </div>
-            <span className="rounded-full bg-sage/15 px-1.5 py-0.5 text-[0.5rem] font-medium text-sage">done</span>
+            <span className="rounded-full bg-sage/15 px-1.5 py-0.5 text-[0.5rem] font-medium text-sage">
+              done
+            </span>
           </div>
         </div>
       </motion.div>

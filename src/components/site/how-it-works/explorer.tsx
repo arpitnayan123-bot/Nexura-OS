@@ -6,7 +6,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
-  ChevronLeft, ChevronRight, X, ArrowUpRight, CalendarPlus, BookOpenText,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  ArrowUpRight,
+  CalendarPlus,
+  BookOpenText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBooking } from "../booking-context";
@@ -43,12 +48,9 @@ export function HowItWorksExplorer({
     setIdx((i) => Math.min(HIW_SECTIONS.length - 1, Math.max(0, next)));
   }, []);
 
-  const step = useCallback(
-    (dir: 1 | -1) => {
-      setIdx((i) => (i + dir + HIW_SECTIONS.length) % HIW_SECTIONS.length);
-    },
-    []
-  );
+  const step = useCallback((dir: 1 | -1) => {
+    setIdx((i) => (i + dir + HIW_SECTIONS.length) % HIW_SECTIONS.length);
+  }, []);
 
   // keyboard navigation while open
   useEffect(() => {
@@ -72,7 +74,7 @@ export function HowItWorksExplorer({
         ...g,
         sections: sectionsByGroup(g.id),
       })),
-    []
+    [],
   );
 
   const handleCta = (s: HiwSection) => {
@@ -138,7 +140,7 @@ export function HowItWorksExplorer({
                         "relative flex w-full items-center gap-2.5 px-4 py-[7px] text-left transition-colors",
                         active
                           ? "text-foreground"
-                          : "text-muted-foreground hover:bg-accent/40 hover:text-foreground"
+                          : "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
                       )}
                     >
                       {active && (
@@ -152,7 +154,7 @@ export function HowItWorksExplorer({
                       <span
                         className={cn(
                           "grid h-6 w-6 shrink-0 place-items-center rounded-md transition-colors",
-                          active ? "text-white shadow-sm" : "bg-muted text-muted-foreground"
+                          active ? "text-white shadow-sm" : "bg-muted text-muted-foreground",
                         )}
                         style={active ? { background: s.accent } : undefined}
                       >
@@ -181,7 +183,7 @@ export function HowItWorksExplorer({
                       "flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.65rem] font-medium transition-colors",
                       active
                         ? "border-transparent text-white"
-                        : "border-border text-muted-foreground"
+                        : "border-border text-muted-foreground",
                     )}
                     style={active ? { background: s.accent } : undefined}
                   >
@@ -303,11 +305,15 @@ export function HowItWorksExplorer({
         <div className="flex items-center justify-between gap-3 border-t border-border bg-muted/30 px-3 py-2 sm:px-4">
           <div className="hidden items-center gap-3 text-[0.6rem] text-muted-foreground sm:flex">
             <span className="flex items-center gap-1">
-              <kbd className="rounded border border-border bg-background px-1 py-0.5 font-mono text-[0.55rem]">↑↓</kbd>
+              <kbd className="rounded border border-border bg-background px-1 py-0.5 font-mono text-[0.55rem]">
+                ↑↓
+              </kbd>
               navigate
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="rounded border border-border bg-background px-1 py-0.5 font-mono text-[0.55rem]">esc</kbd>
+              <kbd className="rounded border border-border bg-background px-1 py-0.5 font-mono text-[0.55rem]">
+                esc
+              </kbd>
               close
             </span>
           </div>

@@ -33,7 +33,11 @@ function parseLevels(raw: string): EscalationLevel[] {
 }
 
 /** Record the L0 escalation event for a fired alert and notify level-0 roles. */
-export async function evaluateEscalation(hospitalId: string, alertType: string, entityRef: string): Promise<void> {
+export async function evaluateEscalation(
+  hospitalId: string,
+  alertType: string,
+  entityRef: string,
+): Promise<void> {
   try {
     const policy = await db.nxEscalationPolicy.findFirst({
       where: { hospitalId, alertType, active: true },
@@ -45,7 +49,11 @@ export async function evaluateEscalation(hospitalId: string, alertType: string, 
     if (!l0) return;
     await db.nxEscalationEvent.create({
       data: {
-        hospitalId, policyId: policy.id, alertType, entityRef, level: 0,
+        hospitalId,
+        policyId: policy.id,
+        alertType,
+        entityRef,
+        level: 0,
         detailJson: JSON.stringify({ notifiedRoles: l0.notifyRoles }),
       },
     });
@@ -61,20 +69,29 @@ export async function evaluateEscalation(hospitalId: string, alertType: string, 
 }
 
 /** Advance an escalation event to the next policy level (manual or sweep). */
-export async function advanceEscalation(eventId: string, actorName: string): Promise<{ advanced: boolean; level?: number }> {
+export async function advanceEscalation(
+  eventId: string,
+  actorName: string,
+): Promise<{ advanced: boolean; level?: number }> {
   const ev = await db.nxEscalationEvent.findUnique({ where: { id: eventId } });
   if (!ev) return { advanced: false };
   const policy = ev.policyId
     ? await db.nxEscalationPolicy.findUnique({ where: { id: ev.policyId } })
-    : await db.nxEscalationPolicy.findFirst({ where: { hospitalId: ev.hospitalId, alertType: ev.alertType, active: true } });
+    : await db.nxEscalationPolicy.findFirst({
+        where: { hospitalId: ev.hospitalId, alertType: ev.alertType, active: true },
+      });
   const levels = policy ? parseLevels(policy.levelsJson) : [];
   const nextLevel = ev.level + 1;
   const next = levels[nextLevel];
   if (!policy || !next) return { advanced: false, level: ev.level };
   await db.nxEscalationEvent.create({
     data: {
-      hospitalId: ev.hospitalId, policyId: policy.id, alertType: ev.alertType,
-      entityRef: ev.entityRef, level: nextLevel, actorName,
+      hospitalId: ev.hospitalId,
+      policyId: policy.id,
+      alertType: ev.alertType,
+      entityRef: ev.entityRef,
+      level: nextLevel,
+      actorName,
       detailJson: JSON.stringify({ notifiedRoles: next.notifyRoles, reason: "level advance" }),
     },
   });

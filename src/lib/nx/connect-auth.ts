@@ -34,7 +34,7 @@ const CLINICIAN_ROLES = new Set([
 
 export function connectGate(
   req: NextRequest,
-  opts?: { max?: number; windowMs?: number }
+  opts?: { max?: number; windowMs?: number },
 ): NextResponse | null {
   const max = opts?.max ?? 90;
   const windowMs = opts?.windowMs ?? 60_000;
@@ -77,13 +77,14 @@ export function doctorOnly(req: NextRequest): NextResponse | null {
    client-side); production enforces strictly. */
 export async function connectPartyDenied(
   req: NextRequest,
-  connection: { doctorId: string; patientId: string }
+  connection: { doctorId: string; patientId: string },
 ): Promise<NextResponse | null> {
   if (isDemoMode()) return null;
   const session = getSession(req);
   const legacy = getAuthUser(req);
   const callerId = session?.userId ?? legacy?.id ?? null;
-  if (!callerId) return fail("unauthenticated", 401, "Sign in to use this surface.", newRequestId());
+  if (!callerId)
+    return fail("unauthenticated", 401, "Sign in to use this surface.", newRequestId());
   if (callerId === connection.doctorId || callerId === connection.patientId) return null;
   return fail("forbidden", 403, "You are not a party to this conversation.", newRequestId());
 }
@@ -92,17 +93,21 @@ export async function connectPartyDenied(
  *  party to that thread; by doctorId the caller must BE that doctor. */
 export async function connectCallsListDenied(
   req: NextRequest,
-  filter: { connectionId?: string | null; doctorId?: string | null }
+  filter: { connectionId?: string | null; doctorId?: string | null },
 ): Promise<NextResponse | null> {
   if (isDemoMode()) return null;
   const session = getSession(req);
   const legacy = getAuthUser(req);
   const callerId = session?.userId ?? legacy?.id ?? null;
-  if (!callerId) return fail("unauthenticated", 401, "Sign in to use this surface.", newRequestId());
+  if (!callerId)
+    return fail("unauthenticated", 401, "Sign in to use this surface.", newRequestId());
   if (filter.doctorId && callerId === filter.doctorId) return null;
   if (filter.connectionId) {
     const conn = await db.connectConnection
-      .findUnique({ where: { id: filter.connectionId }, select: { doctorId: true, patientId: true } })
+      .findUnique({
+        where: { id: filter.connectionId },
+        select: { doctorId: true, patientId: true },
+      })
       .catch(() => null);
     if (!conn) return fail("not_found", 404, undefined, newRequestId());
     if (callerId === conn.doctorId || callerId === conn.patientId) return null;

@@ -52,8 +52,12 @@ export function NxApp() {
 
   // Stable URL — the session is fetched once per mount and refetched via
   // refresh() after auth transitions.
-  const { data: session, loading: sessionLoading, refresh: refreshSession } = useNx<{ user: NxUser | null; modules?: string[]; demo?: boolean }>(
-    signedOut ? null : "/api/nx/auth"
+  const {
+    data: session,
+    loading: sessionLoading,
+    refresh: refreshSession,
+  } = useNx<{ user: NxUser | null; modules?: string[]; demo?: boolean }>(
+    signedOut ? null : "/api/nx/auth",
   );
   const user: NxUser | null = signedOut ? null : session?.user || null;
 
@@ -98,7 +102,11 @@ export function NxApp() {
     window.addEventListener("online", on);
     window.addEventListener("offline", off);
     const uninstall = installOfflineAutoFlush();
-    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); uninstall(); };
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+      uninstall();
+    };
   }, []);
 
   /* ---------- locale + device mode boot from settings ---------- */
@@ -108,30 +116,47 @@ export function NxApp() {
       if (locale) document.documentElement.lang = locale;
       const mode = localStorage.getItem("nx-mode");
       if (mode) document.documentElement.dataset.nxMode = mode;
-    } catch { /* private mode */ }
+    } catch {
+      /* private mode */
+    }
   }, []);
 
   /* ---------- live alert counts → rail badges + notices ---------- */
   const { data: taskData } = useNx<{ counts: { critical: number; overdue: number } }>(
-    user ? "/api/nx/tasks?status=active" : null, { pollMs: 30000 }
+    user ? "/api/nx/tasks?status=active" : null,
+    { pollMs: 30000 },
   );
   const { data: incidentData } = useNx<{ counts: { critical: number; open: number } }>(
-    user ? "/api/nx/incidents?status=open,acknowledged,investigating" : null, { pollMs: 30000 }
+    user ? "/api/nx/incidents?status=open,acknowledged,investigating" : null,
+    { pollMs: 30000 },
   );
   const taskCritical = taskData?.counts.critical ?? 0;
   const incidentCritical = incidentData?.counts.critical ?? 0;
 
   const prevAlerts = useRef<{ t: number; i: number } | null>(null);
   useEffect(() => {
-    if (!user) { prevAlerts.current = null; return; }
+    if (!user) {
+      prevAlerts.current = null;
+      return;
+    }
     const prev = prevAlerts.current;
     prevAlerts.current = { t: taskCritical, i: incidentCritical };
     if (!prev) return;
     if (incidentCritical > prev.i) {
-      pushNotice({ title: "Critical incident reported", body: `${incidentCritical} critical incidents now open.`, tone: "crit", moduleKey: "incidents" });
+      pushNotice({
+        title: "Critical incident reported",
+        body: `${incidentCritical} critical incidents now open.`,
+        tone: "crit",
+        moduleKey: "incidents",
+      });
     }
     if (taskCritical > prev.t) {
-      pushNotice({ title: "Critical task needs attention", body: `${taskCritical} critical tasks in the work queue.`, tone: "warn", moduleKey: "tasks" });
+      pushNotice({
+        title: "Critical task needs attention",
+        body: `${taskCritical} critical tasks in the work queue.`,
+        tone: "warn",
+        moduleKey: "tasks",
+      });
     }
   }, [taskCritical, incidentCritical, user, pushNotice]);
 
@@ -148,13 +173,23 @@ export function NxApp() {
   }, [user, pushNotice]);
 
   /* ---------- platform status banners ---------- */
-  const { data: sysStatus } = useNx<{ status: Record<string, { enabled: boolean; message: string | null; severity: string }> }>(
-    user ? "/api/nx/system-status" : null, { pollMs: 60000 }
-  );
+  const { data: sysStatus } = useNx<{
+    status: Record<string, { enabled: boolean; message: string | null; severity: string }>;
+  }>(user ? "/api/nx/system-status" : null, { pollMs: 60000 });
   const banner = sysStatus?.status?.incident_banner?.enabled
-    ? { tone: sysStatus.status.incident_banner.severity === "critical" ? "crit" : "warn", text: sysStatus.status.incident_banner.message || "Platform incident — some features may be degraded." }
+    ? {
+        tone: sysStatus.status.incident_banner.severity === "critical" ? "crit" : "warn",
+        text:
+          sysStatus.status.incident_banner.message ||
+          "Platform incident — some features may be degraded.",
+      }
     : sysStatus?.status?.maintenance_mode?.enabled
-      ? { tone: "warn", text: sysStatus.status.maintenance_mode.message || "Maintenance mode active — data entry is discouraged." }
+      ? {
+          tone: "warn",
+          text:
+            sysStatus.status.maintenance_mode.message ||
+            "Maintenance mode active — data entry is discouraged.",
+        }
       : null;
 
   /* ---------- live stream → notices ---------- */
@@ -164,12 +199,24 @@ export function NxApp() {
       const d = (ev.data ?? {}) as Record<string, string>;
       switch (ev.event) {
         case "lab.critical":
-          toast.error(`Critical lab: ${d.test ?? "result"}`, { description: d.patient ?? undefined });
-          pushNotice({ title: "Critical lab result", body: `${d.test ?? "Result"} — ${d.patient ?? ""}`, tone: "crit", moduleKey: "labs" });
+          toast.error(`Critical lab: ${d.test ?? "result"}`, {
+            description: d.patient ?? undefined,
+          });
+          pushNotice({
+            title: "Critical lab result",
+            body: `${d.test ?? "Result"} — ${d.patient ?? ""}`,
+            tone: "crit",
+            moduleKey: "labs",
+          });
           break;
         case "message.new":
           if (d.severity === "urgent") {
-            pushNotice({ title: `Urgent message from ${d.sender ?? "care team"}`, body: d.preview ?? "", tone: "warn", moduleKey: "messages" });
+            pushNotice({
+              title: `Urgent message from ${d.sender ?? "care team"}`,
+              body: d.preview ?? "",
+              tone: "warn",
+              moduleKey: "messages",
+            });
           }
           break;
         default:
@@ -191,8 +238,16 @@ export function NxApp() {
         e.target instanceof HTMLTextAreaElement ||
         (e.target instanceof HTMLElement && e.target.isContentEditable);
 
-      if (mod && e.key.toLowerCase() === "k") { e.preventDefault(); s.setPalette(!s.paletteOpen); return; }
-      if (mod && e.key.toLowerCase() === "l") { e.preventDefault(); s.lock(); return; }
+      if (mod && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        s.setPalette(!s.paletteOpen);
+        return;
+      }
+      if (mod && e.key.toLowerCase() === "l") {
+        e.preventDefault();
+        s.lock();
+        return;
+      }
       if (e.key === "?" && !typing && !s.paletteOpen && !s.quickOpen && !s.notifOpen) {
         e.preventDefault();
         s.openApp("settings");
@@ -202,7 +257,10 @@ export function NxApp() {
         const back = useBack.getState();
         const top = back.stack[back.stack.length - 1];
         if (typing && top?.kind === "window") return;
-        if (back.stack.length > 0) { back.goBack(); return; }
+        if (back.stack.length > 0) {
+          back.goBack();
+          return;
+        }
         if (s.notifOpen || s.quickOpen || s.paletteOpen) s.closeOverlays();
       }
     };
@@ -235,7 +293,11 @@ export function NxApp() {
     const uhid = window.prompt("Patient UHID (if known — leave blank for unknown):") ?? "";
     const complaint = window.prompt("Presenting complaint:") ?? "";
     if (!complaint) return;
-    await queueOp({ type: "triage", patientUhid: uhid || undefined, payload: { complaint, capturedBy: user?.name } });
+    await queueOp({
+      type: "triage",
+      patientUhid: uhid || undefined,
+      payload: { complaint, capturedBy: user?.name },
+    });
     toast.success("Triage captured offline — will sync automatically");
   }, [user?.name]);
 
@@ -267,7 +329,7 @@ export function NxApp() {
   /* ---------- allowed modules (RBAC) ---------- */
   const modules = session?.modules || [];
   const allowed = new Set<string>(
-    user.role === "admin" ? APPS.filter((a) => !a.system).map((a) => a.key) : modules
+    user.role === "admin" ? APPS.filter((a) => !a.system).map((a) => a.key) : modules,
   );
 
   return (
@@ -280,7 +342,13 @@ export function NxApp() {
       data-night={night ? "true" : "false"}
     >
       <ConsoleShell
-        user={{ name: user.name, role: user.role, department: user.department, id: user.id, hospitalId: user.hospitalId }}
+        user={{
+          name: user.name,
+          role: user.role,
+          department: user.department,
+          id: user.id,
+          hospitalId: user.hospitalId,
+        }}
         allowed={allowed}
         demoMode={demoMode}
         banner={banner}
@@ -291,7 +359,10 @@ export function NxApp() {
         onCaptureTriage={captureTriage}
       />
       {locked && (
-        <NxLock user={{ name: user.name, role: user.role, department: user.department }} onSignOut={signOut} />
+        <NxLock
+          user={{ name: user.name, role: user.role, department: user.department }}
+          onSignOut={signOut}
+        />
       )}
     </div>
   );

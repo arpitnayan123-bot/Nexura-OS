@@ -46,8 +46,7 @@ async function GET_impl(req: NextRequest) {
       const low = stockStrips <= p.reorderLevel;
       const nearExpiry = p.batches.some((b) => {
         const months =
-          (new Date(b.expDate + "-01").getTime() - Date.now()) /
-          (1000 * 60 * 60 * 24 * 30);
+          (new Date(b.expDate + "-01").getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30);
         return months <= 3;
       });
       return {
@@ -93,8 +92,13 @@ async function GET_impl(req: NextRequest) {
       items: filtered,
     });
   } catch (err) {
-    log.error("pharmacy", "inventory_list_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "inventory_failed", detail: "Inventory could not be loaded. Please retry." }, { status: 500 });
+    log.error("pharmacy", "inventory_list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "inventory_failed", detail: "Inventory could not be loaded. Please retry." },
+      { status: 500 },
+    );
   }
 }
 

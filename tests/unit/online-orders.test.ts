@@ -100,11 +100,21 @@ describe("catalog matching", () => {
 
 describe("money (integer paise)", () => {
   it("sums qty × mrp exactly", () => {
-    expect(estimateTotalPaise([{ qtyStrips: 2, unitMrp: 2450 }, { qtyStrips: 1, unitMrp: 11800 }])).toBe(16700);
+    expect(
+      estimateTotalPaise([
+        { qtyStrips: 2, unitMrp: 2450 },
+        { qtyStrips: 1, unitMrp: 11800 },
+      ]),
+    ).toBe(16700);
   });
 
   it("unmatched lines (mrp 0) contribute nothing", () => {
-    expect(estimateTotalPaise([{ qtyStrips: 3, unitMrp: 0 }, { qtyStrips: 1, unitMrp: 2450 }])).toBe(2450);
+    expect(
+      estimateTotalPaise([
+        { qtyStrips: 3, unitMrp: 0 },
+        { qtyStrips: 1, unitMrp: 2450 },
+      ]),
+    ).toBe(2450);
   });
 
   it("floors hostile/non-numeric input instead of NaN-ing the quote", () => {

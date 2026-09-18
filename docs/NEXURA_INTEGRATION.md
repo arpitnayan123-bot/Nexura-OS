@@ -7,18 +7,18 @@ touching product code.
 
 ## Contracts (`src/lib/nexura/types.ts`)
 
-| Provider | Contract |
-|---|---|
-| `IdentityProvider` | currentUser, listOrganizations |
-| `NotificationProvider` | push, list, markRead |
-| `CalendarProvider` | eventsFor (appointments/shifts/surgery) |
-| `TaskProvider` | countsFor (open/critical/overdue) |
-| `MessagingProvider` | unreadFor |
-| `FileStorageProvider` | put, get |
-| `SearchProvider` | search (cross-entity) |
-| `AuditProvider` | record (unified audit identity) |
-| `AutomationProvider` | fire (trigger → workflow) |
-| `FeatureFlagProvider` | isEnabled, all |
+| Provider               | Contract                                |
+| ---------------------- | --------------------------------------- |
+| `IdentityProvider`     | currentUser, listOrganizations          |
+| `NotificationProvider` | push, list, markRead                    |
+| `CalendarProvider`     | eventsFor (appointments/shifts/surgery) |
+| `TaskProvider`         | countsFor (open/critical/overdue)       |
+| `MessagingProvider`    | unreadFor                               |
+| `FileStorageProvider`  | put, get                                |
+| `SearchProvider`       | search (cross-entity)                   |
+| `AuditProvider`        | record (unified audit identity)         |
+| `AutomationProvider`   | fire (trigger → workflow)               |
+| `FeatureFlagProvider`  | isEnabled, all                          |
 
 ## Adapters
 

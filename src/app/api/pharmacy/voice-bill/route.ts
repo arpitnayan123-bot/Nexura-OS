@@ -48,10 +48,15 @@ async function POST_impl(req: NextRequest) {
         const asr = await zai.audio.asr.create({ file_base64: base64 });
         transcript = (asr.text || "").trim();
       } catch (e) {
-        log.error("pharmacy", "voice_bill_asr_failed", { err: e instanceof Error ? e.message : String(e) });
+        log.error("pharmacy", "voice_bill_asr_failed", {
+          err: e instanceof Error ? e.message : String(e),
+        });
         return NextResponse.json(
-          { error: "asr_failed", detail: "Audio could not be transcribed. Please retry or type the bill manually." },
-          { status: 502 }
+          {
+            error: "asr_failed",
+            detail: "Audio could not be transcribed. Please retry or type the bill manually.",
+          },
+          { status: 502 },
         );
       }
     }
@@ -65,22 +70,45 @@ async function POST_impl(req: NextRequest) {
     try {
       // Canonical AI client — its robust parse replaces the old brace-slicing;
       // any provider or parse failure lands in the same graceful fallback below.
-      parsed = await runText<{ items: unknown[]; raw?: string }>(transcript, SYSTEM_PROMPT, "pharmacy.voice-bill");
+      parsed = await runText<{ items: unknown[]; raw?: string }>(
+        transcript,
+        SYSTEM_PROMPT,
+        "pharmacy.voice-bill",
+      );
     } catch (e) {
       // graceful fallback: word-level number map
-      log.warn("pharmacy", "voice_bill_parse_fallback", { err: e instanceof Error ? e.message : String(e) });
+      log.warn("pharmacy", "voice_bill_parse_fallback", {
+        err: e instanceof Error ? e.message : String(e),
+      });
       const words = transcript.toLowerCase().split(/\s+/);
       const nums: Record<string, number> = {
-        one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+        one: 1,
+        two: 2,
+        three: 3,
+        four: 4,
+        five: 5,
+        six: 6,
+        seven: 7,
+        eight: 8,
+        nine: 9,
+        ten: 10,
       };
       const items = (parsed.items as unknown[]).concat([]);
       // best-effort: find product names by matching inventory
-      void words; void nums; void items;
+      void words;
+      void nums;
+      void items;
     }
 
     // Map parsed items to inventory products
     const spokenItems = Array.isArray(parsed.items) ? parsed.items : [];
-    type Spoken = { name?: string; qtyStrips?: number; qtyLoose?: number; action?: string; batchNo?: string };
+    type Spoken = {
+      name?: string;
+      qtyStrips?: number;
+      qtyLoose?: number;
+      action?: string;
+      batchNo?: string;
+    };
     const allProducts = await db.product.findMany({
       include: { batches: { where: { branchId: ctx.branch.id }, orderBy: { expDate: "asc" } } },
     });
@@ -107,7 +135,7 @@ async function POST_impl(req: NextRequest) {
           p.name.toLowerCase().includes(spokenName) ||
           spokenName.includes(p.name.toLowerCase()) ||
           (p.genericName && spokenName.includes(p.genericName.toLowerCase())) ||
-          (p.genericName && p.genericName.toLowerCase().includes(spokenName))
+          (p.genericName && p.genericName.toLowerCase().includes(spokenName)),
       );
       const action = s.action || "add";
       if (!product) {
@@ -126,8 +154,9 @@ async function POST_impl(req: NextRequest) {
         continue;
       }
       const batch =
-        product.batches.find((b) => s.batchNo && b.batchNo.toLowerCase().includes(s.batchNo!.toLowerCase())) ||
-        product.batches[0];
+        product.batches.find(
+          (b) => s.batchNo && b.batchNo.toLowerCase().includes(s.batchNo!.toLowerCase()),
+        ) || product.batches[0];
       cart.push({
         productId: product.id,
         name: product.name,
@@ -148,8 +177,13 @@ async function POST_impl(req: NextRequest) {
       cart,
     });
   } catch (err) {
-    log.error("pharmacy", "voice_bill_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "voice_bill_failed", detail: "The voice bill could not be created. Please retry." }, { status: 500 });
+    log.error("pharmacy", "voice_bill_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "voice_bill_failed", detail: "The voice bill could not be created. Please retry." },
+      { status: 500 },
+    );
   }
 }
 

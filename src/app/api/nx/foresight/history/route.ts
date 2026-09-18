@@ -52,6 +52,9 @@ export const GET = withRoute("nx.foresight.history", async () => {
     });
   } catch (err) {
     console.error("[foresight/history]", err);
-    return NextResponse.json({ ok: false, error: "History unavailable right now" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "History unavailable right now" },
+      { status: 500 },
+    );
   }
 });

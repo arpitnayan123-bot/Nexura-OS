@@ -58,7 +58,10 @@ export default function Error({
   return (
     <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[#141210] px-4 text-[#F6F1E7]">
       {/* ambient champagne light */}
-      <div aria-hidden className="aurora-gold top-[-30%] left-1/2 h-[26rem] w-[40rem] -translate-x-1/2 opacity-35" />
+      <div
+        aria-hidden
+        className="aurora-gold top-[-30%] left-1/2 h-[26rem] w-[40rem] -translate-x-1/2 opacity-35"
+      />
       <div aria-hidden className="grain-fine" />
 
       <div className="relative w-full max-w-md text-center">
@@ -72,12 +75,10 @@ export default function Error({
 
         {/* Message */}
         <p className="eyebrow justify-center">Something interrupted the chart</p>
-        <h1 className="title-lux mt-3 text-2xl sm:text-3xl">
-          This page hit a snag
-        </h1>
+        <h1 className="title-lux mt-3 text-2xl sm:text-3xl">This page hit a snag</h1>
         <p className="lede-lux mt-3 text-sm text-white/60">
-          An unexpected error occurred and our team has been notified. Your data
-          is safe — try again, or return to the homepage.
+          An unexpected error occurred and our team has been notified. Your data is safe — try
+          again, or return to the homepage.
         </p>
 
         {/* Error digest (for debugging) */}
@@ -89,10 +90,7 @@ export default function Error({
 
         {/* Actions */}
         <div className="mt-7 flex items-center justify-center gap-3">
-          <button
-            onClick={reset}
-            className="btn-gold h-10 rounded-full px-5 text-sm font-semibold"
-          >
+          <button onClick={reset} className="btn-gold h-10 rounded-full px-5 text-sm font-semibold">
             <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
             Try again
           </button>

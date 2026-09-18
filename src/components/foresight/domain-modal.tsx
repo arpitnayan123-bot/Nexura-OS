@@ -18,7 +18,8 @@ import { Bar, LevelChip } from "./ui";
 import { cn } from "@/lib/utils";
 
 export function DomainModal({
-  domain, onClose,
+  domain,
+  onClose,
 }: {
   domain: DomainResult | null;
   onClose: () => void;
@@ -61,7 +62,9 @@ export function DomainModal({
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="flex items-center gap-2 font-display text-xl font-semibold nxf-hi">
-              <span aria-hidden="true" className="nxf-gold nxf-glyph-glow">{meta?.glyph}</span>
+              <span aria-hidden="true" className="nxf-gold nxf-glyph-glow">
+                {meta?.glyph}
+              </span>
               {meta?.label ?? domain.id}
             </p>
             <div className="mt-2 flex items-center gap-2">
@@ -87,7 +90,18 @@ export function DomainModal({
             <span>signal burden — screening scope, not a probability</span>
             <span className="nxf-mono">{domain.burden}/100</span>
           </div>
-          <Bar pct={domain.burden} tone={domain.level === "HIGH" ? "rose" : domain.level === "ELEVATED" ? "orange" : domain.level === "WATCH" ? "amber" : "emerald"} />
+          <Bar
+            pct={domain.burden}
+            tone={
+              domain.level === "HIGH"
+                ? "rose"
+                : domain.level === "ELEVATED"
+                  ? "orange"
+                  : domain.level === "WATCH"
+                    ? "amber"
+                    : "emerald"
+            }
+          />
         </div>
 
         {domain.headline && (
@@ -104,22 +118,30 @@ export function DomainModal({
             </p>
             <div className="space-y-1.5">
               {domain.factors.map((f) => (
-                <div key={f.id} className="flex items-start gap-2.5 rounded-lg px-2 py-1.5 hover:bg-white/[0.03]">
+                <div
+                  key={f.id}
+                  className="flex items-start gap-2.5 rounded-lg px-2 py-1.5 hover:bg-white/[0.03]"
+                >
                   <span
                     aria-hidden="true"
                     className={cn(
                       "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full",
                       f.direction === "risk"
-                        ? domain.level === "HIGH" ? "bg-rose-300" : "bg-amber-300"
-                        : "bg-emerald-300"
+                        ? domain.level === "HIGH"
+                          ? "bg-rose-300"
+                          : "bg-amber-300"
+                        : "bg-emerald-300",
                     )}
                   />
                   <p className="text-[12.5px] leading-relaxed nxf-dim">
                     {f.label}
                     <span className="ml-1.5 nxf-mono text-[10.5px] nxf-mute">
-                      {f.direction === "risk" ? "+" : "−"}{f.weight}
+                      {f.direction === "risk" ? "+" : "−"}
+                      {f.weight}
                     </span>
-                    {f.detail ? <span className="block text-[11.5px] nxf-mute">{f.detail}</span> : null}
+                    {f.detail ? (
+                      <span className="block text-[11.5px] nxf-mute">{f.detail}</span>
+                    ) : null}
                   </p>
                 </div>
               ))}
@@ -140,7 +162,9 @@ export function DomainModal({
                     <BadgeCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 nxf-violet" />
                     <span className="nxf-dim">
                       <span className="font-semibold nxf-hi">{s.test}</span> — {s.why}
-                      {s.cadence ? <span className="block text-[11px] nxf-mute">{s.cadence}</span> : null}
+                      {s.cadence ? (
+                        <span className="block text-[11px] nxf-mute">{s.cadence}</span>
+                      ) : null}
                     </span>
                   </li>
                 ))}
@@ -159,7 +183,9 @@ export function DomainModal({
                   <li key={a.title} className="text-[12.5px] leading-relaxed">
                     <p className="font-semibold text-teal-100">{a.title}</p>
                     <p className="nxf-dim">{a.detail}</p>
-                    <p className="text-[10.5px] uppercase tracking-wider nxf-mute">effort: {a.effort}</p>
+                    <p className="text-[10.5px] uppercase tracking-wider nxf-mute">
+                      effort: {a.effort}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -175,7 +201,10 @@ export function DomainModal({
             </p>
             <ul className="space-y-1.5">
               {domain.clinicianQuestions.map((q, i) => (
-                <li key={i} className="flex items-start gap-2 text-[12.5px] leading-relaxed nxf-dim">
+                <li
+                  key={i}
+                  className="flex items-start gap-2 text-[12.5px] leading-relaxed nxf-dim"
+                >
                   <span className="nxf-gold">›</span> {q}
                 </li>
               ))}

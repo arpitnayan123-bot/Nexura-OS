@@ -12,7 +12,10 @@ import { useNow } from "./use-now";
    local curtain. Demo PIN is 2468 (same as sign-in).
    ============================================================ */
 
-export function NxLock({ user, onSignOut }: {
+export function NxLock({
+  user,
+  onSignOut,
+}: {
   user: { name: string; role: string; department?: string };
   onSignOut: () => void;
 }) {
@@ -36,17 +39,25 @@ export function NxLock({ user, onSignOut }: {
     setTimeout(() => setBad(false), 620);
   };
 
-  const initials = user.name.split(" ").map((n) => n[0]).slice(0, 2).join("");
+  const initials = user.name
+    .split(" ")
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join("");
 
   return (
     <div className="nx-lock" role="dialog" aria-label="Screen locked">
       {/* big clock */}
       <div className="mb-8 text-center">
         <p className="nx-lock-clock nx-display text-[76px] leading-none text-ink">
-          {now ? now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false }) : "--:--"}
+          {now
+            ? now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false })
+            : "--:--"}
         </p>
         <p className="mt-2 text-[13px] font-medium text-ink-3">
-          {now ? now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" }) : "—"}
+          {now
+            ? now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })
+            : "—"}
         </p>
       </div>
 
@@ -58,7 +69,10 @@ export function NxLock({ user, onSignOut }: {
           </span>
           <div className="min-w-0">
             <p className="truncate text-[14px] font-semibold text-ink">{user.name}</p>
-            <p className="truncate text-[11.5px] capitalize text-ink-3">{user.role}{user.department ? ` · ${user.department}` : ""}</p>
+            <p className="truncate text-[11.5px] capitalize text-ink-3">
+              {user.role}
+              {user.department ? ` · ${user.department}` : ""}
+            </p>
           </div>
           <LockKeyhole className="ml-auto h-4 w-4 text-ink-4" />
         </div>
@@ -73,13 +87,15 @@ export function NxLock({ user, onSignOut }: {
               autoComplete="off"
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") submit();
+              }}
               placeholder="PIN"
               aria-label="Enter PIN to unlock"
               aria-invalid={bad}
               className={cn(
                 "w-full rounded-xl border bg-inset py-2.5 pl-9 pr-3 text-[14px] tracking-[0.4em] text-ink outline-none transition placeholder:tracking-normal placeholder:text-ink-4",
-                bad ? "border-crit" : "border-line focus:border-accent-line"
+                bad ? "border-crit" : "border-line focus:border-accent-line",
               )}
             />
           </div>
@@ -90,7 +106,10 @@ export function NxLock({ user, onSignOut }: {
             Unlock
           </button>
         </div>
-        <p className={cn("mt-2.5 text-[11.5px]", bad ? "text-crit" : "text-ink-4")} role={bad ? "alert" : undefined}>
+        <p
+          className={cn("mt-2.5 text-[11.5px]", bad ? "text-crit" : "text-ink-4")}
+          role={bad ? "alert" : undefined}
+        >
           {bad ? "Incorrect PIN — try again." : "Demo PIN · 2468 — your session stayed alive."}
         </p>
       </div>

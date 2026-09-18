@@ -1,6 +1,4 @@
-import {
-  Server, ShieldCheck, Network, WifiOff, Shield, Play, BrainCircuit,
-} from "lucide-react";
+import { Server, ShieldCheck, Network, WifiOff, Shield, Play, BrainCircuit } from "lucide-react";
 import type { HiwSection } from "./types";
 
 export const SECTIONS_PLATFORM: HiwSection[] = [
@@ -10,16 +8,38 @@ export const SECTIONS_PLATFORM: HiwSection[] = [
     icon: Server,
     accent: "#7A9A7B",
     title: "One backend, 56 route families",
-    kicker: "Every product above runs on a single disciplined API: /api/nx — one convention, zero exceptions.",
+    kicker:
+      "Every product above runs on a single disciplined API: /api/nx — one convention, zero exceptions.",
     minutes: "2 min",
     steps: [
-      { title: "One convention", desc: "/api/nx/<domain>/<action> — patients, encounters, labs, pharmacy, AI, FHIR, DICOM, webhooks… predictable from memory." },
-      { title: "A dual envelope", desc: "Every response wraps data + meta (trace ids, pagination) so clients never parse-and-pray." },
-      { title: "A typed, seeded database", desc: "132 Prisma models with three-stage seeding (hospital → nx → v4) — demo data that tells a real clinical story." },
-      { title: "Safe mutations by default", desc: "Writes are idempotency-keyed, validated server-side; reads are tenant-scoped before a single row moves." },
-      { title: "Health is a public promise", desc: "/api/nx/system-status exposes live health, and a 46-assertion smoke suite guards every endpoint on each change." },
+      {
+        title: "One convention",
+        desc: "/api/nx/<domain>/<action> — patients, encounters, labs, pharmacy, AI, FHIR, DICOM, webhooks… predictable from memory.",
+      },
+      {
+        title: "A dual envelope",
+        desc: "Every response wraps data + meta (trace ids, pagination) so clients never parse-and-pray.",
+      },
+      {
+        title: "A typed, seeded database",
+        desc: "132 Prisma models with three-stage seeding (hospital → nx → v4) — demo data that tells a real clinical story.",
+      },
+      {
+        title: "Safe mutations by default",
+        desc: "Writes are idempotency-keyed, validated server-side; reads are tenant-scoped before a single row moves.",
+      },
+      {
+        title: "Health is a public promise",
+        desc: "/api/nx/system-status exposes live health, and a 46-assertion smoke suite guards every endpoint on each change.",
+      },
     ],
-    hood: ["Next.js App Router", "Prisma + SQLite", "Dual envelope", "46-assert smoke suite", "Idempotency keys"],
+    hood: [
+      "Next.js App Router",
+      "Prisma + SQLite",
+      "Dual envelope",
+      "46-assert smoke suite",
+      "Idempotency keys",
+    ],
   },
   {
     id: "security",
@@ -27,17 +47,43 @@ export const SECTIONS_PLATFORM: HiwSection[] = [
     icon: ShieldCheck,
     accent: "#A16207",
     title: "The security layer",
-    kicker: "Built like it will be attacked — because it was. A red-team pass closed every hole it found.",
+    kicker:
+      "Built like it will be attacked — because it was. A red-team pass closed every hole it found.",
     minutes: "3 min",
     steps: [
-      { title: "Sessions that can't be stolen casually", desc: "JWT in httpOnly cookies, bcrypt-hashed passwords, and MFA step-up on sensitive actions." },
-      { title: "Authorization lives server-side", desc: "RBAC roles plus ABAC attribute checks on every route — the client is never trusted with a decision." },
-      { title: "Everyone stays in their lane", desc: "Patients can only read their own record; doctors write only where credentialed; role-escalation is structurally walled." },
-      { title: "Tenants can't leak", desc: "Per-hospital API keys (CSPRNG, hashed at rest) bind to the caller's tenant, and rate limits read the real client IP — header tricks don't work." },
-      { title: "Integrity is cryptographic", desc: "Webhooks and SSE are HMAC-signed with timing-safe comparison; the audit log is SHA-256 hash-chained and Merkle-anchored." },
-      { title: "Red-team hardened", desc: "IDOR paths closed, OTPs never logged, request bodies capped at 13 MB, error messages human but leak-free." },
+      {
+        title: "Sessions that can't be stolen casually",
+        desc: "JWT in httpOnly cookies, bcrypt-hashed passwords, and MFA step-up on sensitive actions.",
+      },
+      {
+        title: "Authorization lives server-side",
+        desc: "RBAC roles plus ABAC attribute checks on every route — the client is never trusted with a decision.",
+      },
+      {
+        title: "Everyone stays in their lane",
+        desc: "Patients can only read their own record; doctors write only where credentialed; role-escalation is structurally walled.",
+      },
+      {
+        title: "Tenants can't leak",
+        desc: "Per-hospital API keys (CSPRNG, hashed at rest) bind to the caller's tenant, and rate limits read the real client IP — header tricks don't work.",
+      },
+      {
+        title: "Integrity is cryptographic",
+        desc: "Webhooks and SSE are HMAC-signed with timing-safe comparison; the audit log is SHA-256 hash-chained and Merkle-anchored.",
+      },
+      {
+        title: "Red-team hardened",
+        desc: "IDOR paths closed, OTPs never logged, request bodies capped at 13 MB, error messages human but leak-free.",
+      },
     ],
-    hood: ["JWT + MFA", "RBAC + ABAC", "HMAC webhooks/SSE", "Hash-chained audit", "Rate limiting", "Red-team pass"],
+    hood: [
+      "JWT + MFA",
+      "RBAC + ABAC",
+      "HMAC webhooks/SSE",
+      "Hash-chained audit",
+      "Rate limiting",
+      "Red-team pass",
+    ],
     cta: { kind: "link", label: "Read the compliance posture", href: "/compliance" },
   },
   {
@@ -46,14 +92,30 @@ export const SECTIONS_PLATFORM: HiwSection[] = [
     icon: Network,
     accent: "#A16207",
     title: "Interoperability",
-    kicker: "Speaks healthcare's native dialects — FHIR R4, HL7 v2 and DICOM — without forking the codebase.",
+    kicker:
+      "Speaks healthcare's native dialects — FHIR R4, HL7 v2 and DICOM — without forking the codebase.",
     minutes: "2 min",
     steps: [
-      { title: "FHIR R4 resources", desc: "Patient, Encounter and Observation resources are exposed so other systems interoperate for real." },
-      { title: "HL7 v2 admissions", desc: "ADT messages ingest with tenant-scoped upserts — a patient can never bleed across hospitals." },
-      { title: "DICOM in the browser", desc: "Imaging studies attach to encounters with a built-in viewer — no third-party viewer, no exports." },
-      { title: "One abstraction layer", desc: "Internal models map to standards through a single layer, so new integrations extend instead of fork." },
-      { title: "Imports are audited too", desc: "An ingested HL7 message is as traceable as a UI click — same chain, same proof." },
+      {
+        title: "FHIR R4 resources",
+        desc: "Patient, Encounter and Observation resources are exposed so other systems interoperate for real.",
+      },
+      {
+        title: "HL7 v2 admissions",
+        desc: "ADT messages ingest with tenant-scoped upserts — a patient can never bleed across hospitals.",
+      },
+      {
+        title: "DICOM in the browser",
+        desc: "Imaging studies attach to encounters with a built-in viewer — no third-party viewer, no exports.",
+      },
+      {
+        title: "One abstraction layer",
+        desc: "Internal models map to standards through a single layer, so new integrations extend instead of fork.",
+      },
+      {
+        title: "Imports are audited too",
+        desc: "An ingested HL7 message is as traceable as a UI click — same chain, same proof.",
+      },
     ],
     hood: ["FHIR R4", "HL7 v2 ADT", "DICOM viewer", "Tenant-scoped upserts"],
   },
@@ -66,10 +128,22 @@ export const SECTIONS_PLATFORM: HiwSection[] = [
     kicker: "Built for Indian reality: patchy networks, many tongues, zero lost work.",
     minutes: "2 min",
     steps: [
-      { title: "Install it like an app", desc: "The platform is a PWA — installed on a ward laptop or phone, it keeps working when the network drops." },
-      { title: "Writes queue, never vanish", desc: "Offline changes buffer in IndexedDB and replay on reconnect — a dead zone mid-round loses nothing." },
-      { title: "Sync status is visible", desc: "The shell shows what's synced vs pending, so staff always know the state of their data." },
-      { title: "Six languages, clinical screens included", desc: "English, Hindi, Tamil, Telugu, Gujarati and Marathi — across the app, not just the marketing pages." },
+      {
+        title: "Install it like an app",
+        desc: "The platform is a PWA — installed on a ward laptop or phone, it keeps working when the network drops.",
+      },
+      {
+        title: "Writes queue, never vanish",
+        desc: "Offline changes buffer in IndexedDB and replay on reconnect — a dead zone mid-round loses nothing.",
+      },
+      {
+        title: "Sync status is visible",
+        desc: "The shell shows what's synced vs pending, so staff always know the state of their data.",
+      },
+      {
+        title: "Six languages, clinical screens included",
+        desc: "English, Hindi, Tamil, Telugu, Gujarati and Marathi — across the app, not just the marketing pages.",
+      },
     ],
     hood: ["PWA + service worker", "IndexedDB queue", "en / hi / ta / te / gu / mr", "Sync status"],
   },
@@ -79,16 +153,39 @@ export const SECTIONS_PLATFORM: HiwSection[] = [
     icon: Shield,
     accent: "#7A9A7B",
     title: "Governance & Trust Center",
-    kicker: "Proof, not promises — compliance trackers and seven flagship PoCs running on real seed data.",
+    kicker:
+      "Proof, not promises — compliance trackers and seven flagship PoCs running on real seed data.",
     minutes: "3 min",
     steps: [
-      { title: "Seven tabs of proof", desc: "A dedicated OS app covers AI governance, the audit explorer, compliance trackers and the PoC gallery." },
-      { title: "The audit explorer", desc: "Walk the SHA-256 hash-chain record by record — any tamper breaks the chain visibly, on the spot." },
-      { title: "Compliance, mapped to controls", desc: "NABH, ISO 27001, DPDP and ABDM requirements each carry live status instead of a PDF claim." },
-      { title: "Seven flagship PoCs, all real", desc: "W3C Verifiable Credentials identity, Merkle audit anchoring, smart-contract insurance, wearable IoT, digital twin, genomic risk and adaptive simulations — working demos on seed data, not slideware." },
-      { title: "The strategy is public", desc: "The /docs package — gap assessment, 5-phase roadmap and white paper — states exactly what's real and what's next." },
+      {
+        title: "Seven tabs of proof",
+        desc: "A dedicated OS app covers AI governance, the audit explorer, compliance trackers and the PoC gallery.",
+      },
+      {
+        title: "The audit explorer",
+        desc: "Walk the SHA-256 hash-chain record by record — any tamper breaks the chain visibly, on the spot.",
+      },
+      {
+        title: "Compliance, mapped to controls",
+        desc: "NABH, ISO 27001, DPDP and ABDM requirements each carry live status instead of a PDF claim.",
+      },
+      {
+        title: "Seven flagship PoCs, all real",
+        desc: "W3C Verifiable Credentials identity, Merkle audit anchoring, smart-contract insurance, wearable IoT, digital twin, genomic risk and adaptive simulations — working demos on seed data, not slideware.",
+      },
+      {
+        title: "The strategy is public",
+        desc: "The /docs package — gap assessment, 5-phase roadmap and white paper — states exactly what's real and what's next.",
+      },
     ],
-    hood: ["7 tabs", "Merkle anchoring", "W3C VC identity", "Smart-contract insurance", "Genomic risk", "Simulations"],
+    hood: [
+      "7 tabs",
+      "Merkle anchoring",
+      "W3C VC identity",
+      "Smart-contract insurance",
+      "Genomic risk",
+      "Simulations",
+    ],
     cta: { kind: "link", label: "Open Compliance", href: "/compliance" },
   },
   {
@@ -97,14 +194,30 @@ export const SECTIONS_PLATFORM: HiwSection[] = [
     icon: BrainCircuit,
     accent: "#A16207",
     title: "The Predictive Intelligence Engine",
-    kicker: "Healthcare is reactive. But Nexura is Predictive — the Living Twin, Crisis Radar and pre-emptive protocols.",
+    kicker:
+      "Healthcare is reactive. But Nexura is Predictive — the Living Twin, Crisis Radar and pre-emptive protocols.",
     minutes: "3 min",
     steps: [
-      { title: "A twin for every patient", desc: "Vitals, labs, wearables, notes and social context stream into a Living Twin that blends physiology with a personal, continuously-learned trajectory." },
-      { title: "Time-to-Decay, 0–100", desc: "The twin compresses each patient into one urgency score — green stable, yellow watchlist, red critical — and re-ranks the whole hospital continuously on the Crisis Radar." },
-      { title: "Act before the emergency", desc: "Crossing a red line drafts a guideline-backed protocol with evidence — sepsis flagged 12–24 h early — and coordinates nurse, lab and pharmacy tasks automatically." },
-      { title: "A human always approves", desc: "Clinicians approve or reject with one click inside Hospital OS; sub-0.8 confidence never auto-acts, and every prediction carries its Why (SHAP drivers)." },
-      { title: "See it without a login", desc: "The public engine page renders the real radar on the demo cohort — plus a What-If simulator you can drive yourself." },
+      {
+        title: "A twin for every patient",
+        desc: "Vitals, labs, wearables, notes and social context stream into a Living Twin that blends physiology with a personal, continuously-learned trajectory.",
+      },
+      {
+        title: "Time-to-Decay, 0–100",
+        desc: "The twin compresses each patient into one urgency score — green stable, yellow watchlist, red critical — and re-ranks the whole hospital continuously on the Crisis Radar.",
+      },
+      {
+        title: "Act before the emergency",
+        desc: "Crossing a red line drafts a guideline-backed protocol with evidence — sepsis flagged 12–24 h early — and coordinates nurse, lab and pharmacy tasks automatically.",
+      },
+      {
+        title: "A human always approves",
+        desc: "Clinicians approve or reject with one click inside Hospital OS; sub-0.8 confidence never auto-acts, and every prediction carries its Why (SHAP drivers).",
+      },
+      {
+        title: "See it without a login",
+        desc: "The public engine page renders the real radar on the demo cohort — plus a What-If simulator you can drive yourself.",
+      },
     ],
     hood: ["Time-to-Decay 0–100", "Sepsis +12–24 h", "SHAP Why", "Class II SaMD", "FedAvg privacy"],
     cta: { kind: "link", label: "Open the engine — live", href: "/predictive" },
@@ -118,11 +231,26 @@ export const SECTIONS_PLATFORM: HiwSection[] = [
     kicker: "The fastest hands-on tour of the whole ecosystem — click by click.",
     minutes: "3 min",
     steps: [
-      { title: "Book a visit from this page", desc: "Press “Book a visit” and watch it confirm in four taps — no account needed." },
-      { title: "Run a live AI call", desc: "Open Know Your Health and try the Symptom Checker — a real AI response, free, no login." },
-      { title: "Boot the hospital", desc: "Enter Hospital OS as the demo commandant — CMD.ANITA, PIN 2468 — and explore the Command Center and module windows." },
-      { title: "Write a consultation", desc: "Sign into Clinic OS as doctor@demo.nexura.health / Demo@12345 and finish a visit in minutes." },
-      { title: "Check the proof layer", desc: "Visit /compliance and the Trust Center to see the audits, trackers and PoCs behind it all." },
+      {
+        title: "Book a visit from this page",
+        desc: "Press “Book a visit” and watch it confirm in four taps — no account needed.",
+      },
+      {
+        title: "Run a live AI call",
+        desc: "Open Know Your Health and try the Symptom Checker — a real AI response, free, no login.",
+      },
+      {
+        title: "Boot the hospital",
+        desc: "Enter Hospital OS as the demo commandant — CMD.ANITA, PIN 2468 — and explore the Command Center and module windows.",
+      },
+      {
+        title: "Write a consultation",
+        desc: "Sign into Clinic OS as doctor@demo.nexura.health / Demo@12345 and finish a visit in minutes.",
+      },
+      {
+        title: "Check the proof layer",
+        desc: "Visit /compliance and the Trust Center to see the audits, trackers and PoCs behind it all.",
+      },
     ],
     hood: ["Free, no signup", "Real seed data", "Same backend end-to-end"],
     cta: { kind: "booking", label: "Start — book a visit" },

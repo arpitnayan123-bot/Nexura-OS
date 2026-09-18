@@ -14,12 +14,5 @@ export default function PortalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SegmentErrorBoundary
-      error={error}
-      reset={reset}
-      variant="warm"
-      tag="portal"
-    />
-  );
+  return <SegmentErrorBoundary error={error} reset={reset} variant="warm" tag="portal" />;
 }

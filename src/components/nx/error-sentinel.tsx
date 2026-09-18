@@ -91,7 +91,13 @@ export function ErrorSentinel() {
         if (now - last > RELOAD_THROTTLE_MS) {
           sessionStorage.setItem(RELOAD_KEY, String(now));
           // self-heal: reload once to pick up the fresh deployment
-          report({ kind: "stale-chunk", message: msg.slice(0, 300), source: e.filename?.slice(0, 200), line: e.lineno, col: e.colno });
+          report({
+            kind: "stale-chunk",
+            message: msg.slice(0, 300),
+            source: e.filename?.slice(0, 200),
+            line: e.lineno,
+            col: e.colno,
+          });
           window.location.reload();
           return;
         }
@@ -109,7 +115,8 @@ export function ErrorSentinel() {
     };
 
     const onRejection = (e: PromiseRejectionEvent) => {
-      const msg = typeof e.reason === "string" ? e.reason : (e.reason?.message ?? "unhandled rejection");
+      const msg =
+        typeof e.reason === "string" ? e.reason : (e.reason?.message ?? "unhandled rejection");
       if (isStaleChunkError(msg)) {
         const now = Date.now();
         const last = Number(sessionStorage.getItem(RELOAD_KEY) ?? 0);

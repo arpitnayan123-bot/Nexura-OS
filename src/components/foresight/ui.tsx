@@ -6,7 +6,14 @@
  * data stamps. Rose is reserved EXCLUSIVELY for emergencies.
  * ============================================================ */
 
-import { useEffect, useRef, useState, type HTMLAttributes, type MouseEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type HTMLAttributes,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +35,8 @@ export const STRINGS: Record<FsLang, Record<string, string>> = {
     "app.run": "Run My Foresight Map",
     "app.retry": "Try again",
     "app.errorTitle": "Something interrupted us",
-    "app.errorBody": "We couldn't reach the foresight service. Nothing was lost — your answers are still here.",
+    "app.errorBody":
+      "We couldn't reach the foresight service. Nothing was lost — your answers are still here.",
     "app.demo": "DEMO — not a medical device. Always consult a doctor.",
     "app.adultsOnly": "Built for adults (18+)",
   },
@@ -44,7 +52,8 @@ export const STRINGS: Record<FsLang, Record<string, string>> = {
     "app.run": "मेरा फ़ोरसाइट मैप बनाएँ",
     "app.retry": "फिर कोशिश करें",
     "app.errorTitle": "कनेक्शन में बाधा आई",
-    "app.errorBody": "हम फ़ोरसाइट सेवा तक नहीं पहुँच पाए। कुछ भी खोया नहीं — आपके उत्तर सुरक्षित हैं।",
+    "app.errorBody":
+      "हम फ़ोरसाइट सेवा तक नहीं पहुँच पाए। कुछ भी खोया नहीं — आपके उत्तर सुरक्षित हैं।",
     "app.demo": "डेमो — मेडिकल डिवाइस नहीं। हमेशा डॉक्टर से सलाह लें।",
     "app.adultsOnly": "18+ वयस्कों के लिए",
   },
@@ -77,8 +86,11 @@ export function FsLoader({ label }: { label: string }) {
         aria-hidden="true"
         className="nxf-spin"
         style={{
-          width: 26, height: 26, borderRadius: "50%",
-          border: "3px solid rgba(252,211,77,0.25)", borderTopColor: "#FCD34D",
+          width: 26,
+          height: 26,
+          borderRadius: "50%",
+          border: "3px solid rgba(252,211,77,0.25)",
+          borderTopColor: "#FCD34D",
           display: "inline-block",
         }}
       />
@@ -88,33 +100,58 @@ export function FsLoader({ label }: { label: string }) {
 }
 
 export function FsError({
-  title, body, onRetry, retryLabel,
-}: { title: string; body: string; onRetry: () => void; retryLabel: string }) {
+  title,
+  body,
+  onRetry,
+  retryLabel,
+}: {
+  title: string;
+  body: string;
+  onRetry: () => void;
+  retryLabel: string;
+}) {
   return (
     <div
       role="alert"
       style={{
-        minHeight: "100dvh", display: "flex", alignItems: "center",
-        justifyContent: "center", padding: "1.5rem",
+        minHeight: "100dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1.5rem",
       }}
     >
       <div
         style={{
-          maxWidth: "26rem", textAlign: "center", padding: "1.75rem 1.5rem",
-          borderRadius: "1.25rem", border: "1px solid rgba(255,255,255,0.10)",
-          background: "rgba(255,255,255,0.04)", color: "#FFFEFA",
+          maxWidth: "26rem",
+          textAlign: "center",
+          padding: "1.75rem 1.5rem",
+          borderRadius: "1.25rem",
+          border: "1px solid rgba(255,255,255,0.10)",
+          background: "rgba(255,255,255,0.04)",
+          color: "#FFFEFA",
         }}
       >
         <h2 style={{ marginTop: 0, fontSize: "1.15rem", fontWeight: 650 }}>{title}</h2>
-        <p style={{ marginTop: "0.5rem", fontSize: "0.9rem", lineHeight: 1.6, color: "#DED9CA" }}>{body}</p>
+        <p style={{ marginTop: "0.5rem", fontSize: "0.9rem", lineHeight: 1.6, color: "#DED9CA" }}>
+          {body}
+        </p>
         <button
           type="button"
           onClick={onRetry}
           style={{
-            marginTop: "1.25rem", display: "inline-flex", alignItems: "center",
-            minHeight: "44px", padding: "0 1.4rem", borderRadius: 9999,
-            background: "linear-gradient(135deg, #115E59, #0F766E 45%, #047857)", color: "#FFFFFF", fontWeight: 700,
-            fontSize: "0.9rem", border: "none", cursor: "pointer",
+            marginTop: "1.25rem",
+            display: "inline-flex",
+            alignItems: "center",
+            minHeight: "44px",
+            padding: "0 1.4rem",
+            borderRadius: 9999,
+            background: "linear-gradient(135deg, #115E59, #0F766E 45%, #047857)",
+            color: "#FFFFFF",
+            fontWeight: 700,
+            fontSize: "0.9rem",
+            border: "none",
+            cursor: "pointer",
           }}
         >
           {retryLabel}
@@ -140,14 +177,23 @@ export function spotHandlers() {
 }
 
 export function GlassCard({
-  children, className, hover = true, ...rest
-}: { children: ReactNode; className?: string; hover?: boolean } & Omit<HTMLMotionProps<"div">, "children">) {
+  children,
+  className,
+  hover = true,
+  ...rest
+}: { children: ReactNode; className?: string; hover?: boolean } & Omit<
+  HTMLMotionProps<"div">,
+  "children"
+>) {
   const spot = spotHandlers();
   return (
     <motion.div
       className={cn("nxf-glass nxf-spot", hover && "nxf-glass-hover", className)}
       {...rest}
-      onMouseMove={(e) => { spot.onMouseMove(e); rest.onMouseMove?.(e); }}
+      onMouseMove={(e) => {
+        spot.onMouseMove(e);
+        rest.onMouseMove?.(e);
+      }}
     >
       {children}
     </motion.div>
@@ -162,7 +208,10 @@ export function Spotlight({ children, className, ...rest }: HTMLAttributes<HTMLD
     <div
       className={cn("nxf-spot relative", className)}
       {...rest}
-      onMouseMove={(e) => { spot.onMouseMove(e); rest.onMouseMove?.(e); }}
+      onMouseMove={(e) => {
+        spot.onMouseMove(e);
+        rest.onMouseMove?.(e);
+      }}
     >
       {children}
     </div>
@@ -172,7 +221,9 @@ export function Spotlight({ children, className, ...rest }: HTMLAttributes<HTMLD
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <p className={cn("nxf-eyebrow text-[10.5px] font-semibold uppercase nxf-gold", className)}>
-      <span aria-hidden="true" className="nxf-glyph-glow mr-1">✦</span>
+      <span aria-hidden="true" className="nxf-glyph-glow mr-1">
+        ✦
+      </span>
       {children}
     </p>
   );
@@ -198,15 +249,27 @@ export function LevelChip({ level }: { level: string }) {
     <span
       className={cn(
         "inline-flex items-center rounded-full border px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em]",
-        `nxf-chip-${level}`
+        `nxf-chip-${level}`,
       )}
     >
-      {level === "LOW" ? "steady" : level === "WATCH" ? "watch" : level === "ELEVATED" ? "elevated" : "attention"}
+      {level === "LOW"
+        ? "steady"
+        : level === "WATCH"
+          ? "watch"
+          : level === "ELEVATED"
+            ? "elevated"
+            : "attention"}
     </span>
   );
 }
 
-export function Bar({ pct, tone = "teal" }: { pct: number; tone?: "teal" | "amber" | "orange" | "rose" | "emerald" }) {
+export function Bar({
+  pct,
+  tone = "teal",
+}: {
+  pct: number;
+  tone?: "teal" | "amber" | "orange" | "rose" | "emerald";
+}) {
   const tones: Record<string, string> = {
     teal: "from-teal-400 to-emerald-400",
     emerald: "from-emerald-400 to-green-300",
@@ -224,17 +287,35 @@ export function Bar({ pct, tone = "teal" }: { pct: number; tone?: "teal" | "ambe
   );
 }
 
-export function SectionHead({ eyebrow, title, sub }: { eyebrow?: string; title: string; sub?: string }) {
+export function SectionHead({
+  eyebrow,
+  title,
+  sub,
+}: {
+  eyebrow?: string;
+  title: string;
+  sub?: string;
+}) {
   return (
     <div className="mb-5">
       {eyebrow ? <Eyebrow className="mb-2">{eyebrow}</Eyebrow> : null}
-      <h2 className="font-display text-xl font-semibold tracking-tight nxf-hi sm:text-2xl">{title}</h2>
+      <h2 className="font-display text-xl font-semibold tracking-tight nxf-hi sm:text-2xl">
+        {title}
+      </h2>
       {sub ? <p className="mt-1.5 text-sm leading-relaxed nxf-dim">{sub}</p> : null}
     </div>
   );
 }
 
-export function Field({ label, why, children }: { label: string; why?: string; children: ReactNode }) {
+export function Field({
+  label,
+  why,
+  children,
+}: {
+  label: string;
+  why?: string;
+  children: ReactNode;
+}) {
   return (
     <label className="block">
       <span className="mb-1.5 flex items-baseline justify-between gap-2">
@@ -247,7 +328,12 @@ export function Field({ label, why, children }: { label: string; why?: string; c
 }
 
 export function PillGroup({
-  options, value, onChange, multi = false, values, rose = false,
+  options,
+  value,
+  onChange,
+  multi = false,
+  values,
+  rose = false,
 }: {
   options: { value: string; label: string; hint?: string }[];
   value?: string;
@@ -285,15 +371,26 @@ export function CountUp({ to, duration = 1.5 }: { to: number; duration?: number 
     let reduced = false;
     try {
       reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    } catch { /* keep animation */ }
+    } catch {
+      /* keep animation */
+    }
     /* every setState defers to a frame callback — never
        synchronous inside the effect body (react-hooks rule) */
     const jump = () => {
       raf = requestAnimationFrame(() => {
-        if (!cancelled) { fromRef.current = to; setVal(to); }
+        if (!cancelled) {
+          fromRef.current = to;
+          setVal(to);
+        }
       });
     };
-    if (reduced) { jump(); return () => { cancelled = true; cancelAnimationFrame(raf); }; }
+    if (reduced) {
+      jump();
+      return () => {
+        cancelled = true;
+        cancelAnimationFrame(raf);
+      };
+    }
     const from = fromRef.current;
     const start = typeof performance !== "undefined" ? performance.now() : Date.now();
     const tick = (now: number) => {
@@ -306,7 +403,10 @@ export function CountUp({ to, duration = 1.5 }: { to: number; duration?: number 
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => { cancelled = true; cancelAnimationFrame(raf); };
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
   }, [to, duration]);
 
   return <span>{val}</span>;

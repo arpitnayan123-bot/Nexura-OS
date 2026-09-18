@@ -14,14 +14,51 @@ async function GET_impl(req: NextRequest) {
     if (!ctx) return NextResponse.json({ error: "no_clinic" }, { status: 404 });
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim().toLowerCase();
-    const where = q ? { clinicId: ctx.clinic.id, OR: [{ name: { contains: q, mode: "insensitive" as const } }, { mrn: { contains: q, mode: "insensitive" as const } }, { phone: { contains: q, mode: "insensitive" as const } }] } : { clinicId: ctx.clinic.id };
+    const where = q
+      ? {
+          clinicId: ctx.clinic.id,
+          OR: [
+            { name: { contains: q, mode: "insensitive" as const } },
+            { mrn: { contains: q, mode: "insensitive" as const } },
+            { phone: { contains: q, mode: "insensitive" as const } },
+          ],
+        }
+      : { clinicId: ctx.clinic.id };
     // `visits` (latest only) is additive — powers last-visit recency in the clinic
     // chronic-care watchlist. No Prisma schema change.
-    const patients = await db.clinicPatient.findMany({ where, orderBy: { createdAt: "desc" }, take: 50, select: { id: true, mrn: true, name: true, gender: true, age: true, bloodGroup: true, phone: true, allergy: true, chronicDx: true, abhaId: true, createdAt: true, _count: { select: { visits: true, appointments: true } }, visits: { take: 1, orderBy: { createdAt: "desc" }, select: { createdAt: true, diagnosis: true } } } });
+    const patients = await db.clinicPatient.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      select: {
+        id: true,
+        mrn: true,
+        name: true,
+        gender: true,
+        age: true,
+        bloodGroup: true,
+        phone: true,
+        allergy: true,
+        chronicDx: true,
+        abhaId: true,
+        createdAt: true,
+        _count: { select: { visits: true, appointments: true } },
+        visits: {
+          take: 1,
+          orderBy: { createdAt: "desc" },
+          select: { createdAt: true, diagnosis: true },
+        },
+      },
+    });
     return NextResponse.json({ patients });
   } catch (err) {
-    log.error("clinic", "patients_list_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "clinic_patients_failed", detail: "Patients could not be loaded. Please retry." }, { status: 500 });
+    log.error("clinic", "patients_list_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: "clinic_patients_failed", detail: "Patients could not be loaded. Please retry." },
+      { status: 500 },
+    );
   }
 }
 
@@ -33,13 +70,41 @@ async function POST_impl(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const count = await db.clinicPatient.count({ where: { clinicId: ctx.clinic.id } });
     // Persist ABHA identity when provided (ABDM link itself is not live — ID/profile are stored on file only)
-    const abhaId = typeof body.abhaId === "string" && body.abhaId.trim() ? body.abhaId.trim() : null;
-    const abhaProfile = body.abhaProfile == null ? null : typeof body.abhaProfile === "string" ? body.abhaProfile : JSON.stringify(body.abhaProfile);
-    const patient = await db.clinicPatient.create({ data: { clinicId: ctx.clinic.id, mrn: `CLN-${String(2001 + count)}`, name: String(body.name || "").trim(), gender: body.gender || "male", age: body.age ? Number(body.age) : null, bloodGroup: body.bloodGroup || null, phone: body.phone || null, allergy: body.allergy || null, chronicDx: body.chronicDx || null, abhaId, abhaProfile } });
+    const abhaId =
+      typeof body.abhaId === "string" && body.abhaId.trim() ? body.abhaId.trim() : null;
+    const abhaProfile =
+      body.abhaProfile == null
+        ? null
+        : typeof body.abhaProfile === "string"
+          ? body.abhaProfile
+          : JSON.stringify(body.abhaProfile);
+    const patient = await db.clinicPatient.create({
+      data: {
+        clinicId: ctx.clinic.id,
+        mrn: `CLN-${String(2001 + count)}`,
+        name: String(body.name || "").trim(),
+        gender: body.gender || "male",
+        age: body.age ? Number(body.age) : null,
+        bloodGroup: body.bloodGroup || null,
+        phone: body.phone || null,
+        allergy: body.allergy || null,
+        chronicDx: body.chronicDx || null,
+        abhaId,
+        abhaProfile,
+      },
+    });
     return NextResponse.json({ ok: true, patient });
   } catch (err) {
-    log.error("clinic", "patient_create_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "clinic_patient_create_failed", detail: "The patient could not be registered. Please retry." }, { status: 500 });
+    log.error("clinic", "patient_create_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "clinic_patient_create_failed",
+        detail: "The patient could not be registered. Please retry.",
+      },
+      { status: 500 },
+    );
   }
 }
 

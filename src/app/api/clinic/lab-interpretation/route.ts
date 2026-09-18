@@ -23,13 +23,52 @@ export const dynamic = "force-dynamic";
    Response shape unchanged (the clinic UI renders these fields).
    ============================================================ */
 
-const RANGES: Record<string, { low: number; high: number; unit: string; meaning: string; advice: string }> = {
-  Hemoglobin: { low: 12, high: 17, unit: "g/dL", meaning: "Low Hb indicates anemia — very common in India (NFHS-5: 57% women)", advice: "Iron supplements + iron-rich diet (green leafy veg, jaggery)" },
-  "Fasting Blood Sugar": { low: 70, high: 100, unit: "mg/dL", meaning: ">126 = diabetes (ICMR-INDIAB criteria)", advice: ">126: consult doctor for diabetes management" },
-  HbA1c: { low: 4, high: 5.7, unit: "%", meaning: "5.7-6.4 = prediabetes, ≥6.5 = diabetes (ICMR target <7%)", advice: ">6.5: diabetes treatment needed" },
-  TSH: { low: 0.4, high: 4.0, unit: "mIU/L", meaning: ">4.0 = hypothyroidism, <0.4 = hyperthyroidism", advice: ">4.0: start Levothyroxine, recheck TSH in 6 weeks" },
-  "Total Cholesterol": { low: 120, high: 200, unit: "mg/dL", meaning: ">200 = dyslipidemia", advice: ">200: statin therapy + diet modification" },
-  Creatinine: { low: 0.6, high: 1.2, unit: "mg/dL", meaning: ">1.2 = possible kidney impairment", advice: ">1.5: nephrology referral" },
+const RANGES: Record<
+  string,
+  { low: number; high: number; unit: string; meaning: string; advice: string }
+> = {
+  Hemoglobin: {
+    low: 12,
+    high: 17,
+    unit: "g/dL",
+    meaning: "Low Hb indicates anemia — very common in India (NFHS-5: 57% women)",
+    advice: "Iron supplements + iron-rich diet (green leafy veg, jaggery)",
+  },
+  "Fasting Blood Sugar": {
+    low: 70,
+    high: 100,
+    unit: "mg/dL",
+    meaning: ">126 = diabetes (ICMR-INDIAB criteria)",
+    advice: ">126: consult doctor for diabetes management",
+  },
+  HbA1c: {
+    low: 4,
+    high: 5.7,
+    unit: "%",
+    meaning: "5.7-6.4 = prediabetes, ≥6.5 = diabetes (ICMR target <7%)",
+    advice: ">6.5: diabetes treatment needed",
+  },
+  TSH: {
+    low: 0.4,
+    high: 4.0,
+    unit: "mIU/L",
+    meaning: ">4.0 = hypothyroidism, <0.4 = hyperthyroidism",
+    advice: ">4.0: start Levothyroxine, recheck TSH in 6 weeks",
+  },
+  "Total Cholesterol": {
+    low: 120,
+    high: 200,
+    unit: "mg/dL",
+    meaning: ">200 = dyslipidemia",
+    advice: ">200: statin therapy + diet modification",
+  },
+  Creatinine: {
+    low: 0.6,
+    high: 1.2,
+    unit: "mg/dL",
+    meaning: ">1.2 = possible kidney impairment",
+    advice: ">1.5: nephrology referral",
+  },
 };
 
 const SYSTEM_PROMPT = `You are the lab-interpretation assistant for Nexura Clinic (Indian outpatient setting).
@@ -45,10 +84,15 @@ async function POST_impl(req: NextRequest) {
     const b = await req.json().catch(() => ({}));
     const test = typeof b?.test === "string" ? b.test.trim() : "";
     const value = Number(b?.value);
-    if (!test || !Number.isFinite(value)) return NextResponse.json({ error: "missing" }, { status: 400 });
+    if (!test || !Number.isFinite(value))
+      return NextResponse.json({ error: "missing" }, { status: 400 });
 
     const range = RANGES[test];
-    if (!range) return NextResponse.json({ interpretation: null, message: "No reference range available for this test" });
+    if (!range)
+      return NextResponse.json({
+        interpretation: null,
+        message: "No reference range available for this test",
+      });
 
     // deterministic flag — never model-dependent
     const status = value < range.low ? "LOW" : value > range.high ? "HIGH" : "NORMAL";
@@ -61,13 +105,17 @@ async function POST_impl(req: NextRequest) {
       const parsed = await runText<{ meaning?: string; advice?: string }>(
         `Test: ${test}\nValue: ${value} ${range.unit}\nDetermined status: ${status}\nReference range: ${range.low}-${range.high} ${range.unit}`,
         SYSTEM_PROMPT,
-        "clinic.lab-interpretation"
+        "clinic.lab-interpretation",
       );
-      if (typeof parsed.meaning === "string" && parsed.meaning.trim()) meaning = parsed.meaning.trim().slice(0, 500);
-      if (typeof parsed.advice === "string" && parsed.advice.trim()) advice = parsed.advice.trim().slice(0, 500);
+      if (typeof parsed.meaning === "string" && parsed.meaning.trim())
+        meaning = parsed.meaning.trim().slice(0, 500);
+      if (typeof parsed.advice === "string" && parsed.advice.trim())
+        advice = parsed.advice.trim().slice(0, 500);
       source = "deterministic ICMR/NFHS-5 flag + AI interpretation";
     } catch (e) {
-      log.warn("clinic", "lab_interpretation_ai_fallback", { err: e instanceof Error ? e.message : String(e) });
+      log.warn("clinic", "lab_interpretation_ai_fallback", {
+        err: e instanceof Error ? e.message : String(e),
+      });
       source = "ICMR + NFHS-5 Indian reference ranges (AI unavailable — table guidance)";
     }
 
@@ -83,7 +131,9 @@ async function POST_impl(req: NextRequest) {
       source,
     });
   } catch (e) {
-    log.error("clinic", "lab_interpretation_failed", { err: e instanceof Error ? e.message : String(e) });
+    log.error("clinic", "lab_interpretation_failed", {
+      err: e instanceof Error ? e.message : String(e),
+    });
     return NextResponse.json({ error: "failed" }, { status: 500 });
   }
 }

@@ -43,16 +43,36 @@ export const GET = withRoute("nx.patients.list", async (req: NextRequest) => {
     take,
     orderBy: { createdAt: "desc" },
     select: {
-      id: true, uhid: true, fullName: true, age: true, gender: true, bloodGroup: true, phone: true,
-      allergy: true, chronicConditions: true, primaryLanguage: true, insuranceProvider: true, createdAt: true,
-      admissions: { where: { dischargeStatus: "active" }, select: { id: true, admissionDate: true, bed: { select: { bedNumber: true, ward: { select: { name: true } } } } }, take: 1 },
+      id: true,
+      uhid: true,
+      fullName: true,
+      age: true,
+      gender: true,
+      bloodGroup: true,
+      phone: true,
+      allergy: true,
+      chronicConditions: true,
+      primaryLanguage: true,
+      insuranceProvider: true,
+      createdAt: true,
+      admissions: {
+        where: { dischargeStatus: "active" },
+        select: {
+          id: true,
+          admissionDate: true,
+          bed: { select: { bedNumber: true, ward: { select: { name: true } } } },
+        },
+        take: 1,
+      },
     },
   });
 
   return NextResponse.json({
     patients: patients.map((p) => ({
       ...p,
-      currentLocation: p.admissions[0] ? `${p.admissions[0].bed?.ward?.name || "Ward"} · ${p.admissions[0].bed?.bedNumber || "—"}` : null,
+      currentLocation: p.admissions[0]
+        ? `${p.admissions[0].bed?.ward?.name || "Ward"} · ${p.admissions[0].bed?.bedNumber || "—"}`
+        : null,
       isAdmitted: p.admissions.length > 0,
       admissions: undefined,
     })),

@@ -19,7 +19,10 @@ export const GET = withRoute("nx.billing.revenue", async (req: NextRequest) => {
       where: { hospitalId },
       orderBy: { createdAt: "desc" },
       take: 60,
-      include: { patient: { select: { fullName: true, uhid: true } }, admission: { select: { id: true } } },
+      include: {
+        patient: { select: { fullName: true, uhid: true } },
+        admission: { select: { id: true } },
+      },
     }),
     db.insuranceClaim.findMany({
       where: { hospitalId },
@@ -31,7 +34,9 @@ export const GET = withRoute("nx.billing.revenue", async (req: NextRequest) => {
 
   /* totalPayable is integer paise — exact integer sums, rupees at the wire. */
   const totalBilledPaise = bills.reduce((s, b) => s + b.totalPayable, 0);
-  const collectedPaise = bills.filter((b) => b.paymentStatus === "paid").reduce((s, b) => s + b.totalPayable, 0);
+  const collectedPaise = bills
+    .filter((b) => b.paymentStatus === "paid")
+    .reduce((s, b) => s + b.totalPayable, 0);
   const totalBilled = totalBilledPaise / 100;
   const collected = collectedPaise / 100;
   const pending = totalBilled - collected;
@@ -43,19 +48,32 @@ export const GET = withRoute("nx.billing.revenue", async (req: NextRequest) => {
       pending,
       collectionPct: totalBilled ? Math.round((collected / totalBilled) * 100) : 0,
       claimsSubmitted: claims.length,
-      claimsApproved: claims.filter((c) => c.preAuthStatus === "approved" || c.preAuthStatus === "partially_approved").length,
+      claimsApproved: claims.filter(
+        (c) => c.preAuthStatus === "approved" || c.preAuthStatus === "partially_approved",
+      ).length,
       claimsQuery: claims.filter((c) => c.preAuthStatus === "query_raised").length,
       claimsRejected: claims.filter((c) => c.preAuthStatus === "rejected").length,
     },
     bills: bills.map((b) => ({
-      id: b.id, patient: b.patient, uhid: b.patientUhid, amount: b.totalPayable / 100,
-      paymentStatus: b.paymentStatus, paymentMode: b.paymentMode,
+      id: b.id,
+      patient: b.patient,
+      uhid: b.patientUhid,
+      amount: b.totalPayable / 100,
+      paymentStatus: b.paymentStatus,
+      paymentMode: b.paymentMode,
       createdAt: b.createdAt,
     })),
     claims: claims.map((c) => ({
-      id: c.id, patient: c.patient, tpa: c.tpaCompany, policy: c.policyNumber, icd10: c.icd10Primary,
-      estimated: c.estimatedCost / 100, approved: c.approvedAmount / 100, status: c.preAuthStatus,
-      submittedAt: c.submittedAt, createdAt: c.createdAt,
+      id: c.id,
+      patient: c.patient,
+      tpa: c.tpaCompany,
+      policy: c.policyNumber,
+      icd10: c.icd10Primary,
+      estimated: c.estimatedCost / 100,
+      approved: c.approvedAmount / 100,
+      status: c.preAuthStatus,
+      submittedAt: c.submittedAt,
+      createdAt: c.createdAt,
     })),
   });
 });

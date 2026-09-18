@@ -20,7 +20,9 @@ export const POST = withRoute("telehealth.route", async (req: NextRequest, { req
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
   const body = await parseBody(req, RouteSchema);
   if ("response" in body) return body.response;
-  const tc = await db.nxTeleConsult.findFirst({ where: { id: body.data.teleConsultId, hospitalId } });
+  const tc = await db.nxTeleConsult.findFirst({
+    where: { id: body.data.teleConsultId, hospitalId },
+  });
   if (!tc) return fail("not_found", 404, undefined, requestId);
   const patient = await db.hospitalPatient.findUnique({ where: { id: tc.patientId } });
   const candidates = await db.nxStaffUser.findMany({
@@ -30,22 +32,49 @@ export const POST = withRoute("telehealth.route", async (req: NextRequest, { req
   const loadByDoctor = new Map<string, number>();
   const live = await db.nxTeleConsult.count({ where: { hospitalId, state: "live" } });
   void live;
-  const scored = candidates.map((d) => {
-    let score = 0;
-    if (body.data.specialty && d.speciality?.toLowerCase().includes(body.data.specialty.toLowerCase())) score += 3;
-    score += 2; // onDuty filter already applied
-    if (body.data.urgency === "emergency" && d.shift === "night") score += 1;
-    const load = loadByDoctor.get(d.id) ?? 0;
-    score -= load * 0.5;
-    return { id: d.id, name: d.name, staffCode: d.staffCode, speciality: d.speciality, shift: d.shift, score: Number(score.toFixed(1)) };
-  }).sort((a, b) => b.score - a.score);
+  const scored = candidates
+    .map((d) => {
+      let score = 0;
+      if (
+        body.data.specialty &&
+        d.speciality?.toLowerCase().includes(body.data.specialty.toLowerCase())
+      )
+        score += 3;
+      score += 2; // onDuty filter already applied
+      if (body.data.urgency === "emergency" && d.shift === "night") score += 1;
+      const load = loadByDoctor.get(d.id) ?? 0;
+      score -= load * 0.5;
+      return {
+        id: d.id,
+        name: d.name,
+        staffCode: d.staffCode,
+        speciality: d.speciality,
+        shift: d.shift,
+        score: Number(score.toFixed(1)),
+      };
+    })
+    .sort((a, b) => b.score - a.score);
   const chosen = scored[0];
   if (!chosen) return fail("no_capacity", 503, "No on-duty doctor available right now.", requestId);
   const updated = await db.nxTeleConsult.update({
     where: { id: tc.id },
-    data: { state: "routed", doctorId: chosen.id, doctorName: chosen.name, bandwidthMode: body.data.bandwidth, routedReason: `highest score ${chosen.score} (specialty${body.data.specialty ? "+match" : "-only"} / duty / load)` },
+    data: {
+      state: "routed",
+      doctorId: chosen.id,
+      doctorName: chosen.name,
+      bandwidthMode: body.data.bandwidth,
+      routedReason: `highest score ${chosen.score} (specialty${body.data.specialty ? "+match" : "-only"} / duty / load)`,
+    },
   });
-  return ok({ routedTo: chosen, alternatives: scored.slice(1, 4), teleConsult: updated, patientLanguage: patient?.primaryLanguage }, { requestId });
+  return ok(
+    {
+      routedTo: chosen,
+      alternatives: scored.slice(1, 4),
+      teleConsult: updated,
+      patientLanguage: patient?.primaryLanguage,
+    },
+    { requestId },
+  );
 });
 
 export const GET = withRoute("telehealth.list", async (req: NextRequest, { requestId }) => {
@@ -53,6 +82,10 @@ export const GET = withRoute("telehealth.list", async (req: NextRequest, { reque
   if ("response" in g) return g.response;
   const hospitalId = g.session.hospitalId;
   if (!hospitalId) return fail("no_hospital_context", 403, undefined, requestId);
-  const rows = await db.nxTeleConsult.findMany({ where: { hospitalId }, orderBy: { createdAt: "desc" }, take: 30 });
+  const rows = await db.nxTeleConsult.findMany({
+    where: { hospitalId },
+    orderBy: { createdAt: "desc" },
+    take: 30,
+  });
   return ok(rows, { requestId });
 });

@@ -18,7 +18,7 @@ Return STRICT JSON only: {"items":[{"name":"medicine name","dosage":"if visible"
 // validated base64, image mime only. (Previously unbounded — relied solely on
 // the proxy's 13 MB body cap.)
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB original file
-const MAX_BASE64_LEN = Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 1024;
+const MAX_BASE64_LEN = Math.ceil((MAX_IMAGE_BYTES * 4) / 3) + 1024;
 
 // POST /api/pharmacy/prescription-ocr
 // body: { image: "<base64 or dataURL>" }
@@ -37,7 +37,10 @@ async function POST_impl(req: NextRequest) {
 
     const raw = image.replace(/^data:[^;]+;base64,/, "").trim();
     if (!raw || !isValidImageBase64(raw)) {
-      return NextResponse.json({ error: "invalid_image", detail: "Upload a prescription photo (JPG or PNG, max 8MB)." }, { status: 400 });
+      return NextResponse.json(
+        { error: "invalid_image", detail: "Upload a prescription photo (JPG or PNG, max 8MB)." },
+        { status: 400 },
+      );
     }
     if (raw.length > MAX_BASE64_LEN) {
       return NextResponse.json({ error: "image_too_large" }, { status: 413 });
@@ -51,7 +54,10 @@ async function POST_impl(req: NextRequest) {
     } else if (raw.startsWith("/9j/")) {
       mimeType = "image/jpeg";
     } else {
-      return NextResponse.json({ error: "unsupported_mime", detail: "Only JPG and PNG prescriptions are supported." }, { status: 415 });
+      return NextResponse.json(
+        { error: "unsupported_mime", detail: "Only JPG and PNG prescriptions are supported." },
+        { status: 415 },
+      );
     }
 
     // Canonical AI client: runVision runs the model and parses the STRICT JSON
@@ -60,13 +66,21 @@ async function POST_impl(req: NextRequest) {
     // failure surfaces as SyntaxError → graceful empty extraction (same 200
     // shape as before); provider/timeout/empty failures rethrow → 500
     // ocr_failed, exactly like the old SDK path.
-    type OcrExtraction = { items: { name: string; dosage?: string; duration?: string }[]; notes?: string };
+    type OcrExtraction = {
+      items: { name: string; dosage?: string; duration?: string }[];
+      notes?: string;
+    };
     let extracted: OcrExtraction = {
       items: [],
     };
     let rawOutput = "";
     try {
-      extracted = await runVision<OcrExtraction>(raw, mimeType, SYSTEM_PROMPT, "pharmacy.prescription-ocr");
+      extracted = await runVision<OcrExtraction>(
+        raw,
+        mimeType,
+        SYSTEM_PROMPT,
+        "pharmacy.prescription-ocr",
+      );
       rawOutput = JSON.stringify(extracted);
     } catch (e) {
       if (e instanceof SyntaxError) {
@@ -89,7 +103,7 @@ async function POST_impl(req: NextRequest) {
           p.name.toLowerCase().includes(spoken) ||
           spoken.includes(p.name.toLowerCase()) ||
           (p.genericName && spoken.includes(p.genericName.toLowerCase())) ||
-          (p.genericName && p.genericName.toLowerCase().includes(spoken))
+          (p.genericName && p.genericName.toLowerCase().includes(spoken)),
       );
       const batch = product?.batches[0];
       return {
@@ -109,8 +123,16 @@ async function POST_impl(req: NextRequest) {
 
     return NextResponse.json({ items: mapped, notes: extracted.notes || "", raw: rawOutput });
   } catch (err) {
-    log.error("pharmacy", "prescription_ocr_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "ocr_failed", detail: "The prescription could not be read. Please retry with a clearer photo." }, { status: 500 });
+    log.error("pharmacy", "prescription_ocr_failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      {
+        error: "ocr_failed",
+        detail: "The prescription could not be read. Please retry with a clearer photo.",
+      },
+      { status: 500 },
+    );
   }
 }
 

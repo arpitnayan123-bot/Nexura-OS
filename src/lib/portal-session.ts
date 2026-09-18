@@ -32,5 +32,11 @@ export async function getPortalUser(select?: Record<string, boolean>) {
 
 /** Minimal identity for ownership checks (blood bookings, family, AI). */
 export async function getPortalCaller() {
-  return getPortalUser({ id: true, fullName: true, phone: true, familyHeadId: true, hospitalPatientUhid: true });
+  return getPortalUser({
+    id: true,
+    fullName: true,
+    phone: true,
+    familyHeadId: true,
+    hospitalPatientUhid: true,
+  });
 }

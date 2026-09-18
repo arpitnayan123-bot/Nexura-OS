@@ -14,12 +14,5 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SegmentErrorBoundary
-      error={error}
-      reset={reset}
-      variant="light"
-      tag="global"
-    />
-  );
+  return <SegmentErrorBoundary error={error} reset={reset} variant="light" tag="global" />;
 }

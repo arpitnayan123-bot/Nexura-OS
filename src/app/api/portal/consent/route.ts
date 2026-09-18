@@ -50,9 +50,15 @@ export const GET = withRoute("portal.consent.list", async () => {
   if (!patient) {
     return ok({
       linked: false,
-      types: SELF_SERVICE_CONSENT_TYPES.map((t) => ({ ...t, state: "not_granted" as const, lastEventAt: null, expiresAt: null })),
+      types: SELF_SERVICE_CONSENT_TYPES.map((t) => ({
+        ...t,
+        state: "not_granted" as const,
+        lastEventAt: null,
+        expiresAt: null,
+      })),
       history: [],
-      detail: "Self-service consent needs a linked hospital record. Visit the front desk to link your UHID.",
+      detail:
+        "Self-service consent needs a linked hospital record. Visit the front desk to link your UHID.",
     });
   }
 
@@ -94,7 +100,11 @@ export const POST = withRoute("portal.consent.update", async (req: NextRequest) 
 
   const patient = await resolveLinkedPatient(user.hospitalPatientUhid);
   if (!patient) {
-    return fail("not_linked", 409, "Self-service consent needs a linked hospital record. Visit the front desk to link your UHID.");
+    return fail(
+      "not_linked",
+      409,
+      "Self-service consent needs a linked hospital record. Visit the front desk to link your UHID.",
+    );
   }
 
   const consent = await db.nxConsent.create({
@@ -122,11 +132,14 @@ export const POST = withRoute("portal.consent.update", async (req: NextRequest) 
     detail: { type, action, channel: "portal" },
   }).catch(() => null);
 
-  return ok({
-    id: consent.id,
-    type,
-    action,
-    state: action === "grant" ? "granted" : "withdrawn",
-    at: consent.grantedAt,
-  }, { status: 201 });
+  return ok(
+    {
+      id: consent.id,
+      type,
+      action,
+      state: action === "grant" ? "granted" : "withdrawn",
+      at: consent.grantedAt,
+    },
+    { status: 201 },
+  );
 });

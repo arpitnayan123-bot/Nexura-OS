@@ -12,11 +12,7 @@ import { evaluateEscalation } from "./escalation";
    ============================================================ */
 
 export type NxTrigger =
-  | "result.critical"
-  | "discharge.confirmed"
-  | "bed.ready"
-  | "order.created"
-  | "appointment.created";
+  "result.critical" | "discharge.confirmed" | "bed.ready" | "order.created" | "appointment.created";
 
 export interface AutomationCtx {
   hospitalId: string;
@@ -77,7 +73,14 @@ export async function createTask(input: {
   });
 }
 
-async function postMessage(hospitalId: string, channelKey: string, senderName: string, senderRole: string, body: string, patientId?: string) {
+async function postMessage(
+  hospitalId: string,
+  channelKey: string,
+  senderName: string,
+  senderRole: string,
+  body: string,
+  patientId?: string,
+) {
   await db.nxMessage.create({
     data: { hospitalId, channelKey, senderName, senderRole, body, patientId },
   });
@@ -102,7 +105,12 @@ async function runCriticalResult(ctx: AutomationCtx): Promise<StepLog[]> {
     sourceModule: "labs",
     relatedId: ctx.relatedId,
   });
-  steps.push({ name: "Create critical acknowledgement task for attending doctor", status: "done", detail: "15-minute SLA", at: nowISO() });
+  steps.push({
+    name: "Create critical acknowledgement task for attending doctor",
+    status: "done",
+    detail: "15-minute SLA",
+    at: nowISO(),
+  });
 
   await db.nxIncident.create({
     data: {
@@ -117,7 +125,12 @@ async function runCriticalResult(ctx: AutomationCtx): Promise<StepLog[]> {
       location: String(ctx.detail?.location || ""),
     },
   });
-  steps.push({ name: "Open critical incident (Command Center visibility)", status: "done", detail: "Category: clinical", at: nowISO() });
+  steps.push({
+    name: "Open critical incident (Command Center visibility)",
+    status: "done",
+    detail: "Category: clinical",
+    at: nowISO(),
+  });
 
   await postMessage(
     ctx.hospitalId,
@@ -125,9 +138,14 @@ async function runCriticalResult(ctx: AutomationCtx): Promise<StepLog[]> {
     "Nexura Automation",
     "system",
     `CRITICAL result for ${ctx.patientName || ctx.patientUhid}: ${testName}. Attending doctor notified — escalation fires if unacknowledged in 15 min.`,
-    ctx.patientId
+    ctx.patientId,
   );
-  steps.push({ name: "Notify care team channel", status: "done", detail: "Escalation armed at 15 min", at: nowISO() });
+  steps.push({
+    name: "Notify care team channel",
+    status: "done",
+    detail: "Escalation armed at 15 min",
+    at: nowISO(),
+  });
   return steps;
 }
 
@@ -136,10 +154,23 @@ async function runDischargeConfirmed(ctx: AutomationCtx): Promise<StepLog[]> {
   const who = ctx.patientName || ctx.patientUhid || "patient";
 
   // 1. Bed lifecycle: occupied -> cleaning_required
-  const admission = ctx.relatedId ? await db.hospitalAdmission.findUnique({ where: { id: ctx.relatedId }, include: { bed: true } }) : null;
+  const admission = ctx.relatedId
+    ? await db.hospitalAdmission.findUnique({
+        where: { id: ctx.relatedId },
+        include: { bed: true },
+      })
+    : null;
   if (admission?.bed) {
-    await db.hospitalBed.update({ where: { id: admission.bed.id }, data: { status: "cleaning_required", currentPatientUhid: null } });
-    steps.push({ name: "Mark bed unavailable — cleaning required", status: "done", detail: `Bed ${admission.bed.bedNumber} → cleaning_required`, at: nowISO() });
+    await db.hospitalBed.update({
+      where: { id: admission.bed.id },
+      data: { status: "cleaning_required", currentPatientUhid: null },
+    });
+    steps.push({
+      name: "Mark bed unavailable — cleaning required",
+      status: "done",
+      detail: `Bed ${admission.bed.bedNumber} → cleaning_required`,
+      at: nowISO(),
+    });
     await createTask({
       hospitalId: ctx.hospitalId,
       title: `Clean bed ${admission.bed.bedNumber} (${admission.bed.wardId ? "" : ""}post-discharge)`,
@@ -154,9 +185,19 @@ async function runDischargeConfirmed(ctx: AutomationCtx): Promise<StepLog[]> {
       sourceModule: "automations",
       relatedId: admission.bed.id,
     });
-    steps.push({ name: "Create cleaning task for facilities team", status: "done", detail: "45-min SLA", at: nowISO() });
+    steps.push({
+      name: "Create cleaning task for facilities team",
+      status: "done",
+      detail: "45-min SLA",
+      at: nowISO(),
+    });
   } else {
-    steps.push({ name: "Bed lifecycle", status: "skipped", detail: "No bed attached to admission", at: nowISO() });
+    steps.push({
+      name: "Bed lifecycle",
+      status: "skipped",
+      detail: "No bed attached to admission",
+      at: nowISO(),
+    });
   }
 
   // 2. Pharmacy — discharge meds
@@ -173,7 +214,12 @@ async function runDischargeConfirmed(ctx: AutomationCtx): Promise<StepLog[]> {
     reason: "Discharge medication readiness prevents discharge delays",
     sourceModule: "automations",
   });
-  steps.push({ name: "Notify pharmacy to prepare discharge meds", status: "done", detail: "60-min SLA", at: nowISO() });
+  steps.push({
+    name: "Notify pharmacy to prepare discharge meds",
+    status: "done",
+    detail: "60-min SLA",
+    at: nowISO(),
+  });
 
   // 3. Billing — finalize invoice
   await createTask({
@@ -189,7 +235,12 @@ async function runDischargeConfirmed(ctx: AutomationCtx): Promise<StepLog[]> {
     reason: "Revenue cycle: charges must be reconciled before claim submission",
     sourceModule: "automations",
   });
-  steps.push({ name: "Notify billing to finalize invoice", status: "done", detail: "Includes insurance claim docs", at: nowISO() });
+  steps.push({
+    name: "Notify billing to finalize invoice",
+    status: "done",
+    detail: "Includes insurance claim docs",
+    at: nowISO(),
+  });
 
   // 4. Follow-up appointment + 48h check
   await createTask({
@@ -205,7 +256,12 @@ async function runDischargeConfirmed(ctx: AutomationCtx): Promise<StepLog[]> {
     reason: "Follow-up within 7 days reduces readmission risk",
     sourceModule: "automations",
   });
-  steps.push({ name: "Create follow-up scheduling task", status: "done", detail: "Target: within 7 days", at: nowISO() });
+  steps.push({
+    name: "Create follow-up scheduling task",
+    status: "done",
+    detail: "Target: within 7 days",
+    at: nowISO(),
+  });
 
   await createTask({
     hospitalId: ctx.hospitalId,
@@ -220,7 +276,12 @@ async function runDischargeConfirmed(ctx: AutomationCtx): Promise<StepLog[]> {
     reason: "Early post-discharge contact detects deterioration",
     sourceModule: "automations",
   });
-  steps.push({ name: "Create 48-hour follow-up task", status: "done", detail: "Escalates if incomplete", at: nowISO() });
+  steps.push({
+    name: "Create 48-hour follow-up task",
+    status: "done",
+    detail: "Escalates if incomplete",
+    at: nowISO(),
+  });
 
   // 5. Patient + caregiver message
   await postMessage(
@@ -229,17 +290,25 @@ async function runDischargeConfirmed(ctx: AutomationCtx): Promise<StepLog[]> {
     "Nexura Automation",
     "system",
     `Discharge confirmed for ${who}. Care instructions and medications are in your portal. A follow-up will be scheduled within 7 days.`,
-    ctx.patientId
+    ctx.patientId,
   );
-  steps.push({ name: "Notify patient & approved caregiver", status: "done", detail: "Portal message sent", at: nowISO() });
+  steps.push({
+    name: "Notify patient & approved caregiver",
+    status: "done",
+    detail: "Portal message sent",
+    at: nowISO(),
+  });
 
   return steps;
 }
 
 async function runBedReady(ctx: AutomationCtx): Promise<StepLog[]> {
   const steps: StepLog[] = [];
-  const bed = ctx.relatedId ? await db.hospitalBed.findUnique({ where: { id: ctx.relatedId } }) : null;
-  if (!bed) return [{ name: "Locate bed", status: "skipped", detail: "Bed not found", at: nowISO() }];
+  const bed = ctx.relatedId
+    ? await db.hospitalBed.findUnique({ where: { id: ctx.relatedId } })
+    : null;
+  if (!bed)
+    return [{ name: "Locate bed", status: "skipped", detail: "Bed not found", at: nowISO() }];
   await createTask({
     hospitalId: ctx.hospitalId,
     title: `Bed ${bed.bedNumber} ready — assign next patient`,
@@ -252,7 +321,12 @@ async function runBedReady(ctx: AutomationCtx): Promise<StepLog[]> {
     relatedId: bed.id,
     dueMinutes: 30,
   });
-  steps.push({ name: "Notify bed management to assign next patient", status: "done", detail: `Bed ${bed.bedNumber} is ready`, at: nowISO() });
+  steps.push({
+    name: "Notify bed management to assign next patient",
+    status: "done",
+    detail: `Bed ${bed.bedNumber} is ready`,
+    at: nowISO(),
+  });
   return steps;
 }
 
@@ -272,11 +346,19 @@ async function runOrderCreated(ctx: AutomationCtx): Promise<StepLog[]> {
       patientUhid: ctx.patientUhid,
       location: String(ctx.detail?.location || ""),
       dueMinutes: priority === "stat" ? 10 : priority === "urgent" ? 30 : 90,
-      reason: priority === "stat" ? "STAT order — collection within 10 minutes" : "Standard specimen collection SLA",
+      reason:
+        priority === "stat"
+          ? "STAT order — collection within 10 minutes"
+          : "Standard specimen collection SLA",
       sourceModule: "lab",
       relatedId: ctx.relatedId,
     });
-    steps.push({ name: "Queue specimen collection", status: "done", detail: `Priority: ${priority}`, at: nowISO() });
+    steps.push({
+      name: "Queue specimen collection",
+      status: "done",
+      detail: `Priority: ${priority}`,
+      at: nowISO(),
+    });
   }
   if (orderType === "medication") {
     await createTask({
@@ -293,7 +375,12 @@ async function runOrderCreated(ctx: AutomationCtx): Promise<StepLog[]> {
       sourceModule: "pharmacy",
       relatedId: ctx.relatedId,
     });
-    steps.push({ name: "Queue pharmacist verification", status: "done", detail: "Interaction & dose check", at: nowISO() });
+    steps.push({
+      name: "Queue pharmacist verification",
+      status: "done",
+      detail: "Interaction & dose check",
+      at: nowISO(),
+    });
   }
   if (orderType === "imaging") {
     await createTask({
@@ -310,7 +397,12 @@ async function runOrderCreated(ctx: AutomationCtx): Promise<StepLog[]> {
       sourceModule: "orders",
       relatedId: ctx.relatedId,
     });
-    steps.push({ name: "Add to imaging worklist", status: "done", detail: "Prep + transport task created", at: nowISO() });
+    steps.push({
+      name: "Add to imaging worklist",
+      status: "done",
+      detail: "Prep + transport task created",
+      at: nowISO(),
+    });
   }
   return steps;
 }
@@ -331,7 +423,12 @@ async function runAppointmentCreated(ctx: AutomationCtx): Promise<StepLog[]> {
     sourceModule: "automations",
     relatedId: ctx.relatedId,
   });
-  steps.push({ name: "Queue appointment reminder", status: "done", detail: "SMS + portal", at: nowISO() });
+  steps.push({
+    name: "Queue appointment reminder",
+    status: "done",
+    detail: "SMS + portal",
+    at: nowISO(),
+  });
   await createTask({
     hospitalId: ctx.hospitalId,
     title: `Pre-visit prep & digital forms — ${who}`,
@@ -345,7 +442,12 @@ async function runAppointmentCreated(ctx: AutomationCtx): Promise<StepLog[]> {
     sourceModule: "automations",
     relatedId: ctx.relatedId,
   });
-  steps.push({ name: "Queue digital pre-registration", status: "done", detail: "Forms sent to patient portal", at: nowISO() });
+  steps.push({
+    name: "Queue digital pre-registration",
+    status: "done",
+    detail: "Forms sent to patient portal",
+    at: nowISO(),
+  });
   return steps;
 }
 

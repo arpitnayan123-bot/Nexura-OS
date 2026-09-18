@@ -27,7 +27,10 @@ describe("prisma schema", () => {
     expect(entries.length).toBeGreaterThan(0);
     for (const entry of entries) {
       if (entry === "migration_lock.toml") continue;
-      expect(existsSync(join(migrationsDir, entry, "migration.sql")), `migration ${entry} has migration.sql`).toBe(true);
+      expect(
+        existsSync(join(migrationsDir, entry, "migration.sql")),
+        `migration ${entry} has migration.sql`,
+      ).toBe(true);
     }
   });
 
