@@ -966,3 +966,19 @@ Work Log:
 - Sandbox preview re-synced to the pushed tree; guardian rebuilt 13:22, homepage + Hospital OS demo login re-verified in browser
 
 Gates at v1.2.0 (local + CI): prettier --check ALL GREEN · eslint 0 · tsc 0 · vitest 345/345 · CI #39 success
+
+---
+## Session 2026-09-18 — publish finalization + lock verification (user request)
+
+Work Log:
+- User asked: make the publish link workable, commit everything so no rollback can happen, confirm the GitHub repo upgrade in chat (English)
+- App verified serving: HTTP 200 on :3000, check-preview-health HEALTH: OK (22/22 static assets 200) — production build via nx-guardian, no dev-mode impostors
+- Git verified: working tree clean, main == origin/main @ 0845c5d, zero ahead/behind, no stashes, branch inventory main-only
+- GitHub-side verified via authenticated API: description + 14 topics live, releases v1.0.0 / v1.1.0 / v1.2.0 live, CI run #40 on 0845c5d completed success (green badge at HEAD)
+- Complete tool called to finalize web delivery so the platform publish/preview link resolves to the running app
+- Preview hardening still in force from prior sessions: CSP frame-ancestors *.space-z.ai/*.z.ai, allowedDevOrigins, HTML no-store, production-serve guardian
+
+Stage Summary:
+- Publish state locked: app healthy + repo synced + CI green + Complete called; user instructed to use the platform preview/publish entry to open the live app
+- Everything committed and on GitHub — rollback-safe: any sandbox reset re-syncs from origin/main
+
