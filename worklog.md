@@ -12,6 +12,7 @@ Agent: main (Super Z)
 Task: Repo first-impression cleanup (backend-hardening item 4) — worklog archive, artifact untracking, PRODUCTION_STATUS.md, verified dead-code removal
 
 Work Log:
+
 - Archived the 460KB session history to docs/worklog-archive/worklog-2026-session.md (git mv — history preserved); this file is now the slim active log
 - Untracked generated artifacts (kept on disk, now gitignored): download/ (27 files, 12MB — was tracked despite the ignore rule), logs/ (12 files, 6.2MB — ignore rule ADDED), db/backups/ (2 old SQLite dumps — ignore rule ADDED, *.dump too); investor-deck.pdf/html untracked and moved into download/
 - Deleted verified-dead code: mini-services/ (empty .gitkeep husk), examples/websocket/ (2 files, zero references), src/components/nx/os/calendar-pop.tsx + quick-settings.tsx (zero importers — verified by registry + repo-wide rg), tests/{python-runtime-build,python-runtime-container,database-runtime-build}.sh (unwired sandbox harnesses; tests/api-smoke.sh KEPT — live in package.json + CI, and tests/unit/** is the 252-test suite)
@@ -20,15 +21,18 @@ Work Log:
 - Verify: tsc 0, eslint 0, vitest 252/252, DEPLOY VERIFIED
 
 Stage Summary:
+
 - Repo root now reads clean for a technical reviewer: code + docs + config, no stray gigabytes, no contradictory claims
 - Tag: repo-hygiene-2-final (name repo-hygiene-1-final was already taken by a 2026-09-14 worklog chore — see git tag); dual bundles refreshed after commit
 
 ---
+
 Task ID: test-coverage-1
 Agent: main (Super Z)
 Task: Extend coverage to the Postgres/Redis-hardened surfaces + CI gets real services (backend-hardening item 5)
 
 Work Log:
+
 - 4 new test files (252 → 268 tests): schema-postgres.test.ts (provider guard + migrations-history ship check + no-enum/Json design pin), env-validation.test.ts (assertProductionEnv: dev no-op, lists all missing vars, rejects sqlite URLs + short secrets, passes complete env), rate-limit.test.ts (shared-window drawdown across consumers, peek non-consuming, fallback contract without REDIS_URL), bus-signature.test.ts (HMAC sign/verify, tamper+seq+missing-sig rejection, cross-instance round-trip, per-hospital key determinism, tenant isolation under Redis mode)
 - CI (.github/workflows/ci.yml): postgres:17 + redis:7 SERVICE CONTAINERS; verify job runs prisma migrate deploy (replacing sqlite db:push) + vitest + seeds + API smoke against the REAL services; build job uses a postgres dummy URL; REDIS_URL set job-wide
 - Live-tuning caught by the new tests: ioredis enableOfflineQueue:false threw "Stream isn't writeable" for commands issued during the initial CONNECT window (this also explains the PIE boot-race error seen in stateless-1) → offline queue enabled with maxRetriesPerRequest:2 + connectTimeout 5s: commands during CONNECT wait for ready; a truly dead Redis still rejects fast
@@ -36,30 +40,36 @@ Work Log:
 - Verify: tsc 0, eslint 0, vitest 268/268 (21 files), DEPLOY VERIFIED
 
 Stage Summary:
+
 - The migration surfaces (Postgres semantics, Redis limiter, bus signatures, env gate, schema provider) are all under test; CI now proves them against real Postgres+Redis on every push
 - Tag: test-coverage-1-final; dual bundles refreshed after commit
 
 ---
+
 Task ID: hardening-final-sweep
 Agent: main (Super Z)
 Task: End-to-end verification of the full backend production-hardening pass
 
 Work Log:
+
 - Full CI gate green: bunx prisma validate OK, tsc --noEmit 0, eslint 0, vitest 268/268 (21 files), api smoke (58/58 baseline preserved), DEPLOY VERIFIED
 - Real-browser E2E on the Postgres+Redis stack: homepage (zero errors/console), hospital demo login → focused console (labeled rail, badges, 6 unread notifications), Work Queue module rendering real Postgres-backed tasks, /clinic/book/rao-clinic (regression target of booking-fix-1) fully data-driven with doctors + slots
 - Datastore proof: redis pubsub channels shows nx:bus LIVE (relay armed); pg_stat_activity 10 app connections; /api/ready {database ok, seed ok}
 - Deliverable state: clone → cp .env.example .env → fill DATABASE_URL/JWT_SECRET/REDIS_URL → npx prisma migrate deploy → run. No SQLite fallback, no in-memory business state outside the documented excluded surfaces, no contradictory docs, no generated artifacts in git
 
 Stage Summary:
+
 - Milestones: pg-migration-1 → pg-semantics-1 → stateless-1 → env-config-1 → repo-hygiene-2 → test-coverage-1 (tags -final each)
 - Tests 252 → 268; CI now exercises real Postgres + Redis services
 
 ---
+
 Task ID: arch-1a
 Agent: sub-agent (general-purpose)
 Task: Sweep findFirst fallbacks fail-closed — replace every `session.hospitalId || (await db.hospital.findFirst())?.id` cross-tenant fallback in src/app/api/nx with requireHospitalContext()
 
 Work Log:
+
 - 16 route files changed (28 fallback sites + supply PATCH write hole): ed, patients, incidents (GET+POST), beds, labs, encounters (GET+POST — admission+bed $transaction untouched, only the hospitalId resolution line replaced), messages (GET+POST, session variable shape), automations (GET+POST), or, billing, overview, schedule (GET+POST), orders (GET+POST), audit, analytics, supply (GET standard; PATCH special)
 - Each site now resolves hospitalId via `requireHospitalContext(gate.session|session)` and returns the ready-made 403 no_hospital_context response on the `"response" in hospitalCtx` branch; DEMO_MODE single-hospital fallback stays centralized in the helper
 - Imports: extended the existing `@/lib/nx/api` imports in messages (`fail, requireHospitalContext, withRoute`) and analytics (`requireHospitalContext, toCsv`); added a fresh `@/lib/nx/api` import line to the other 14 files (all still use `db`, so no import removals anywhere)
@@ -69,16 +79,18 @@ Work Log:
 - Verify: rg 'hospital\.findFirst\(\)' src/app/api → ZERO matches (helper's internal one lives in src/lib/nx/api.ts; src/lib/hospital-context.ts left for the other agent); npx tsc --noEmit → 0 errors (not even the stale .next/types one); bun run lint → 0 errors; npx vitest run → 268/268 (21 files)
 
 Stage Summary:
+
 - Production sessions without a hospital claim now fail closed with 403 no_hospital_context on every hospital-scoped nx route instead of silently binding to the first hospital's data; DEMO_MODE keeps the documented single-hospital fallback
 - 16 files, +98/-29 lines, no response-shape or transaction changes; supply PATCH is now tenant-scoped end-to-end (fetch, write, audit)
 
-
 ---
+
 Task ID: arch-1b
 Agent: sub-agent (general-purpose)
 Task: Fix verified IDOR / authorization gaps (16 files) — ABAC update scope, wearable pairing ownership, PIE protocol list/actor spoofing, radar hospital binding, search directory self-scope, offline-sync write authz, Connect list party checks + doctorOnly, step-up brute-force cap, telemedicine ts-nocheck + PATCH clinic scope, notes existence leak, portal booking status whitelist, MFA-disable second factor, error-collector IP spoofing, diy guest cookie secure flag
 
 Work Log:
+
 - abac/route.ts POST: update-by-id now scoped — `updateMany({ where: { id, hospitalId } })` + 404 on count===0 + scoped re-fetch (success body preserved; mirrors the DELETE pattern that already carried hospitalId)
 - wearables/pair/route.ts: requireHospitalContext() replaces nothing (file had no fallback but never checked ownership); device fetch now rejects `device.hospitalId !== session hospital` with the same unknown_device 404 — rotating another hospital's ingest secret was a cross-tenant secret takeover
 - predict/protocols/route.ts: global protocol list is now hospital-scoped — patients batch-fetched WITH hospitalId, non-platform sessions get only protocols whose patient is in-hospital, labels resolved exclusively from that in-hospital map (PieProtocol has no hospital relation, so the join is the boundary); requireHospitalContext for the hospital
@@ -98,16 +110,19 @@ Work Log:
 - Verify: npx tsc --noEmit → 0 errors; bun run lint → 0 errors; npx vitest run → 268/268 (21 files); `env -u DATABASE_URL npx prisma validate` → valid (the sandbox shell exports a stale file: DATABASE_URL that the CLI picks up — not a repo issue)
 
 Stage Summary:
+
 - Every fix carries a boundary comment; production fails closed, DEMO_MODE keeps its documented permissive postures (connect party checks, clinic-only findFirst in helpers) — no response-shape changes for existing clients; approveProtocol/rejectProtocol audit attribution now comes from the signed session
 - Deliberately NOT changed: connect/queue PATCH (task scoped the GET filter), the `where: any` casts in connect routes (pre-existing, outside fix scope), patients/route.ts findFirst fallback (arch-1a's file), openapi protocol sample still listing approvedBy (docs-only, left for its owner)
 - Note: an automated `checkpoint(auto)` snapshot committed the in-flight worktree (my + arch-1a's edits) mid-session — no manual commit made; schema addition needs `npx prisma migrate deploy` on existing environments
 
 ---
+
 Task ID: arch-m1
 Agent: sub-agent (general-purpose)
 Task: One Prisma migration upgrading DB integrity — ProductBatch batch identity unique (+dedupe), 30 FK back-indexes, audit-chain onDelete Restrict ×3, NxEventLog aggregate-seq unique (+resequence), HospitalAppointment partial unique double-booking guard (+dedupe)
 
 Work Log:
+
 - Migration file: prisma/migrations/20260918000000_integrity_indexes_batch_identity/migration.sql (271 lines). migrate dev is hard-blocked in this non-interactive sandbox (refuses before prompting), so the exact Prisma-diff SQL was produced via `prisma migrate diff --from-migrations --to-schema-datamodel --shadow-database-url --script` (byte-identical to what migrate dev generates), the data-repair SQL was prepended, and it was applied with `npx prisma migrate deploy` — deploy cannot drift-reset, data survived untouched (pb 16, appointments 15, sales 3 — pre==post)
 - A. ProductBatch: +`@@unique([branchId, productId, batchNo])` (Prisma default name `ProductBatch_branchId_productId_batchNo_key` — client-level compound key `branchId_productId_batchNo` is field-based, so the purchases upsert needed no map). Migration prepends a CTE (dup_groups → loser_sums → fold UPDATE keeper += Σ loser stockStrips/stockLoose → DELETE losers, RETURNING count) before the index
 - B. FK indexes added (30): HospitalAdmission admittingDoctorId/wardId (bedId existed), HospitalVital appointmentId/recordedByStaffId, ClinicalNote appointmentId/doctorId, HospitalOrder admissionId/appointmentId/orderingDoctorId, LabResult reportedByStaffId, HospitalPrescription prescribingDoctorId, HospitalBill admissionId/appointmentId, InsuranceClaim admissionId, OTSurgery patientId/admissionId/surgeonId/anesthetistId, Sale customerId/staffId, SaleItem batchId, PurchaseItem productId, PortalUser familyHeadId, NxVerifiableCredential/NxWearableDevice/NxGenomicProfile/NxAiFeedback/NxDicomStudy/NxJourneyAnnotation hospitalId, NxShiftAssignment staffUserId, NxPathwayRun defId. Skipped as already index-covered (leading column of an existing unique/index — Postgres FK/cascade paths are served): HospitalBed.wardId (uniq wardId,bedNumber), NxTimestampBlock.hospitalId (uniq hospitalId,index), NxAiThreshold.hospitalId (uniq hospitalId,feature), NxChannelMember.channelId (uniq channelId,userId), NxMessageRead.messageId (uniq messageId,userId), NxUserPrefs.userId (@unique). NxAppointment does not exist; HospitalAppointment already had doctorId + date indexes
@@ -119,15 +134,18 @@ Work Log:
 - Note: automated checkpoint(auto) snapshotted the worktree mid-session (no manual commit made)
 
 Stage Summary:
+
 - Live schema is now integrity-hardened: pharmacy batch identity is race-proof (with self-healing dedupe for older environments), every FK column backs its list/filter/cascade path with an index, hospitals can no longer cascade-delete their audit/timestamp/event chains, NxEventLog per-aggregate streams are unique-ordered, and double-booking a doctor's exact active slot is now impossible at the DB level
 - Deploy note for other environments: `npx prisma migrate deploy` applies the batch dedupe / seq resequence / double-booking cancel deterministically before the uniques land — no manual data surgery required
 
 ---
+
 Task ID: arch-api-1a
 Agent: sub-agent (general-purpose)
 Task: Sanitize err.message leaks in API routes — every catch that returned `detail: <raw err.message>` in clinic/pharmacy/connect/portal (except portal/auth)/know-your-health/assistant/global/appointments now logs server-side and returns an operation-specific user-safe sentence; console.* in those route files converted to the structured logger; silent swallowing catches given log visibility
 
 Work Log:
+
 - 59 route files changed across the 8 assigned modules; 67 client-facing `detail: message` leak sites fixed (clinic 18, pharmacy 20, connect 12, know-your-health 16, assistant 1) — each now: `log.error("<subsystem>", "<event>_failed", { err: err instanceof Error ? err.message : String(err) })` + SAME error code + SAME HTTP status + short user-safe detail (e.g. "The consultation could not be updated. Please retry."), no Prisma/connection/table words
 - Already-correct sites left byte-identical: clinic/booking (2), pharmacy/purchases POST + returns POST + billing sale (log.error + safe detail already), appointments POST (log.error + server_error), portal/auth (DO-NOT-TOUCH, untouched)
 - console.* conversion (item 2): 7 sites in portal — family POST, family/invite/accept POST, ai-interpret outer + LLM-fallback (→ log.warn, degrades to rule-based), dashboard GET, blood-bookings POST+PATCH; no other console.* existed in the scoped routes (verified by rg)
@@ -136,15 +154,18 @@ Work Log:
 - Verify: npx tsc --noEmit → 0 errors; bun run lint → 0 errors; npx vitest run → 268/268 (21 files); rg audit: `detail: message`/`detail: e.message` → ZERO matches in the 8 modules; console.(log|error|warn|info) → ZERO matches in the 8 modules; every remaining `instanceof Error` hit (63 lines incl. portal/auth) is inside a log.* meta object — zero client-facing detail usages
 
 Stage Summary:
+
 - Client error bodies in the product-facing API surface no longer carry internal error strings (Prisma/SDK messages with connection or schema detail can't leak); the real cause goes to the PHI-redacting structured logger, frontends keep matching on the unchanged error codes/statuses
 - 59 files, +151/-105 lines (shared worktree with the concurrent nx/** agent); no manual git commit made
 
 ---
+
 Task ID: arch-api-1b
 Agent: sub-agent (general-purpose)
 Task: Wrap every legacy bare nx/diy/misc route handler in the canonical `withRoute` wrapper (src/lib/nx/api.ts) so unexpected throws become safe JSON 500 `fail("internal")` instead of Next's HTML 500 — without changing any response body, status, or guard logic
 
 Work Log:
+
 - 39 route files wrapped (64 exported handlers; 5 carry the dynamic generic, e.g. `withRoute<{ id: string }>`): every `export async function VERB(...)` became `export const VERB = withRoute("name", async (...) => { ...body byte-identical... })`; module-scoped lowercase dot names unique per method (full list below)
 - nx modules (16 files): encounters (nx.encounters.list/create/transition), ed (nx.ed.board/triage), overview (nx.overview.command-center), patients (nx.patients.list), patients/[id] (withRoute<{id:string}> nx.patients.detail), schedule (nx.schedule.list/book/transition), beds (nx.beds.board/lifecycle/reserve), labs (nx.labs.queue/result), orders (nx.orders.list/create/transition), billing (nx.billing.revenue), analytics (nx.analytics.metrics), incidents (nx.incidents.list/report/transition), supply (nx.supply.inventory/adjust), pharmacy (nx.pharmacy.queue/dispense), or (nx.or.schedule/update), automations (nx.automations.list/toggle/testfire)
 - nx misc (8 files): ai (nx.ai.run — its inner try/catch safe-500 kept, withRoute wraps it), audit (nx.audit.trail), foresight/data (nx.foresight.data.wipe), foresight/history (nx.foresight.history), foresight/run (nx.foresight.run), foresight/run/[id] (withRoute<{id:string}> nx.foresight.run.detail), openapi (nx.openapi), workspace (nx.workspace.role)
@@ -156,16 +177,18 @@ Work Log:
 - Verify: npx tsc --noEmit → 0 errors; bun run lint → 0 errors; npx vitest run → 268/268 (21 files); residue check `rg -l withRoute` complement over src/app/api/nx → only the 3 documented skips remain
 
 Stage Summary:
+
 - Every remaining legacy nx/diy/misc handler now sits behind the canonical wrapper: correlation ID reuse, default 300/min/IP rate limit, one structured latency+status log line, x-request-id response header, and uncaught exceptions return JSON `fail("internal", 500)` — successful and guarded-error responses are byte-identical to before
 - 39 files, +169/-105 lines; no response-shape, status, or guard changes; next agent should re-verify with a fresh `npx vitest run` after the concurrent tests/ edits land
 
-
 ---
+
 Task ID: arch-ai-1
 Agent: sub-agent (general-purpose)
 Task: Rewire the six routes that bypassed the canonical AI client (src/lib/openrouter.ts) by importing z-ai-web-dev-sdk directly — all text/vision LLM calls now flow through the canonical client; contracts, auth (aiGate/withProductAuth), validation, rate limiting, and fallback behaviors untouched
 
 Work Log:
+
 - openrouter.ts: two new exports alongside runText/runVision, both reusing the private callOR helper (same provider order, one-shot z-ai fallback, 45s timeout): runChatText(messages: {role: "user"|"assistant"|"system"; content: string}[]) → raw string, multi-turn passthrough (callZAI's system→assistant mapping applies on the SDK path, so the SDK sees the exact same roles the routes used to send); runTextRaw(prompt, systemInstruction?) → raw string with no parseJson, for prose/markdown outputs. Header comment now documents the ASR capability gap
 - assistant: multi-turn conversation preserved via runChatText([{role:"system",content:SYSTEM_PROMPT}, ...conversation]) — the SDK convention of sending the system prompt as role "assistant" becomes a proper "system" (mapped back to "assistant" by callZAI, identical SDK behavior); route keeps its own .trim() + empty-check 502
 - pharmacy/ai-query: DEVIATION from the brief (runText → runTextRaw), reasoned: the route returns free-text prose (2-3 sentences; client reports.tsx renders d.text as a string), so runText's parseJson would throw on every successful answer and 500 the route; runTextRaw keeps { text, query } byte-identical incl. the "No data found" fallback. System string hoisted to a module-level SYSTEM_PROMPT verbatim
@@ -176,16 +199,19 @@ Work Log:
 - Verify: rg -n "z-ai-web-dev-sdk" src/app/api → 2 matches: voice-bill:44 (ASR import, intentionally kept) + voice-soap:70 (response string literal, kept per no-body-change rule); npx tsc --noEmit → 0 errors; bun run lint → 0 errors; npx vitest run → 268/268 (21 files)
 
 Stage Summary:
+
 - Every text/vision LLM call in the product API now goes through the canonical client (OpenRouter when keyed, z-ai SDK otherwise, one-shot fallback, 45s bound); the sole remaining direct-SDK call is voice-bill's ASR, a documented capability gap
 - Two new client exports: runChatText (multi-turn raw) + runTextRaw (single-prompt raw); no response-shape changes for any client; one reasoned deviation (ai-query uses runTextRaw instead of runText — prose route, JSON parse would break it)
 - 6 routes + openrouter.ts touched; no manual git commit made
 
 ---
+
 Task ID: arch-demo-1
 Agent: sub-agent (general-purpose)
 Task: Production guard on every demo seed script + symptom-triage honesty label + DEMO_CREDENTIALS.md reset-claim truthing
 
 Work Log:
+
 - Seed guard (job 1): inserted the verbatim SEED_DEMO_OVERRIDE guard (comment + NODE_ENV=production check + console.error + process.exit(1)) immediately after the last import of every demo seed script — 16 files total: the 11 that literally match `scripts/seed-*.ts` (seed-nx, seed-nx-v4, seed-nx-v5, seed-chronic, seed-clinic-drugs, seed-pie, seed-hospital-bootstrap, seed-tourism, seed-pharmacy-compliance, seed-portal, seed-connect) PLUS the 5 legacy seeds under scripts/legacy/ (seed-clinic, seed-hms, seed-hospital, seed-pharmacy, seed-india) — legacy included deliberately: they are still live members of the demo seeding chain (seed-nx.ts/seed-nx-v4.ts tell the operator to run scripts/seed-hospital.ts, which only exists in legacy/), and scripts/legacy/ is excluded from tsc so only runtime verification covers them. All 16 headers confirm demo/synthetic data (demo passwords, NX-DEMO-* uhids, synthetic catalog) — no reference/essential-data seed exists, so no special-comment variant was needed. Placement: after imports, before `const db = new PrismaClient()` / first code, so a refusal exits before any DB use (files importing `{ db } from "@/lib/db"` still exit before any query — PrismaClient is lazy)
 - Verified: `rg -c "SEED_DEMO_OVERRIDE" scripts/` → 16 files × 2 matches (condition + message); runtime smoke `NODE_ENV=production SEED_DEMO_OVERRIDE= bun <seed>` → exit 1 + refusal stderr for ALL 16 (also proves legacy files still parse); dev proof: `. ./.env && NODE_ENV=development bun scripts/seed-nx-v4.ts` → guard silent, idempotent re-run completed exit 0 ("seed v4 complete: staff 21, departments 8, …" into the local demo DB)
 - symptom-triage (job 2): source string is now `demo-keyword-triage (not a clinical triage engine — 5-keyword demo table)` and the demo-heuristic comment sits directly above the hardcoded TRIAGE table (route file keeps its single-line style otherwise untouched; response shape identical). Frontend caller check: the ONLY caller is SymptomTriageModule in src/components/clinic/clinic-modules-extra.tsx (fetch at :24) — it renders `Source: {result.source || "Infermedica-inspired, adapted for India"}` as plain text (:120) with NO parsing of the string, so the longer label renders safely; note its hardcoded fallback text still shows the old wording when source is absent (harmless — route always sends source; left untouched as frontend was read-only for this job). Other `result.source` reads in that file (:231, :497) belong to similar-patients/lab-interpretation components, not this endpoint
@@ -193,16 +219,19 @@ Work Log:
 - Verify: npx tsc --noEmit → 0 errors; bun run lint → 0 errors; npx vitest run → 268/268 (21 files); no manual git commit
 
 Stage Summary:
+
 - Demo seed scripts can no longer touch a production database by accident: all 16 seeds refuse with exit 1 under NODE_ENV=production unless SEED_DEMO_OVERRIDE=true is passed explicitly, and dev/demo workflows are unchanged (guard silent, idempotent seeds still run clean)
 - The symptom-triage endpoint now honestly labels itself as a 5-keyword demo table (frontend renders it verbatim as text — no parsing), and DEMO_CREDENTIALS.md no longer advertises a nonexistent demo.reset endpoint
 - 18 files changed: 16 seed scripts (+11 lines each), src/app/api/clinic/symptom-triage/route.ts (comment + source string), docs/DEMO_CREDENTIALS.md (reset claim only)
 
 ---
+
 Task ID: architecture-hardening-final
 Agent: main (Super Z)
 Task: 20-phase Principal Architect audit → refactor program (P0→P10): full-repo audit, security fixes, transaction/concurrency safety, API standardization, AI honesty, demo boundaries, docs
 
 Work Log:
+
 - Phase 1-3: four parallel deep audits (auth/security, API consistency, data/transactions, AI/demo/tests/docs) with file:line evidence; findings synthesized into the execution plan
 - arch-security-1: requireHospitalContext fail-closed (23 cross-tenant findFirst fallbacks eliminated; DEMO_MODE fallback documented); withRoute limiter keyed on ipOf (rightmost XFF — spoofable first-entry key fixed); guard() ctx enforcement real (patientInScope + patient self-scope + department match); legacy /api/auth route + dead auth/middleware.ts deleted (unmanaged unrevocable-token login path, zero frontend callers verified); verifyToken rejects refresh/service token families; 16 IDOR fixes incl. supply PATCH, abac update, wearable pairing, predict protocols/radar, search self-scope, offline-sync write perms, connect party checks, stepup attempt cap, telemedicine clinic scope (+ discovered/added missing TelemedicineConsult model + migration — route would have 500'd on every call), notes 404-oracle, blood-booking status allowlist, MFA-disable second factor, diy guest cookie NODE_ENV-secure
 - arch-transactions-1: pharmacy billing = single $transaction with conditional stock decrements + InsufficientStockError → 422 + invoiceNo P2002 retry (3 attempts) + zod bounds (unbounded discountPct/garbage quantities closed); purchases transactional (batch-identity upsert) + zod; returns transactional with sufficiency guard; MAR compare-and-set (no double-administration of controlled doses); supply procurement CAS in tx (lost updates closed, 409 stock_conflict); billing/v2 payment + bill-status recompute atomic + callerId-scoped idempotency; offline/sync keys caller-scoped; schedule booking P2002 → 409 (backed by partial unique index); clinic booking accept claim-flip with rollback; beds lifecycle/reserve CAS; discharge admission+bed-release atomic; NxJob stale-claim reaper (10 min, no attempt penalty)
@@ -215,17 +244,20 @@ Work Log:
 - EXCLUDED SURFACES UNTOUCHED: src/app/api/portal/auth/route.ts (OTP), payment-gateway integrations (none exist in repo; NxPayment ledger logic is internal, not a gateway)
 
 Stage Summary:
+
 - Full CI gate green: prisma validate OK, tsc 0, eslint 0, vitest 280/280 (22 files), api smoke 46/46 (full script check count, 0 fail), DEPLOY VERIFIED build UHlnKJToEmYAAtQYBP-z6
 - Real-browser E2E: homepage / hospital demo-doctor console (Command Center + Work Queue live) / pharmacy billing + inventory / clinic booking (doctors + slots) — zero page errors, product behavior preserved
 - Remaining known gaps (honest): legacy pharmacy/clinic money columns still Float rupees (Nx layer is integer-paise) — documented migration path in ARCHITECTURE.md §5; withRoute default limiter is per-instance in front of the Redis limiter; cost/token accounting does not exist in AI telemetry (stated honestly); consent has no self-service granting UI yet (operational step)
 - Tag: architecture-hardening-1-final; dual bundles refreshed after commit
 
 ---
+
 Task ID: final-recheck-1
 Agent: main (Super Z)
 Task: Final recheck of the 20-phase prompt after the 2026-09-16 18:13 platform reset; restore wiped datastores/env; deliver the 13-section engineering report
 
 Work Log:
+
 - Found 7 vitest failures (job-runner 4, hardening idempotency 3) - ALL PrismaClientInitializationError, zero code regressions (worktree clean at 2ebe70b / tag architecture-hardening-1-final)
 - Root cause: platform reset reset .env to the packaged SQLite file: URL (start.sh DEFAULT_PACKAGED_DATABASE_URL), wiped ~/pg-install + ~/pgdata (rootless PG17/Redis8) and the untracked .env.example; guardian had not rebooted :3000
 - Recovery: wrote scripts/install-datastores.sh (apt download + dpkg -x of postgresql-17 17.11 / postgresql-client-17 / redis-server 8.0.2 into ~/pg-install/rootfs, initdb -U nexura at ~/pgdata, start :5432 + :6379, CREATE DATABASE nexura) - 94 debs, binaries verified
@@ -235,15 +267,18 @@ Work Log:
 - Deliverable: download/Nexura-OS-Architecture-Hardening-Report.docx - 13 mandated sections (architecture / major problems / security / database / AI / API / deployment / testing / refactor executed incl. 20-phase completion matrix / files changed / files deliberately kept / remaining risks / next steps), Exec Summary, R1 cover (MC-1), TOC (Roman) + body (Arabic), 5 tables, postcheck 0 errors (2 benign warnings: TOC PageBreak pattern, table-cell line spacing)
 
 Stage Summary:
+
 - The 20-phase program is complete AND survives environment loss: recovery tooling + docs now reproduce a fully green state in minutes
 - Report at download/Nexura-OS-Architecture-Hardening-Report.docx; honest residual gaps unchanged (legacy Float rupees documented, per-instance withRoute default limiter, AI cost accounting absent, consent UI queued, OTP/payment = collaborator surface)
 
 ---
+
 Task ID: lock-1
 Agent: main (Super Z)
 Task: User request — "Everything done, now commit it and lock it"
 
 Work Log:
+
 - Verified tree state: git status clean, no stash, HEAD efb5253 on main (hardening state already committed via 2ebe70b worklog commit + checkpoint/auto commits)
 - Re-ran the FULL CI gate on the exact HEAD before locking (no assumptions): prisma validate OK; tsc --noEmit 0 errors; eslint 0 errors; vitest 280/280 (22 files); tests/api-smoke.sh 46/46 (0 fail); scripts/deploy-preview.sh DEPLOY VERIFIED — :3000 serves latest production build via guardian
 - Confirmed excluded collaborator surfaces untouched: src/app/api/portal/auth/route.ts (OTP) and payment/billing-gateway integrations read-only as mandated
@@ -251,30 +286,36 @@ Work Log:
 - Created annotated tag hardening-locked-final at the lock commit capturing all gate evidence in the tag message
 
 Stage Summary:
+
 - The 20-phase Principal Architect program is committed, gate-verified green on HEAD, and locked under tag hardening-locked-final — the exact tree that passed 280/280 + 46/46 + DEPLOY VERIFIED is now immutably addressable
 - Residual honest gaps (documented, intentionally deferred): legacy Float rupees in pharmacy/clinic, per-instance withRoute default limiter, AI cost/token accounting absent, consent self-service UI queued
 
 ---
+
 Task ID: env-example-1
 Agent: main (Super Z)
 Task: Un-exclude .env.example from git (user-supplied one-line fix) and commit the template
 
 Work Log:
+
 - Confirmed root cause: .gitignore line 34 `.env*` matched both .env.example and .env (git check-ignore -v)
 - Security screen BEFORE tracking: read .env.example end-to-end — all values are placeholders (DATABASE_URL user:pass@host, JWT_SECRET change-me-…, OPENROUTER_API_KEY / NX_INBOUND_WEBHOOK_SECRET empty); zero real secrets; template documents the production boot gate (src/lib/env.ts assertProductionEnv)
 - Applied fix: `!.env.example` added directly after `.env*` (line 35)
 - Verified: .env.example resolves through the negation rule and is staged (A); .env still ignored by line 34; no other ignore semantics touched
 
 Stage Summary:
+
 - Fresh clones now get the env template showing exactly what the production boot gate requires (DATABASE_URL/JWT_SECRET/REDIS_URL) — .env itself remains untracked
 - Non-code change (2 files + worklog): tsc/eslint/vitest unaffected; lock tag hardening-locked-final still marks the verified hardening tree
 
 ---
+
 Task ID: money-paise-1
 Agent: main (Super Z)
 Task: Float→paise migration — legacy pharmacy/clinic money columns to integer paise (branch money-paise-1, off locked main)
 
 Work Log:
+
 - Audited all 97 schema Floats: classified 45 money columns across 18 models (pharmacy: ProductBatch/Sale/SaleItem/Purchase+Item/NearExpiryReturn+Item/DayClosing(11)/SupplierPayment/CustomerAccount/CustomerPayment; clinic: HospitalBill/InsuranceClaim/ClinicInvoice/HospitalDoctor/HospitalMedicine/ClinicDoctor; + NxInsuranceContract 2 cols, zero-usage) vs non-money (vitals, lab ranges, ratings, confidence, Pie signals) vs RATES kept Float deliberately (India 0.25% GST slabs — Int rates would corrupt)
 - schema.prisma: 45 columns Float→Int with // paise comments (Nx convention: plain name, Int, unit comment); defaults @default(0) kept; consultationFee/feeConsult defaults 500→50000
 - Migration 20260919000000_money_columns_to_int_paise: hand-written ALTER...USING round(col::numeric*100)::int (Prisma default cast would truncate without ×100); REHEARSED on scratch DB (pg_dump nexura→nexura_scratch, spot values exact: 203→20300, 767→76700, 500→50000) before live prisma migrate deploy; live DB verified integer
@@ -287,16 +328,19 @@ Work Log:
 - End-to-end live proof: real POS sale INV-2026-0004 (2 strips @ mrp 3060 paise) → DB row {6120, 367, 367, 46, 6900} all integer, wire {61.2, 3.67, 3.67, 0.46, 69} rupees identical to pre-migration display, stock 8→6 via transactional decrement
 
 Stage Summary:
+
 - The last data-engineering gap from the 20-phase report is closed: money is integer paise everywhere, computation is exact, the wire/UI contract is unchanged, and the doc set no longer contradicts itself (KNOWN_LIMITATIONS "integer paise; no floats" now literally true)
 - Two bonus hardening fixes landed with the migration: day-closing mass-assignment hole closed, supplier payment + paidAmount increment made atomic, e-way bill threshold unit bug fixed
 - Honest residuals: tourism display money still Float (documented); NxInsuranceContract Int change is zero-usage schema alignment
 
 ---
+
 Task ID: lock-2
 Agent: main (Super Z)
 Task: Merge money-paise-1 to main, re-verify all gates, commit and lock
 
 Work Log:
+
 - main already carried the migration tip 73c03e9 (platform auto-commit kept main in sync); verified ancestry: e28dfa5 (hardening lock) + be5718f (env-example) + money-paise-1 tip all present; merge no-op, tree clean
 - Platform had re-injected the stale packaged DATABASE_URL (file:custom.db) into the session shell, overriding the correct .env (documented env-precedence trap) — re-sourced .env; Postgres + Redis datastores untouched and healthy
 - Full gate re-run on main @ 73c03e9: prisma validate OK; tsc 0; eslint 0; vitest 280/280 (22 files); api smoke 46/46; scripts/deploy-preview.sh DEPLOY VERIFIED
@@ -304,15 +348,18 @@ Work Log:
 - Appended this entry and created annotated tag money-paise-locked-final at the lock commit
 
 Stage Summary:
+
 - Integer-paise money migration is merged, gate-verified green on main, and locked under tag money-paise-locked-final — the tree that passes all six gates and the live end-to-end sale proof is immutably addressable
 - Honest residual (unchanged): tourism marketing money still Float (public-site display only); AI cost/token accounting is the next deferred item
 
 ---
+
 Task ID: verify-money-lock-1
 Agent: main (Super Z)
 Task: Fresh gate re-verification at lock HEAD ee94cba following user confirmation ("Yes do it and committed")
 
 Work Log:
+
 - Verified lock topology: tag money-paise-locked-final -> ee94cba; 73c03e9..ee94cba diff is worklog.md only (16 lines) — code byte-identical to the smoke-verified migration commit
 - Re-ran gates at exact HEAD ee94cba (honesty discipline: no trust in historical claims): prisma validate OK; tsc --noEmit 0 errors; eslint 0 errors; vitest 280/280 (22 files)
 - Env wiring re-checked: DATABASE_URL -> postgresql://127.0.0.1:5432/nexura (lock-2's stale-packaged-URL trap not present this session)
@@ -321,15 +368,18 @@ Work Log:
 - Committed this entry as the verification record; tag still immutably addresses the verified tree
 
 Stage Summary:
+
 - money-paise-locked-final state independently re-confirmed green at HEAD: migration is done, committed, merged to main, and locked — user request "Yes do it and committed" fully satisfied
 - Remaining deferred items (unchanged, unscheduled): per-instance withRoute default limiter, AI cost/token accounting, consent self-service UI, tourism Float display money
 
 ---
+
 Task ID: ai-cost-metering-1
 Agent: main (Super Z)
 Task: AI cost/token accounting — AiUsageLog ledger + canonical-client instrumentation (branch ai-cost-metering-1)
 
 Work Log:
+
 - Instrumented the ONE funnel: src/lib/openrouter.ts callOR records every AI call on all 4 provider outcomes (z-ai direct, openrouter, fallback success, fallback failure); OpenRouter path now requests usage:{include:true} for provider-reported tokens+cost
 - New src/lib/ai-usage.ts: normalizeProviderUsage (OpenRouter {prompt_tokens,completion_tokens,total_tokens} AND z-ai {tokens} shapes), estimateTokensFromChars (~4 chars/token heuristic), estimateCostMicroUsd — INTEGER micro-USD math (money discipline: no float in the ledger), MODEL_PRICES as CONFIGURATION with conservative default, recordAiUsage fire-and-forget (swallows all errors, truncates errorCode to 200), aiUsageSummary rollup (per-capability/provider, failures, providerReportedCostRows, unknownRows)
 - Honesty model: tokenSource and costSource tracked SEPARATELY (provider | estimated | unknown) — a provider may report exact tokens while cost still comes from the local price table; nothing is guessed silently; NO prompt/completion content stored, metadata only
@@ -343,16 +393,19 @@ Work Log:
 - LIVE PROOF: real pharmacy.ai-query call → ledger row {tokens 86+10=96 provider-reported, costSource estimated 12 micro-USD, latency 331ms, fallback false}; admin rollup endpoint returned correct per-capability aggregation
 
 Stage Summary:
+
 - The AI cost/token accounting gap from the deferred list is closed: every AI call is measured, attributed to its feature, and queryable per capability with honest provider-vs-estimate sourcing
 - z-ai SDK does report usage in practice (tokenSource=provider on the live call) — estimates remain the labeled fallback for shapes where it does not
 - Remaining deferred items: per-instance withRoute default limiter (distributed), consent self-service UI, per-request user-identity attribution on AI rows, tourism Float display money
 
 ---
+
 Task ID: consent-selfservice-1
 Agent: main (Super Z)
 Task: Consent self-service UI — portal Privacy tab + patient-managed consents (branch consent-selfservice-1)
 
 Work Log:
+
 - INSPECTION found a blocking honesty bug: checkAiConsent resolved "latest GRANTED wins" over ai_assist/data_share rows and never looked at withdrawn/denied rows — withdrawing a consent was a NO-OP (the old granted row kept authorizing AI forever). No self-service UI can ship on top of a revocation that does nothing
 - Fixed checkAiConsent to LATEST-EVENT-WINS: newest ai_assist/data_share row decides; granted + not withdrawn + not expired. Grant-after-withdraw works, withdraw-after-grant works (unit-tested both directions against the real ledger)
 - New src/lib/consent.ts: SELF_SERVICE_CONSENT_TYPES (ai_assist, data_share, telemedicine, research — DPDP plain-language purposes; treatment/financial/dhir/genomics deliberately stay staff-recorded with evidence), resolveConsentState (pure, latest-event-wins, expiry-aware), resolveAllConsentStates
@@ -366,30 +419,36 @@ Work Log:
 - Docs: docs/ARCHITECTURE.md §3 updated (latest-event-wins + self-service surface)
 
 Stage Summary:
+
 - The consent self-service UI deferred item is closed: patients can now see and exercise their DPDP rights directly — and revocation is enforced end-to-end (portal → NxConsent ledger → AI governance 403), which was silently broken before
 - Remaining deferred items: per-instance withRoute default limiter (distributed), per-request user-identity attribution on AiUsageLog rows, tourism Float display money
 
 ---
+
 Task ID: consent-lock-1
 Agent: main (Super Z)
 Task: Lock consent self-service work — fresh full-gate re-run at main b7e6766 + lock tag consent-selfservice-locked-final
 
 Work Log:
+
 - Verified merge completeness first: platform auto-checkpoint 6888162 had captured src/app/api/portal/consent/route.ts (132 ln), src/lib/consent.ts (99 ln) and the ai-governance latest-event-wins fix; b7e6766 carried the UI tab, unit tests, smoke check, docs, worklog — nothing stranded, collaborator surfaces (portal/auth, payment/billing-gateway) untouched
 - Fresh full-gate re-run at main b7e6766 (honesty rule: verify before tagging): prisma validate OK; tsc 0; eslint 0; vitest 302/302 (24 files); smoke 49/49 (live server, incl. new portal-consent-no-session 401 check); deploy-preview DEPLOY VERIFIED
 - Confirmed lock sequence lock-1 (hardening e28dfa5) → lock-2 (money ee94cba) → this is lock-3
 
 Stage Summary:
+
 - Consent self-service is locked: patients exercise DPDP rights end-to-end (portal → append-only NxConsent ledger → AI governance 403 on revoke) and revocation is real (latest-event-wins)
 - Tag consent-selfservice-locked-final pins the full tree state incl. AI cost/token metering (ancestor 59cbca3)
 - Remaining deferred items: per-instance withRoute default limiter (distributed), per-request user-identity attribution on AiUsageLog rows, tourism Float display money
 
 ---
+
 Task ID: limiter-distributed-1
 Agent: main (Super Z)
 Task: Deferred closeout A — withRoute default limiter consumes the distributed (Redis) budget when REDIS_URL is configured (branch deferred-closeouts-1)
 
 Work Log:
+
 - Inspection: src/lib/rate-limit.ts already ships the authoritative distributed limiter (Redis INCR+EXPIRE, in-process fallback, fail-closed error policy) but withRoute's default 300/min/IP limit only consumed the per-instance Map — horizontally scaled instances each got their own budget
 - src/lib/nx/api.ts withRoute: after the in-process pre-filter (unchanged — absorbs bursts, keeps obvious rejects off Redis), when isRedisConfigured() the same max/window is consumed from consumeRateLimit("route:<name>:<ip>") and its rejection wins with Retry-After; without REDIS_URL behavior is byte-identical to before (no double-counting — consumeRateLimit is not called at all)
 - `route:` key namespace keeps these keys disjoint from auth/webhook limiter keys in Redis
@@ -398,15 +457,18 @@ Work Log:
 - Gates (scoped): vitest route-default-limiter + rate-limit + api-helpers 18/18
 
 Stage Summary:
+
 - The default route limiter is now shared across instances whenever Redis backs the deployment; single-node behavior unchanged
 - Note: explicit per-route limiter keys used inside auth/webhook routes (login-ip-fail etc.) stay as-is — they are keyed counters, out of this task's scope
 
 ---
+
 Task ID: ai-identity-1
 Agent: main (Super Z)
 Task: Deferred closeout B — per-request user-identity attribution on AiUsageLog rows (branch deferred-closeouts-1)
 
 Work Log:
+
 - New src/lib/ai-actor.ts: AsyncLocalStorage context — setAiActor (enterWith) called from session resolvers, getAiActor read by the ledger write, resetAiActor for long-lived chain reuse (test runners/queue workers)
 - Capture points: guard() (staff routes — every permission-checked request) and getPortalUser() (portal routes — captured from the SIGNED token sub before DB resolution). portal/auth/route.ts untouched (collaborator surface)
 - Schema: AiUsageLog += userId/userRole (nullable, migration 20260916201545_ai_usage_identity); null = system/background call, honestly unattributed, never guessed
@@ -417,15 +479,18 @@ Work Log:
 - Docs: ARCHITECTURE.md §3 flow + honest capability statement updated (attribution is per REQUEST, not per human — shared logins share identity)
 
 Stage Summary:
+
 - Every AI call made during an authenticated request is now attributed to the verified caller in the ledger; admin rollup answers "who spent what" per user
 - Remaining deferred items: tourism Float display money (in progress next on this branch)
 
 ---
+
 Task ID: tourism-money-1
 Agent: main (Super Z)
 Task: Deferred closeout C — tourism/global desk Float money → integer cents/paise (branch deferred-closeouts-1)
 
 Work Log:
+
 - Schema: TourismProcedure.priceUSD Float → priceUSDCents Int; TourismInquiry.estimatedCostUSD/estimatedCostINR/totalBilledUSD Float? → estimatedCostUSDCents/estimatedCostINRPaise/totalBilledUSDCents Int? — ratings/vitals/GST rates stay Float (rates and 0.25% slabs, not money)
 - Migration 20260916204200_tourism_money_cents hand-written as RENAME COLUMN + ALTER TYPE USING round(x*100)::int (prisma's diff was a lossy DROP+ADD; non-interactive create-only refused) — applied via migrate deploy; verified live: 4500 → 450000 cents, INR 373500 → 37350000 paise, 12 procedures + 8 inquiries preserved
 - money.ts: usdToCents/centsToUsd (exact at 19.99/0.29 float traps) + tourismProcedureToWire/tourismInquiryToWire wire mappers + USD/paise field registries — the canonical boundary now owns the whole wire contract
@@ -435,59 +500,71 @@ Work Log:
 - Gates (scoped): tsc 0; eslint 0; tourism-money 6/6
 
 Stage Summary:
+
 - The last Float money domain is closed: every money column in the schema is now an integer minor unit (paise or cents), with conversions only at the money.ts boundary
 - Remaining deferred items: none of the original three — this branch closes limiter-distributed-1, ai-identity-1 and tourism-money-1
 
 ---
+
 Task ID: deferred-closeouts-1
 Agent: main (Super Z)
 Task: Final closeout — all three remaining deferred items implemented, gated and merged (limiter-distributed-1 + ai-identity-1 + tourism-money-1)
 
 Work Log:
+
 - Full-gate re-run at HEAD 1e5332b: prisma validate OK; tsc 0; eslint 0; vitest 317/317 (27 files = 302 base + 3 limiter + 6 identity + 6 tourism); smoke 49/49; deploy-preview DEPLOY VERIFIED
 - LIVE PROOF (identity attribution): real staff login → POST /api/pharmacy/ai-query → ledger row {capability pharmacy.ai-query, userId demo, userRole pharmacist, success, 119 tokens} — demo posture resolves first per product-auth contract; production resolves the real staff session on the same code path. Wire proof (tourism): /api/global hospitals returns priceUSD 800 major units with no priceUSDCents field leaking
 - Note: platform auto-checkpoint fast-forwarded main to the branch tip mid-session (documented behavior) — merge was a no-op; deferred-closeouts-1 and main share tip 1e5332b
 
 Stage Summary:
+
 - The original deferred list is EMPTY: default route limiter is distributed when Redis backs the deployment; every authenticated AI call carries verified identity (or honest null); every money column schema-wide is an integer minor unit
 - Collaborator surfaces untouched throughout: src/app/api/portal/auth/route.ts, payment/billing-gateway integration
 
 ---
+
 Task ID: deferred-lock-1
 Agent: main (Super Z)
 Task: Lock the deferred-closeouts batch — fresh full-gate re-run at main 75a1d3f + lock tag (lock-4)
 
 Work Log:
+
 - Pre-lock verification: all three deferred items confirmed merged (limiter-distributed-1 e04789f, ai-identity-1 1743f56 + addendum 1e5332b, tourism-money-1 189ec5f); git diff 179912a..HEAD over collaborator surfaces (src/app/api/portal/auth/, payment/billing-gateway) is EMPTY — untouched throughout the batch
 - Fresh full-gate re-run at lock HEAD 75a1d3f (honesty rule: verify at the exact commit being tagged): prisma validate OK; tsc 0; eslint 0; vitest 317/317 (27 files = 302 base + 3 limiter + 6 identity + 6 tourism); smoke 49/49 (live :3000 server reused after health/ready 200); deploy-preview DEPLOY VERIFIED
 - Confirmed lock sequence: lock-1 (hardening e28dfa5) → lock-2 (money ee94cba) → lock-3 (consent 179912a) → this is lock-4
 - Tag deferred-closeouts-locked-final pins: distributed-when-Redis route limiter + per-request AI identity attribution (honest null = system) + schema-wide integer minor-unit money (paise/cents)
 
 Stage Summary:
+
 - Lock-4 closes the entire deferred backlog: rate limiting, AI attribution and money integrity are now locked tree state
 - No remaining deferred items; collaborator surfaces (portal/auth, payment/billing-gateway) remain untouched
 
 ---
+
 Task ID: readme-platform-1
 Agent: main (Super Z)
 Task: Rewrite README.md — full multi-product platform inventory, every product and feature, verified against the tree (post-lock docs commit)
 
 Work Log:
+
 - Inventory pass: 19 page surfaces under src/app (7 staff products, 8 consumer surfaces, 4+ site pages), all src/app/api groups, src/lib platform libs, 162 Prisma models, 27 test files / 317 tests, scripts dir, docs set (all 13 README-referenced docs verified to exist in docs/)
 - Rewrote README: product tables (Hospital OS with 23 apps, Clinic, Pharmacia, Portal with consent self-service, Connect, KYH with all 14 AI tools, Global tourism desk), consumer surfaces (Care Circle, Vitals, DIY with safety guardrails, Predictive/Foresight, Labs, Emergency, Pi engine, site pages), platform layer (auth suite, RBAC 20x36, AI governance with metering+attribution+consent enforcement, money integrity, distributed rate limiting, SSE, observability, audit, ops)
 - Fixed staleness: bun->npm commands per package.json, test count 252->317, added lock-chain table (4 tags with commits), documentation table now covers every existing doc incl. WHITEPAPER/GAP-ASSESSMENT/ROADMAP-5-PHASES/DATABASE-OPERATIONS, repo layout map, compliance section updated (DPDP + AI estimate honesty)
 - Docs-only change: no src/ or prisma/ touched, no gate-affecting delta (markdown)
 
 Stage Summary:
+
 - README now states the true platform surface; nothing claimed that is not in the tree
 - Post-lock docs commit on main; lock tags untouched
 
 ---
+
 Task ID: vercel-deploy-1
 Agent: main (Super Z)
 Task: Vercel deploy compatibility — eliminate the next-build failure chain the user hit (JWT_SECRET module gate) and every next error behind it (prisma generate, build packaging, Docker parity)
 
 Work Log:
+
 - Failure analysis from the user's Vercel log: next build page-data collection evaluates route modules in production mode -> jwt.ts module gate throws without JWT_SECRET (the hardening gate working as designed). Behind it queued two more Vercel-only failures: (a) no postinstall -> prisma client never generated on Vercel -> PrismaClient stub throws at db.ts module scope; (b) build script's unconditional standalone cp steps are self-host packaging that PaaS builds do not need
 - package.json: "build" is now platform-neutral (prisma generate && next build — what Vercel/PaaS should run); new "build:standalone" carries the old packaging (prisma generate + next build + static/public copied into .next/standalone) for Docker/self-host; added "postinstall": "prisma generate" so the client exists before page-data collection under any package manager
 - Dockerfile: builder stage now runs bun run build:standalone (covers the old explicit bunx prisma generate); added build-time dummy JWT_SECRET with honest comment mirroring the existing DATABASE_URL-dummy pattern — restores Docker build parity broken by the hardening gate (Docker builds were red since env-config-1; runtime boot gate still enforces REAL secrets via instrumentation, builder ENV never ships in the image)
@@ -496,15 +573,18 @@ Work Log:
 - Gates: prisma validate OK; tsc 0; eslint 0; vitest 317/317 (27 files); npm run build:standalone end-to-end BUILD_EXIT 0 with .next/standalone/server.js + static packaging verified (proves the Docker contract and the prisma-generate-first build order); smoke 49/49 against the live server (runtime code untouched — package.json/Dockerfile/docs only)
 
 Stage Summary:
+
 - Vercel redeploy will pass the build once the user sets DATABASE_URL/JWT_SECRET/REDIS_URL in the dashboard; every queued next-error (prisma stub, packaging) is pre-empted in code
 - Docker builds are green again post-hardening; deploy-preview/guardian flows unchanged (they invoke next build directly)
 
 ---
+
 Task ID: vercel-deploy-2
 Agent: Super Z (main)
 Task: Fix recurring Vercel build failure (JWT_SECRET module-eval throw during page-data collection), push to GitHub
 
 Work Log:
+
 - Diagnosed user's Vercel log: correct commit 6212bc8 cloned, new build script ran, but build failed at "Collecting page data" — jwt.ts threw at module evaluation with NODE_ENV=production and no JWT_SECRET on the build machine
 - Swept src for module-eval throw bombs: found TWO — src/lib/auth/jwt.ts (JWT_SECRET IIFE) and a duplicate IIFE in src/app/api/nx/auth/route.ts; stepup.ts/rate-limit.ts/redis.ts confirmed safe (lazy/function-scoped)
 - First attempt (NEXT_PHASE=phase-production-build carve-out) FAILED under Turbopack — NEXT_PHASE not visible at module-eval during page-data collection
@@ -517,16 +597,19 @@ Work Log:
 - Push to GitHub FAILED: token ghp_qBi6... revoked (Invalid username or token) — remote scrubbed, local main = d15dc89 awaiting fresh token
 
 Stage Summary:
+
 - Env-less builds now pass; security posture unchanged (boot gate + lazy first-use throw)
 - main @ d15dc89 ready to push; needs fresh PAT from user
 - User-side mandatory: set DATABASE_URL / JWT_SECRET / REDIS_URL in Vercel env vars + prisma migrate deploy, then redeploy latest
 
 ---
+
 Task ID: sandbox-recovery-1
 Agent: Super Z (main)
 Task: Start dev server (after sandbox restart broke environment)
 
 Work Log:
+
 - Sandbox restarted: all processes killed, .env reset to SQLite template, ~/pg-install + ~/pgdata wiped (Postgres/Redis binaries AND data gone)
 - Platform checkpoint 386fa16 swept 127 files / +30,951 lines of PARTIAL newer work into main: missing validateGeneratedPlan export (content-validator.ts), missing GeneratedPlan type (types.ts), seed scripts referencing models absent from schema.prisma → 397 TS errors, build broken
 - Preservation: branch snapshot-partial-20260917 @ 386fa16 (nothing lost)
@@ -537,16 +620,19 @@ Work Log:
 - Guardian relaunched via setsid; homepage 200, /api/health 200, smoke PASS=58 FAIL=0
 
 Stage Summary:
+
 - Dev server up on :3000, fully verified (58/0)
 - Local main = GitHub main = 73ee45d (green); partial snapshot preserved on branch snapshot-partial-20260917 — needs matching schema/types to ever build; user decision required
 - Sandbox reaps unsupervised processes; guardian auto-relaunches on sandbox restarts via platform boot chain
 
 ---
+
 Task ID: backend-core-2
 Agent: Super Z (main)
 Task: Complete the whole backend in the codebase (not just chat), update preview, prep GitHub push + screenshot README
 
 Work Log:
+
 - Audit (Explore agent): 189 route files / 145 DB-backed / 165→(then)162 models / platform layer all real; found 2 true stubs (pharmacy/online-orders, health-stats), 5 static-lookup clinic endpoints, console-only OTP delivery
 - pharmacy/online-orders: NEW 3 models (PharmaOnlineOrder/Item/Event + back-relations), migration 20260919010000_online_orders (additive-only SQL via migrate diff), pure domain lib (state machine, catalog matching, paise math, order numbers) + GET/POST route (Rx upload → runVision OCR → merge → catalog match → estimatedTotal paise) + PATCH [id] (transition enforcement 409, confirm-time stock warnings, image never shipped in payloads)
 - health-stats: rewrote as real aggregates (NxWearableSample 24h groupBy + HospitalVital fallback + hourly resting_hr series), pure derivations in src/lib/site/health-stats.ts (stress from HRV/HR, mood, calories, hourly buckets, deterministic demo fallback), hydration null (never invented), 15s cache; widget updated for nullable metrics
@@ -560,33 +646,39 @@ Work Log:
 - GitHub push FAILED: no credentials in environment (previous PAT revoked) — main @ da03c5f (+2) awaiting fresh PAT
 
 Stage Summary:
+
 - The last backend gaps are closed in code: no stub routes remain; every response is DB-backed, AI-backed with deterministic safety layers, or honestly labelled
 - Live proof: POST /api/pharmacy/online-orders created+matched ₹70 order (catalog match), PATCH confirm + 409 invalid transition, health-stats source:"db" (4 wearable samples + 44 vitals), triage red-flag deterministic + AI path, lab-interpretation deterministic HIGH + AI, chronic-care AI plan for Asthma, cohort matcher honest empty state
 - Preview window updated (DEPLOY VERIFIED production build on :3000)
 - USER ACTION NEEDED: fresh GitHub PAT to push main (3 commits: 2 checkpoints + backend-core-2 da03c5f)
 
 ---
+
 Task ID: github-push-3
 Agent: Super Z (main)
 Task: Push backend-core-2 work to GitHub using user-supplied fresh PAT
 
 Work Log:
+
 - User supplied fresh PAT (ghp_7bl...); verified via /user + /repos API: valid, owner arpitnayan123-bot, repo access confirmed
 - Pushed main via one-shot authenticated URL (token NOT persisted in .git/config or remote): 73ee45d..10719d2 — 4 commits (2 platform checkpoints + backend-core-2 da03c5f + worklog 10719d2)
 - Post-push verification: origin/main synced (main...origin/main clean), GitHub latest commit = 10719d2; README blob on GitHub = 17,362 chars with 12 screenshot reference lines; 19 PNGs tracked under docs/screenshots/ (homepage.png blob confirmed, 776KB)
 - Live backend sanity on :3000: POST /api/pharmacy/online-orders {} -> 400 (real validation gate), /api/health -> 200 ok; homepage 200
 
 Stage Summary:
+
 - GitHub main = local main = 10719d2 — entire completed backend + README + screenshots now live at github.com/arpitnayan123-bot/Nexura-OS
 - Preview window serving verified production build on :3000
 - SECURITY NOTE: user's PAT was pasted in chat — recommend revoking and re-issuing after use; token only used in one-shot push URLs, never stored
 
 ---
+
 Task ID: readme-polish-1
 Agent: Super Z (main)
 Task: README polish (badges, GIF demo, TOC, contributors, license) + CI fix + repo metadata
 
 Work Log:
+
 - CI RED on GitHub since 73ee45d: "lockfile had changes, but lockfile is frozen" — nodemailer/@types/nodemailer (otp-delivery work) never registered in bun.lock; regenerated with bun install, frozen install verified locally
 - Demo GIF: docs/screenshots/nexura-demo.gif — 9 product slides w/ crossfades (homepage, hospital command center + patient records, clinic, pharmacy, portal, KYH, global, connect); ffmpeg xfade chain pathologically slow (abandoned after 2 timeouts), final build via Pillow (scripts/make_demo_gif.py): 800x500, 8fps, 126->36 merged frames, 15.6s loop, 4.04 MB
 - README: shields badge row (CI live, tests 345, routes 189, models 165, Next 16, TS strict, PG 17, Redis 7, MIT, PRs welcome), table of contents w/ verified anchors, "30-second tour" GIF section, Contributing guide (5 steps + CI chain), Contributors card, MIT License section, centered footer
@@ -595,15 +687,18 @@ Work Log:
 - Worklog scripts kept: scripts/make-demo-gif.sh (ffmpeg variant, unused), scripts/make_demo_gif.py (the real one)
 
 Stage Summary:
+
 - All polish items landed locally; commit + push + CI-green-watch pending
 - CI should flip green on this push (lockfile fix is the only functional change)
 
 ---
+
 Task ID: readme-polish-2
 Agent: Super Z (main)
 Task: Get GitHub Actions CI green (4-run debugging chain) + finish polish push
 
 Work Log:
+
 - Run 1 (1ced2b1): install FAIL — bun.lock out of sync (nodemailer missing, fixed in readme-polish-1) → fixed
 - Run 2 (ebee4b5): unit tests FAIL — consent-selfservice.test.ts:121 assumed seeded hospital/patient; CI never seeded before tests (latent — tests step had never been reached before). Fix: seed:all moved BEFORE unit tests (seed is idempotent; removed redundant later seed step)
 - Run 3 (7deedd8): smoke 0/49 FAIL — nx-guardian.sh hardcodes cd /home/z/my-project (sandbox path absent on runners) so `bun run dev` never booted. Fix: smoke stage uses `dev:real` (plain next dev)
@@ -614,16 +709,19 @@ Work Log:
 - Local main synced: origin/main = 6f1e0ae
 
 Stage Summary:
+
 - CI fully green on GitHub Actions for the first time in repo history (was red since 73ee45d, root causes stacked behind the original lockfile failure)
 - README polish live: badges (CI badge now green), 4MB animated GIF tour, TOC, contributing/contributors/license, MIT LICENSE file
 - Commits pushed: 1ced2b1 (polish+lockfile), ebee4b5, 7deedd8, c6856b5, 6f1e0ae (CI chain)
 
 ---
+
 Task ID: premium-upgrade-1
 Agent: Super Z (main)
 Task: Premium README hero + social preview image, deploy to GitHub
 
 Work Log:
+
 - Extracted design tokens from nx-os.css: void oklch(0.152 0.011 60), accent oklch(0.825 0.115 82), Fraunces display + Plus Jakarta Sans + JetBrains Mono
 - Built scripts/hero-banner.html — keynote-style banner: Fraunces 88px headline w/ italic gold accent, layered product windows (homepage + clinic) w/ macOS chrome + deep shadows, stat chips (189/165/345/15), mono footer, film grain + radial gold glow
 - Rendered via Playwright chromium (scripts/render_banner.js, explicit executablePath chromium-1234): hero-banner.png 1600x900 @2x (3.0MB), social-preview.png 1280x640 @2x (2.2MB)
@@ -632,15 +730,18 @@ Work Log:
 - Pushed 6f1e0ae..9d61d43; local synced
 
 Stage Summary:
+
 - Premium hero live on GitHub README; social card asset ready at docs/screenshots/social-preview.png (user uploads in Settings → General → Social preview)
 - All work green (CI was already green; this push triggers a fresh run — README/scripts only, no runtime code)
 
 ---
+
 Task ID: community-release-1
 Agent: Super Z (main)
 Task: Community-ready repo + v1.0.0 GitHub Release + dependabot triage
 
 Work Log:
+
 - Community layer: CONTRIBUTING.md (honest-boundary focus), CODE_OF_CONDUCT.md (Contributor Covenant 2.1), SECURITY.md (private disclosure via GH advisories), .github/ISSUE_TEMPLATE (bug + feature + config), .github/PULL_REQUEST_TEMPLATE.md (gates checklist + conventions), .github/dependabot.yml
 - Tagged v1.0.0 -> pushed; GitHub Release created via API: https://github.com/arpitnayan123-bot/Nexura-OS/releases/tag/v1.0.0 (full notes: products, platform, numbers table, highlights, honest boundaries, quick start)
 - Dependabot first run opened 7 PRs. Triage: #1 actions/cache 4->6 GREEN -> merged (squash); #2 actions/checkout 4->7 -> rebased after flake fixes -> GREEN -> merged; #3 minor-and-patch (44 deps) -> CLOSED (systemic: dependabot writes package-lock.json, cannot regenerate bun.lock -> every npm PR fails frozen install); #4-#7 majors (react-resizable-panels 4, typescript 7, framer-motion 13, eslint 10) -> CLOSED with migration-work-needed comments
@@ -649,15 +750,18 @@ Work Log:
 - Fixed through: cf94d28, 6a98be1 (rebased over aad1974 merge), PR2 merge 7eb064b; main GREEN at every step
 
 Stage Summary:
+
 - Repo now: v1.0.0 Release live, community files live, dependabot tidy (actions only), CI green, zero open PRs
 - Remaining majors (TS7/eslint10/framer13/panels4) are documented decisions, closed with reasons — real migration work for a future session
 
 ---
+
 Task ID: ship-it-1
 Agent: Super Z (main)
 Task: "Ship your own instance" upgrade — make the repo deployable-by-anyone from the README
 
 Work Log:
+
 - Visual audit of key pages (home/hospital/pricing/investors/care screenshots, scripts/audit/): product surfaces already wear the premium design (linen+gold homepage, void+champagne console, dark editorial investors/care) — no visual work needed
 - Gap identified: repo had Dockerfile + compose + vercel.json + docs/DEPLOYMENT.md but zero deploy story surfaced in README
 - README: added official "Deploy with Vercel" button (clone flow prefills DATABASE_URL/JWT_SECRET/REDIS_URL) + Docker badge + self-host badge in header row; nav row gains "Ship it" link
@@ -668,15 +772,18 @@ Work Log:
 - Gates re-run: tsc 0 · eslint 0 · vitest 345/345
 
 Stage Summary:
+
 - README now converts visitors to deployers: one-click Vercel, one-command Docker, explicit PaaS path
 - Committed locally; PUSH BLOCKED — no PAT in environment (previous one used for 9d61d43 push). Ask user for fresh PAT
 
 ---
+
 Task ID: ship-it-2
 Agent: Super Z (main)
 Task: Push ship-it work with user's fresh PAT (push-protection incident resolved)
 
 Work Log:
+
 - Fresh PAT verified (arpitnayan123-bot, push:true); first push REJECTED: "repository rule violations" — no rulesets/branch protection exist, so GitHub secret-scanning PUSH PROTECTION was the blocker
 - Root cause: gateway auto-commit ebfa293 carried scripts/create_release.py with the user's OLD PAT (ghp_7blr...) hard-coded; new token verified clean (never touched a tracked file)
 - History rewrite of 3 unpushed commits: reset to cdbd559, deleted create_release.py, gitignored scripts/audit/ (QA screenshot debris that auto-commits kept re-adding), recommitted all legit work as 7f41507
@@ -684,15 +791,18 @@ Work Log:
 - Post-push: origin/main = 7f41507, worktree synced; README on GitHub shows "Ship your own instance" (2 matches); CI pending → will verify green
 
 Stage Summary:
+
 - Ship-it upgrade LIVE on GitHub; push-protection caught a real leaked old-PAT before it became public — saved the user from a much worse incident
 - OLD PAT (ghp_7blr...) must be revoked at github.com/settings/tokens if not already; new PAT should be revoked after this session too
 
 ---
+
 Task ID: next-ideas-1
 Agent: Super Z (main)
 Task: Next-session ideas executed — demo GIF refresh + deployment walkthrough
 
 Work Log:
+
 - Audit: no UI drift since GIF build (UI last touched da03c5f < 1ced2b1) → instead of blind rebuild, extended the tour: 9 → 11 slides (adds care-circle.png + predictive.png), both verified on-brand dark+gold
 - GIF rebuilt: 154 frames, 4.78 MB (under 6 MB budget); README "The demo" copy updated to "Eleven surfaces" + alt text lists all 11
 - docs/DEPLOY_WALKTHROUGH.md: click-by-click $0 guide — Vercel button flow, Neon pooled connection (bom1 pairing), Upstash rediss:// (verified supported: redis.ts startsWith("redis") + ioredis TLS), openssl JWT_SECRET, migrate deploy + seed:demo from a local clone, 6-check verification table, troubleshooting table (boot gate, P1001, WRONGPASS, cold starts, seed mismatch, 429s), "before real users" checklist
@@ -701,15 +811,18 @@ Work Log:
 - Gates: tsc 0 · eslint 0 · vitest 345/345
 
 Stage Summary:
+
 - Both next-session ideas shipped: complete 11-surface demo GIF + a visitor can go from README click to live URL in ~15 min with zero prior knowledge
 - Push pending with user's fresh token (one-shot URL)
 
 ---
+
 Task ID: next-round-1
 Agent: Super Z (main)
 Task: "What's next" executed end-to-end — a11y sweep + Star History + landing polish verification
 
 Work Log:
+
 - Live URL: production build verified serving :3000 via guardian (health ok, homepage/hospital 200) — preview window is the live demo
 - A11y (axe-core 4.10.2, scripts/axe-audit.js, 8 consumer surfaces): initial audit = 47 violation nodes (37 contrast, 4 missing main landmark, heading-order ×1, no-h1 ×1, 4 landmark-containment after first fix round)
 - Contrast fixes (all WCAG-computed, same hue family): btn-gold flipped white→dark editorial ink #1F1A14 with gradient narrowed to #B07B2E→#C08A2D→champagne (white failed mid-gradient 3.25:1; dark ink ≥4.7 at every stop — matches console CTA language); eyebrow gold on dark roots scoped override #b07b2e (5.09:1); kbd/hints #938A7B; linen eyebrows #6A6764 + footer #6E6A66; pricing nav #5C6A7F; care/vitals muted #988F81/#8B8476; Pharmacia grays #828894 (58 instances across 14 files — uppercase #6B7280 tokens were the hidden mass); pricing tier pills darkened per-hue (white text ≥5.46)
@@ -722,16 +835,19 @@ Work Log:
 - Clinic/pharmacy page metadata verified proper (title/description/viewport/themeColor)
 
 Stage Summary:
+
 - Consumer surfaces now pass axe-core with zero violations; palette unchanged in family, CTA language unified with product console
 - Star History auto-populates as repo gains stars
 - Commit + push + CI watch pending
 
 ---
+
 Task ID: deploy-rehearsal-1
 Agent: Super Z (main)
 Task: "Deploy" — push verification + full production deploy rehearsal against the live instance
 
 Work Log:
+
 - Found 6 commits showing "ahead" — turned out remote already had them (previous session pushed before context ran out); local tracking ref was stale, git fetch synced; CI confirmed GREEN on ec7fdd7 (build + verify both success)
 - Token safety: full-range scan origin/main..main for ghp_/gh_/github_pat_ patterns — 0 matches; tracked worklog contains only truncated prose references (ghp_7blr...) which cannot trigger push protection
 - Discovered the production stack already live from last session: next-server :3000, Postgres :5432, Redis :6379 (guardian-managed)
@@ -741,16 +857,19 @@ Work Log:
 - README Deploy button verified: vercel.com/new/clone URL points at live repo with DATABASE_URL/JWT_SECRET/REDIS_URL predeclared
 
 Stage Summary:
+
 - The exact chain a new deployer will run (build → boot gate → health → demo sign-in → patient data → audit → SSE) is proven working end-to-end on the live instance
 - deploy_verify.py committed as the reusable "deploy-preview verification script" the README Ops section references
 - Remaining human step: the actual Vercel/Neon/Upstash account creation + click-through (walkthrough ready at docs/DEPLOY_WALKTHROUGH.md)
 
 ---
+
 Task ID: marketing-1
 Agent: Super Z (main)
 Task: "Focus on github and nexura os" — clinic/pharmacy marketing deep-dive + fresh-DB seed fix
 
 Work Log:
+
 - GitHub topics audit: already comprehensive (14 topics) — no changes needed
 - Asset freshness audit: clinic.png (16:55) + pharmacy-inventory.png (16:57) + nexura-demo.gif (19:21) all predate the a11y sweep (20:07) — README visuals showed the old low-contrast Pharmacia grays
 - Sandbox reset mid-task wiped the data layer: platform .env restored SQLite DATABASE_URL (boot gate correctly refused -> 500s), local Postgres/Redis binaries gone, no sudo
@@ -761,17 +880,20 @@ Work Log:
 - FRESH-DB SEED BUG found live: seed:demo (seed-nx-v4) fails on an empty database with "no hospital found" — walkthrough Step 7 was wrong for the exact audience it serves. Added package.json seed:suite (full ordered chain, idempotent); walkthrough + README quick-start/Vercel/Docker paths + DEPLOYMENT.md local-dev + compose comment + troubleshooting table all switched to seed:suite with an explainer note
 
 Stage Summary:
+
 - README marketing now gives clinic + pharmacy the same visual weight as Hospital OS, with screenshots + GIF showing the current (axe-clean) UI
 - A new deployer can no longer hit the seed:demo-on-fresh-DB dead end — one command (seed:suite) does the whole dataset
 - Local infra knowledge captured: zonky PG + source-built redis restore path works without sudo
 - Gates: tsc 0 · eslint 0 · vitest 345/345
 
 ---
+
 Task ID: lock-in-1
 Agent: Super Z (main)
 Task: "Commit everything and lock everything up until now" — cleanup + v1.1.0 release
 
 Work Log:
+
 - Orphan audit: 6 screenshots with zero references removed (hospital-login, hospital-os, hospital-workspace, pharmacy, portal-privacy, portal.png); 3 applied one-off codemods removed (contrast_fix.py, final-gold-codemod.mjs, codemod-product-auth.mjs); stale shot-pie-current.sh (dead agent-browser CLI) removed; kept demo-sweep.sh + material-screenshot.mjs (reusable QA)
 - Chromium path refresh: 5 QA scripts updated chromium-1234 -> 1243 (sandbox reset swapped the build)
 - dump.rdb (redis cwd artifact) gitignored; sandbox-wiped dirs (db/, tool-results/, download/) already gone; removed 117MB /home/z/dl tarball debris
@@ -779,34 +901,56 @@ Work Log:
 - Pushed 7db2a5d; tagged v1.1.0; GitHub Release created with full notes since v1.0.0 (deploy story, a11y sweep, seed:suite fix, marketing depth, housekeeping)
 
 Stage Summary:
+
 - Repo state locked at v1.1.0: https://github.com/arpitnayan123-bot/Nexura-OS/releases/tag/v1.1.0
 - scripts/ now 66 files, zero dead codemods; screenshots/ only referenced assets
 
 ---
+
 Task ID: lock-in-2
 Agent: Super Z (main)
 Task: "Commit everything" — full lock-down verification + last straggler cleanup
 
 Work Log:
+
 - Working tree verified clean; main == origin/main == 1b6c9ca (git fetch re-synced, zero ahead/behind); no stashes; both tags (v1.0.0 + v1.1.0) confirmed on remote; both Releases confirmed live on the public releases page; CI badge reads "passing" at HEAD
 - Local-only branch snapshot-partial-20260917 investigated before touching: its unique commits are checkpoint(auto) snapshots (09-16/09-17) containing tests/unit/phi/* importing src/modules/phi — a feature DELIBERATELY hollowed out in main (566fdf9 "hollow out PHI build — route shell kept, feature code removed") — plus tests/unit/diy/* targeting the pre-refactor module layout (parser/burden/reconciler) that main's diy-safety.test.ts has since superseded. Verdict: mid-refactor auto-checkpoint debris, superseded on every path → branch deleted (was 386fa16)
 - Remaining stragglers (need a PAT, none in this session's env): origin/dependabot/github_actions/actions/cache-6 + actions/checkout-7 — both PRs already merged per community-release-1, branches are merged leftovers, safe to delete on next authenticated session
 
 Stage Summary:
+
 - "Everything" is committed and on GitHub: code, docs, worklog, tags, releases, green CI — zero uncommitted work, zero stranded branches locally
 - Repo hygiene now fully converged: no debris branches, no stashes, no untracked sources; only cosmetic remote dependabot leftovers remain (PAT-gated cleanup)
 
 ---
+
 Task ID: lock-in-2-push
 Agent: Super Z (main)
 Task: Push the lock-in-2 note with the user's fresh PAT + remote straggler cleanup
 
 Work Log:
+
 - Fresh PAT verified (arpitnayan123-bot, repo+workflow scopes) via /user before use; one-time URL push only, token never persisted to remote config or files
 - Pushed 1b6c9ca..4b87237 (the lock-in-2 worklog note) — main == origin/main
 - Dependabot "leftovers" resolved WITHOUT deleting: remote refs no longer exist (GitHub auto-deleted both branches on PR merge) — local remote-tracking refs were stale; git fetch --prune cleaned them. Same stale-tracking-ref family as the deploy-rehearsal-1 "6 commits ahead" mystery
 - Branch inventory now: main only (local + remote). CI on 4b87237 triggered, watched to completion
 
 Stage Summary:
+
 - Lock-down complete: everything committed, pushed, and verified — repo at 4b87237, zero debris anywhere, CI green
 - Security reminder: revoke this PAT at github.com/settings/tokens when the session ends (same as previous session tokens)
+
+---
+## Session 2026-09-18 — repository excellence pass (v1.2.0)
+
+Work Log:
+- Re-synced sandbox workspace to origin/main (31 commits of lock-in state); local-only sandbox checkpoint commits retired with backups off-repo
+- Added Prettier toolchain: .prettierrc.json + .prettierignore, `format` / `format:check` scripts, devDependency; whole codebase reformatted (646 files) with `format:check` added as a CI gate
+- docker-compose.yml excluded from Prettier (compose-spec `env_file: path/required` extension trips the YAML parser; validated by `docker compose config` instead)
+- Added CHANGELOG.md (Keep-a-Changelog; v1.0.0 → v1.1.0 → v1.2.0) and .github/pull_request_template.md with the platform honesty checklist
+- package.json: real name (nexura-os), description, MIT license, repository/bugs/homepage, keywords, version 1.2.0
+- README: release badge, CHANGELOG doc-table row, Contributing now points to Prettier + PR template + Discussions
+- Untracked runtime flag .guardian-seed-cooldown (gitignored)
+- GitHub-side: Discussions enabled (config.yml contact link now resolves), v1.2.0 tagged + released with notes
+
+Gates at v1.2.0: prettier --check ALL GREEN · eslint 0 · tsc 0 · vitest 345/345 (30 files, real Postgres + Redis)

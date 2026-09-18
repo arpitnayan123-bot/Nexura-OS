@@ -14,6 +14,7 @@ Where does this happen? (e.g. Hospital OS Command Center, Clinic queue, `/api/ph
 
 **To reproduce**
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Sign in as '...' (see docs/DEMO_CREDENTIALS.md)
 3. Click '...'
@@ -26,6 +27,7 @@ What you expected to happen instead.
 If applicable, add screenshots, console output, or the response `source` field / request ID from the API response.
 
 **Environment**
+
 - Deployment: local dev / Docker / other
 - Browser (if UI): e.g. Chrome 120
 - Any relevant env flags: e.g. `DEMO_MODE=true`

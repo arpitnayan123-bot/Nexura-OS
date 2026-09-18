@@ -3,6 +3,7 @@
 ## Q1 2026: Seed + Pilot Validation
 
 ### Engineering
+
 - [x] 7 products shipped with real data
 - [x] 62 Prisma models
 - [x] 50+ API routes
@@ -14,6 +15,7 @@
 - [ ] Health check endpoint
 
 ### Business
+
 - [ ] 3 hospital pilots live (Aarogya Multi-Specialty + 2 more)
 - [ ] 10 clinic pilots signed
 - [ ] 5 pharmacy stores beta
@@ -21,12 +23,14 @@
 - [ ] Case study published
 
 ### Team
+
 - [ ] Hire CTO (ex-Practo/Innovaccer/Cerner)
 - [ ] Hire 2 senior backend engineers
 - [ ] Hire 1 senior frontend engineer
 - [ ] Hire 1 AI/ML engineer
 
 ### Fundraising
+
 - [ ] Close $8M Seed (Q1 2026)
 - [ ] Target investors: Sequoia India, Accel, Lightspeed, Matrix, Blume
 
@@ -35,6 +39,7 @@
 ## Q2 2026: Product Depth + AI
 
 ### Engineering
+
 - [ ] Voice-to-SOAP for doctors (ASR → LLM → structured note)
 - [ ] AI drug interaction checker (3+ meds triggers warning)
 - [ ] AI differential diagnosis suggestions
@@ -43,6 +48,7 @@
 - [ ] Multi-language support (Hindi, Marathi, Tamil, Telugu, Bengali)
 
 ### Business
+
 - [ ] 15 hospital pilots → 10 paid conversions
 - [ ] 30 clinic pilots → 20 paid
 - [ ] 15 pharmacies live
@@ -50,11 +56,13 @@
 - [ ] First ₹10L month revenue
 
 ### Compliance
+
 - [ ] ABDM certified
 - [ ] DPDP 2023 audit passed
 - [ ] NABH audit-ready for partner hospitals
 
 ### Team
+
 - [ ] Hire VP Sales (ex-Insta/Apollo/Practo)
 - [ ] Hire Head of Compliance (ex-NHA/IRDAI)
 - [ ] Hire 2 more backend engineers
@@ -65,6 +73,7 @@
 ## Q3 2026: Scale + Series A
 
 ### Engineering
+
 - [ ] PostgreSQL migration (from SQLite)
 - [ ] Redis caching layer
 - [ ] WebSocket real-time (replace polling)
@@ -73,6 +82,7 @@
 - [ ] Multi-tenant architecture (SaaS)
 
 ### Business
+
 - [ ] 50 hospitals onboarded
 - [ ] 200 clinics live
 - [ ] 100 pharmacies live
@@ -81,6 +91,7 @@
 - [ ] Series A: $25M raise
 
 ### Series A Pitch
+
 - **ARR**: ₹6Cr ($720K)
 - **Growth**: 10x YoY
 - **Gross margin**: 80%
@@ -90,6 +101,7 @@
 - **Runway**: 30 months post-Series A
 
 ### Team
+
 - [ ] 25 total employees
 - [ ] Hire VP Engineering
 - [ ] Hire 3 sales reps (1 per city)
@@ -101,6 +113,7 @@
 ## Q4 2026: Multi-City + Insurance
 
 ### Engineering
+
 - [ ] Insurance claims automation (IRDAI)
 - [ ] Phlebotomist app (mobile, for blood collection agents)
 - [ ] NABH accreditation tracking for partner hospitals
@@ -108,6 +121,7 @@
 - [ ] API marketplace (third-party app integration)
 
 ### Business
+
 - [ ] 100 hospitals
 - [ ] 500 clinics
 - [ ] 300 pharmacies
@@ -116,11 +130,13 @@
 - [ ] ₹2Cr MRR
 
 ### Compliance
+
 - [ ] NABH partner certification
 - [ ] CDSCO Schedule H audit passed
 - [ ] IRDAI claims automation certified
 
 ### Team
+
 - [ ] 40 total employees
 - [ ] Hire regional sales heads (Delhi, Bangalore, Chennai)
 - [ ] Hire 1 AI research scientist
@@ -131,6 +147,7 @@
 ## Q1-Q2 2027: Marketplace + International
 
 ### Engineering
+
 - [ ] Open AI API platform (healthcare-as-a-service)
 - [ ] Third-party app marketplace
 - [ ] Internationalization (Singapore, UAE, Thailand)
@@ -138,6 +155,7 @@
 - [ ] Voice agent for patient calls (automated follow-ups)
 
 ### Business
+
 - [ ] 500 hospitals
 - [ ] 2,000 clinics
 - [ ] 1,000 pharmacies
@@ -145,6 +163,7 @@
 - [ ] $10M ARR (₹80Cr)
 
 ### Team
+
 - [ ] 80 total employees
 - [ ] International team (Singapore)
 - [ ] Hire Head of International
@@ -154,6 +173,7 @@
 ## 2028: Market Leadership
 
 ### Targets
+
 - 2,000 hospitals, 10,000 clinics, 5,000 pharmacies
 - $30M ARR (₹225Cr)
 - Series B: $50M raise
@@ -163,6 +183,7 @@
 ## 2029: IPO Readiness
 
 ### Targets
+
 - 5,000 hospitals, 30,000 clinics, 15,000 pharmacies
 - $80M ARR (₹675Cr)
 - Pre-IPO: $100M ARR
@@ -172,6 +193,7 @@
 ## 2030: Public Company
 
 ### Targets
+
 - $100M+ ARR (₹800Cr)
 - IPO on NSE/BSE
 - First Indian healthtech company to go public

@@ -4,10 +4,10 @@ Nexura OS handles health-adjacent data models, consent ledgers and money math �
 
 ## Supported versions
 
-| Version | Supported |
-|---------|-----------|
-| `main` (latest release) | ✅ |
-| older tags | ❌ — upgrade |
+| Version                 | Supported    |
+| ----------------------- | ------------ |
+| `main` (latest release) | ✅           |
+| older tags              | ❌ — upgrade |
 
 ## Reporting a vulnerability
 
