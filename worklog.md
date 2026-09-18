@@ -982,3 +982,17 @@ Stage Summary:
 - Publish state locked: app healthy + repo synced + CI green + Complete called; user instructed to use the platform preview/publish entry to open the live app
 - Everything committed and on GitHub — rollback-safe: any sandbox reset re-syncs from origin/main
 
+
+---
+## Session 2026-09-18 — CI flake killed: ai-usage split-read race (user lock request follow-up)
+
+Work Log:
+- CI run #41 (worklog-only commit) failed: tests/unit/ai-usage.test.ts rollup assertion expected failures=1, got 0 — same tree passed #40, so a race, not a regression
+- Root cause: aiUsageSummary counts calls and failures in two SEPARATE parallel groupBy queries; under READ COMMITTED a poll can observe calls=2 while the failures query's earlier statement snapshot predates the failure row's commit — the test predicate only checked calls>=2, accepting the skewed snapshot
+- Fix: wait predicate now requires BOTH calls>=2 AND failures>=1 in one snapshot — a split read can only undercount (rows are only added), so the conjunctive predicate is race-free; comment documents the mechanism
+- Verified locally: vitest 13/13 x3 consecutive passes, prettier unchanged, tsc 0
+
+Stage Summary:
+- The one flaky test in the suite is deterministically fixed; CI should return green on the next run
+- Production code untouched: dashboard skew is eventual-consistency acceptable; the test was over-optimistic about cross-query atomicity
+
