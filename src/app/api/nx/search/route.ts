@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guard, ok, withRoute, fail } from "@/lib/nx/api";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ export const GET = withRoute("global.search", async (req: NextRequest) => {
   const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
   if (q.length < 2) return ok({ groups: [] });
 
-  const like = { contains: q, mode: "insensitive" as const };
+  const like = ciFilter(q);
   const canClinical = true; // demographic view already granted; clinical fields trimmed for non-clinical
 
   // Directory boundary (mirrors /api/nx/patients self-scope): a `patient`-role

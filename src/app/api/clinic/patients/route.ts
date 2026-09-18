@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getClinicContext } from "@/lib/clinic-context";
 import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,11 +18,7 @@ async function GET_impl(req: NextRequest) {
     const where = q
       ? {
           clinicId: ctx.clinic.id,
-          OR: [
-            { name: { contains: q, mode: "insensitive" as const } },
-            { mrn: { contains: q, mode: "insensitive" as const } },
-            { phone: { contains: q, mode: "insensitive" as const } },
-          ],
+          OR: [{ name: ciFilter(q) }, { mrn: ciFilter(q) }, { phone: ciFilter(q) }],
         }
       : { clinicId: ctx.clinic.id };
     // `visits` (latest only) is additive — powers last-visit recency in the clinic

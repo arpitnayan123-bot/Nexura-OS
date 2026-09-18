@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guard, ok, fail, withRoute } from "@/lib/nx/api";
+import { ciFilter } from "@/lib/nx/db-dialect";
 import {
   patientToFHIR,
   encounterToFHIR,
@@ -54,7 +55,7 @@ export const GET = withRoute("fhir.get", async (req: NextRequest, { requestId })
       where: {
         hospitalId,
         ...(identifier ? { uhid: identifier } : {}),
-        ...(name ? { fullName: { contains: name, mode: "insensitive" as const } } : {}),
+        ...(name ? { fullName: ciFilter(name) } : {}),
       },
       take: 50,
       orderBy: { createdAt: "desc" },

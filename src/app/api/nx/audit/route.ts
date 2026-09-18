@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
+import { ciFilter } from "@/lib/nx/db-dialect";
 import crypto from "crypto";
 
 export const runtime = "nodejs";
@@ -20,7 +21,7 @@ export const GET = withRoute("nx.audit.trail", async (req: NextRequest) => {
   const take = Math.min(Number(searchParams.get("take")) || 60, 200);
 
   const where: Record<string, unknown> = { hospitalId };
-  if (action) where.action = { contains: action, mode: "insensitive" as const };
+  if (action) where.action = ciFilter(action);
 
   const events = await db.nxAuditEvent.findMany({ where, orderBy: { createdAt: "desc" }, take });
 

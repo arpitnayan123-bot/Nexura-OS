@@ -97,3 +97,4 @@ yarn-error.log*
 # redis runtime snapshot (server cwd writes it at repo root)
 dump.rdb
 .guardian-seed-cooldown
+prisma/schema.deploy.prisma

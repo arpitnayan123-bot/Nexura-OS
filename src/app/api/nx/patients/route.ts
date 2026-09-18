@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireHospitalContext, withRoute } from "@/lib/nx/api";
 import { requireModule } from "@/lib/nx/session";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,11 +31,7 @@ export const GET = withRoute("nx.patients.list", async (req: NextRequest) => {
     ? {
         hospitalId,
         ...selfScope,
-        OR: [
-          { fullName: { contains: q, mode: "insensitive" as const } },
-          { uhid: { contains: q, mode: "insensitive" as const } },
-          { phone: { contains: q, mode: "insensitive" as const } },
-        ],
+        OR: [{ fullName: ciFilter(q) }, { uhid: ciFilter(q) }, { phone: ciFilter(q) }],
       }
     : { hospitalId, ...selfScope };
 

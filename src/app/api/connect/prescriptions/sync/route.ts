@@ -4,6 +4,7 @@ import { getDemoContext } from "@/lib/pharmacy-context";
 import { log } from "@/lib/logger";
 import { connectGate, doctorOnly } from "@/lib/nx/connect-auth";
 import { gstOnPaise, paiseToRupee, roundToRupee } from "@/lib/money";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -81,10 +82,10 @@ export async function POST(req: NextRequest) {
       const product = await db.product.findFirst({
         where: {
           OR: [
-            { name: { contains: name, mode: "insensitive" as const } },
-            { genericName: { contains: name, mode: "insensitive" as const } },
-            { brand: { contains: name, mode: "insensitive" as const } },
-            { salts: { contains: name, mode: "insensitive" as const } },
+            { name: ciFilter(name) },
+            { genericName: ciFilter(name) },
+            { brand: ciFilter(name) },
+            { salts: ciFilter(name) },
           ],
         },
         include: {
@@ -104,10 +105,7 @@ export async function POST(req: NextRequest) {
         (item.salt
           ? await db.product.findFirst({
               where: {
-                OR: [
-                  { salts: { contains: item.salt, mode: "insensitive" as const } },
-                  { genericName: { contains: item.salt, mode: "insensitive" as const } },
-                ],
+                OR: [{ salts: ciFilter(item.salt) }, { genericName: ciFilter(item.salt) }],
               },
               include: {
                 batches: {

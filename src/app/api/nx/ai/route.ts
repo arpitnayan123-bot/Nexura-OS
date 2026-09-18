@@ -12,6 +12,7 @@ import {
   logAiInteraction,
 } from "@/lib/nx/ai-governance";
 import { isDemoMode } from "@/lib/env";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -198,9 +199,7 @@ export const POST = withRoute("nx.ai.run", async (req: NextRequest) => {
         where: {
           hospitalId,
           dischargeStatus: "active",
-          ...(ward
-            ? { bed: { ward: { name: { contains: ward, mode: "insensitive" as const } } } }
-            : {}),
+          ...(ward ? { bed: { ward: { name: ciFilter(ward) } } } : {}),
         },
         include: {
           patient: true,

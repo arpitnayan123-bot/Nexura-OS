@@ -137,7 +137,9 @@ export async function POST(req: NextRequest) {
     // ---- generate booking ref ----
     const year = new Date().getFullYear();
     const count = await db.bloodBooking.count({
-      where: { bookingRef: { startsWith: `NX-BLD-${year}-`, mode: "insensitive" as const } },
+      // bookingRef is machine-generated uppercase — case-sensitivity is moot,
+      // and `mode` is not portable to the packaged demo's SQLite client.
+      where: { bookingRef: { startsWith: `NX-BLD-${year}-` } },
     });
     const bookingRef = `NX-BLD-${year}-${String(count + 10001).padStart(5, "0")}`;
 
