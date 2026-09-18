@@ -215,9 +215,15 @@ describe("aiUsageSummary rollup", () => {
     });
     const summary = await waitForLedger(
       () => aiUsageSummary(30),
-      // both rows must be IN the rollup before asserting on it — a predicate of
-      // mere presence races the second fire-and-forget write under CI load
-      (s) => s.byCapability.some((x) => x.key === "test.cap-b" && x.calls >= 2),
+      // the rollup counts `calls` and `failures` in two SEPARATE parallel
+      // queries — under READ COMMITTED a poll can observe calls=2 (both rows
+      // committed) while the failures query's earlier statement snapshot still
+      // shows 0. A split read can only undercount, so requiring BOTH the calls
+      // and the failure to be visible in one snapshot makes this race-free.
+      (s) => {
+        const b = s.byCapability.find((x) => x.key === "test.cap-b");
+        return !!b && b.calls >= 2 && b.failures >= 1;
+      },
     );
     const b = summary.byCapability.find((x) => x.key === "test.cap-b")!;
     expect(b!.calls).toBe(2);
