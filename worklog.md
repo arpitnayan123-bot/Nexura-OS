@@ -1016,3 +1016,27 @@ Stage Summary:
 - The publish link's deploy path is now self-healing against every observed failure mode: env clobber (file + process-env override), wiped datastore binaries, stopped daemons, empty cluster (guardian seeds it), schema drift (migrate deploy)
 - Note for future sessions: platform exports DATABASE_URL=file:... globally — NEVER trust process.env over .env when diagnosing; dev.sh sources .env over the env for all children
 
+
+---
+## Session 2026-09-18 — publish pipeline fixed: packaged demo mode (FC deploy works)
+
+Work Log:
+- User: "still the problem exists" (publish deploy). This session found the REAL publish chain: the platform builds a self-contained FC package via .zscripts/build.sh -> database-runtime-build.sh -> packaged start.sh on Aliyun FC (port 81 health gate, warmup_412 on failure).
+- THREE fatal mismatches in that chain (sandbox boot fixes from earlier sessions never touched it):
+  1. database-runtime-build.sh ran `db:push` with DATABASE_URL=file:... against the POSTGRES-only schema -> P1012 -> publish build died before packaging
+  2. Even if packaged, the app bundles the POSTGRES-locked Prisma client (provider locked at generate time) -> useless against the embedded SQLite; and FC has no Postgres/Redis
+  3. env.ts assertProductionEnv refused file: DATABASE_URL + missing REDIS_URL -> server.js crash at FC boot -> Caddy:81 -> nothing -> warmup_412
+- FIXES (packaged demo mode):
+  - database-runtime-build.sh: provider-aware. Postgres projects -> sed-generate prisma/schema.deploy.prisma (sqlite provider, named-FK map: attrs stripped — SQLite rejects them), db push into the package, generate the SQLITE client (before next build so it gets bundled), seed the FULL core demo chain (hospital, nx, v4, bootstrap, pharmacy, compliance, clinic-drugs, clinic, connect, portal, tourism) into the package DB. SQLite-native template projects keep the old path. Deploy schema kept in-project (Prisma root inference breaks on /tmp paths), cleaned after.
+  - build.sh: DB step moved BEFORE next build (was after — bundled the wrong client); `bunx next build` directly (bun run build would re-clobber the client with prisma generate); after packaging, the sandbox Postgres client is regenerated (self-restoring).
+  - packaged start.sh: when using the embedded DB, exports NEXURA_PACKAGED=1 + DEMO_MODE/JWT_SECRET/NEXURA_MODE/EMAIL_TRANSPORT defaults.
+  - env.ts: NEXURA_PACKAGED=1 allows file: DATABASE_URL and optional REDIS_URL (in-process fallbacks per redis.ts docs); JWT secret still required.
+  - db-dialect.ts: ciFilter() — dialect-aware case-insensitive contains (Postgres needs mode, SQLite's client rejects it at runtime); codemod applied to 15 route files (34 sites); jobs/runner.ts claimDueJobs: provider-aware (Postgres keeps FOR UPDATE SKIP LOCKED; SQLite branch uses guarded conditional claims).
+- PROOF: BUILD_ID=pubtest5 bash .zscripts/build.sh -> EXIT 0, package tar.gz; extracted + booted next-service-dist/server.js exactly as FC does (NODE_ENV=production, embedded file: DB, NO Redis) -> home 200, /api/ready ready (db+seed ok, redis absent -> in-process fallbacks reported), STAFF LOGIN CMD.ANITA/2468 returns the real user object, clinic/portal/know-your-health/pharmacy/pricing all 200.
+- Sandbox restored after pipeline runs: deploy-preview.sh rebuilt postgres-correct bundle -> ready (db/seed/redis all ok), staff login 200, vitest 345/345, format gate green, tsc/eslint clean.
+
+Stage Summary:
+- The publish link's deploy now packages a WORKING app: embedded seeded SQLite demo, no external services needed, boot gate passes, logins work
+- Sandbox/publish client duality is self-healing: guardian rebuilds restore Postgres; publish builds regenerate the SQLite client themselves
+- Known quirk: platform exports DATABASE_URL=file:... globally in the sandbox; every fresh process must source .env over it (dev.sh does; guardian heal_env fixes the file)
+
