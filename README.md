@@ -28,7 +28,7 @@ Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-cen
 
   <br/>
 
-<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Farpitnayan123-bot%2FNexura-OS&env=DATABASE_URL%2CJWT_SECRET%2CREDIS_URL&project-name=nexura-os&repository-name=Nexura-OS"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="40" /></a>&nbsp;&nbsp;<a href="#2--docker-one-command"><img src="https://img.shields.io/badge/Docker-compose%20up%20--build-2496ED?logo=docker&logoColor=white" alt="Docker compose" height="28" /></a>&nbsp;&nbsp;<a href="#ship-your-own-instance"><img src="https://img.shields.io/badge/self--host-standalone%20build-2EA043" alt="Self-host" height="28" /></a>
+<a href="https://preview-7f3bab5c-5dbf-45f9-8222-047951c49f1c.space-z.ai/"><img src="https://img.shields.io/badge/Live_demo-open_the_platform-DC382D?logo=safari&logoColor=white" alt="Live demo — open the platform" height="40" /></a>&nbsp;&nbsp;<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Farpitnayan123-bot%2FNexura-OS&env=DATABASE_URL%2CJWT_SECRET%2CREDIS_URL&project-name=nexura-os&repository-name=Nexura-OS"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="40" /></a>&nbsp;&nbsp;<a href="#2--docker-one-command"><img src="https://img.shields.io/badge/Docker-compose%20up%20--build-2496ED?logo=docker&logoColor=white" alt="Docker compose" height="28" /></a>&nbsp;&nbsp;<a href="#ship-your-own-instance"><img src="https://img.shields.io/badge/self--host-standalone%20build-2EA043" alt="Self-host" height="28" /></a>
 
 </div>
 
@@ -61,6 +61,8 @@ Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-cen
 ## The demo — a 30-second tour
 
 Eleven surfaces, one platform. No mockups — every frame below is a live route in this repo.
+
+**Running live right now:** the published platform preview serves this exact codebase at **[preview-7f3bab5c-5dbf-45f9-8222-047951c49f1c.space-z.ai](https://preview-7f3bab5c-5dbf-45f9-8222-047951c49f1c.space-z.ai/)** — same routes, same demo logins (password `Demo@12345`, staff PIN `2468`). Prefer clicking over cloning? Start there.
 
 <div align="center">
   <img src="docs/screenshots/nexura-demo.gif" alt="Nexura OS product tour: homepage, Hospital OS command center, patient records, clinic, pharmacy inventory, Care Circle, patient portal, Know Your Health, Predictive, Global, Connect" width="840" />
