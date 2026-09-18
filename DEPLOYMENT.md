@@ -25,12 +25,12 @@ git push origin main
 
 In Vercel → Project Settings → Environment Variables, add:
 
-| Variable | Value | Required |
-|----------|-------|----------|
-| `DATABASE_URL` | `postgresql://user:pass@host:port/db` | ✅ Yes |
-| `JWT_SECRET` | Generate with `openssl rand -hex 32` | ✅ Yes |
-| `REDIS_URL` | `redis://default:pass@host:6379` | ✅ Yes |
-| `NODE_ENV` | `production` | ✅ Yes |
+| Variable       | Value                                 | Required |
+| -------------- | ------------------------------------- | -------- |
+| `DATABASE_URL` | `postgresql://user:pass@host:port/db` | ✅ Yes   |
+| `JWT_SECRET`   | Generate with `openssl rand -hex 32`  | ✅ Yes   |
+| `REDIS_URL`    | `redis://default:pass@host:6379`      | ✅ Yes   |
+| `NODE_ENV`     | `production`                          | ✅ Yes   |
 
 **Note:** the server refuses to boot in production without the first three —
 see `assertProductionEnv()` in `src/lib/env.ts`. Full variable reference:
@@ -39,16 +39,19 @@ see `assertProductionEnv()` in `src/lib/env.ts`. Full variable reference:
 ## Step 4: Database Setup
 
 ### Option A: Vercel Postgres (easiest)
+
 1. In Vercel dashboard → Storage → Create Database → Postgres
 2. Copy the connection string
 3. Set as `DATABASE_URL` environment variable
 
 ### Option B: Neon (recommended for free tier)
+
 1. Go to [neon.tech](https://neon.tech) → Create project
 2. Copy connection string
 3. Set as `DATABASE_URL`
 
 ### Option C: Supabase
+
 1. Go to [supabase.com](https://supabase.com) → New project
 2. Settings → Database → Connection string
 3. Set as `DATABASE_URL`
@@ -79,10 +82,10 @@ Every seed script refuses to run when `NODE_ENV=production` unless
 create the first hospital and staff through the onboarding flow (`/api/nx/onboard`)
 or a controlled admin bootstrap — never through the demo seeds.
 
-
 ## Step 7: Deploy
 
 Click **Deploy** in Vercel. The build will:
+
 1. Install dependencies (`bun install`)
 2. Generate Prisma client (`prisma generate`)
 3. Build Next.js (`next build`)
@@ -91,6 +94,7 @@ Click **Deploy** in Vercel. The build will:
 ## Step 8: Verify
 
 After deployment, check:
+
 - `https://your-app.vercel.app/` → Homepage loads
 - `https://your-app.vercel.app/api/health` → Returns `{"status":"ok"}`
 - `https://your-app.vercel.app/hospital` → Hospital OS loads
@@ -124,21 +128,26 @@ When migrating from SQLite to PostgreSQL:
 ## Troubleshooting
 
 ### Build fails: "Cannot find module '@prisma/client'"
+
 Add to `package.json`:
+
 ```json
 "postinstall": "prisma generate"
 ```
 
 ### Runtime: "Database connection failed"
+
 - Check `DATABASE_URL` is set in Vercel
 - Ensure PostgreSQL allows connections from Vercel's IP range
 - Try connection pooling (add `?pgbouncer=true` to connection string)
 
 ### AI features not working
+
 - z-ai-web-dev-sdk should work out of the box
 - Check `/api/health` endpoint for AI service status
 - Check Vercel function logs for errors
 
 ### Large build size
+
 - Ensure `skills/`, `video-*`, `tool-results/` are in `.gitignore` (they are)
 - Run `bun run lint` to check for unused imports

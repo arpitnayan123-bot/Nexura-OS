@@ -6,12 +6,12 @@ Thanks for your interest in improving Nexura OS — a calmer operating system fo
 
 The highest-value work right now is closing the **honest boundaries** — the places where the system deliberately returns `501` or `null` instead of faking data:
 
-| Integration point | What it needs |
-|---|---|
-| ABDM / ABHA registry lookup | Real registry wiring (returns `501` outside demo mode) |
-| IRP e-invoicing (IRN) | IRP portal integration (IRN stays `null` until then) |
-| SMS / WhatsApp OTP delivery | A provider account (email already ships via SMTP) |
-| Accessibility passes | The consumer surfaces (`/care`, `/vitals`, `/diy`, `/labs`) |
+| Integration point           | What it needs                                               |
+| --------------------------- | ----------------------------------------------------------- |
+| ABDM / ABHA registry lookup | Real registry wiring (returns `501` outside demo mode)      |
+| IRP e-invoicing (IRN)       | IRP portal integration (IRN stays `null` until then)        |
+| SMS / WhatsApp OTP delivery | A provider account (email already ships via SMTP)           |
+| Accessibility passes        | The consumer surfaces (`/care`, `/vitals`, `/diy`, `/labs`) |
 
 See [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md) for the full, current list.
 

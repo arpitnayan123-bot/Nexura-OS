@@ -10,6 +10,7 @@ assignees: ""
 A clear and concise description of the problem. Ex. "As a clinic receptionist I'm always frustrated when [...]"
 
 **Which product / layer does it affect?**
+
 - Product: Hospital OS / Clinic / Pharmacia / Portal / Know Your Health / Global / Connect / consumer surface / platform layer
 - If backend: which route or model area?
 

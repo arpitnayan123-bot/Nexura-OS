@@ -16,19 +16,23 @@ const SHELL = ["/", "/manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
-    caches.open(CACHE).then((c) =>
-      // { cache: "reload" } bypasses the HTTP cache so the shell is
-      // always precached from the live origin, never a stale copy
-      Promise.all(SHELL.map((path) => c.add(new Request(path, { cache: "reload" }))))
-    ).then(() => self.skipWaiting())
+    caches
+      .open(CACHE)
+      .then((c) =>
+        // { cache: "reload" } bypasses the HTTP cache so the shell is
+        // always precached from the live origin, never a stale copy
+        Promise.all(SHELL.map((path) => c.add(new Request(path, { cache: "reload" })))),
+      )
+      .then(() => self.skipWaiting()),
   );
 });
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys()
+    caches
+      .keys()
       .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim())
+      .then(() => self.clients.claim()),
   );
 });
 
@@ -50,7 +54,18 @@ self.addEventListener("fetch", (e) => {
           }
           return res;
         })
-        .catch(() => caches.match(e.request).then((hit) => hit || new Response(JSON.stringify({ error: "offline", detail: "Cached view unavailable" }), { status: 503, headers: { "content-type": "application/json" } })))
+        .catch(() =>
+          caches
+            .match(e.request)
+            .then(
+              (hit) =>
+                hit ||
+                new Response(
+                  JSON.stringify({ error: "offline", detail: "Cached view unavailable" }),
+                  { status: 503, headers: { "content-type": "application/json" } },
+                ),
+            ),
+        ),
     );
     return;
   }
@@ -60,11 +75,15 @@ self.addEventListener("fetch", (e) => {
   // Immutable, content-hashed build assets: cache-first is correct here
   if (url.pathname.startsWith("/_next/static/")) {
     e.respondWith(
-      caches.match(e.request).then((hit) => hit || fetch(e.request).then((res) => {
-        const clone = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, clone));
-        return res;
-      }))
+      caches.match(e.request).then(
+        (hit) =>
+          hit ||
+          fetch(e.request).then((res) => {
+            const clone = res.clone();
+            caches.open(CACHE).then((c) => c.put(e.request, clone));
+            return res;
+          }),
+      ),
     );
     return;
   }
@@ -82,12 +101,15 @@ self.addEventListener("fetch", (e) => {
         return res;
       })
       .catch(() =>
-        caches.match(e.request).then((hit) =>
-          hit ||
-          (e.request.mode === "navigate"
-            ? caches.match("/").then((shell) => shell || Response.error())
-            : Response.error())
-        )
-      )
+        caches
+          .match(e.request)
+          .then(
+            (hit) =>
+              hit ||
+              (e.request.mode === "navigate"
+                ? caches.match("/").then((shell) => shell || Response.error())
+                : Response.error()),
+          ),
+      ),
   );
 });

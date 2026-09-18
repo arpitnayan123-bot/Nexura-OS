@@ -10,24 +10,25 @@ Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-cen
 
 <div align="center">
 
-  [![CI](https://github.com/arpitnayan123-bot/Nexura-OS/actions/workflows/ci.yml/badge.svg)](https://github.com/arpitnayan123-bot/Nexura-OS/actions/workflows/ci.yml)
-  ![Tests](https://img.shields.io/badge/tests-345%20passing-2EA043?logo=vitest&logoColor=white)
-  ![API routes](https://img.shields.io/badge/API%20routes-189-0969DA)
-  ![Data models](https://img.shields.io/badge/Prisma%20models-165-444DB4?logo=prisma&logoColor=white)
-  ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
-  ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-  ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)
-  ![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-0969DA.svg)](LICENSE)
-  [![PRs welcome](https://img.shields.io/badge/PRs-welcome-2EA043.svg)](#contributing)
+[![CI](https://github.com/arpitnayan123-bot/Nexura-OS/actions/workflows/ci.yml/badge.svg)](https://github.com/arpitnayan123-bot/Nexura-OS/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/arpitnayan123-bot/Nexura-OS?logo=github&label=release)](https://github.com/arpitnayan123-bot/Nexura-OS/releases)
+![Tests](https://img.shields.io/badge/tests-345%20passing-2EA043?logo=vitest&logoColor=white)
+![API routes](https://img.shields.io/badge/API%20routes-189-0969DA)
+![Data models](https://img.shields.io/badge/Prisma%20models-165-444DB4?logo=prisma&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-0969DA.svg)](LICENSE)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-2EA043.svg)](#contributing)
 
   <br/>
 
-  [The demo](#the-demo--a-30-second-tour) · [Products](#the-products) · [Platform](#the-platform-layer-shared-by-every-product) · [Backend](#the-backend--whats-actually-implemented) · [Quick start](#quick-start) · [Ship it](#ship-your-own-instance) · [Quality gates](#quality-gates--the-lock-chain) · [Docs](#documentation) · [Contributing](#contributing)
+[The demo](#the-demo--a-30-second-tour) · [Products](#the-products) · [Platform](#the-platform-layer-shared-by-every-product) · [Backend](#the-backend--whats-actually-implemented) · [Quick start](#quick-start) · [Ship it](#ship-your-own-instance) · [Quality gates](#quality-gates--the-lock-chain) · [Docs](#documentation) · [Contributing](#contributing)
 
   <br/>
 
-  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Farpitnayan123-bot%2FNexura-OS&env=DATABASE_URL%2CJWT_SECRET%2CREDIS_URL&project-name=nexura-os&repository-name=Nexura-OS"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="40" /></a>&nbsp;&nbsp;<a href="#2--docker-one-command"><img src="https://img.shields.io/badge/Docker-compose%20up%20--build-2496ED?logo=docker&logoColor=white" alt="Docker compose" height="28" /></a>&nbsp;&nbsp;<a href="#ship-your-own-instance"><img src="https://img.shields.io/badge/self--host-standalone%20build-2EA043" alt="Self-host" height="28" /></a>
+<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Farpitnayan123-bot%2FNexura-OS&env=DATABASE_URL%2CJWT_SECRET%2CREDIS_URL&project-name=nexura-os&repository-name=Nexura-OS"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="40" /></a>&nbsp;&nbsp;<a href="#2--docker-one-command"><img src="https://img.shields.io/badge/Docker-compose%20up%20--build-2496ED?logo=docker&logoColor=white" alt="Docker compose" height="28" /></a>&nbsp;&nbsp;<a href="#ship-your-own-instance"><img src="https://img.shields.io/badge/self--host-standalone%20build-2EA043" alt="Self-host" height="28" /></a>
 
 </div>
 
@@ -152,16 +153,16 @@ Care communication: channels, mentions, receipts, critical alerts across the car
 
 ### Consumer & public surfaces
 
-| Surface | Route | What it is |
-|---|---|---|
-| **Nexura Care Circle** | `/care` | One circle, every generation — family care coordination across generations |
-| **Nexura Vitals** | `/vitals` | Your body, in real time — vitals capture and visualization |
-| **Nexura DIY** | `/diy` | Calm wellness roadmap with explicit safety guardrails (unit-tested: unsafe requests get routed to professionals, not plans) |
-| **Nexura Predictive** | `/predictive` | Health Foresight engine — domain risk models, red-flag detection, foresight workspace (dedicated unit-test suite: domains / engine / redflags / workspace) |
-| **Nexura Labs** | `/labs` | Diagnostics, decoded — patient-friendly lab test explorer |
-| **Nexura Emergency** | `/emergency` | Seconds, respected — emergency guidance surface |
-| **Pi engine** | rendered via widgets | Protocol intelligence: protocol cards, risk badges, digital-twin simulator (unit-tested engine) |
-| **Site & marketing** | `/`, `/pricing`, `/compliance`, `/investors`, `/founder`, `/privacy`, `/terms` | Honest-CTA marketing site, compliance posture, investor deck, founder page |
+| Surface                | Route                                                                          | What it is                                                                                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Nexura Care Circle** | `/care`                                                                        | One circle, every generation — family care coordination across generations                                                                                 |
+| **Nexura Vitals**      | `/vitals`                                                                      | Your body, in real time — vitals capture and visualization                                                                                                 |
+| **Nexura DIY**         | `/diy`                                                                         | Calm wellness roadmap with explicit safety guardrails (unit-tested: unsafe requests get routed to professionals, not plans)                                |
+| **Nexura Predictive**  | `/predictive`                                                                  | Health Foresight engine — domain risk models, red-flag detection, foresight workspace (dedicated unit-test suite: domains / engine / redflags / workspace) |
+| **Nexura Labs**        | `/labs`                                                                        | Diagnostics, decoded — patient-friendly lab test explorer                                                                                                  |
+| **Nexura Emergency**   | `/emergency`                                                                   | Seconds, respected — emergency guidance surface                                                                                                            |
+| **Pi engine**          | rendered via widgets                                                           | Protocol intelligence: protocol cards, risk badges, digital-twin simulator (unit-tested engine)                                                            |
+| **Site & marketing**   | `/`, `/pricing`, `/compliance`, `/investors`, `/founder`, `/privacy`, `/terms` | Honest-CTA marketing site, compliance posture, investor deck, founder page                                                                                 |
 
 <div align="center">
   <table>
@@ -190,13 +191,13 @@ Care communication: channels, mentions, receipts, critical alerts across the car
 
 Nothing on this list is "designed in chat" — it is code in the tree, running against Postgres + Redis:
 
-| Layer | Reality in the repo |
-|---|---|
-| API routes | **189 route handlers** across `/api/nx` (Hospital OS core), `/api/clinic`, `/api/pharmacy`, `/api/portal`, `/api/connect`, `/api/know-your-health`, `/api/diy`, `/api/global` and friends — the overwhelming majority execute real Prisma queries behind RBAC/ABAC guards |
-| Data | **165 Prisma models**, 8 applied migrations (baseline + AI ledger + identity attribution + integer money + telemedicine + integrity indexes + online orders) |
-| Platform services | JWT auth (bcrypt(12), token-family separation, lazy secret resolution), session revocation, ABAC engine, hash-chained audit, Redis rate limiting, durable job queue, idempotency keys (claim-then-execute) |
-| AI surface | 30+ capability-labelled AI call sites through one governance funnel: per-IP rate limits, consent enforcement, response-shape validation, metering + identity attribution |
-| Tests | **345 unit tests / 30 files** (real Postgres + Redis where honest: job queue, rate limiter, security, permissions, consent, money) + 49-check API smoke suite + Playwright e2e |
+| Layer             | Reality in the repo                                                                                                                                                                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| API routes        | **189 route handlers** across `/api/nx` (Hospital OS core), `/api/clinic`, `/api/pharmacy`, `/api/portal`, `/api/connect`, `/api/know-your-health`, `/api/diy`, `/api/global` and friends — the overwhelming majority execute real Prisma queries behind RBAC/ABAC guards |
+| Data              | **165 Prisma models**, 8 applied migrations (baseline + AI ledger + identity attribution + integer money + telemedicine + integrity indexes + online orders)                                                                                                              |
+| Platform services | JWT auth (bcrypt(12), token-family separation, lazy secret resolution), session revocation, ABAC engine, hash-chained audit, Redis rate limiting, durable job queue, idempotency keys (claim-then-execute)                                                                |
+| AI surface        | 30+ capability-labelled AI call sites through one governance funnel: per-IP rate limits, consent enforcement, response-shape validation, metering + identity attribution                                                                                                  |
+| Tests             | **345 unit tests / 30 files** (real Postgres + Redis where honest: job queue, rate limiter, security, permissions, consent, money) + 49-check API smoke suite + Playwright e2e                                                                                            |
 
 **Honest boundaries (fail loudly, never fake):** ABDM/ABHA lookup returns 501 outside demo mode until the real registry is wired; IRN for e-invoices is issued by the IRP portal, so it stays `null` until that integration; SMS/WhatsApp OTP delivery needs a provider account (email goes through the SMTP mailer now); the clinic's cohort matcher reports "too few visits" instead of inventing statistics. Every demo-only behavior is labelled in the response `source` field.
 
@@ -210,20 +211,20 @@ npm run seed:suite          # complete demo dataset — base hospital, staff, ph
 npm run dev                 # http://localhost:3000
 ```
 
-| Command | What it does |
-|---|---|
-| `npm run dev` | Dev server on :3000 (guardian wrapper) |
-| `npm run dev:real` | Plain `next dev` on :3000 |
-| `npm run typecheck` | `tsc --noEmit` gate (src must be clean) |
-| `npm run lint` | ESLint |
-| `npm run test` | Vitest unit suite (345 tests, 30 files — incl. real-DB tests that clean up after themselves) |
-| `npm run test:api` | API smoke suite, 49 checks (needs dev server running) |
-| `npm run test:e2e` | Playwright |
-| `npm run db:migrate` / `db:migrate:deploy` | Apply Prisma migrations |
-| `npm run db:generate` / `db:push` / `db:reset` | Client gen / schema push / reset |
-| `npm run seed:demo` / `seed:nx` / `seed:hospital` / `seed:all` / `seed:suite` | Demo seeds (`seed:suite` = everything, fresh-DB safe) |
-| `npm run build` / `start` | Production build / start (`build:standalone` for Docker/self-host) |
-| `npm run smoke` | Smoke suite via scripts |
+| Command                                                                       | What it does                                                                                 |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `npm run dev`                                                                 | Dev server on :3000 (guardian wrapper)                                                       |
+| `npm run dev:real`                                                            | Plain `next dev` on :3000                                                                    |
+| `npm run typecheck`                                                           | `tsc --noEmit` gate (src must be clean)                                                      |
+| `npm run lint`                                                                | ESLint                                                                                       |
+| `npm run test`                                                                | Vitest unit suite (345 tests, 30 files — incl. real-DB tests that clean up after themselves) |
+| `npm run test:api`                                                            | API smoke suite, 49 checks (needs dev server running)                                        |
+| `npm run test:e2e`                                                            | Playwright                                                                                   |
+| `npm run db:migrate` / `db:migrate:deploy`                                    | Apply Prisma migrations                                                                      |
+| `npm run db:generate` / `db:push` / `db:reset`                                | Client gen / schema push / reset                                                             |
+| `npm run seed:demo` / `seed:nx` / `seed:hospital` / `seed:all` / `seed:suite` | Demo seeds (`seed:suite` = everything, fresh-DB safe)                                        |
+| `npm run build` / `start`                                                     | Production build / start (`build:standalone` for Docker/self-host)                           |
+| `npm run smoke`                                                               | Smoke suite via scripts                                                                      |
 
 **Demo sign-in:** open `/hospital` → "Explore demo roles" fills credentials → Sign in.
 All accounts use password `Demo@12345`; legacy staff-code + PIN `2468` also works.
@@ -262,13 +263,13 @@ DATABASE_URL=postgresql://nexura:nexura-local-only@localhost:5432/nexura npm run
 
 `npm run build` (platform-neutral: prisma generate + next build) or `npm run build:standalone` (self-host packaging: static + public copied into `.next/standalone`), then `npx prisma migrate deploy` as a release-gate step. Rollback, backups and the deployment checklist live in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) and [docs/DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md).
 
-| Variable | Required | Purpose |
-|---|---|---|
-| `DATABASE_URL` | **yes** | Postgres 17 — Neon / Vercel Postgres / Supabase / your own. Accepted schemes: `postgres://`, `postgresql://`, `prisma+postgres://` (pgbouncer) |
-| `JWT_SECRET` | **yes** | `openssl rand -hex 32` (≥ 16 chars). Runtime-only — never used at build time |
-| `REDIS_URL` | **yes** | Distributed rate limiting (`nx:rl:*`), SSE event bus (`nx:bus`), sync leases. Upstash works |
-| `DEMO_MODE` | no | Demo affordances: synthetic ABDM lookup, demo OTP code, demo quick-login. Secure default `false` — never enable on real patient data |
-| `EMAIL_TRANSPORT` | no | `console` (prints OTP/reset links to server log — demo default) or `smtp` (real mail via nodemailer) |
+| Variable          | Required | Purpose                                                                                                                                        |
+| ----------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`    | **yes**  | Postgres 17 — Neon / Vercel Postgres / Supabase / your own. Accepted schemes: `postgres://`, `postgresql://`, `prisma+postgres://` (pgbouncer) |
+| `JWT_SECRET`      | **yes**  | `openssl rand -hex 32` (≥ 16 chars). Runtime-only — never used at build time                                                                   |
+| `REDIS_URL`       | **yes**  | Distributed rate limiting (`nx:rl:*`), SSE event bus (`nx:bus`), sync leases. Upstash works                                                    |
+| `DEMO_MODE`       | no       | Demo affordances: synthetic ABDM lookup, demo OTP code, demo quick-login. Secure default `false` — never enable on real patient data           |
+| `EMAIL_TRANSPORT` | no       | `console` (prints OTP/reset links to server log — demo default) or `smtp` (real mail via nodemailer)                                           |
 
 ## Quality gates & the lock chain
 
@@ -278,38 +279,38 @@ Current status at `main`: **all six green** — prisma OK · tsc 0 · eslint 0 �
 
 Tagged, gate-verified lock points (the audit trail):
 
-| Tag | Commit | What was locked |
-|---|---|---|
-| `hardening-locked-final` | `e28dfa5` | 20-phase refactor + hardening pass |
-| `money-paise-locked-final` | `ee94cba` | Legacy money Float → integer paise (45 cols / 18 models), canonical money boundary, integer GST |
-| `consent-selfservice-locked-final` | `179912a` | AI cost/token metering + portal consent self-service with enforced revocation |
-| `deferred-closeouts-locked-final` | `59de443` | Distributed route rate limiting, per-request AI identity attribution, tourism integer money — deferred backlog emptied |
+| Tag                                | Commit    | What was locked                                                                                                        |
+| ---------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `hardening-locked-final`           | `e28dfa5` | 20-phase refactor + hardening pass                                                                                     |
+| `money-paise-locked-final`         | `ee94cba` | Legacy money Float → integer paise (45 cols / 18 models), canonical money boundary, integer GST                        |
+| `consent-selfservice-locked-final` | `179912a` | AI cost/token metering + portal consent self-service with enforced revocation                                          |
+| `deferred-closeouts-locked-final`  | `59de443` | Distributed route rate limiting, per-request AI identity attribution, tourism integer money — deferred backlog emptied |
 
 ## Documentation
 
 Root: [API.md](API.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [BUSINESS.md](BUSINESS.md) · [COMPLIANCE.md](COMPLIANCE.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) · [PITCH.md](PITCH.md) · [PRODUCTION_STATUS.md](PRODUCTION_STATUS.md) · [ROADMAP.md](ROADMAP.md)
 
-| Doc | Contents |
-|---|---|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, layers, data flow, honest capability statements |
-| [docs/DATABASE.md](docs/DATABASE.md) | Schema map, conventions, retention |
-| [docs/DATABASE-OPERATIONS.md](docs/DATABASE-OPERATIONS.md) | Backup, restore, validation procedures |
-| [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md) | Auth flows, sessions, MFA, break-glass |
-| [docs/AUTHORIZATION_MATRIX.md](docs/AUTHORIZATION_MATRIX.md) | Full role → permission matrix |
-| [docs/NEXURA_INTEGRATION.md](docs/NEXURA_INTEGRATION.md) | Platform contracts & adapters |
-| [docs/API.md](API.md) | API reference (also `/api/nx/openapi`) |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deploy, env, rollback, backups, Vercel |
-| [docs/DEPLOY_WALKTHROUGH.md](docs/DEPLOY_WALKTHROUGH.md) | Click-by-click guide: Vercel + Neon + Upstash, $0, ~15 min |
-| [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) | Every environment variable |
-| [docs/SECURITY.md](docs/SECURITY.md) | Controls + what's still required |
-| [docs/TESTING.md](docs/TESTING.md) | Test strategy + how to run |
-| [docs/DEMO_CREDENTIALS.md](docs/DEMO_CREDENTIALS.md) | Accounts + what each sees |
-| [docs/INCIDENT_RESPONSE.md](docs/INCIDENT_RESPONSE.md) | Runbook |
-| [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md) | Honest gaps & integration points |
-| [docs/GAP-ASSESSMENT.md](docs/GAP-ASSESSMENT.md) | Gap assessment |
-| [docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) | Go-live checklist |
-| [docs/ROADMAP-5-PHASES.md](docs/ROADMAP-5-PHASES.md) | Phased roadmap |
-| [docs/WHITEPAPER.md](docs/WHITEPAPER.md) | Platform whitepaper |
+| Doc                                                          | Contents                                                       |
+| ------------------------------------------------------------ | -------------------------------------------------------------- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)                 | System design, layers, data flow, honest capability statements |
+| [docs/DATABASE.md](docs/DATABASE.md)                         | Schema map, conventions, retention                             |
+| [docs/DATABASE-OPERATIONS.md](docs/DATABASE-OPERATIONS.md)   | Backup, restore, validation procedures                         |
+| [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md)             | Auth flows, sessions, MFA, break-glass                         |
+| [docs/AUTHORIZATION_MATRIX.md](docs/AUTHORIZATION_MATRIX.md) | Full role → permission matrix                                  |
+| [docs/NEXURA_INTEGRATION.md](docs/NEXURA_INTEGRATION.md)     | Platform contracts & adapters                                  |
+| [docs/API.md](API.md)                                        | API reference (also `/api/nx/openapi`)                         |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                     | Deploy, env, rollback, backups, Vercel                         |
+| [docs/DEPLOY_WALKTHROUGH.md](docs/DEPLOY_WALKTHROUGH.md)     | Click-by-click guide: Vercel + Neon + Upstash, $0, ~15 min     |
+| [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md)                   | Every environment variable                                     |
+| [docs/SECURITY.md](docs/SECURITY.md)                         | Controls + what's still required                               |
+| [docs/TESTING.md](docs/TESTING.md)                           | Test strategy + how to run                                     |
+| [docs/DEMO_CREDENTIALS.md](docs/DEMO_CREDENTIALS.md)         | Accounts + what each sees                                      |
+| [docs/INCIDENT_RESPONSE.md](docs/INCIDENT_RESPONSE.md)       | Runbook                                                        |
+| [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md)       | Honest gaps & integration points                               |
+| [docs/GAP-ASSESSMENT.md](docs/GAP-ASSESSMENT.md)             | Gap assessment                                                 |
+| [docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) | Go-live checklist                                              |
+| [docs/ROADMAP-5-PHASES.md](docs/ROADMAP-5-PHASES.md)         | Phased roadmap                                                 |
+| [docs/WHITEPAPER.md](docs/WHITEPAPER.md)                     | Platform whitepaper                                            |
 
 ## Repository layout
 
@@ -345,7 +346,11 @@ PRs are welcome — especially on the honest-boundary integrations listed in [do
 2. `cp .env.example .env` and run the [quick start](#quick-start)
 3. Keep the gates green: `npm run typecheck && npm run lint && npm run test`
 4. New API surface? Add a smoke check in `tests/api-smoke.sh` — CI enforces the full chain (typecheck · lint · migrations · 345 unit tests against real Postgres + Redis · 49-check smoke · standalone build)
-5. Open the PR — the [CI workflow](.github/workflows/ci.yml) runs the whole gate chain on every push
+5. Run `npm run format` (Prettier) before committing — the repo is Prettier-formatted via [.prettierrc.json](.prettierrc.json)
+6. Open the PR — the [CI workflow](.github/workflows/ci.yml) runs the whole gate chain on every push, and the [PR template](.github/pull_request_template.md) keeps the honesty checklist in view
+
+Questions, self-hosting help, or integration ideas? Ask in
+[Discussions](https://github.com/arpitnayan123-bot/Nexura-OS/discussions).
 
 Good first issues: documentation gaps, seed-data richness, accessibility passes on consumer surfaces.
 

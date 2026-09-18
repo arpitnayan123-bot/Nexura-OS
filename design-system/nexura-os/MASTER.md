@@ -16,24 +16,24 @@
 
 ### Color Palette
 
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#1C1917` | `--color-primary` |
-| On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#44403C` | `--color-secondary` |
-| On Secondary | `#FFFFFF` | `--color-on-secondary` |
-| Accent/CTA | `#A16207` | `--color-accent` |
-| On Accent/CTA | `#FFFFFF` | `--color-on-accent` |
-| Background | `#FAFAF9` | `--color-background` |
-| Foreground | `#0C0A09` | `--color-foreground` |
-| Card | `#FFFFFF` | `--color-card` |
-| Card Foreground | `#0C0A09` | `--color-card-foreground` |
-| Muted | `#E8ECF0` | `--color-muted` |
+| Role             | Hex       | CSS Variable               |
+| ---------------- | --------- | -------------------------- |
+| Primary          | `#1C1917` | `--color-primary`          |
+| On Primary       | `#FFFFFF` | `--color-on-primary`       |
+| Secondary        | `#44403C` | `--color-secondary`        |
+| On Secondary     | `#FFFFFF` | `--color-on-secondary`     |
+| Accent/CTA       | `#A16207` | `--color-accent`           |
+| On Accent/CTA    | `#FFFFFF` | `--color-on-accent`        |
+| Background       | `#FAFAF9` | `--color-background`       |
+| Foreground       | `#0C0A09` | `--color-foreground`       |
+| Card             | `#FFFFFF` | `--color-card`             |
+| Card Foreground  | `#0C0A09` | `--color-card-foreground`  |
+| Muted            | `#E8ECF0` | `--color-muted`            |
 | Muted Foreground | `#475569` | `--color-muted-foreground` |
-| Border | `#D6D3D1` | `--color-border` |
-| Destructive | `#DC2626` | `--color-destructive` |
-| On Destructive | `#FFFFFF` | `--color-on-destructive` |
-| Ring | `#1C1917` | `--color-ring` |
+| Border           | `#D6D3D1` | `--color-border`           |
+| Destructive      | `#DC2626` | `--color-destructive`      |
+| On Destructive   | `#FFFFFF` | `--color-on-destructive`   |
+| Ring             | `#1C1917` | `--color-ring`             |
 
 **Color Notes:** Premium black + gold accent [Accent adjusted from #CA8A04]
 
@@ -45,29 +45,30 @@
 - **Google Fonts:** [Cormorant + Montserrat](https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap)
 
 **CSS Import:**
+
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap");
 ```
 
 ### Spacing Variables
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
+| Token         | Value             | Usage                     |
+| ------------- | ----------------- | ------------------------- |
+| `--space-xs`  | `4px` / `0.25rem` | Tight gaps                |
+| `--space-sm`  | `8px` / `0.5rem`  | Icon gaps, inline spacing |
+| `--space-md`  | `16px` / `1rem`   | Standard padding          |
+| `--space-lg`  | `24px` / `1.5rem` | Section padding           |
+| `--space-xl`  | `32px` / `2rem`   | Large gaps                |
+| `--space-2xl` | `48px` / `3rem`   | Section margins           |
+| `--space-3xl` | `64px` / `4rem`   | Hero padding              |
 
 ### Shadow Depths
 
-| Level | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
+| Level         | Value                          | Usage                       |
+| ------------- | ------------------------------ | --------------------------- |
+| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)`   | Subtle lift                 |
+| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)`    | Cards, buttons              |
+| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)`  | Modals, dropdowns           |
 | `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
 
 ---
@@ -79,7 +80,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #A16207;
+  background: #a16207;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -96,8 +97,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #1C1917;
-  border: 2px solid #1C1917;
+  color: #1c1917;
+  border: 2px solid #1c1917;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -110,7 +111,7 @@
 
 ```css
 .card {
-  background: #FAFAF9;
+  background: #fafaf9;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -129,16 +130,16 @@
 ```css
 .input {
   padding: 12px 16px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 16px;
   transition: border-color 200ms ease;
 }
 
 .input:focus {
-  border-color: #1C1917;
+  border-color: #1c1917;
   outline: none;
-  box-shadow: 0 0 0 3px #1C191720;
+  box-shadow: 0 0 0 3px #1c191720;
 }
 ```
 
