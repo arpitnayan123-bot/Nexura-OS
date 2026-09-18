@@ -48,11 +48,12 @@ Built on Next.js 16 with a real, auditable backend. Dark, cinematic, command-cen
 - [The products](#the-products) — Hospital OS · Clinic · Pharmacia · Portal · Know Your Health · Global · Connect · consumer surfaces
 - [The platform layer](#the-platform-layer-shared-by-every-product) — auth, RBAC, AI governance, money integrity, real-time
 - [The backend — what's actually implemented](#the-backend--whats-actually-implemented)
+- [Architecture](#architecture) — request lifecycle · auth planes · AI funnel · money invariants · background work
 - [Quick start](#quick-start) (demo credentials included)
 - [Ship your own instance](#ship-your-own-instance) — Vercel one-click · Docker · any PaaS
 - [Quality gates & the lock chain](#quality-gates--the-lock-chain)
 - [Documentation](#documentation)
-- [Repository layout](#repository-layout)
+- [Project structure](#project-structure) — annotated tree of every directory that matters
 - [Compliance posture](#compliance-posture-read-this)
 - [Contributing](#contributing) · [Contributors](#contributors) · [License](#license)
 
