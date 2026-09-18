@@ -996,3 +996,23 @@ Stage Summary:
 - The one flaky test in the suite is deterministically fixed; CI should return green on the next run
 - Production code untouched: dashboard skew is eventual-consistency acceptable; the test was over-optimistic about cross-query atomicity
 
+
+---
+## Session 2026-09-18 — publish-link deployability fix (boot chain self-healing)
+
+Work Log:
+- User report: "publish link has a problem deploying the code". Diagnosis: the app served fine when healthy, but the PLATFORM BOOT DEPLOY was fragile — three time-bombs:
+  1. start.sh rewrites .env to DATABASE_URL=file:... (SQLite) on every boot, AND exports it as a global process env var that OVERRIDES .env files for Prisma/Next — schema is Postgres-only, so migrate/serve/auth all fail after any reset
+  2. Redis binary (previously source-built OUTSIDE my-project) was wiped by a reset — every rate-limited route (staff login, portal OTP, MFA, webhooks, pharmacy orders) fails CLOSED with 503 by design; /api/ready didn't even report Redis
+  3. Postgres binaries/data live in ~/pg-install + ~/pgdata (outside my-project) — wiped on reset; guardian heal_db probe returns 'err' when PG is down and treats it as OK, so nothing ever reinstalled/restarted it at boot
+- Fixes:
+  - .zscripts/dev.sh (platform boot entry) rewritten as self-healing deploy: env doctor (rewrite clobbered .env + SOURCE it over the poisoned process env — the override is the trap), bun install, datastore heal via installer, prisma migrate deploy (replaces the db:push --accept-data-loss bomb), guardian production serve with fd-isolated stdout, health check, mini-services
+  - scripts/install-datastores.sh: idempotent starts (skip pg_ctl/redis start when already up — pg_ctl on a live cluster aborted the script under set -e before Redis started)
+  - scripts/nx-guardian.sh heal_env: replaces a SQLite file: DATABASE_URL in place (was append-only-if-missing)
+  - src/app/api/ready: Redis check added — reported but NOT scored (a booting Redis must not flip the probe to 503 and cause supervisor restart-loops)
+- Proof: full reset simulation (app killed, PG stopped, Redis killed, .env clobbered to the exact platform default) -> bash .zscripts/dev.sh -> env restored+sourced, PG+Redis healed (10s), migrate deploy, app serving 200, /api/ready {database ok, seed ok, redis ok}, staff-auth/portal/home/portal-page all healthy; vitest 345/345; smoke 58/58; format+tsc+eslint+bash -n all green
+
+Stage Summary:
+- The publish link's deploy path is now self-healing against every observed failure mode: env clobber (file + process-env override), wiped datastore binaries, stopped daemons, empty cluster (guardian seeds it), schema drift (migrate deploy)
+- Note for future sessions: platform exports DATABASE_URL=file:... globally — NEVER trust process.env over .env when diagnosing; dev.sh sources .env over the env for all children
+

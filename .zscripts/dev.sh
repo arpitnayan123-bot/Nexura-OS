@@ -188,7 +188,10 @@ log_step_end "prisma migrate deploy"
 # ---------- [4/7] start app via guardian (production serve) ----------
 log_step_start "Starting Next.js server (nx-guardian)"
 echo "[APP] Starting production-serve guardian..."
-bun run dev &
+# /dev/null redirect: never let the long-lived guardian hold this script's
+# stdout/stderr fd — a platform log collector piping this script would
+# otherwise wait on it forever (package.json `dev` still tees dev.log).
+bun run dev >/dev/null 2>&1 &
 DEV_PID=$!
 log_step_end "Starting Next.js server (nx-guardian)"
 
