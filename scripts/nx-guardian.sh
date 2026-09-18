@@ -114,8 +114,16 @@ heal_env() {
   cd "$ROOT" || return 1
   if [ ! -f .env ]; then : > .env; fi
   local need_write=0
-  # DATABASE_URL must exist — Postgres is the production datastore; the
-  # loopback default matches docker-compose.yml for single-node installs.
+  # DATABASE_URL must exist AND must be Postgres — the schema is
+  # Postgres-only, so the platform boot's SQLite default (DATABASE_URL=file:...)
+  # is actively wrong, not just missing: serve/migrate would fail with it.
+  # Replace it in place instead of leaving a second (conflicting) line.
+  if grep -Eq '^DATABASE_URL="?file:' .env; then
+    sed -i '/^DATABASE_URL="?file:/d' .env
+    echo "DATABASE_URL=postgresql://nexura@127.0.0.1:5432/nexura" >> .env
+    log "env: replaced platform SQLite DATABASE_URL with local Postgres default"
+    need_write=1
+  fi
   if ! grep -q "^DATABASE_URL=" .env; then
     echo "DATABASE_URL=postgresql://nexura@127.0.0.1:5432/nexura" >> .env
     log "env: restored missing DATABASE_URL (local Postgres default)"

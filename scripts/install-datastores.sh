@@ -47,7 +47,14 @@ if [ "${1:-}" != "--no-start" ]; then
     mkdir -p "$PGDATA"
     "$PG_BIN/initdb" -D "$PGDATA" -U nexura --auth=trust --no-locale --encoding=UTF8 >/dev/null
   fi
-  "$PG_BIN/pg_ctl" -D "$PGDATA" -l "$PGDATA/pg.log" -o "-p 5432 -k /tmp" start
+  # Idempotent starts — this script doubles as the boot-time datastore heal,
+  # so it must tolerate an already-running cluster (pg_ctl start on a live
+  # server exits non-zero and would abort under set -e BEFORE redis starts).
+  if "$PG_BIN/pg_isready" -h 127.0.0.1 -p 5432 -t 2 >/dev/null 2>&1; then
+    echo "postgres: already running"
+  else
+    "$PG_BIN/pg_ctl" -D "$PGDATA" -l "$PGDATA/pg.log" -o "-p 5432 -k /tmp" start
+  fi
   for _ in $(seq 1 15); do
     "$PG_BIN/pg_isready" -h 127.0.0.1 -p 5432 -t 2 >/dev/null 2>&1 && break
     sleep 1
@@ -57,9 +64,13 @@ if [ "${1:-}" != "--no-start" ]; then
     "SELECT 1 FROM pg_database WHERE datname='nexura'" | grep -q 1 \
     || "$PG_BIN/psql" -h 127.0.0.1 -p 5432 -U nexura -d postgres -c "CREATE DATABASE nexura"
   echo "postgres: READY (db nexura)"
-  "$ROOTFS/usr/bin/redis-server" --bind 127.0.0.1 --port 6379 --daemonize yes --save "" --appendonly no --dir /tmp
-  sleep 1
-  "$ROOTFS/usr/bin/redis-cli" -h 127.0.0.1 -p 6379 ping
+  if "$ROOTFS/usr/bin/redis-cli" -h 127.0.0.1 -p 6379 ping 2>/dev/null | grep -q PONG; then
+    echo "redis: already running"
+  else
+    "$ROOTFS/usr/bin/redis-server" --bind 127.0.0.1 --port 6379 --daemonize yes --save "" --appendonly no --dir /tmp
+    sleep 1
+    "$ROOTFS/usr/bin/redis-cli" -h 127.0.0.1 -p 6379 ping
+  fi
   echo "redis: READY"
 fi
 echo "install-datastores: DONE"
