@@ -1,5 +1,9 @@
 # Nexura OS — Deployment Guide
 
+> **Live instance:** the published platform preview runs at
+> **[preview-7f3bab5c-5dbf-45f9-8222-047951c49f1c.space-z.ai](https://preview-7f3bab5c-5dbf-45f9-8222-047951c49f1c.space-z.ai/)**
+> (demo logins: password `Demo@12345`, staff PIN `2468`). Everything below ships your own copy.
+
 ## Prerequisites
 
 1. A [Vercel](https://vercel.com) account
