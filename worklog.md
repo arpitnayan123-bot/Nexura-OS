@@ -1072,3 +1072,25 @@ Work Log:
 Stage Summary:
 - The live publish link's login 500 is root-caused and fixed in-repo; the platform must REBUILD the FC package from the new main (user re-publish) for the live link to pick it up
 - The publish link is now in the repo (README button + demo section, package.json homepage, DEPLOYMENT.md, repo metadata)
+
+---
+Task ID: readme-arch-1
+Agent: Super Z (main)
+Task: Add project structure + architecture to GitHub README ("it should be best"), push; verify real publish link.
+
+Work Log:
+- curl-verified real publish link https://n13xb70qvnr0-d.space-z.ai — root 200, /api/ready 200 (first externally-confirmed working URL).
+- Confirmed earlier URL-swap commit (520ab97) already covered README ×2 / package.json / DEPLOYMENT.md.
+- Gathered exact counts: 189 API routes, 165 Prisma models, 8 migrations, 30 test files/345 tests, 26 nx platform modules, 19 component dirs.
+- README: new "Architecture" section (request-lifecycle ASCII diagram edge→withRoute→guard→services→Prisma/Postgres+Redis, 4 auth-planes table, AI governance funnel, money/concurrency invariants, background work) inserted before Quick start; TOC updated.
+- README: "Repository layout" upgraded to "Project structure" — full annotated tree + "where to look first by intent" table.
+- Root ARCHITECTURE.md rewritten (was stale: 62 models/SQLite/polling) → current one-page orientation deferring to docs/ARCHITECTURE.md.
+- prettier --write → format:check all green.
+- Push rejected (remote had user commit 97e7085 "Update consent-selfservice.test.ts") → rebased → pushed 97e7085..9916592.
+- Re-PATCHed GitHub repo metadata: homepage=https://n13xb70qvnr0-d.space-z.ai, updated description.
+- Verified via GitHub API: README raw contains both new sections + real URL ×4.
+
+Stage Summary:
+- HEAD on GitHub: 9916592 (docs: architecture + project structure).
+- README now 519 lines with full Architecture + Project structure sections; root ARCHITECTURE.md no longer contradicts reality.
+- Real publish link verified live 200 and present in README, package.json, DEPLOYMENT.md, repo homepage metadata.
