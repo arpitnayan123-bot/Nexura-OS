@@ -70,10 +70,18 @@ export async function consumeRateLimit(
   const key = `nx:rl:${identifier}`;
   const now = Date.now();
   const count = await client.incr(key);
-  if (count === 1) await client.pexpire(key, windowMs);
-  const ttl = await client.pttl(key);
-  const resetAt = ttl > 0 ? now + ttl : now + windowMs;
-  return { allowed: count <= max, remaining: Math.max(0, max - count), resetAt };
+  try {
+    if (count === 1) await client.pexpire(key, windowMs);
+    const ttl = await client.pttl(key);
+    const resetAt = ttl > 0 ? now + ttl : now + windowMs;
+    return { allowed: count <= max, remaining: Math.max(0, max - count), resetAt };
+  } catch (err) {
+    // incr() landed but expiry bookkeeping failed — drop the key so a
+    // no-TTL counter can't permanently consume the caller's budget,
+    // then propagate (withRoute turns this into a clean 503).
+    await client.del(key).catch(() => {});
+    throw err;
+  }
 }
 
 /** Inspect a budget WITHOUT consuming a slot. */
