@@ -12,7 +12,9 @@ TARGET_DB_PATH="$TARGET_DB_DIR/custom.db"
 
 mkdir -p "$TARGET_DB_DIR"
 
-PROVIDER="$(grep -E '^\s*provider\s*=' "$SCHEMA" | head -1 | sed 's/.*["'\'']\([^"'\'']*\)["'\''].*/\1/')"
+# Extract the DATASOURCE provider (not the generator's — schema.prisma has
+# two provider lines: generator "prisma-client-js" + datasource "postgresql").
+PROVIDER="$(awk '/^datasource /,/^\}/' "$SCHEMA" | grep -E '^\s*provider\s*=' | head -1 | sed 's/.*"\([^"]*\)".*/\1/')"
 echo "🗄️  Prisma datasource provider: $PROVIDER"
 
 if [ "$PROVIDER" != "postgresql" ]; then
@@ -59,9 +61,13 @@ fi
 # (`build`, guardian rebuild) re-runs `prisma generate` from
 # schema.prisma, restoring it automatically.
 # ------------------------------------------------------------------
-DEPLOY_SCHEMA="/tmp/schema.deploy.prisma"
+DEPLOY_SCHEMA="$PROJECT_DIR/prisma/schema.deploy.prisma"
 echo "🧬 生成 SQLite 部署 schema -> $DEPLOY_SCHEMA"
+# - provider swap: postgresql -> sqlite
+# - strip named constraints (`map: "..."`) — SQLite has no named FKs; the
+#   remaining @relation/@@unique syntax is identical on both dialects.
 sed -e 's/provider = "postgresql"/provider = "sqlite"/' \
+    -E -e 's/,[[:space:]]*map:[[:space:]]*"[^"]*"//g' \
     -e 's|url[[:space:]]*=[[:space:]]*env("DATABASE_URL")|url = env("DATABASE_URL")|' \
     "$SCHEMA" > "$DEPLOY_SCHEMA"
 grep -q 'provider = "sqlite"' "$DEPLOY_SCHEMA" || {
@@ -114,3 +120,5 @@ echo "🌱 为部署包数据库播种演示数据（DEMO_MODE）..."
 
 echo "✅ 构建产物数据库已准备完成（含演示数据）"
 ls -lah "$TARGET_DB_DIR"
+# Keep the tree clean — the deploy schema is a build-time artifact.
+rm -f "$DEPLOY_SCHEMA"

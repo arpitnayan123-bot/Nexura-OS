@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { ok, fail, paginate, pageMeta, withRoute } from "@/lib/nx/api";
 import { authenticateApiKey, hasScope } from "@/lib/nx/gateway";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 /* Tenant sandbox gateway — scoped partner read access to patients.
    Auth: Authorization: Bearer nxk_live_... (scope: patients.read) */
@@ -17,10 +18,7 @@ export const GET = withRoute("gateway.v1.patients", async (req: NextRequest, { r
     hospitalId: { in: auth.auth.hospitalIds },
     ...(p.q
       ? {
-          OR: [
-            { fullName: { contains: p.q, mode: "insensitive" as const } },
-            { uhid: { contains: p.q, mode: "insensitive" as const } },
-          ],
+          OR: [{ fullName: ciFilter(p.q) }, { uhid: ciFilter(p.q) }],
         }
       : {}),
   };

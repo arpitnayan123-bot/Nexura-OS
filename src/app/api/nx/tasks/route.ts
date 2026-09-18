@@ -5,6 +5,7 @@ import { audit } from "@/lib/nx/audit";
 import { publish } from "@/lib/nx/bus";
 import { fail, guard, ipOf, ok, paginate, pageMeta, parseBody, withRoute } from "@/lib/nx/api";
 import { PERMISSIONS } from "@/lib/nx/session";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -149,9 +150,9 @@ export const GET = withRoute("tasks.list", async (req: NextRequest) => {
   if (type) where.type = type;
   if (p.q)
     where.OR = [
-      { title: { contains: p.q, mode: "insensitive" as const } },
-      { patientName: { contains: p.q, mode: "insensitive" as const } },
-      { patientUhid: { contains: p.q, mode: "insensitive" as const } },
+      { title: ciFilter(p.q) },
+      { patientName: ciFilter(p.q) },
+      { patientUhid: ciFilter(p.q) },
     ];
 
   const [rows, total] = await Promise.all([

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guard, ok, fail, withRoute } from "@/lib/nx/api";
 import { parseSteps } from "@/lib/nx/pathway";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 /* Personalized care journey: predicted pathway nodes layered onto the
    visual timeline. Deterministic projection from active pathway + historical
@@ -26,10 +27,7 @@ export const GET = withRoute("journey.predicted", async (req: NextRequest, { req
     const sameDx = await db.hospitalAdmission.findMany({
       where: {
         hospitalId,
-        admissionDiagnosis: {
-          contains: admission.admissionDiagnosis.split(" ")[0],
-          mode: "insensitive" as const,
-        },
+        admissionDiagnosis: ciFilter(admission.admissionDiagnosis.split(" ")[0]),
         actualDischargeDate: { not: null },
       },
       select: { admissionDate: true, actualDischargeDate: true },

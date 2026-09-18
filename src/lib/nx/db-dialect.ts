@@ -14,15 +14,23 @@ import { log } from "@/lib/logger";
    scripts/db-restore-validate.mjs (pg_dump based).
    ============================================================ */
 
-export type DbProvider = "postgres";
+export type DbProvider = "postgres" | "sqlite";
 
 /** Accepts postgres://, postgresql:// and pgbouncer's prisma+postgres://. */
 export function isPostgresUrl(url: string | undefined): boolean {
   return /^prisma\+postgres(ql)?:\/\//.test(url ?? "") || /^postgres(ql)?:\/\//.test(url ?? "");
 }
 
+/** The platform publish package ships an embedded SQLite database (see
+ *  .zscripts/database-runtime-build.sh + NEXURA_PACKAGED in start.sh). The
+ *  generated Prisma client is provider-locked at generate time, so the
+ *  datasource the client talks to is derivable from the URL scheme. */
+export function isSqliteDatasource(): boolean {
+  return (process.env.DATABASE_URL ?? "").startsWith("file:");
+}
+
 export function dbProvider(): DbProvider {
-  return "postgres";
+  return isSqliteDatasource() ? "sqlite" : "postgres";
 }
 
 export interface DbProfile {
@@ -78,10 +86,19 @@ export async function readDb(): Promise<unknown> {
   return replicaSingleton;
 }
 
-/** Case-insensitive "contains" — required on every user-facing search now
- *  that Postgres LIKE is case-sensitive (SQLite LIKE was ASCII-insensitive).
- *  All route-level filters carry `mode: "insensitive"` inline; this helper
- *  remains for dynamic field names. */
+/** Case-insensitive "contains" filter fragment, dialect-aware:
+ *  - Postgres LIKE is case-sensitive → requires `mode: "insensitive"`.
+ *  - SQLite LIKE is already case-insensitive for ASCII, and its generated
+ *    client has NO `mode` argument — passing one throws "Unknown argument"
+ *    at runtime, so it must be absent in the packaged demo deployment.
+ *  The optional `mode` keeps the return type assignable to BOTH generated
+ *  clients (structural subtyping tolerates the extra key on Postgres). */
+export function ciFilter(value: string): { contains: string; mode?: "insensitive" } {
+  return isSqliteDatasource() ? { contains: value } : { contains: value, mode: "insensitive" };
+}
+
+/** Case-insensitive "contains" on a dynamic field name — thin wrapper over
+ *  `ciFilter` kept for existing call sites. */
 export function containsInsensitive(field: string, q: string) {
-  return { [field]: { contains: q, mode: "insensitive" as const } };
+  return { [field]: ciFilter(q) };
 }

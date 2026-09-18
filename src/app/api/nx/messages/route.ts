@@ -5,6 +5,7 @@ import { getSessionFresh, hasPermission, requirePermission } from "@/lib/nx/sess
 import { audit } from "@/lib/nx/audit";
 import { publish } from "@/lib/nx/bus";
 import { fail, requireHospitalContext, withRoute } from "@/lib/nx/api";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,7 +40,7 @@ export const GET = withRoute("messages.list", async (req: NextRequest) => {
     where: {
       hospitalId,
       channelKey: channel,
-      ...(q ? { body: { contains: q, mode: "insensitive" as const } } : {}),
+      ...(q ? { body: ciFilter(q) } : {}),
     },
     orderBy: { createdAt: "asc" },
     take: 120,

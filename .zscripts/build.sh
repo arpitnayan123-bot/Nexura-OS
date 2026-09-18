@@ -108,6 +108,19 @@ if [ ! -f ".next/standalone/server.js" ]; then
     echo "✅ 自愈成功：standalone 服务端入口已生成。"
 fi
 
+# ------------------------------------------------------------------
+# Restore the sandbox's Postgres Prisma client. The postgres-project
+# path above generated a SQLite-locked client (so `next build` bundles
+# it for the embedded DB); the SANDBOX runtime must switch back or every
+# fresh node process (vitest, seeds, guardian rebuild) fails datasource
+# validation. No-op for SQLite-native template projects.
+# ------------------------------------------------------------------
+DS_PROVIDER="$(awk '/^datasource /,/^\}/' "$NEXTJS_PROJECT_DIR/prisma/schema.prisma" | grep -E '^\s*provider\s*=' | head -1 | sed 's/.*"\([^"]*\)".*/\1/')"
+if [ "$DS_PROVIDER" = "postgresql" ]; then
+    echo "🔄 恢复沙箱 Postgres Prisma client..."
+    (cd "$NEXTJS_PROJECT_DIR" && bunx prisma generate)
+fi
+
 # 构建 mini-services
 # 检查 Next.js 项目目录下是否有 mini-services 目录
 if [ -d "$NEXTJS_PROJECT_DIR/mini-services" ]; then

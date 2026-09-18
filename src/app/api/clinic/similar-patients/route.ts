@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -76,10 +77,7 @@ async function POST_impl(req: NextRequest) {
     // real visits whose recorded diagnosis mentions any query term
     const visits = await db.clinicVisit.findMany({
       where: {
-        AND: [
-          { diagnosis: { not: null } },
-          { OR: terms.map((t) => ({ diagnosis: { contains: t, mode: "insensitive" as const } })) },
-        ],
+        AND: [{ diagnosis: { not: null } }, { OR: terms.map((t) => ({ diagnosis: ciFilter(t) })) }],
       },
       select: { id: true, diagnosis: true, meds: { select: { medicine: true } } },
       orderBy: { createdAt: "desc" },

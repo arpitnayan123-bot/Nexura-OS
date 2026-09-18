@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getDemoContext } from "@/lib/pharmacy-context";
 import { log } from "@/lib/logger";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,11 +22,11 @@ async function GET_impl(req: NextRequest) {
       where: q
         ? {
             OR: [
-              { name: { contains: q, mode: "insensitive" as const } },
-              { genericName: { contains: q, mode: "insensitive" as const } },
-              { salts: { contains: q, mode: "insensitive" as const } },
-              { brand: { contains: q, mode: "insensitive" as const } },
-              { hsn: { contains: q, mode: "insensitive" as const } },
+              { name: ciFilter(q) },
+              { genericName: ciFilter(q) },
+              { salts: ciFilter(q) },
+              { brand: ciFilter(q) },
+              { hsn: ciFilter(q) },
             ],
           }
         : undefined,

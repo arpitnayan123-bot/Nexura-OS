@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { log } from "@/lib/logger";
 import { db } from "@/lib/db";
 import { withProductAuth } from "@/lib/nx/product-auth";
+import { ciFilter } from "@/lib/nx/db-dialect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,10 +15,7 @@ async function GET_impl(req: NextRequest) {
     if (!q || q.length < 1) return NextResponse.json({ drugs: [] });
     const drugs = await db.indianDrug.findMany({
       where: {
-        OR: [
-          { brandName: { contains: q, mode: "insensitive" as const } },
-          { saltName: { contains: q, mode: "insensitive" as const } },
-        ],
+        OR: [{ brandName: ciFilter(q) }, { saltName: ciFilter(q) }],
       },
       take: 12,
       orderBy: { brandName: "asc" },
