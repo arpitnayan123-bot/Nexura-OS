@@ -189,6 +189,8 @@ export const POST = withRoute("auth.login", async (req) => {
   };
 
   if (!user) {
+    // Mitigate timing attack user enumeration
+    await bcrypt.compare("dummy_password", "$2b$10$rpBlXzxYX4w.SHli2CETbu5ucClj1wy1hPzAgIazqVravGZmRrQfG");
     await auditAttempt(false, "unknown_account");
     // Constant-shape error; never reveal whether the account exists
     return fail("invalid_credentials", 401, "Incorrect credentials.");

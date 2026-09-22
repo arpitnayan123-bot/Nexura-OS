@@ -75,13 +75,18 @@ export async function sendAuthEmail(email: AuthEmail): Promise<SendResult> {
       port: cfg.port,
       secure: cfg.port === 465,
       auth: cfg.user && cfg.pass ? { user: cfg.user, pass: cfg.pass } : undefined,
+      connectionTimeout: 10000,
+      greetingTimeout: 5000,
+      socketTimeout: 20000,
     });
+
     await transporter.sendMail({
       from: cfg.from,
       to: email.to,
       subject: email.subject,
       text: email.text,
     });
+
     log.info("auth", "email.sent", { to: email.to, subject: email.subject, transport: "smtp" });
     return { delivered: true, transport: "smtp" };
   } catch (e) {
