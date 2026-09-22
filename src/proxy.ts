@@ -91,9 +91,9 @@ function apiRateLimited(ip: string): { limited: boolean; retryAfter: number } {
         }
       }
       if (buckets.size > 10_000) {
-          // If still over 10k after expired sweep, we are under attack. Clear it fully to prevent OOM.
-          // Legitimate IPs will get re-added on their next request.
-          buckets.clear();
+        // If still over 10k after expired sweep, we are under attack. Clear it fully to prevent OOM.
+        // Legitimate IPs will get re-added on their next request.
+        buckets.clear();
       }
     }
     buckets.set(ip, { count: 1, resetAt: now + API_RATE.windowMs });

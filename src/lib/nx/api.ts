@@ -231,7 +231,8 @@ export function paginate(
   const sp = req.nextUrl.searchParams;
   const maxPerPage = defaults?.maxPerPage ?? DEFAULT_MAX_PER_PAGE;
   const page = Math.max(1, Number(sp.get("page") || 1) || 1);
-  const perPageRaw = Number(sp.get("perPage") || defaults?.perPage || DEFAULT_PER_PAGE) || DEFAULT_PER_PAGE;
+  const perPageRaw =
+    Number(sp.get("perPage") || defaults?.perPage || DEFAULT_PER_PAGE) || DEFAULT_PER_PAGE;
   const perPage = Math.min(maxPerPage, Math.max(1, perPageRaw));
   const order = sp.get("order") === "asc" ? "asc" : "desc";
   return {
@@ -365,10 +366,13 @@ export async function withIdempotency<T>(
     // If it's a database connection/timeout error, surface it instead of pretending it's an idempotency hit.
     // P2002 is Prisma's unique constraint violation code.
     if (insertError) {
-       const isConstraintViolation = typeof insertError === "object" && 'code' in insertError && (insertError as Record<string, unknown>).code === 'P2002';
-       if (!isConstraintViolation) {
-           throw insertError;
-       }
+      const isConstraintViolation =
+        typeof insertError === "object" &&
+        "code" in insertError &&
+        (insertError as Record<string, unknown>).code === "P2002";
+      if (!isConstraintViolation) {
+        throw insertError;
+      }
     }
 
     // We lost the insert race (P2002 constraint violation) — this key is already claimed.
