@@ -51,7 +51,7 @@ async function verifyJwtEdge(token: string, secret: string): Promise<boolean> {
     );
     if (!valid) return false;
     const claims = JSON.parse(new TextDecoder().decode(b64urlToBytes(payload)));
-    if (typeof claims.exp === "number" && claims.exp * 1000 < Date.now()) return false;
+    if (typeof claims.exp !== "number" || claims.exp * 1000 < Date.now()) return false;
     return true;
   } catch {
     return false;
@@ -80,10 +80,23 @@ function apiRateLimited(ip: string): { limited: boolean; retryAfter: number } {
   const now = Date.now();
   const entry = buckets.get(ip);
   if (!entry || entry.resetAt < now) {
-    buckets.set(ip, { count: 1, resetAt: now + API_RATE.windowMs });
+    // If the cache is full, delete the oldest/expired entries first, but if it's still full,
+    // aggressively clear to prevent OOM
     if (buckets.size > 10_000) {
-      for (const [k, v] of buckets) if (v.resetAt < now) buckets.delete(k);
+      let deleted = 0;
+      for (const [k, v] of buckets) {
+        if (v.resetAt < now) {
+          buckets.delete(k);
+          deleted++;
+        }
+      }
+      if (buckets.size > 10_000) {
+          // If still over 10k after expired sweep, we are under attack. Clear it fully to prevent OOM.
+          // Legitimate IPs will get re-added on their next request.
+          buckets.clear();
+      }
     }
+    buckets.set(ip, { count: 1, resetAt: now + API_RATE.windowMs });
     return { limited: false, retryAfter: 0 };
   }
   entry.count += 1;
