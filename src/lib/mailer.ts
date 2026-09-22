@@ -86,7 +86,6 @@ export async function sendAuthEmail(email: AuthEmail): Promise<SendResult> {
       subject: email.subject,
       text: email.text,
     });
-
     log.info("auth", "email.sent", { to: email.to, subject: email.subject, transport: "smtp" });
     return { delivered: true, transport: "smtp" };
   } catch (e) {

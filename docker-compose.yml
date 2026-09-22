@@ -16,7 +16,7 @@ services:
       - "3000:3000"
     env_file:
       - path: .env.docker
-        required: false
+      required: false
     environment:
       DATABASE_URL: postgresql://nexura:${POSTGRES_PASSWORD:-nexura-local-only}@db:5432/nexura
       REDIS_URL: redis://redis:6379
