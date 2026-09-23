@@ -26,11 +26,14 @@ export async function scanFileBuffer(buffer: Buffer): Promise<ScanResult> {
     // NOTE: This represents how one would connect to an external ClamAV daemon
     // over HTTP/REST. (Real ClamAV often uses clamd TCP sockets, but an API wrapper is common).
     const formData = new FormData();
-    const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-    formData.append('file', new Blob([arrayBuffer as ArrayBuffer]));
+    const arrayBuffer = buffer.buffer.slice(
+      buffer.byteOffset,
+      buffer.byteOffset + buffer.byteLength,
+    );
+    formData.append("file", new Blob([arrayBuffer as ArrayBuffer]));
 
     const response = await fetch(clamAvUrl, {
-      method: 'POST',
+      method: "POST",
       body: formData,
       signal: AbortSignal.timeout(10000), // 10s timeout
     });

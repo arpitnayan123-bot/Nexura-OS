@@ -133,7 +133,13 @@ async function POST_impl(req: NextRequest) {
     if (payMode === "upi" || payMode === "card") {
       const paymentIntentId = body.paymentIntentId;
       if (!paymentIntentId) {
-         return NextResponse.json({ error: "missing_payment", detail: "A payment intent is required for digital payments." }, { status: 400 });
+        return NextResponse.json(
+          {
+            error: "missing_payment",
+            detail: "A payment intent is required for digital payments.",
+          },
+          { status: 400 },
+        );
       }
 
       const { createPaymentIntent } = await import("@/lib/payments");
@@ -142,10 +148,16 @@ async function POST_impl(req: NextRequest) {
       try {
         const intent = await createPaymentIntent(roundedTotalPaise, `rcpt_${Date.now()}`);
         if (intent.status === "failed") {
-          return NextResponse.json({ error: "payment_failed", detail: "Payment capture failed." }, { status: 400 });
+          return NextResponse.json(
+            { error: "payment_failed", detail: "Payment capture failed." },
+            { status: 400 },
+          );
         }
       } catch (err) {
-         return NextResponse.json({ error: "payment_failed", detail: "Payment capture verification failed." }, { status: 400 });
+        return NextResponse.json(
+          { error: "payment_failed", detail: "Payment capture verification failed." },
+          { status: 400 },
+        );
       }
     }
 

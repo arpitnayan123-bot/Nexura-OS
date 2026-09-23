@@ -202,7 +202,11 @@ export async function emit(ev: Omit<NxEvent, "at" | "seq" | "sig" | "from">): Pr
 
     // We only pass through explicitly known triggers to the automation engine.
     const KNOWN_TRIGGERS = [
-      "result.critical", "discharge.confirmed", "bed.ready", "order.created", "appointment.created"
+      "result.critical",
+      "discharge.confirmed",
+      "bed.ready",
+      "order.created",
+      "appointment.created",
     ];
 
     if (KNOWN_TRIGGERS.includes(trigger)) {
@@ -215,9 +219,11 @@ export async function emit(ev: Omit<NxEvent, "at" | "seq" | "sig" | "from">): Pr
         actorRole: "system",
         patientId: ev.patientId,
         relatedId: ev.channelKey,
-        detail: dataStr
-      }).catch(err => {
-        log.error("bus", "emit_automation_failed", { err: err instanceof Error ? err.message : String(err) });
+        detail: dataStr,
+      }).catch((err) => {
+        log.error("bus", "emit_automation_failed", {
+          err: err instanceof Error ? err.message : String(err),
+        });
       });
     }
   } catch (err) {

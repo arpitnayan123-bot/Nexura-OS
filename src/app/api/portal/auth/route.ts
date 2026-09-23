@@ -165,7 +165,7 @@ export async function POST(req: NextRequest) {
       log.info("portal", "otp.issued", {
         phoneMasked: phone.slice(0, 4) + "***",
         transport: result.transport,
-        delivered: result.delivered
+        delivered: result.delivered,
       });
       return NextResponse.json({ sent: result.delivered });
     }
