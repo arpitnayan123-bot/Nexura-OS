@@ -123,7 +123,22 @@ function extractImage(
       code: "unsupported_mime",
       detail: "Only JPG and PNG prescriptions are supported.",
     };
+
   return { ok: true, raw, mime };
+}
+
+async function scanImage(rawBase64: string): Promise<{ ok: boolean; detail?: string }> {
+  try {
+    const { scanFileBuffer } = await import("@/lib/nx/scanner");
+    const buffer = Buffer.from(rawBase64, "base64");
+    const scan = await scanFileBuffer(buffer);
+    if (!scan.isClean) {
+      return { ok: false, detail: scan.detail || "File failed security scan." };
+    }
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, detail: "Security scanner unavailable." };
+  }
 }
 
 /* ---------- GET: branch order book ---------- */
@@ -211,10 +226,20 @@ async function POST_impl(req: NextRequest) {
       return NextResponse.json({ error: "no_patient_name" }, { status: 400 });
     if (phone.length < 8) return NextResponse.json({ error: "invalid_phone" }, { status: 400 });
 
-    // optional Rx upload → validated + OCR'd
+    // optional Rx upload → validated + scanned + OCR'd
     const img = extractImage(body?.prescriptionImage);
     if (!img.ok)
       return NextResponse.json({ error: img.code, detail: img.detail }, { status: img.status });
+
+    if (img.raw) {
+      const scanRes = await scanImage(img.raw);
+      if (!scanRes.ok) {
+        return NextResponse.json(
+          { error: "malware_detected", detail: scanRes.detail },
+          { status: 400 },
+        );
+      }
+    }
 
     let ocrItems: { name: string; dosage?: string; duration?: string }[] = [];
     let ocrRawJson: string | null = null;
