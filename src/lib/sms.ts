@@ -49,19 +49,24 @@ export async function sendSms(message: SmsMessage): Promise<SmsSendResult> {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: "Basic " + Buffer.from(`${cfg.accountSid}:${cfg.authToken}`).toString("base64"),
+          Authorization:
+            "Basic " + Buffer.from(`${cfg.accountSid}:${cfg.authToken}`).toString("base64"),
         },
         body: new URLSearchParams({
           To: message.to,
           From: cfg.fromNumber,
           Body: message.body,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
       const errText = await response.text().catch(() => "Unknown Twilio error");
-      log.error("sms", "send_failed", { status: response.status, body: errText, transport: "twilio" });
+      log.error("sms", "send_failed", {
+        status: response.status,
+        body: errText,
+        transport: "twilio",
+      });
       return { delivered: false, transport: "twilio", error: errText };
     }
 

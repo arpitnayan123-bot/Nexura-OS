@@ -32,7 +32,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (err) {
-    log.error("webhooks", "payment_processing_error", { error: err instanceof Error ? err.message : String(err) });
+    log.error("webhooks", "payment_processing_error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "Processing failed" }, { status: 500 });
   }
 }

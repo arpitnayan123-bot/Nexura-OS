@@ -236,7 +236,7 @@ async function POST_impl(req: NextRequest) {
       if (!scanRes.ok) {
         return NextResponse.json(
           { error: "malware_detected", detail: scanRes.detail },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }

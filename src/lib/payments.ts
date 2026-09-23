@@ -27,7 +27,7 @@ function paymentConfig() {
 export async function createPaymentIntent(
   amountPaise: number,
   receiptId: string,
-  notes: Record<string, string> = {}
+  notes: Record<string, string> = {},
 ): Promise<PaymentIntent> {
   const cfg = paymentConfig();
 
@@ -50,7 +50,8 @@ export async function createPaymentIntent(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Basic " + Buffer.from(`${cfg.apiKey}:${cfg.secretKey}`).toString("base64"),
+          Authorization:
+            "Basic " + Buffer.from(`${cfg.apiKey}:${cfg.secretKey}`).toString("base64"),
         },
         body: JSON.stringify({
           amount: amountPaise,
@@ -74,7 +75,9 @@ export async function createPaymentIntent(
         clientSecret: null,
       };
     } catch (err) {
-      log.error("payments", "intent_creation_failed", { error: err instanceof Error ? err.message : String(err) });
+      log.error("payments", "intent_creation_failed", {
+        error: err instanceof Error ? err.message : String(err),
+      });
       throw new Error("Payment intent creation failed");
     }
   }
@@ -86,7 +89,7 @@ export async function createPaymentIntent(
 export function verifyWebhookSignature(
   payload: string,
   signature: string,
-  provider: string
+  provider: string,
 ): boolean {
   if (provider === "mock") return true;
 
