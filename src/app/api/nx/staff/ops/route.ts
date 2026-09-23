@@ -19,9 +19,18 @@ export const GET = withRoute("staff.ops.list", async (req: NextRequest) => {
   const hospitalId = g.session.hospitalId;
   if (!hospitalId) return fail("no_hospital", 400);
 
+  // Authorization bypass mitigation: ensure we scope results to the
+  // session's department unless they are an admin.
+  const platform = g.session.role === "super_admin" || g.session.role === "org_admin";
+  const deptFilter = platform
+    ? {}
+    : g.session.department
+      ? { department: g.session.department }
+      : { department: "NONE_UNLESS_MAPPED" }; // fail-closed if non-platform user has no department
+
   const [staff, departments, credentials, shifts, workload] = await Promise.all([
     db.nxStaffUser.findMany({
-      where: { hospitalId },
+      where: { hospitalId, ...deptFilter },
       orderBy: [{ role: "asc" }, { name: "asc" }],
       select: {
         id: true,

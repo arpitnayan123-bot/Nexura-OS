@@ -143,10 +143,10 @@ export async function requireHospitalContext(
   session: NxSession,
 ): Promise<{ hospitalId: string } | { response: NextResponse }> {
   if (session.hospitalId) return { hospitalId: session.hospitalId };
-  if (isDemoMode()) {
-    const hospital = await db.hospital.findFirst({ select: { id: true } }).catch(() => null);
-    if (hospital?.id) return { hospitalId: hospital.id };
-  }
+  // The historical `db.hospital.findFirst()` fallback in DEMO_MODE was a major
+  // tenant-isolation vulnerability, allowing synthetic/un-scoped sessions to
+  // arbitrarily bind to the first hospital in the database. It has been removed.
+  // All demo seeds must now explicitly scope sessions to the correct hospital ID.
   return {
     response: fail(
       "no_hospital_context",
@@ -221,14 +221,18 @@ export interface PageParams {
   q?: string;
 }
 
+const DEFAULT_MAX_PER_PAGE = 100;
+const DEFAULT_PER_PAGE = 25;
+
 export function paginate(
   req: NextRequest,
   defaults?: { perPage?: number; maxPerPage?: number },
 ): PageParams {
   const sp = req.nextUrl.searchParams;
-  const maxPerPage = defaults?.maxPerPage ?? 100;
+  const maxPerPage = defaults?.maxPerPage ?? DEFAULT_MAX_PER_PAGE;
   const page = Math.max(1, Number(sp.get("page") || 1) || 1);
-  const perPageRaw = Number(sp.get("perPage") || defaults?.perPage || 25) || 25;
+  const perPageRaw =
+    Number(sp.get("perPage") || defaults?.perPage || DEFAULT_PER_PAGE) || DEFAULT_PER_PAGE;
   const perPage = Math.min(maxPerPage, Math.max(1, perPageRaw));
   const order = sp.get("order") === "asc" ? "asc" : "desc";
   return {
@@ -340,6 +344,7 @@ export async function withIdempotency<T>(
   // runs, so two concurrent requests with the same key cannot both execute
   // (the historical check-then-create raced and double-charged payments).
   // The unique constraint on NxIdempotency.key is the serialization point.
+  let insertError = null;
   const insert = await db.nxIdempotency
     .create({
       data: {
@@ -352,11 +357,26 @@ export async function withIdempotency<T>(
         expiresAt: new Date(Date.now() + (opts?.ttlHours ?? 24) * 3600_000),
       },
     })
-    .catch(() => null);
+    .catch((err) => {
+      insertError = err;
+      return null;
+    });
 
   if (!insert) {
-    // We lost the insert race — this key is already claimed. Replay the
-    // winner's response when the payload matches; 409 otherwise.
+    // If it's a database connection/timeout error, surface it instead of pretending it's an idempotency hit.
+    // P2002 is Prisma's unique constraint violation code.
+    if (insertError) {
+      const isConstraintViolation =
+        typeof insertError === "object" &&
+        "code" in insertError &&
+        (insertError as Record<string, unknown>).code === "P2002";
+      if (!isConstraintViolation) {
+        throw insertError;
+      }
+    }
+
+    // We lost the insert race (P2002 constraint violation) — this key is already claimed.
+    // Replay the winner's response when the payload matches; 409 otherwise.
     const existing = await db.nxIdempotency
       .findUnique({ where: { key: scopedKey } })
       .catch(() => null);
