@@ -43,9 +43,17 @@ async function callZAI(messages: ORMsg[]): Promise<{ text: string; usage: unknow
     role: m.role === "system" ? "assistant" : m.role,
     content: m.content as any,
   }));
-  const completion = hasImage
-    ? await zai.chat.completions.createVision({ messages: converted })
-    : await zai.chat.completions.create({ messages: converted, thinking: { type: "disabled" } });
+
+  // Bound the SDK call with the same 45s timeout as the OpenRouter HTTP fetch
+  const timeoutPromise = new Promise<{ text: string; usage: unknown }>((_, reject) => {
+    setTimeout(() => reject(new Error("Z-AI SDK timeout")), OPENROUTER_TIMEOUT_MS);
+  });
+
+  const completionPromise = hasImage
+    ? zai.chat.completions.createVision({ messages: converted })
+    : zai.chat.completions.create({ messages: converted, thinking: { type: "disabled" } });
+
+  const completion = (await Promise.race([completionPromise, timeoutPromise])) as any;
   const text = completion?.choices?.[0]?.message?.content || "";
   if (!text) throw new Error("Empty response from model");
   return { text, usage: completion?.usage ?? null };
