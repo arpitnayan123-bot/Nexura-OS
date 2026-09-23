@@ -189,6 +189,50 @@ export function publish(ev: Omit<NxEvent, "at" | "seq" | "sig" | "from">): NxEve
   return full;
 }
 
+/**
+ * Unified dispatcher that fires the real-time event bus,
+ * webhooks, escalations, and automation engine rules.
+ */
+export async function emit(ev: Omit<NxEvent, "at" | "seq" | "sig" | "from">): Promise<NxEvent> {
+  const fullEvent = publish(ev);
+
+  try {
+    const { fire } = await import("./automations");
+    const trigger = ev.event as any;
+
+    // We only pass through explicitly known triggers to the automation engine.
+    const KNOWN_TRIGGERS = [
+      "result.critical",
+      "discharge.confirmed",
+      "bed.ready",
+      "order.created",
+      "appointment.created",
+    ];
+
+    if (KNOWN_TRIGGERS.includes(trigger)) {
+      const dataStr = ev.data && typeof ev.data === "object" ? (ev.data as any) : {};
+
+      // Fire-and-forget the heavy automation processing
+      fire(trigger, {
+        hospitalId: ev.hospitalId,
+        actorName: "system",
+        actorRole: "system",
+        patientId: ev.patientId,
+        relatedId: ev.channelKey,
+        detail: dataStr,
+      }).catch((err) => {
+        log.error("bus", "emit_automation_failed", {
+          err: err instanceof Error ? err.message : String(err),
+        });
+      });
+    }
+  } catch (err) {
+    log.error("bus", "emit_failed", { err: err instanceof Error ? err.message : String(err) });
+  }
+
+  return fullEvent;
+}
+
 export function subscribe(
   id: string,
   scope: SubscriberScope,
