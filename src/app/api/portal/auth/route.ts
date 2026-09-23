@@ -156,11 +156,18 @@ export async function POST(req: NextRequest) {
       }
       // Production integration point: deliver `code` via SMS/EMAIL provider
       // (EMAIL_TRANSPORT). It is never echoed in the API response.
+      const { sendSms } = await import("@/lib/sms");
+      const result = await sendSms({
+        to: phone,
+        body: `Your Nexura OS Portal login code is: ${code}. Valid for 5 minutes.`,
+      });
+
       log.info("portal", "otp.issued", {
         phoneMasked: phone.slice(0, 4) + "***",
-        transport: "console",
+        transport: result.transport,
+        delivered: result.delivered
       });
-      return NextResponse.json({ sent: true });
+      return NextResponse.json({ sent: result.delivered });
     }
 
     // ---- verify OTP ----
