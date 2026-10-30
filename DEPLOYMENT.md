@@ -33,12 +33,17 @@ In Vercel → Project Settings → Environment Variables, add:
 | -------------- | ------------------------------------- | -------- |
 | `DATABASE_URL` | `postgresql://user:pass@host:port/db` | ✅ Yes   |
 | `JWT_SECRET`   | Generate with `openssl rand -hex 32`  | ✅ Yes   |
-| `REDIS_URL`    | `redis://default:pass@host:6379`      | ✅ Yes   |
-| `NODE_ENV`     | `production`                          | ✅ Yes   |
+| `REDIS_URL`    | `redis://default:pass@host:6379`      | Optional (serverless) |
 
-**Note:** the server refuses to boot in production without the first three —
-see `assertProductionEnv()` in `src/lib/env.ts`. Full variable reference:
-[`.env.example`](.env.example). No AI API keys are needed — z-ai-web-dev-sdk is pre-configured.
+**Note:** the server refuses to boot in production without `DATABASE_URL` and
+`JWT_SECRET` — see `assertProductionEnv()` in `src/lib/env.ts`. `REDIS_URL` is
+required on self-hosted VM/container boots, but on serverless/PaaS runtimes
+(Vercel is auto-detected via `VERCEL=1`; force with `NEXURA_REDIS_OPTIONAL=1`)
+the boot gate only logs a loud warning and both Redis-backed layers fall back
+to their documented single-instance modes (in-process rate limiting,
+local-only event bus). Set `REDIS_URL` (e.g. Upstash) to restore
+cross-instance semantics. Full variable reference: [`.env.example`](.env.example).
+No AI API keys are needed — z-ai-web-dev-sdk is pre-configured.
 
 ## Step 4: Database Setup
 
@@ -62,7 +67,15 @@ see `assertProductionEnv()` in `src/lib/env.ts`. Full variable reference:
 
 ## Step 5: Apply Schema to Production DB
 
-The repo ships a Prisma migrations history (`prisma/migrations/`). Apply it with:
+**Automatic since v1.2.1:** every production build runs
+`node scripts/db-sync.mjs` between `prisma generate` and `next build` — when
+`DATABASE_URL` is a postgres:// URL the schema is applied with
+`prisma db push --skip-generate --accept-data-loss` (idempotent; a synced
+schema is a fast no-op). A fresh hosted database is therefore provisioned by
+the first deploy itself, and schema drift self-heals on later deploys.
+
+Prefer explicit migrations? Apply the shipped history instead and the build's
+sync becomes a no-op:
 
 ```bash
 # Set DATABASE_URL to your production PostgreSQL
@@ -124,7 +137,8 @@ When migrating from SQLite to PostgreSQL:
 
 - [ ] `DATABASE_URL` — PostgreSQL connection string
 - [ ] `JWT_SECRET` — 64-character hex string
-- [ ] `NODE_ENV` — `production`
+- [ ] `REDIS_URL` — optional on serverless (fallbacks active), required self-hosted
+- [ ] `NODE_ENV` — `production` (set automatically by Vercel)
 - [ ] No secrets in Git
 - [ ] No hardcoded API keys
 - [ ] `.env` is in `.gitignore`
@@ -138,6 +152,22 @@ Add to `package.json`:
 ```json
 "postinstall": "prisma generate"
 ```
+
+### Runtime: every page returns 500 (x-next-error-status: 500)
+
+The production boot gate (`assertProductionEnv()` in `src/lib/env.ts`, wired
+from `src/instrumentation.ts`) refuses to boot and every serverless function
+fails at cold start. Check Vercel → Project → Functions logs for
+`production boot gate FAILED` — it names the exact missing variable:
+
+- `DATABASE_URL is required` → set it (Step 3/4)
+- `DATABASE_URL must be a postgres:// URL` → you left a `file:` SQLite URL in
+- `JWT_SECRET must be set (>=16 chars)` → generate one (`openssl rand -hex 32`)
+- `REDIS_URL is required` → set it, or rely on the serverless fallback
+  (auto on Vercel / `NEXURA_REDIS_OPTIONAL=1`)
+
+After adding variables, **Redeploy** (Deployments → ⋯ → Redeploy) — env
+changes never apply to already-running instances.
 
 ### Runtime: "Database connection failed"
 

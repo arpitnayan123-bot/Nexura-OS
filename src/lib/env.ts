@@ -124,6 +124,23 @@ export function assertProductionEnv(): void {
    * rate-limiting and per-instance event delivery when REDIS_URL is absent. */
   const packaged = process.env.NEXURA_PACKAGED === "1";
 
+  /* SERVERLESS / PAAS DEPLOYMENTS (Vercel, Netlify, ...) — Vercel injects
+   * VERCEL=1 into every build and runtime. A serverless function cannot
+   * open the long-lived TCP pub/sub connections a self-hosted Redis assumes,
+   * and the platform's own rate limiting already sits in front of the app.
+   * Both Redis-backed layers have documented single-instance fallbacks
+   * (rate-limit.ts in-process Map, bus.ts local-only delivery + /api/ready
+   * reporting "in-process fallbacks active"), so on serverless the boot
+   * gate treats a missing REDIS_URL as a LOUD WARNING instead of a hard
+   * refusal — set REDIS_URL (e.g. Upstash) to restore cross-instance
+   * semantics. NEXURA_REDIS_OPTIONAL=1 opts in explicitly on any platform.
+   * DATABASE_URL and JWT_SECRET stay hard requirements everywhere: the app
+   * has no useful posture without its data layer and auth secrets. */
+  const redisOptional =
+    packaged ||
+    process.env.VERCEL === "1" ||
+    process.env.NEXURA_REDIS_OPTIONAL === "1";
+
   const missing: string[] = [];
 
   if (!process.env.DATABASE_URL) {
@@ -136,10 +153,18 @@ export function assertProductionEnv(): void {
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
     missing.push("JWT_SECRET must be set (>=16 chars)");
   }
-  if (!packaged && (!process.env.REDIS_URL || !process.env.REDIS_URL.startsWith("redis"))) {
-    missing.push(
-      "REDIS_URL is required (redis://host:6379) — rate limiting, the event bus, and sync leases are Redis-backed",
-    );
+  if (!process.env.REDIS_URL || !process.env.REDIS_URL.startsWith("redis")) {
+    if (redisOptional) {
+      log.warn(
+        "env",
+        "REDIS_URL not set — running with per-instance rate limiting and local-only event bus. " +
+          "Set REDIS_URL (e.g. redis://default:pass@host:6379 or Upstash) to restore cross-instance semantics.",
+      );
+    } else {
+      missing.push(
+        "REDIS_URL is required (redis://host:6379) — rate limiting, the event bus, and sync leases are Redis-backed",
+      );
+    }
   }
 
   if (missing.length) {

@@ -34,7 +34,7 @@
     "format:check": "prettier --check .",
     "dev": "bash scripts/nx-guardian.sh 2>&1 | tee dev.log",
     "dev:real": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && node scripts/db-sync.mjs && next build",
     "build:standalone": "prisma generate && next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
     "start": "bash scripts/nx-guardian.sh",
     "start:raw": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",

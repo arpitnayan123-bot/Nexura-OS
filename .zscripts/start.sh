@@ -74,10 +74,7 @@ if [ -f "./next-service-dist/server.js" ]; then
     # 设置环境变量
     export NODE_ENV=production
     export PORT="${PORT:-3000}"
-    # 无条件 0.0.0.0：交互式 shell / FC 环境普遍自带 HOSTNAME=<容器名>，
-    # "${HOSTNAME:-0.0.0.0}" 会被其击败 -> server.js 绑定容器名 IP，
-    # Caddy 的 localhost:3000 拨不通 -> 健康门失败（warmup 循环）。
-    export HOSTNAME="0.0.0.0"
+    export HOSTNAME="${HOSTNAME:-0.0.0.0}"
     export DATABASE_URL="${DATABASE_URL:-$DEFAULT_PACKAGED_DATABASE_URL}"
 
     if [ "$DATABASE_URL" = "$DEFAULT_PACKAGED_DATABASE_URL" ]; then
@@ -88,25 +85,6 @@ if [ -f "./next-service-dist/server.js" ]; then
         fi
 
         echo "🗄️  当前使用打包数据库: $DEFAULT_PACKAGED_DB_PATH"
-
-        # ------------------------------------------------------------
-        # PACKAGED DEMO MODE — self-contained FC package: embedded SQLite,
-        # no external Postgres/Redis. env.ts's production boot gate accepts
-        # this mode only when NEXURA_PACKAGED=1; Redis is optional (the app
-        # falls back to in-process rate limiting / per-instance events).
-        # ------------------------------------------------------------
-        export NEXURA_PACKAGED=1
-        export DEMO_MODE="${DEMO_MODE:-true}"
-        export JWT_SECRET="${JWT_SECRET:-nexura-packaged-demo-jwt-secret-0123456789}"
-        export NEXURA_MODE="${NEXURA_MODE:-local}"
-        export EMAIL_TRANSPORT="${EMAIL_TRANSPORT:-console}"
-        # The platform injects a GLOBAL REDIS_URL into the FC environment, but
-        # this package ships no Redis server. An inherited (unreachable)
-        # REDIS_URL flips isRedisConfigured() to true and fails every
-        # rate-limited route closed — the same trap class as the global
-        # DATABASE_URL. Force the empty value so the app uses its in-process
-        # fallbacks (per-instance limiter + local event bus).
-        export REDIS_URL=""
     else
         echo "🗄️  当前使用外部指定数据库: $DATABASE_URL"
     fi

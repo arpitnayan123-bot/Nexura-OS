@@ -29,29 +29,15 @@ export NEXT_TELEMETRY_DISABLED=1
 
 BUILD_DIR="/tmp/build_fullstack_$BUILD_ID"
 echo "📁 清理并创建构建目录: $BUILD_DIR"
-# 必须从零开始：复用旧目录会让 seed 对已填充的库重跑 deleteMany，
-# 外键删除顺序不完整 -> P2003 (FK constraint) —— 空库路径才是被验证的路径。
-rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
 # 安装依赖
 echo "📦 安装依赖..."
 bun install
 
-# ------------------------------------------------------------------
-# 数据库产物准备（必须在 next build 之前！）—— postgres 项目会在此步
-# 生成 SQLite 部署库 + 对应的 Prisma client；若放在 build 之后，打包
-# 进产物的仍是 postgres client（provider 在 generate 时锁死），部署到
-# FC 后 app 无法使用内嵌库 —— warmup_412 / 部署失败的主因。
-# ------------------------------------------------------------------
-PROJECT_DIR="$NEXTJS_PROJECT_DIR" BUILD_DIR="$BUILD_DIR" \
-    bash "$SCRIPT_DIR/database-runtime-build.sh"
-
-# 构建 Next.js 应用（直接调 next build —— bun run build 会先执行
-# `prisma generate`（postgres schema），把上一步生成的部署 client
-# 覆盖掉。prisma generate 已按需在 database-runtime-build.sh 中完成）
+# 构建 Next.js 应用
 echo "🔨 构建 Next.js 应用..."
-bunx next build
+bun run build
 
 # 校验 standalone 服务端入口是否生成（部署成功率守卫）。
 # Next 仅在 next.config 含 output:"standalone" 时产出 .next/standalone/server.js。
@@ -102,26 +88,13 @@ if [ ! -f ".next/standalone/server.js" ]; then
     fi
 
     echo "🔨 已注入 output:\"standalone\"，重新构建..."
-    bunx next build
+    bun run build
 
     if [ ! -f ".next/standalone/server.js" ]; then
         echo "❌ 注入 output:\"standalone\" 并重建后，仍未生成 .next/standalone/server.js。"
         exit 1
     fi
     echo "✅ 自愈成功：standalone 服务端入口已生成。"
-fi
-
-# ------------------------------------------------------------------
-# Restore the sandbox's Postgres Prisma client. The postgres-project
-# path above generated a SQLite-locked client (so `next build` bundles
-# it for the embedded DB); the SANDBOX runtime must switch back or every
-# fresh node process (vitest, seeds, guardian rebuild) fails datasource
-# validation. No-op for SQLite-native template projects.
-# ------------------------------------------------------------------
-DS_PROVIDER="$(awk '/^datasource /,/^\}/' "$NEXTJS_PROJECT_DIR/prisma/schema.prisma" | grep -E '^\s*provider\s*=' | head -1 | sed 's/.*"\([^"]*\)".*/\1/')"
-if [ "$DS_PROVIDER" = "postgresql" ]; then
-    echo "🔄 恢复沙箱 Postgres Prisma client..."
-    (cd "$NEXTJS_PROJECT_DIR" && bunx prisma generate)
 fi
 
 # 构建 mini-services
@@ -166,6 +139,11 @@ fi
 # 依赖清单，在构建期将生产依赖固化到产物，并保持 Python 源码的项目相对路径。
 PROJECT_DIR="$NEXTJS_PROJECT_DIR" BUILD_DIR="$BUILD_DIR" \
     bash "$SCRIPT_DIR/python-runtime-build.sh"
+
+# 有 Preview 数据库时复制现有数据；没有时直接在部署产物中初始化空库。
+# 模板源码不携带 db/custom.db，不能依赖 dev.sh 必须在 Deploy 前成功运行过。
+PROJECT_DIR="$NEXTJS_PROJECT_DIR" BUILD_DIR="$BUILD_DIR" \
+    bash "$SCRIPT_DIR/database-runtime-build.sh"
 
 # 复制 Caddyfile（如果存在）
 if [ -f "Caddyfile" ]; then
