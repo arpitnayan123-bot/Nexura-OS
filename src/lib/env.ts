@@ -19,6 +19,8 @@ interface EnvReport {
     SMTP_CONFIGURED: boolean;
     JWT_SECRET_SET: boolean;
     DATABASE_URL: string;
+    /** Optional bearer gate for /api/metrics (unset = open on trusted networks). */
+    METRICS_TOKEN_SET: boolean;
   };
 }
 
@@ -87,6 +89,7 @@ export function env(): EnvReport {
       SMTP_CONFIGURED: smtpConfigured,
       JWT_SECRET_SET: jwtSecretSet,
       DATABASE_URL: process.env.DATABASE_URL ? "set" : "missing",
+      METRICS_TOKEN_SET: Boolean(process.env.METRICS_TOKEN),
     },
   };
   return cached;

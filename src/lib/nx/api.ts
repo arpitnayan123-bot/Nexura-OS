@@ -9,6 +9,7 @@ import { requirePermission } from "./session";
 import { isRedisConfigured } from "@/lib/redis";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { setAiActor } from "@/lib/ai-actor";
+import { recordRequest } from "./metrics";
 
 /* ============================================================
    NEXURA HOSPITAL OS — API FOUNDATIONS
@@ -78,6 +79,7 @@ export function withRoute<P = Record<string, string>>(
         // first entry let attackers rotate fake IPs to bypass every limit.
         const rl = rateLimit(`${name}:${ip}`, limit.max, limit.windowMs);
         if (!rl.allowed) {
+          recordRequest(name, 429, Date.now() - started);
           return fail("rate_limited", 429, "Too many requests — slow down.", requestId, {
             "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
           });
@@ -99,11 +101,13 @@ export function withRoute<P = Record<string, string>>(
             requestId,
             err: err instanceof Error ? err.message : String(err),
           });
+          recordRequest(name, 503, Date.now() - started);
           return fail("rate_limited", 503, "Rate limiter unavailable — retry shortly.", requestId, {
             "Retry-After": "5",
           });
         }
         if (!drl.allowed) {
+          recordRequest(name, 429, Date.now() - started);
           return fail("rate_limited", 429, "Too many requests — slow down.", requestId, {
             "Retry-After": String(Math.ceil((drl.resetAt - Date.now()) / 1000)),
           });
@@ -114,10 +118,12 @@ export function withRoute<P = Record<string, string>>(
         params: (routeCtx?.params ?? Promise.resolve({})) as Promise<P>,
       });
       res.headers.set("x-request-id", requestId);
+      recordRequest(name, res.status, Date.now() - started);
       log.info("api", name, { requestId, ms: Date.now() - started, status: res.status });
       return res;
     } catch (err) {
       log.error("api", name, { requestId, err: err instanceof Error ? err.message : String(err) });
+      recordRequest(name, 500, Date.now() - started);
       // Never leak stack traces or internal errors to clients
       return fail(
         "internal",

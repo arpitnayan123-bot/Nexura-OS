@@ -40,6 +40,11 @@ probe "/api/nx/foresight/history"
 probe "/api/nx/foresight/data"
 probe "/api/nx/ai"
 probe "/api/nx/ai/thresholds"
+# Observability (10x run 1): liveness, readiness and the metrics registry
+probe "/api/health"
+probe "/api/ready"
+probe "/api/metrics"
+probe "/api/metrics?format=prometheus"
 # Nexura Predictive Health Intelligence (PHI) — status is public (200);
 # everything else is session-gated (401) or method-gated (405) or bad-input (400)
 echo "PASS=$PASS FAIL=$FAIL"
