@@ -103,3 +103,7 @@ prisma/schema.deploy.prisma
 
 # vercel-deploy-3: generated demo-flavor schema (build artifact, never hand-edited)
 prisma/schema.demo.prisma
+
+# sandbox runtime artifacts
+.zscripts/dev.pid
+.zscripts/*.log
