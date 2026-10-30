@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { log } from "@/lib/logger";
 import { runText, INDIA_PREAMBLE } from "@/lib/gemini";
 import { aiGate } from "@/lib/nx/ai-guard";
+import { offlineDiseaseRisk } from "@/lib/kyh/offline-engine";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -89,6 +90,12 @@ Rules:
     log.error("kyh", "disease_risk_failed", {
       err: err instanceof Error ? err.message : String(err),
     });
+        // 10x OFFLINE FALLBACK — the tool must ALWAYS provide an answer.
+    // The AI path above is unchanged; this replaces the old bare 500 with a
+    // deterministic, India-calibrated guide result when AI is unavailable.
+    const fbBody = await req.clone().json().catch(() => ({}));
+    const fb = offlineDiseaseRisk(fbBody);
+    if (fb) return NextResponse.json(fb);
     return NextResponse.json(
       {
         error: "disease_risk_failed",

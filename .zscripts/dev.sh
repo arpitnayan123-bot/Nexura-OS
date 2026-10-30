@@ -141,7 +141,16 @@ fi
 
 log_step_start "bun install"
 echo "[BUN] Installing dependencies..."
-bun install
+# NEXURA (10x hardening): bun install's postinstall (prisma generate) can
+# OOM-kill the whole boot chain on the 4GB sandbox when node_modules is
+# already complete — three consecutive silent boot deaths were caused by
+# this redundant reinstall. Skip it when the tree is manifestly healthy;
+# a missing package still triggers the full install below.
+if [ -d "$PROJECT_DIR/node_modules/next" ] && [ -d "$PROJECT_DIR/node_modules/@prisma/client" ] && [ -x "$PROJECT_DIR/node_modules/.bin/prisma" ]; then
+        echo "[NX] node_modules already complete — skipping bun install (set NX_FORCE_INSTALL=1 to override)"
+else
+        bun install
+fi
 log_step_end "bun install"
 
 log_step_start "bun run db:push"

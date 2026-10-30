@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { log } from "@/lib/logger";
 import { runText, INDIA_PREAMBLE } from "@/lib/gemini";
 import { aiGate } from "@/lib/nx/ai-guard";
+import { offlineDiet } from "@/lib/kyh/offline-engine";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -93,6 +94,12 @@ Rules:
     return NextResponse.json(result);
   } catch (err) {
     log.error("kyh", "diet_plan_failed", { err: err instanceof Error ? err.message : String(err) });
+        // 10x OFFLINE FALLBACK — the tool must ALWAYS provide an answer.
+    // The AI path above is unchanged; this replaces the old bare 500 with a
+    // deterministic, India-calibrated guide result when AI is unavailable.
+    const fbBody = await req.clone().json().catch(() => ({}));
+    const fb = offlineDiet(fbBody);
+    if (fb) return NextResponse.json(fb);
     return NextResponse.json(
       { error: "diet_plan_failed", detail: "The diet plan could not be generated. Please retry." },
       { status: 500 },

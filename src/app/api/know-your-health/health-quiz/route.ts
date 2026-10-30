@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { log } from "@/lib/logger";
 import { runText, INDIA_PREAMBLE } from "@/lib/gemini";
 import { aiGate } from "@/lib/nx/ai-guard";
+import { offlineQuizGenerate, offlineQuizScore } from "@/lib/kyh/offline-engine";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,10 +40,10 @@ Rules:
     return NextResponse.json(result);
   } catch (err) {
     log.error("kyh", "quiz_gen_failed", { err: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json(
-      { error: "quiz_gen_failed", detail: "The quiz could not be generated. Please retry." },
-      { status: 500 },
-    );
+        // 10x OFFLINE FALLBACK — the tool must ALWAYS provide an answer.
+    // The AI path above is unchanged; this replaces the old bare 500 with a
+    // deterministic, India-calibrated guide result when AI is unavailable.
+    return NextResponse.json(offlineQuizGenerate());
   }
 }
 
@@ -84,6 +85,15 @@ export async function POST(req: NextRequest) {
     log.error("kyh", "quiz_score_failed", {
       err: err instanceof Error ? err.message : String(err),
     });
+    // 10x OFFLINE FALLBACK — the tool must ALWAYS provide an answer.
+    // The scoring path above is unchanged; this replaces the old bare 500
+    // with a deterministic local score when AI is unavailable.
+    const fbBody = await req.clone().json().catch(() => ({}));
+    const fb = offlineQuizScore(
+      Array.isArray(fbBody?.questions) ? fbBody.questions : [],
+      fbBody?.answers && typeof fbBody.answers === "object" ? fbBody.answers : {},
+    );
+    if (fb) return NextResponse.json(fb);
     return NextResponse.json(
       { error: "quiz_score_failed", detail: "The quiz could not be scored. Please retry." },
       { status: 500 },
