@@ -4,6 +4,41 @@
 > **[n13xb70qvnr0-d.space-z.ai](https://n13xb70qvnr0-d.space-z.ai/)**
 > (demo logins: password `Demo@12345`, staff PIN `2468`). Everything below ships your own copy.
 
+## Zero-Config Demo Deployments (Vercel) — vercel-deploy-3
+
+Importing the repo into Vercel and deploying **with no environment variables at
+all** is explicitly supported. The deployment boots in **demo posture**:
+
+- `scripts/build-prisma.mjs` (runs first in `bun run build`) detects the
+  serverless build (`VERCEL=1`, no `DATABASE_URL`) and generates the **SQLite
+  Prisma client flavor** from the same canonical schema (provider swap only —
+  the schema is fully dialect-portable: no arrays, no enums, no native types,
+  no `dbgenerated`).
+- The repo ships a **seeded demo database artifact** (`db/demo.db`, ~5 MB,
+  all 165 models + the full demo seed suite; regenerate with
+  `node scripts/build-demo-db.mjs`). `next.config.ts` traces it into every
+  serverless function bundle via `outputFileTracingIncludes`.
+- At boot, `src/lib/demo-db.ts` (wired from `src/instrumentation.ts`)
+  copies the artifact to `/tmp/nexura-demo.db` and points `DATABASE_URL` at
+  it, defaulting `DEMO_MODE=true` unless explicitly set to `false`.
+- `assertProductionEnv()` no longer hard-refuses a zero-config serverless
+  boot: without `JWT_SECRET` it mints an **ephemeral per-boot secret**
+  (logged CRITICAL — sessions reset on every cold start) and a missing data
+  layer only logs CRITICAL instead of killing the process.
+- The edge proxy (`src/proxy.ts`) keeps the demo product surfaces open for
+  this exact posture (`VERCEL=1` + neither `DEMO_MODE` nor `JWT_SECRET`
+  configured); any real configuration restores the production gate.
+
+What this mode is NOT: persistent or multi-instance. Each serverless instance
+materializes its own throwaway copy — writes never outlive the instance and
+instances do not share data. The moment you set `DATABASE_URL` (any hosted
+Postgres) and redeploy, the demo artifact is ignored and the deployment uses
+your real database.
+
+> Edge-env caveat: `process.env` reads inside the edge proxy are inlined at
+> build time. Changing `DEMO_MODE`/`JWT_SECRET` for the gate requires a
+> redeploy, not just a dashboard save.
+
 ## Prerequisites
 
 1. A [Vercel](https://vercel.com) account
@@ -31,9 +66,10 @@ In Vercel → Project Settings → Environment Variables, add:
 
 | Variable       | Value                                 | Required |
 | -------------- | ------------------------------------- | -------- |
-| `DATABASE_URL` | `postgresql://user:pass@host:port/db` | ✅ Yes   |
-| `JWT_SECRET`   | Generate with `openssl rand -hex 32`  | ✅ Yes   |
+| `DATABASE_URL` | `postgresql://user:pass@host:port/db` | Real deployments ✅ — omit for the zero-config demo posture (embedded demo DB) |
+| `JWT_SECRET`   | Generate with `openssl rand -hex 32`  | Real deployments ✅ — omit for the zero-config demo posture (ephemeral per-boot secret) |
 | `REDIS_URL`    | `redis://default:pass@host:6379`      | Optional (serverless) |
+| `DEMO_MODE`    | `true` on demo deployments            | Optional (auto-`true` in the zero-config demo posture) |
 
 **Note:** the server refuses to boot in production without `DATABASE_URL` and
 `JWT_SECRET` — see `assertProductionEnv()` in `src/lib/env.ts`. `REDIS_URL` is
@@ -104,9 +140,12 @@ or a controlled admin bootstrap — never through the demo seeds.
 Click **Deploy** in Vercel. The build will:
 
 1. Install dependencies (`bun install`)
-2. Generate Prisma client (`prisma generate`)
-3. Build Next.js (`next build`)
-4. Deploy to Vercel's edge network
+2. Select the Prisma client flavor (`node scripts/build-prisma.mjs` — postgres
+   with a real `DATABASE_URL`, SQLite demo flavor on a zero-config serverless
+   build) and generate the client
+3. Sync the schema when a real Postgres is attached (`node scripts/db-sync.mjs`)
+4. Build Next.js (`next build`)
+5. Deploy to Vercel's edge network
 
 ## Step 8: Verify
 
@@ -155,19 +194,31 @@ Add to `package.json`:
 
 ### Runtime: every page returns 500 (x-next-error-status: 500)
 
-The production boot gate (`assertProductionEnv()` in `src/lib/env.ts`, wired
-from `src/instrumentation.ts`) refuses to boot and every serverless function
-fails at cold start. Check Vercel → Project → Functions logs for
-`production boot gate FAILED` — it names the exact missing variable:
+**Read the boot mode first.** Since vercel-deploy-3, a zero-config serverless
+boot no longer dies: it attaches the embedded demo database and mints an
+ephemeral JWT secret, logging both loudly. A 500-everywhere deployment is
+therefore a *different* failure — check Vercel → Project → Functions logs:
 
-- `DATABASE_URL is required` → set it (Step 3/4)
-- `DATABASE_URL must be a postgres:// URL` → you left a `file:` SQLite URL in
-- `JWT_SECRET must be set (>=16 chars)` → generate one (`openssl rand -hex 32`)
-- `REDIS_URL is required` → set it, or rely on the serverless fallback
-  (auto on Vercel / `NEXURA_REDIS_OPTIONAL=1`)
+- `production boot gate FAILED` (self-hosted only) — names the missing
+  variable exactly: `DATABASE_URL is required`, `DATABASE_URL must be a
+  postgres:// URL`, `JWT_SECRET must be set (>=16 chars)`, `REDIS_URL is
+  required`.
+- `CRITICAL: DATABASE_URL is not set and the embedded demo database could
+  not be attached` — the function bundle is missing `db/demo.db` (rebuild —
+  `next.config.ts` must trace it via `outputFileTracingIncludes`) or `/tmp`
+  was unwritable. The deployment serves but data-backed routes fail.
+- `Prisma Client could not locate the Query Engine` — the build generated a
+  client for the wrong platform. `schema.prisma` pins
+  `binaryTargets = ["native", "rhel-openssl-3.0.x"]`; confirm the build ran
+  `node scripts/build-prisma.mjs` (not a bare `prisma generate`) and that the
+  build image matches the Node runtime (Amazon Linux).
+- Historical note (fixed in vercel-deploy-2): `REDIS_URL` used to be a hard
+  requirement and killed every cold start on Vercel; it is now optional
+  everywhere serverless (auto via `VERCEL=1`).
 
 After adding variables, **Redeploy** (Deployments → ⋯ → Redeploy) — env
-changes never apply to already-running instances.
+changes never apply to already-running instances, and edge-proxy env reads
+are inlined at build time (see the caveat in the zero-config section).
 
 ### Runtime: "Database connection failed"
 

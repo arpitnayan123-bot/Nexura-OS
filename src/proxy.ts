@@ -118,6 +118,17 @@ const PRODUCT_API_PREFIXES = [
 /** Portal login itself must stay reachable to establish a session. */
 const PRODUCT_AUTH_PATHS = ["/api/portal/auth"];
 
+/* Zero-config demo posture (vercel-deploy-3): a serverless deployment
+   built with NEITHER DEMO_MODE nor JWT_SECRET configured is an
+   unconfigured demo by construction — keep the demo product surfaces
+   open so the deployment is inspectable at all (previously every
+   product API 401'd or the boot died entirely). Any real configuration
+   — JWT_SECRET set, or DEMO_MODE=false — restores the production gate.
+   Edge caveat: these env reads are inlined at build time, so changing
+   them requires a redeploy (documented in DEPLOYMENT.md). */
+const zeroConfigDemo =
+  process.env.VERCEL === "1" && !process.env.DEMO_MODE && !process.env.JWT_SECRET;
+
 export default async function proxy(req: NextRequest) {
   const requestId =
     req.headers.get("x-request-id") || `req_${crypto.randomUUID().replace(/-/g, "").slice(0, 20)}`;
@@ -166,7 +177,7 @@ export default async function proxy(req: NextRequest) {
   // ---- production gate for demo product surfaces ----
   if (
     !early &&
-    !isDemoMode() &&
+    !(isDemoMode() || zeroConfigDemo) &&
     PRODUCT_API_PREFIXES.some((p) => pathname.startsWith(p)) &&
     !PRODUCT_AUTH_PATHS.includes(pathname)
   ) {

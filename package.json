@@ -1,7 +1,7 @@
 {
   "name": "nexura-os",
   "version": "1.2.0",
-  "description": "Multi-product healthcare operating ecosystem — Hospital OS, Clinic, Pharmacia, Patient Portal and consumer AI health surfaces on one auditable platform layer. Next.js 16 · TypeScript · Prisma/PostgreSQL · Redis.",
+  "description": "Multi-product healthcare operating ecosystem \u2014 Hospital OS, Clinic, Pharmacia, Patient Portal and consumer AI health surfaces on one auditable platform layer. Next.js 16 \u00b7 TypeScript \u00b7 Prisma/PostgreSQL \u00b7 Redis.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -34,7 +34,7 @@
     "format:check": "prettier --check .",
     "dev": "bash scripts/nx-guardian.sh 2>&1 | tee dev.log",
     "dev:real": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "prisma generate && node scripts/db-sync.mjs && next build",
+    "build": "node scripts/build-prisma.mjs && node scripts/db-sync.mjs && next build",
     "build:standalone": "prisma generate && next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
     "start": "bash scripts/nx-guardian.sh",
     "start:raw": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",

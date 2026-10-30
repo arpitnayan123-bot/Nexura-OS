@@ -2,6 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  /* vercel-deploy-3: the embedded seeded demo database must ship inside
+     every serverless function bundle. When a Vercel deployment has no
+     DATABASE_URL, the runtime bootstrap (src/lib/demo-db.ts) copies it
+     to /tmp and boots the demo on it. Harmless extra ~5MB on self-hosted
+     builds (the file simply sits unused next to the server). */
+  outputFileTracingIncludes: {
+    "/:path*": ["./db/demo.db"],
+    "/api/:path*": ["./db/demo.db"],
+  },
   /* STALENESS DEFENSE (L4): the preview gateway (*.space-z.ai) embeds this
      app through a proxy. HTML documents must NEVER be cached by browsers or
      intermediate layers — a cached document references old content-hashed

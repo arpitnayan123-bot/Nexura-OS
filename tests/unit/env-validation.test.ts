@@ -2,15 +2,22 @@ import { describe, it, expect, afterEach } from "vitest";
 import { assertProductionEnv } from "@/lib/env";
 
 /* ============================================================
-   BOOT-TIME ENV GATE (env-config-1)
-   Production must refuse to boot without DATABASE_URL (postgres
-   scheme) and JWT_SECRET (>=16 chars). REDIS_URL is required on
-   self-hosted (non-serverless) deployments, but OPTIONAL when the
-   app detects a serverless/PaaS runtime (VERCEL=1), the packaged
-   demo mode (NEXURA_PACKAGED=1), or via explicit opt-in
-   (NEXURA_REDIS_OPTIONAL=1) — Redis-backed layers degrade to
-   documented single-instance fallbacks. Dev stays forgiving.
-   These tests pin both behaviors.
+   BOOT-TIME ENV GATE (env-config-1 + vercel-deploy-3)
+   Self-hosted production refuses to boot without DATABASE_URL
+   (postgres scheme) and JWT_SECRET (>=16 chars). REDIS_URL is
+   required on self-hosted (non-serverless) deployments, but
+   OPTIONAL when the app detects a serverless/PaaS runtime
+   (VERCEL=1), the packaged demo mode (NEXURA_PACKAGED=1), or via
+   explicit opt-in (NEXURA_REDIS_OPTIONAL=1).
+
+   Zero-config serverless (vercel-deploy-3): a Vercel deployment
+   with NO DATABASE_URL / JWT_SECRET must NOT dead-boot (every
+   route 500'd before this). The boot degrades loudly instead:
+   an ephemeral JWT secret is generated (sessions reset per cold
+   start) and a missing data layer only logs CRITICAL — the
+   instrumentation bootstrap attaches the bundled seeded SQLite
+   demo database before this gate even runs.
+   These tests pin all postures.
    ============================================================ */
 
 const SAVED = { ...process.env };
@@ -81,17 +88,28 @@ describe("assertProductionEnv", () => {
     expect(() => assertProductionEnv()).not.toThrow();
   });
 
-  it("on Vercel still refuses without DATABASE_URL and JWT_SECRET", () => {
+  it("zero-config on Vercel boots and mints an ephemeral JWT secret (vercel-deploy-3)", () => {
     withProduction({
       DATABASE_URL: undefined,
       JWT_SECRET: undefined,
       REDIS_URL: undefined,
       VERCEL: "1",
     });
-    expect(() => assertProductionEnv()).toThrow(/DATABASE_URL[\s\S]*JWT_SECRET/);
+    expect(() => assertProductionEnv()).not.toThrow();
+    const minted = process.env.JWT_SECRET;
+    expect(minted).toBeDefined();
+    expect(minted!.length).toBeGreaterThanOrEqual(64); // 32 random bytes, hex
   });
 
-  it("rejects a non-postgres DATABASE_URL (SQLite is retired)", () => {
+  it("accepts the SQLite demo database (file:) on Vercel but not self-hosted", () => {
+    withProduction({
+      DATABASE_URL: "file:/tmp/nexura-demo.db",
+      JWT_SECRET: "x".repeat(32),
+      REDIS_URL: undefined,
+      VERCEL: "1",
+    });
+    expect(() => assertProductionEnv()).not.toThrow();
+
     withProduction({
       DATABASE_URL: "file:/home/z/my-project/db/custom.db",
       JWT_SECRET: "x".repeat(32),

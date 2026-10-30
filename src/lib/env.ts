@@ -134,24 +134,66 @@ export function assertProductionEnv(): void {
    * gate treats a missing REDIS_URL as a LOUD WARNING instead of a hard
    * refusal — set REDIS_URL (e.g. Upstash) to restore cross-instance
    * semantics. NEXURA_REDIS_OPTIONAL=1 opts in explicitly on any platform.
-   * DATABASE_URL and JWT_SECRET stay hard requirements everywhere: the app
-   * has no useful posture without its data layer and auth secrets. */
+   *
+   * ZERO-CONFIG DEMO POSTURE (vercel-deploy-3): a serverless deployment
+   * with NO DATABASE_URL and NO JWT_SECRET is, by construction, an
+   * unconfigured demo (the caller wired a repo to Vercel and nothing
+   * else). Refusing to boot there produced the worst possible outcome —
+   * every route 500 with zero information. Instead, the serverless boot
+   * degrades LOUDLY:
+   *   - DATABASE_URL: src/instrumentation.ts has already attached the
+   *     bundled seeded demo SQLite database (src/lib/demo-db.ts) before
+   *     this gate runs. If even that failed, the gate logs CRITICAL and
+   *     boots anyway — health/static surfaces stay reachable and every
+   *     data-backed route fails with an explicit error instead of the
+   *     whole server being down.
+   *   - JWT_SECRET: an EPHEMERAL per-boot secret is generated so demo
+   *     logins work; sessions reset on every cold start and this is
+   *     logged CRITICAL on each boot until a real secret is configured.
+   * Self-hosted production (no VERCEL) keeps the original hard gate:
+   * missing DATABASE_URL or JWT_SECRET still refuses to boot. */
   const redisOptional =
     packaged ||
     process.env.VERCEL === "1" ||
     process.env.NEXURA_REDIS_OPTIONAL === "1";
+  const serverless = process.env.VERCEL === "1";
 
   const missing: string[] = [];
 
   if (!process.env.DATABASE_URL) {
-    missing.push("DATABASE_URL is required (postgresql://host/db or file:/path/db)");
-  } else if (!packaged && !isPostgresUrl(process.env.DATABASE_URL)) {
+    if (serverless) {
+      log.error(
+        "env",
+        "CRITICAL: DATABASE_URL is not set and the embedded demo database could not be " +
+          "attached — booting WITHOUT a data layer. Every data-backed route will fail " +
+          "until a hosted Postgres DATABASE_URL is configured.",
+      );
+    } else {
+      missing.push("DATABASE_URL is required (postgresql://host/db or file:/path/db)");
+    }
+  } else if (!packaged && !serverless && !isPostgresUrl(process.env.DATABASE_URL)) {
+    // Self-hosted production only: postgres URLs. SQLite (file:) is the
+    // packaged demo mode AND the zero-config serverless demo posture.
     missing.push(
       "DATABASE_URL must be a postgres:// URL (SQLite is only supported in the packaged demo mode)",
     );
   }
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
-    missing.push("JWT_SECRET must be set (>=16 chars)");
+    if (serverless) {
+      /* Web Crypto (works in the edge bundle too — env.ts is imported by the
+       * edge proxy, so node:crypto must NOT be referenced here). */
+      const bytes = new Uint8Array(32);
+      crypto.getRandomValues(bytes);
+      process.env.JWT_SECRET = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+      log.error(
+        "env",
+        "CRITICAL: JWT_SECRET was not configured — an EPHEMERAL per-boot secret was " +
+          "generated. Sessions reset on every cold start and tokens do not survive " +
+          "instance replacement. Set JWT_SECRET (32+ random chars) for stable auth.",
+      );
+    } else {
+      missing.push("JWT_SECRET must be set (>=16 chars)");
+    }
   }
   if (!process.env.REDIS_URL || !process.env.REDIS_URL.startsWith("redis")) {
     if (redisOptional) {

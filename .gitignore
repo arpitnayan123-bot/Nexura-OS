@@ -69,6 +69,8 @@
 backups/
 db/*.db
 db/*.db-journal
+# vercel-deploy-3: the seeded zero-config demo database IS committed on purpose
+!db/demo.db
 db/backups/
 dev-screens/
 dev.log
@@ -98,3 +100,6 @@ yarn-error.log*
 dump.rdb
 .guardian-seed-cooldown
 prisma/schema.deploy.prisma
+
+# vercel-deploy-3: generated demo-flavor schema (build artifact, never hand-edited)
+prisma/schema.demo.prisma

@@ -1,5 +1,8 @@
 /* ============================================================
  * Next.js instrumentation — boot gate + background job boot
+ * -1. Serverless zero-config demo DB (vercel-deploy-3): on Vercel
+ *     with no DATABASE_URL, attach the bundled seeded SQLite demo
+ *     database BEFORE the boot gate evaluates env. Must run first.
  * 0. assertProductionEnv(): fail LOUDLY at server start when a
  *    required production variable is missing (env-config-1) —
  *    never runs during `next build`, only on server boot.
@@ -13,6 +16,14 @@
 
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
+  try {
+    const { ensureServerlessDemoDatabase } = await import("@/lib/demo-db");
+    ensureServerlessDemoDatabase();
+  } catch (err) {
+    // Never let demo-DB bootstrap take the server down: worst case the
+    // boot gate reports the missing env and routes degrade gracefully.
+    console.error("[demo-db] serverless demo database bootstrap failed:", err instanceof Error ? err.message : err);
+  }
   try {
     const { assertProductionEnv } = await import("@/lib/env");
     assertProductionEnv();
