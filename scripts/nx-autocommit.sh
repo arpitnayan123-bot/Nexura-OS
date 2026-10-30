@@ -29,8 +29,8 @@ MIN_GAP_SECONDS="${AUTOCOMMIT_MIN_GAP:-600}"
 BUNDLE_DIR="$ROOT/backups"
 OFFSITE_DIR="/home/z/backups"
 
-export GIT_AUTHOR_NAME="${GIT_AUTHOR_NAME:-Nexura Checkpoint}"
-export GIT_AUTHOR_EMAIL="checkpoint@nexura.local"
+export GIT_AUTHOR_NAME="${GIT_AUTHOR_NAME:-Arpit Nayan}"
+export GIT_AUTHOR_EMAIL="arpitnayan123@gmail.com"
 export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
 export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
 

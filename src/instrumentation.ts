@@ -22,7 +22,10 @@ export async function register() {
   } catch (err) {
     // Never let demo-DB bootstrap take the server down: worst case the
     // boot gate reports the missing env and routes degrade gracefully.
-    console.error("[demo-db] serverless demo database bootstrap failed:", err instanceof Error ? err.message : err);
+    console.error(
+      "[demo-db] serverless demo database bootstrap failed:",
+      err instanceof Error ? err.message : err,
+    );
   }
   try {
     const { assertProductionEnv } = await import("@/lib/env");

@@ -161,7 +161,9 @@ function promLabel(v: string): string {
   return v.replace(PROM_SAFE, "_");
 }
 
-function promSamples(snapshot: MetricsSnapshot): Array<{ name: string; help: string; type: string; lines: string[] }> {
+function promSamples(
+  snapshot: MetricsSnapshot,
+): Array<{ name: string; help: string; type: string; lines: string[] }> {
   const lines: Array<{ name: string; help: string; type: string; lines: string[] }> = [];
   const p = snapshot.process;
 
@@ -187,9 +189,7 @@ function promSamples(snapshot: MetricsSnapshot): Array<{ name: string; help: str
     name: "nexura_build_info",
     help: "Build metadata (version)",
     type: "gauge",
-    lines: [
-      `nexura_build_info{version="${promLabel(snapshot.build.version)}"} 1`,
-    ],
+    lines: [`nexura_build_info{version="${promLabel(snapshot.build.version)}"} 1`],
   });
   lines.push({
     name: "nexura_http_requests_total",

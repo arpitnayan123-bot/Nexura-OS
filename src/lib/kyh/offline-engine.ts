@@ -118,10 +118,12 @@ export function offlineSymptomsChecker(symptoms: string): SymptomResult | null {
     );
   }
 
-  const urgency: SymptomResult["urgency"] = high.length > 0 ? "high" : causes.length > 0 ? "low" : "low";
+  const urgency: SymptomResult["urgency"] =
+    high.length > 0 ? "high" : causes.length > 0 ? "low" : "low";
   const specialty = matched[0]?.specialty ?? "General Physician";
   const actions: string[] = [];
-  for (const m of matched.slice(0, 3)) for (const a of m.actions ?? []) if (!actions.includes(a)) actions.push(a);
+  for (const m of matched.slice(0, 3))
+    for (const a of m.actions ?? []) if (!actions.includes(a)) actions.push(a);
   if (actions.length === 0) {
     actions.push(
       "Rest, hydrate well (3+ litres of fluids daily) and monitor how you feel over 48 hours",
@@ -129,7 +131,9 @@ export function offlineSymptomsChecker(symptoms: string): SymptomResult | null {
     );
   }
   if (actions.length < 5)
-    actions.push("Book a " + specialty.split(" / ")[0] + " visit if symptoms persist beyond 48-72 hours");
+    actions.push(
+      "Book a " + specialty.split(" / ")[0] + " visit if symptoms persist beyond 48-72 hours",
+    );
 
   return {
     summary:
@@ -138,7 +142,9 @@ export function offlineSymptomsChecker(symptoms: string): SymptomResult | null {
         : `Based on your description, the most likely explanations are ${causes
             .slice(0, 2)
             .map((c) => c.condition.toLowerCase())
-            .join(" or ")}. Most such symptoms settle with basic care within a couple of days — but keep an eye on the red flags below.`,
+            .join(
+              " or ",
+            )}. Most such symptoms settle with basic care within a couple of days — but keep an eye on the red flags below.`,
     urgency,
     possibleCauses: causes,
     recommendedActions: actions.slice(0, 6),
@@ -295,14 +301,23 @@ export function offlineDiabetes(
       : `HbA1c ${r1(hba1c as number)}% is above the <7% target — the 3-month average needs attention; carry this to your endocrinologist.`;
 
   const alertFlags: string[] = [];
-  if (Number.isFinite(fasting) && fasting < 70) alertFlags.push("Hypoglycaemia risk — fasting sugar below 70");
-  if (Number.isFinite(postMeal) && postMeal > 250) alertFlags.push("Post-meal sugar above 250 — check ketone advice with your doctor");
-  if (Number.isFinite(hba1c as number) && (hba1c as number) > 9) alertFlags.push("HbA1c above 9% — medication review likely needed");
+  if (Number.isFinite(fasting) && fasting < 70)
+    alertFlags.push("Hypoglycaemia risk — fasting sugar below 70");
+  if (Number.isFinite(postMeal) && postMeal > 250)
+    alertFlags.push("Post-meal sugar above 250 — check ketone advice with your doctor");
+  if (Number.isFinite(hba1c as number) && (hba1c as number) > 9)
+    alertFlags.push("HbA1c above 9% — medication review likely needed");
   if (alertFlags.length === 0) alertFlags.push("No urgent warning patterns in today's numbers");
 
   const recommendations: string[] = [];
-  if (status === "uncontrolled") recommendations.push("Book an endocrinologist visit this week — your current plan needs adjustment");
-  if (status === "borderline") recommendations.push("Share these readings with your doctor at the next review; small changes usually fix this band");
+  if (status === "uncontrolled")
+    recommendations.push(
+      "Book an endocrinologist visit this week — your current plan needs adjustment",
+    );
+  if (status === "borderline")
+    recommendations.push(
+      "Share these readings with your doctor at the next review; small changes usually fix this band",
+    );
   recommendations.push(
     "Log sugars at the same times daily for 1 week — patterns beat single readings",
     "Walk 15 minutes after each major meal",
@@ -353,12 +368,15 @@ export function offlineDiseaseRisk(b: {
 }): Record<string, unknown> | null {
   const age = Number(b.age) || 0;
   if (age < 10 || age > 100) return null;
-  const bmi = Number(b.heightCm) > 0 && Number(b.weightKg) > 0
-    ? (Number(b.weightKg) / Math.pow(Number(b.heightCm) / 100, 2))
-    : 0;
+  const bmi =
+    Number(b.heightCm) > 0 && Number(b.weightKg) > 0
+      ? Number(b.weightKg) / Math.pow(Number(b.heightCm) / 100, 2)
+      : 0;
   const waist = Number(b.waistCm) || 0;
   const sys = Number(b.bpSystolic) || 0;
-  const fh = Array.isArray(b.familyHistory) ? b.familyHistory.join(" ") : String(b.familyHistory || "");
+  const fh = Array.isArray(b.familyHistory)
+    ? b.familyHistory.join(" ")
+    : String(b.familyHistory || "");
   const fhDiab = /diabet|sugar/i.test(fh);
   const fhCvd = /heart|cardiac|bp|pressure|stroke/i.test(fh);
   const smoker = /yes|daily|regular/i.test(String(b.smoking || ""));
@@ -400,11 +418,12 @@ export function offlineDiseaseRisk(b: {
   const diabetesRisk: RiskDomain = {
     score: clamp(r0(dScore), 0, 100),
     level: lvl(dScore),
-    explanation: fhDiab || Number(b.fastingSugar) >= 100
-      ? "Family history and/or raised fasting sugar put you in the watchful band — Indian adults also develop diabetes earlier and at lower BMI."
-      : bmi >= 23 || sedentary
-        ? "Central weight and activity level are the main modifiable drivers at this age."
-        : "No strong diabetes signals in the answers provided.",
+    explanation:
+      fhDiab || Number(b.fastingSugar) >= 100
+        ? "Family history and/or raised fasting sugar put you in the watchful band — Indian adults also develop diabetes earlier and at lower BMI."
+        : bmi >= 23 || sedentary
+          ? "Central weight and activity level are the main modifiable drivers at this age."
+          : "No strong diabetes signals in the answers provided.",
     recommendations: [
       "Annual fasting sugar + HbA1c test",
       "Cut sugary drinks; prefer whole fruit",
@@ -414,9 +433,10 @@ export function offlineDiseaseRisk(b: {
   const cvdRisk: RiskDomain = {
     score: clamp(r0(cScore), 0, 100),
     level: lvl(cScore),
-    explanation: sys >= 140 || smoker
-      ? "Blood pressure and/or smoking are the dominant modifiable heart risks here."
-      : "Heart risk factors are currently limited; age and family history are the main background drivers.",
+    explanation:
+      sys >= 140 || smoker
+        ? "Blood pressure and/or smoking are the dominant modifiable heart risks here."
+        : "Heart risk factors are currently limited; age and family history are the main background drivers.",
     recommendations: [
       "Salt under 5 g/day; oily food limited",
       "BP log twice a week for a month",
@@ -430,13 +450,21 @@ export function offlineDiseaseRisk(b: {
       kScore >= 10
         ? "Kidney risk tracks blood pressure and sugar control — both modifiable."
         : "No strong kidney signals; protection comes from BP, sugar and hydration.",
-    recommendations: ["Hydrate through the day", "Avoid routine painkillers (NSAIDs)", "Creatinine + urine test with your annual check"],
+    recommendations: [
+      "Hydrate through the day",
+      "Avoid routine painkillers (NSAIDs)",
+      "Creatinine + urine test with your annual check",
+    ],
   };
 
   const top = [
-    sedentary ? "Start 30 minutes of brisk walking, 5-6 days a week" : "Maintain your activity habit",
+    sedentary
+      ? "Start 30 minutes of brisk walking, 5-6 days a week"
+      : "Maintain your activity habit",
     "Annual panel: fasting sugar, HbA1c, lipids, creatinine, BP log",
-    fhDiab || dScore >= 10 ? "Prioritise sugar testing — family history makes it personal" : "Keep refined sugar low",
+    fhDiab || dScore >= 10
+      ? "Prioritise sugar testing — family history makes it personal"
+      : "Keep refined sugar low",
     smoker ? "Quitting tobacco is the highest-impact change on this list" : "Stay tobacco-free",
   ];
 
@@ -445,7 +473,9 @@ export function offlineDiseaseRisk(b: {
     cvdRisk,
     ckdRisk,
     overallSummary: `At age ${r0(age)}${bmi ? ` (BMI ${r1(bmi)})` : ""}, your diabetes signal is ${diabetesRisk.level}, heart signal ${cvdRisk.level} and kidney signal ${ckdRisk.level}. ${
-      top[0].startsWith("Start") ? "The biggest lever is daily movement — it moves all three risks together." : "Your habits are already protective — keep the annual checks."
+      top[0].startsWith("Start")
+        ? "The biggest lever is daily movement — it moves all three risks together."
+        : "Your habits are already protective — keep the annual checks."
     }`,
     topRecommendations: top,
     disclaimer: OFFLINE_DISCLAIMER,
@@ -462,14 +492,19 @@ function sumArray(a: unknown): number {
   return a.reduce((s: number, v) => s + (Number.isFinite(Number(v)) ? Number(v) : 0), 0);
 }
 
-export function offlineMentalWellness(
-  phq9: unknown,
-  gad7: unknown,
-): Record<string, unknown> {
+export function offlineMentalWellness(phq9: unknown, gad7: unknown): Record<string, unknown> {
   const p = clamp(r0(sumArray(phq9)), 0, 27);
   const g = clamp(r0(sumArray(gad7)), 0, 21);
   const pLevel =
-    p >= 20 ? "severe" : p >= 15 ? "moderately severe" : p >= 10 ? "moderate" : p >= 5 ? "mild" : "minimal";
+    p >= 20
+      ? "severe"
+      : p >= 15
+        ? "moderately severe"
+        : p >= 10
+          ? "moderate"
+          : p >= 5
+            ? "mild"
+            : "minimal";
   const gLevel = g >= 15 ? "severe" : g >= 10 ? "moderate" : g >= 5 ? "mild" : "minimal";
   const crisis = p >= 15 || g >= 15;
 
@@ -544,17 +579,42 @@ export function offlineSleep(b: {
 
   const patterns: { name: string; severity: "low" | "moderate" | "high"; note: string }[] = [];
   if (latency > 30)
-    patterns.push({ name: "Sleep-onset difficulty", severity: latency > 60 ? "high" : "moderate", note: `Taking ~${r0(latency)} min to fall asleep stretches time in bed without benefit.` });
+    patterns.push({
+      name: "Sleep-onset difficulty",
+      severity: latency > 60 ? "high" : "moderate",
+      note: `Taking ~${r0(latency)} min to fall asleep stretches time in bed without benefit.`,
+    });
   if (awake > 30 || (Number(b.awakenings) || 0) >= 3)
-    patterns.push({ name: "Fragmented sleep", severity: awake > 60 ? "high" : "moderate", note: `${r0(Number(b.awakenings) || 0)} awakening(s) with ~${r0(awake)} min awake at night breaks deep-sleep cycles.` });
+    patterns.push({
+      name: "Fragmented sleep",
+      severity: awake > 60 ? "high" : "moderate",
+      note: `${r0(Number(b.awakenings) || 0)} awakening(s) with ~${r0(awake)} min awake at night breaks deep-sleep cycles.`,
+    });
   if (hours < 6)
-    patterns.push({ name: "Short sleep duration", severity: hours < 5 ? "high" : "moderate", note: `~${r1(hours)} h is below the 7-8 h Indian-adult recommendation.` });
-  if (bed >= 25 * 60 || bed < 180) // bed after ~00:30 or (am parse) after midnight mapping
-    patterns.push({ name: "Delayed sleep phase", severity: "moderate", note: "Bedtime pushed past midnight shifts the body clock later and worsens morning fog." });
+    patterns.push({
+      name: "Short sleep duration",
+      severity: hours < 5 ? "high" : "moderate",
+      note: `~${r1(hours)} h is below the 7-8 h Indian-adult recommendation.`,
+    });
+  if (bed >= 25 * 60 || bed < 180)
+    // bed after ~00:30 or (am parse) after midnight mapping
+    patterns.push({
+      name: "Delayed sleep phase",
+      severity: "moderate",
+      note: "Bedtime pushed past midnight shifts the body clock later and worsens morning fog.",
+    });
   if ((Number(b.sleepQuality) || 3) <= 2)
-    patterns.push({ name: "Low subjective quality", severity: "moderate", note: "You rated sleep quality low despite time in bed — efficiency math explains why." });
+    patterns.push({
+      name: "Low subjective quality",
+      severity: "moderate",
+      note: "You rated sleep quality low despite time in bed — efficiency math explains why.",
+    });
   if (patterns.length === 0)
-    patterns.push({ name: "No concerning pattern", severity: "low", note: "Your log looks structurally healthy — keep the same schedule." });
+    patterns.push({
+      name: "No concerning pattern",
+      severity: "low",
+      note: "Your log looks structurally healthy — keep the same schedule.",
+    });
 
   return {
     totalSleepHours: r1(hours),
@@ -575,7 +635,10 @@ export function offlineSleep(b: {
    7. MED INTERACTION
    ============================================================ */
 
-export function offlineMedInteraction(meds: string[], conditions: string[] = []): Record<string, unknown> | null {
+export function offlineMedInteraction(
+  meds: string[],
+  conditions: string[] = [],
+): Record<string, unknown> | null {
   const condList = Array.isArray(conditions) ? conditions : [];
   const names = meds.map((m) => String(m || "").trim()).filter(Boolean);
   if (names.length === 0) return null;
@@ -630,17 +693,25 @@ export function offlineMedInteraction(meds: string[], conditions: string[] = [])
   const conditionWarnings = CONDITION_WARNINGS.filter(
     (w) => w.re.test(condText) && list.some((c) => w.cls.includes(c)),
   ).map((w) => w.warning);
-  if (/pregnan/.test(condText)) conditionWarnings.push("Share the full medicine list with your obstetrician at every visit during pregnancy");
+  if (/pregnan/.test(condText))
+    conditionWarnings.push(
+      "Share the full medicine list with your obstetrician at every visit during pregnancy",
+    );
   if (Number(names.length) >= 5)
-    conditionWarnings.push("Five or more regular medicines (polypharmacy) — ask your pharmacist for a one-time full interaction review");
+    conditionWarnings.push(
+      "Five or more regular medicines (polypharmacy) — ask your pharmacist for a one-time full interaction review",
+    );
 
   const worst =
     interactionsFinal.length > 0
       ? String((interactionsFinal[0] as Record<string, unknown>).severity)
       : "none";
   const requiresPharmacistConsult =
-    interactionsFinal.some((i) => ["moderate", "severe", "contraindicated"].includes(String((i as Record<string, unknown>).severity))) ||
-    names.length >= 5;
+    interactionsFinal.some((i) =>
+      ["moderate", "severe", "contraindicated"].includes(
+        String((i as Record<string, unknown>).severity),
+      ),
+    ) || names.length >= 5;
 
   return {
     interactions: interactionsFinal,
@@ -653,7 +724,10 @@ export function offlineMedInteraction(meds: string[], conditions: string[] = [])
           : "One or more moderate interactions were flagged — they are usually manageable with timing or monitoring, decided by your doctor.",
     topRisks: interactionsFinal
       .slice(0, 3)
-      .map((i) => `${(i as Record<string, string>).drug1} + ${(i as Record<string, string>).drug2}: ${(i as Record<string, string>).clinicalEffect}`),
+      .map(
+        (i) =>
+          `${(i as Record<string, string>).drug1} + ${(i as Record<string, string>).drug2}: ${(i as Record<string, string>).clinicalEffect}`,
+      ),
     alternatives: [
       "Paracetamol is usually the safest pain option with most chronic medicines (dose ≤3 g/day)",
       "Any painkiller change on blood thinners should be doctor-guided",
@@ -675,7 +749,10 @@ export interface LabRow {
 }
 
 export function offlineLab(tests: LabRow[]): Record<string, unknown> {
-  const rows = tests.filter((t) => t && String(t?.name || "").trim() && t?.value !== undefined && String(t.value).trim() !== "");
+  const rows = tests.filter(
+    (t) =>
+      t && String(t?.name || "").trim() && t?.value !== undefined && String(t.value).trim() !== "",
+  );
   if (rows.length === 0) {
     return {
       tests: [],
@@ -705,7 +782,8 @@ export function offlineLab(tests: LabRow[]): Record<string, unknown> {
         unit: t.unit || "",
         status: "NORMAL",
         referenceRange: "—",
-        meaning: "This test is not in our offline reference table — an AI pass or your doctor can interpret it.",
+        meaning:
+          "This test is not in our offline reference table — an AI pass or your doctor can interpret it.",
         severity: "normal",
       });
       continue;
@@ -717,7 +795,7 @@ export function offlineLab(tests: LabRow[]): Record<string, unknown> {
       status === "NORMAL"
         ? "normal"
         : Math.abs(num - (status === "LOW" ? (entry.lo ?? num) : (entry.hi ?? num))) /
-            Math.max(1, (entry.hi ?? 1) - (entry.lo ?? 0)) >
+              Math.max(1, (entry.hi ?? 1) - (entry.lo ?? 0)) >
             0.5
           ? "high"
           : "moderate";
@@ -740,16 +818,23 @@ export function offlineLab(tests: LabRow[]): Record<string, unknown> {
       abnormal === 0
         ? `All ${out.length} test value(s) you entered fall within Indian reference ranges. Keep this report for trend comparison.`
         : `${abnormal} of ${out.length} value(s) are outside the common Indian reference ranges. ${
-            severe ? "At least one looks significantly off — a doctor should review this report." : "Most deviations are mild — repeat/confirm with your doctor if symptoms persist."
+            severe
+              ? "At least one looks significantly off — a doctor should review this report."
+              : "Most deviations are mild — repeat/confirm with your doctor if symptoms persist."
           }`,
     abnormalCount: abnormal,
     recommendations:
       abnormal === 0
-        ? ["Maintain the routine — repeat annually or as advised", "Store reports in one place for trends"]
+        ? [
+            "Maintain the routine — repeat annually or as advised",
+            "Store reports in one place for trends",
+          ]
         : [
             "Share this report with a doctor — context (age, symptoms, medicines) changes interpretation",
             "Commonly deficient in India: Vitamin D, B12, iron/Hb — check if flagged low",
-            severe ? "Significant deviations warrant a prompt (days, not months) review" : "Repeat abnormal tests after 4-8 weeks if advised",
+            severe
+              ? "Significant deviations warrant a prompt (days, not months) review"
+              : "Repeat abnormal tests after 4-8 weeks if advised",
           ],
     requiresDoctorFollowUp: abnormal > 0,
     disclaimer: OFFLINE_DISCLAIMER,
@@ -774,11 +859,13 @@ export function offlineDiet(p: {
   medicalConditions?: string;
 }): Record<string, unknown> | null {
   if (!p.age || !p.heightCm || !p.weightKg || !p.calorieTarget) return null;
-  const prefKey = /non.?veg|nonveg|meat|chicken|fish/i.test(String(p.dietaryPreference || "")) && /egg/i.test(String(p.dietaryPreference || "")) === false
-    ? "non-vegetarian"
-    : /egg/i.test(String(p.dietaryPreference || ""))
-      ? "non-vegetarian" // eggetarian maps to the non-veg template (eggs) — vegetarian body used otherwise
-      : "vegetarian";
+  const prefKey =
+    /non.?veg|nonveg|meat|chicken|fish/i.test(String(p.dietaryPreference || "")) &&
+    /egg/i.test(String(p.dietaryPreference || "")) === false
+      ? "non-vegetarian"
+      : /egg/i.test(String(p.dietaryPreference || ""))
+        ? "non-vegetarian" // eggetarian maps to the non-veg template (eggs) — vegetarian body used otherwise
+        : "vegetarian";
   const tpl = DIET_TEMPLATES[prefKey] ?? DIET_TEMPLATES.vegetarian;
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -811,9 +898,13 @@ export function offlineDiet(p: {
   }));
   const allergies = String(p.allergies || "").toLowerCase();
   if (/peanut|nut/.test(allergies))
-    groceryList.forEach((g) => (g.items = g.items.filter((i) => !/peanut|almond|walnut|nut/i.test(i))));
+    groceryList.forEach(
+      (g) => (g.items = g.items.filter((i) => !/peanut|almond|walnut|nut/i.test(i))),
+    );
   if (/milk|dairy|lactose/.test(allergies))
-    groceryList.forEach((g) => (g.items = g.items.filter((i) => !/milk|curd|paneer|dahi/i.test(i))));
+    groceryList.forEach(
+      (g) => (g.items = g.items.filter((i) => !/milk|curd|paneer|dahi/i.test(i))),
+    );
 
   const hydration = clamp(Math.round((p.weightKg * 35) / 100) / 10, 2, 5);
 
@@ -844,7 +935,10 @@ export function offlineAyurveda(answers: unknown[]): Record<string, unknown> | n
     pitta = 0,
     kapha = 0;
   for (const a of answers) {
-    const v = typeof a === "string" ? a.toLowerCase() : String((a as { value?: string })?.value ?? "").toLowerCase();
+    const v =
+      typeof a === "string"
+        ? a.toLowerCase()
+        : String((a as { value?: string })?.value ?? "").toLowerCase();
     if (v.startsWith("a")) vata++;
     else if (v.startsWith("b")) pitta++;
     else if (v.startsWith("c")) kapha++;
@@ -881,12 +975,22 @@ export function offlineAyurveda(answers: unknown[]): Record<string, unknown> | n
 
 export function offlineQuizGenerate(): Record<string, unknown> {
   const seed = Math.floor(Date.now() / 86_400_000); // stable per day
-  const qs: QuizQuestion[] = seededPick(QUIZ_BANK, 10, seed).map((q, i) => ({ ...q, id: `q${i + 1}` }));
+  const qs: QuizQuestion[] = seededPick(QUIZ_BANK, 10, seed).map((q, i) => ({
+    ...q,
+    id: `q${i + 1}`,
+  }));
   return { questions: qs, source: OFFLINE_SOURCE, disclaimer: OFFLINE_NOTE };
 }
 
 export function offlineQuizScore(
-  questions: { id: string; question: string; options: string[]; correctIndex: number; explanation?: string; topic?: string }[],
+  questions: {
+    id: string;
+    question: string;
+    options: string[];
+    correctIndex: number;
+    explanation?: string;
+    topic?: string;
+  }[],
   answers: Record<string, unknown>,
 ): Record<string, unknown> | null {
   if (!Array.isArray(questions) || questions.length === 0) return null;
@@ -935,15 +1039,28 @@ export function offlineWomensCare(
     possibleConditions: hit
       ? hit.conditions
       : [
-          { name: "Cycle-related variation", note: "Many cycle and hormonal complaints shift with stress, sleep and diet" },
-          { name: "Thyroid or iron factors", note: "Both are common in Indian women and easy to test" },
+          {
+            name: "Cycle-related variation",
+            note: "Many cycle and hormonal complaints shift with stress, sleep and diet",
+          },
+          {
+            name: "Thyroid or iron factors",
+            note: "Both are common in Indian women and easy to test",
+          },
         ],
     recommendations: hit
       ? hit.recommendations
-      : ["Track 2 full cycles in a calendar/app before the gynaecologist visit", "Basic panel: CBC (Hb), TSH, fasting sugar"],
+      : [
+          "Track 2 full cycles in a calendar/app before the gynaecologist visit",
+          "Basic panel: CBC (Hb), TSH, fasting sugar",
+        ],
     lifestyleTips: hit
       ? hit.lifestyle
-      : ["Iron + vitamin-C pairing at meals", "Regular sleep-wake times", "45 min movement 5 days a week"],
+      : [
+          "Iron + vitamin-C pairing at meals",
+          "Regular sleep-wake times",
+          "45 min movement 5 days a week",
+        ],
     whenToSeeDoctor:
       "Book a gynaecologist if cycles are irregular 3+ months, bleeding soaks a pad hourly, pain stops daily activity, or a home pregnancy test is positive — early reviews are quick and reassuring.",
     pcosRiskScore: pcosRisk,
@@ -976,7 +1093,8 @@ export function offlineFoodScan(mealType: string): Record<string, unknown> {
       "Sugary drinks → chaas / nimbu-pani (no sugar) / coconut water",
     ],
     indianDish: true,
-    disclaimer: "Offline guidance only — no image was analysed. Values above are general guidance, not an estimate of this plate.",
+    disclaimer:
+      "Offline guidance only — no image was analysed. Values above are general guidance, not an estimate of this plate.",
     source: OFFLINE_SOURCE,
   };
 }
@@ -985,9 +1103,24 @@ export function offlineDermaScan(): Record<string, unknown> {
   return {
     description: `${OFFLINE_NOTE} The image was not analysed. Common patterns worth knowing: itchy ring-like patches with raised edges are often fungal (common in Indian humidity); sudden symmetric rashes often suggest allergy; new moles that change shape/colour/size need review (ABCDE rule).`,
     possibleConditions: [
-      { name: "Fungal skin infection (tinea)", confidence: "Possible", description: "Very common in India — itchy, ring-shaped, spreads with sweat and humidity; needs a proper course, not steroid creams." },
-      { name: "Contact/food allergy rash", confidence: "Possible", description: "Sudden itchy rash after new food, medicine or product; usually settles in days once the trigger stops." },
-      { name: "Acne / folliculitis", confidence: "Less likely", description: "Blocked-oil bumps on face/back; aggravated by humidity, sweat and heavy creams." },
+      {
+        name: "Fungal skin infection (tinea)",
+        confidence: "Possible",
+        description:
+          "Very common in India — itchy, ring-shaped, spreads with sweat and humidity; needs a proper course, not steroid creams.",
+      },
+      {
+        name: "Contact/food allergy rash",
+        confidence: "Possible",
+        description:
+          "Sudden itchy rash after new food, medicine or product; usually settles in days once the trigger stops.",
+      },
+      {
+        name: "Acne / folliculitis",
+        confidence: "Less likely",
+        description:
+          "Blocked-oil bumps on face/back; aggravated by humidity, sweat and heavy creams.",
+      },
     ],
     urgency: "low",
     recommendedActions: [
@@ -1029,7 +1162,8 @@ export function offlineXrayReader(bodyPart: string): Record<string, unknown> {
       "Carry prior X-rays if any, for comparison",
     ],
     requiresRadiologistReview: true,
-    disclaimer: "Offline guidance only — the image was NOT analysed. This is not a radiologist's report.",
+    disclaimer:
+      "Offline guidance only — the image was NOT analysed. This is not a radiologist's report.",
     source: OFFLINE_SOURCE,
   };
 }

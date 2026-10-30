@@ -4,20 +4,48 @@
 import { readFileSync, writeFileSync } from "fs";
 
 const ROUTES = [
-  ["symptoms-checker", ["offlineSymptomsChecker"], "offlineSymptomsChecker(typeof fbBody?.symptoms === \"string\" ? fbBody.symptoms : \"\")"],
-  ["bp-analyzer", ["offlineBp"], "offlineBp(Array.isArray(fbBody?.readings) ? fbBody.readings : [])"],
-  ["diabetes-care", ["offlineDiabetes"], "offlineDiabetes(Number(fbBody?.fastingSugar), Number(fbBody?.postMealSugar), fbBody?.hba1c ? Number(fbBody.hba1c) : undefined)"],
+  [
+    "symptoms-checker",
+    ["offlineSymptomsChecker"],
+    'offlineSymptomsChecker(typeof fbBody?.symptoms === "string" ? fbBody.symptoms : "")',
+  ],
+  [
+    "bp-analyzer",
+    ["offlineBp"],
+    "offlineBp(Array.isArray(fbBody?.readings) ? fbBody.readings : [])",
+  ],
+  [
+    "diabetes-care",
+    ["offlineDiabetes"],
+    "offlineDiabetes(Number(fbBody?.fastingSugar), Number(fbBody?.postMealSugar), fbBody?.hba1c ? Number(fbBody.hba1c) : undefined)",
+  ],
   ["disease-risk", ["offlineDiseaseRisk"], "offlineDiseaseRisk(fbBody)"],
-  ["mental-wellness", ["offlineMentalWellness"], "offlineMentalWellness(fbBody?.phq9, fbBody?.gad7)"],
+  [
+    "mental-wellness",
+    ["offlineMentalWellness"],
+    "offlineMentalWellness(fbBody?.phq9, fbBody?.gad7)",
+  ],
   ["sleep-quality", ["offlineSleep"], "offlineSleep(fbBody)"],
-  ["med-interaction", ["offlineMedInteraction"], "offlineMedInteraction(Array.isArray(fbBody?.medications) ? fbBody.medications : [], Array.isArray(fbBody?.conditions) ? fbBody.conditions : [])"],
+  [
+    "med-interaction",
+    ["offlineMedInteraction"],
+    "offlineMedInteraction(Array.isArray(fbBody?.medications) ? fbBody.medications : [], Array.isArray(fbBody?.conditions) ? fbBody.conditions : [])",
+  ],
   ["lab-analyzer", ["offlineLab"], "offlineLab(Array.isArray(fbBody?.tests) ? fbBody.tests : [])"],
   ["diet-planner", ["offlineDiet"], "offlineDiet(fbBody)"],
-  ["ayurveda", ["offlineAyurveda"], "offlineAyurveda(Array.isArray(fbBody?.answers) ? fbBody.answers : [])"],
-  ["womens-care", ["offlineWomensCare"], "offlineWomensCare(String(fbBody?.concern || \"\"), String(fbBody?.symptoms || \"\"), fbBody)"],
-  ["food-scan", ["offlineFoodScan"], "offlineFoodScan(String(fbBody?.mealType || \"\"))"],
+  [
+    "ayurveda",
+    ["offlineAyurveda"],
+    "offlineAyurveda(Array.isArray(fbBody?.answers) ? fbBody.answers : [])",
+  ],
+  [
+    "womens-care",
+    ["offlineWomensCare"],
+    'offlineWomensCare(String(fbBody?.concern || ""), String(fbBody?.symptoms || ""), fbBody)',
+  ],
+  ["food-scan", ["offlineFoodScan"], 'offlineFoodScan(String(fbBody?.mealType || ""))'],
   ["derma-scan", ["offlineDermaScan"], "offlineDermaScan()"],
-  ["xray-reader", ["offlineXrayReader"], "offlineXrayReader(String(fbBody?.bodyPart || \"\"))"],
+  ["xray-reader", ["offlineXrayReader"], 'offlineXrayReader(String(fbBody?.bodyPart || ""))'],
   ["health-quiz", ["offlineQuizGenerate", "offlineQuizScore"], null], // special-cased: GET + POST
 ];
 
@@ -37,7 +65,10 @@ for (const [tool, fns, call] of ROUTES) {
 
   // 1. add import after the aiGate import line
   const importAnchor = src.indexOf(`from "@/lib/nx/ai-guard";`);
-  if (importAnchor === -1) { console.error(`NO aiGate import in ${tool}`); continue; }
+  if (importAnchor === -1) {
+    console.error(`NO aiGate import in ${tool}`);
+    continue;
+  }
   const eol = src.indexOf("\n", importAnchor);
   const importLine = `\nimport { ${fns.join(", ")} } from "@/lib/kyh/offline-engine";`;
   src = src.slice(0, eol) + importLine + src.slice(eol);
@@ -70,12 +101,21 @@ for (const [tool, fns, call] of ROUTES) {
     // generic: replace the FIRST `return NextResponse.json(` after `} catch (err) {`
     // up to its closing `);` with fallback + original 500 kept as last resort
     const catchIdx = src.indexOf("} catch (err) {");
-    if (catchIdx === -1) { console.error(`NO catch in ${tool}`); continue; }
+    if (catchIdx === -1) {
+      console.error(`NO catch in ${tool}`);
+      continue;
+    }
     const retStart = src.indexOf("return NextResponse.json(", catchIdx);
-    if (retStart === -1) { console.error(`NO 500 return in ${tool}`); continue; }
+    if (retStart === -1) {
+      console.error(`NO 500 return in ${tool}`);
+      continue;
+    }
     const statusIdx = src.indexOf("{ status: 500 }", retStart);
     const closeIdx = src.indexOf(");", statusIdx);
-    if (statusIdx === -1 || closeIdx === -1) { console.error(`NO 500 close in ${tool}`); continue; }
+    if (statusIdx === -1 || closeIdx === -1) {
+      console.error(`NO 500 close in ${tool}`);
+      continue;
+    }
     const originalReturn = src.slice(retStart, closeIdx + 2);
     const replacement = `${FALLBACK_COMMENT}
     const fbBody = await req.clone().json().catch(() => ({}));

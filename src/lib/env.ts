@@ -156,9 +156,7 @@ export function assertProductionEnv(): void {
    * Self-hosted production (no VERCEL) keeps the original hard gate:
    * missing DATABASE_URL or JWT_SECRET still refuses to boot. */
   const redisOptional =
-    packaged ||
-    process.env.VERCEL === "1" ||
-    process.env.NEXURA_REDIS_OPTIONAL === "1";
+    packaged || process.env.VERCEL === "1" || process.env.NEXURA_REDIS_OPTIONAL === "1";
   const serverless = process.env.VERCEL === "1";
 
   const missing: string[] = [];

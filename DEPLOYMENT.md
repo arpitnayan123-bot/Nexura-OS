@@ -64,12 +64,12 @@ git push origin main
 
 In Vercel → Project Settings → Environment Variables, add:
 
-| Variable       | Value                                 | Required |
-| -------------- | ------------------------------------- | -------- |
-| `DATABASE_URL` | `postgresql://user:pass@host:port/db` | Real deployments ✅ — omit for the zero-config demo posture (embedded demo DB) |
+| Variable       | Value                                 | Required                                                                                |
+| -------------- | ------------------------------------- | --------------------------------------------------------------------------------------- |
+| `DATABASE_URL` | `postgresql://user:pass@host:port/db` | Real deployments ✅ — omit for the zero-config demo posture (embedded demo DB)          |
 | `JWT_SECRET`   | Generate with `openssl rand -hex 32`  | Real deployments ✅ — omit for the zero-config demo posture (ephemeral per-boot secret) |
-| `REDIS_URL`    | `redis://default:pass@host:6379`      | Optional (serverless) |
-| `DEMO_MODE`    | `true` on demo deployments            | Optional (auto-`true` in the zero-config demo posture) |
+| `REDIS_URL`    | `redis://default:pass@host:6379`      | Optional (serverless)                                                                   |
+| `DEMO_MODE`    | `true` on demo deployments            | Optional (auto-`true` in the zero-config demo posture)                                  |
 
 **Note:** the server refuses to boot in production without `DATABASE_URL` and
 `JWT_SECRET` — see `assertProductionEnv()` in `src/lib/env.ts`. `REDIS_URL` is
@@ -197,14 +197,14 @@ Add to `package.json`:
 **Read the boot mode first.** Since vercel-deploy-3, a zero-config serverless
 boot no longer dies: it attaches the embedded demo database and mints an
 ephemeral JWT secret, logging both loudly. A 500-everywhere deployment is
-therefore a *different* failure — check Vercel → Project → Functions logs:
+therefore a _different_ failure — check Vercel → Project → Functions logs:
 
 - `production boot gate FAILED` (self-hosted only) — names the missing
   variable exactly: `DATABASE_URL is required`, `DATABASE_URL must be a
-  postgres:// URL`, `JWT_SECRET must be set (>=16 chars)`, `REDIS_URL is
-  required`.
+postgres:// URL`, `JWT_SECRET must be set (>=16 chars)`, `REDIS_URL is
+required`.
 - `CRITICAL: DATABASE_URL is not set and the embedded demo database could
-  not be attached` — the function bundle is missing `db/demo.db` (rebuild —
+not be attached` — the function bundle is missing `db/demo.db` (rebuild —
   `next.config.ts` must trace it via `outputFileTracingIncludes`) or `/tmp`
   was unwritable. The deployment serves but data-backed routes fail.
 - `Prisma Client could not locate the Query Engine` — the build generated a

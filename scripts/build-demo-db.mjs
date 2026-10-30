@@ -44,10 +44,27 @@ function run(cmd, args, env = {}, label = "") {
 const bunBin = process.env.BUN_BIN || "bun";
 
 /* 1 — SQLite client flavor */
-run("node", ["scripts/build-prisma.mjs"], { NEXURA_PRISMA_CLIENT: "sqlite", DEMO_DB_URL: DB_URL }, "generate sqlite client");
+run(
+  "node",
+  ["scripts/build-prisma.mjs"],
+  { NEXURA_PRISMA_CLIENT: "sqlite", DEMO_DB_URL: DB_URL },
+  "generate sqlite client",
+);
 
 /* 2 — schema push */
-run(bunBin, ["node_modules/.bin/prisma", "db", "push", "--schema", "prisma/schema.demo.prisma", "--skip-generate"], { DEMO_DB_URL: DB_URL, DATABASE_URL: DB_URL }, "push schema to db/demo.db");
+run(
+  bunBin,
+  [
+    "node_modules/.bin/prisma",
+    "db",
+    "push",
+    "--schema",
+    "prisma/schema.demo.prisma",
+    "--skip-generate",
+  ],
+  { DEMO_DB_URL: DB_URL, DATABASE_URL: DB_URL },
+  "push schema to db/demo.db",
+);
 
 if (!existsSync(dbPath)) {
   console.error("[demo-db] db/demo.db was not created — aborting.");
@@ -80,10 +97,20 @@ for (const seed of seeds) {
 }
 
 /* 4 — compact */
-run(bunBin, ["-e", `const {Database}=require('bun:sqlite'); const d=new Database(${JSON.stringify(dbPath)}); d.exec('VACUUM'); d.exec('PRAGMA wal_checkpoint(TRUNCATE)'); d.close();`], {}, "vacuum");
+run(
+  bunBin,
+  [
+    "-e",
+    `const {Database}=require('bun:sqlite'); const d=new Database(${JSON.stringify(dbPath)}); d.exec('VACUUM'); d.exec('PRAGMA wal_checkpoint(TRUNCATE)'); d.close();`,
+  ],
+  {},
+  "vacuum",
+);
 
 /* 5 — restore the Postgres client for local development */
 run("node", ["scripts/build-prisma.mjs"], {}, "restore postgres client");
 
 const sizeMb = (statSync(dbPath).size / (1024 * 1024)).toFixed(2);
-console.log(`\n[demo-db] DONE — db/demo.db is ${sizeMb} MB. Commit it so zero-config Vercel deployments boot on it.`);
+console.log(
+  `\n[demo-db] DONE — db/demo.db is ${sizeMb} MB. Commit it so zero-config Vercel deployments boot on it.`,
+);

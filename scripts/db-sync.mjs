@@ -36,7 +36,9 @@ function skip(reason) {
 
 if (!url) skip("DATABASE_URL is not set — building without a runtime database.");
 if (/^prisma\+postgres/i.test(url))
-  skip("DATABASE_URL is a prisma+postgres:// proxy URL — run `prisma db push` against the direct URL once instead.");
+  skip(
+    "DATABASE_URL is a prisma+postgres:// proxy URL — run `prisma db push` against the direct URL once instead.",
+  );
 if (!/^postgres(ql)?:\/\//i.test(url))
   skip("DATABASE_URL is not a postgres:// URL (packaged demo mode uses its own SQLite file).");
 
@@ -48,7 +50,11 @@ const args = existsSync(prismaBin)
   : ["prisma", "db", "push", "--skip-generate", "--accept-data-loss"];
 
 console.log(`[db-sync] syncing Prisma schema to ${url.replace(/:\/\/[^@]*@/, "://***@")} ...`);
-const res = spawnSync(cmd, args, { stdio: "inherit", env: process.env, shell: process.platform === "win32" });
+const res = spawnSync(cmd, args, {
+  stdio: "inherit",
+  env: process.env,
+  shell: process.platform === "win32",
+});
 
 if (res.error || (res.status && res.status !== 0)) {
   console.error(

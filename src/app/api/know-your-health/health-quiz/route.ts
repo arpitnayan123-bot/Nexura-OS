@@ -40,7 +40,7 @@ Rules:
     return NextResponse.json(result);
   } catch (err) {
     log.error("kyh", "quiz_gen_failed", { err: err instanceof Error ? err.message : String(err) });
-        // 10x OFFLINE FALLBACK — the tool must ALWAYS provide an answer.
+    // 10x OFFLINE FALLBACK — the tool must ALWAYS provide an answer.
     // The AI path above is unchanged; this replaces the old bare 500 with a
     // deterministic, India-calibrated guide result when AI is unavailable.
     return NextResponse.json(offlineQuizGenerate());
@@ -88,7 +88,10 @@ export async function POST(req: NextRequest) {
     // 10x OFFLINE FALLBACK — the tool must ALWAYS provide an answer.
     // The scoring path above is unchanged; this replaces the old bare 500
     // with a deterministic local score when AI is unavailable.
-    const fbBody = await req.clone().json().catch(() => ({}));
+    const fbBody = await req
+      .clone()
+      .json()
+      .catch(() => ({}));
     const fb = offlineQuizScore(
       Array.isArray(fbBody?.questions) ? fbBody.questions : [],
       fbBody?.answers && typeof fbBody.answers === "object" ? fbBody.answers : {},

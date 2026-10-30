@@ -61,11 +61,18 @@ Rules:
     log.error("kyh", "womens_care_failed", {
       err: err instanceof Error ? err.message : String(err),
     });
-        // 10x OFFLINE FALLBACK — the tool must ALWAYS provide an answer.
+    // 10x OFFLINE FALLBACK — the tool must ALWAYS provide an answer.
     // The AI path above is unchanged; this replaces the old bare 500 with a
     // deterministic, India-calibrated guide result when AI is unavailable.
-    const fbBody = await req.clone().json().catch(() => ({}));
-    const fb = offlineWomensCare(String(fbBody?.concern || ""), String(fbBody?.symptoms || ""), fbBody);
+    const fbBody = await req
+      .clone()
+      .json()
+      .catch(() => ({}));
+    const fb = offlineWomensCare(
+      String(fbBody?.concern || ""),
+      String(fbBody?.symptoms || ""),
+      fbBody,
+    );
     if (fb) return NextResponse.json(fb);
     return NextResponse.json(
       {
